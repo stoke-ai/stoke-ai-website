@@ -16,24 +16,49 @@ export default function Home() {
   const [error, setError] = useState('');
   const [aiInsight, setAiInsight] = useState('');
 
+  const generateInsight = (business: string): string => {
+    const b = business.toLowerCase();
+    if (b.includes('restaurant') || b.includes('cafe') || b.includes('food') || b.includes('bakery') || b.includes('coffee')) {
+      return "For food service businesses, AI can predict daily demand based on weather and events — reducing waste by 20-30%. Plus, automated messaging can boost repeat visits.";
+    }
+    if (b.includes('retail') || b.includes('store') || b.includes('shop')) {
+      return "Retail businesses are seeing huge wins with AI inventory management and personalized product recommendations — increasing average order value by 15-25%.";
+    }
+    if (b.includes('dental') || b.includes('medical') || b.includes('clinic') || b.includes('health')) {
+      return "Healthcare practices are automating appointment reminders and follow-ups — reducing no-shows by up to 30% and freeing staff for patient care.";
+    }
+    if (b.includes('real estate') || b.includes('realtor')) {
+      return "Real estate pros are using AI to auto-generate listings, qualify leads 24/7, and predict which properties sell fastest. Some save 10+ hours weekly.";
+    }
+    if (b.includes('salon') || b.includes('spa') || b.includes('beauty')) {
+      return "Salons are crushing it with AI booking and rebooking reminders. Some see 25% more appointments just from automated 'time for a touch-up' messages.";
+    }
+    return "Every business has repetitive tasks eating up time — emails, scheduling, follow-ups. AI can handle these automatically, often saving 10-15 hours per week.";
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
     
     try {
-      const res = await fetch('/api/contact', {
+      // Submit to FormSubmit (emails directly to Jeff)
+      const res = await fetch('https://formsubmit.co/ajax/automate@stoke-ai.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          business: formData.business,
+          website: formData.website,
+          message: formData.message,
+        }),
       });
       
       if (!res.ok) throw new Error('Failed to submit');
       
-      const data = await res.json();
-      if (data.insight) {
-        setAiInsight(data.insight);
-      }
+      // Generate insight client-side
+      setAiInsight(generateInsight(formData.business));
       setSubmitted(true);
     } catch {
       setError('Something went wrong. Please try again.');
