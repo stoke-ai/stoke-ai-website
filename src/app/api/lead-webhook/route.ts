@@ -144,3 +144,4 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({ status: 'Lead webhook active', version: '2.0' });
 }
+// Redeploy Tue Feb  3 19:59:05 MST 2026
