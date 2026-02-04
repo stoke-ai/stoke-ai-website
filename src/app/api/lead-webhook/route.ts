@@ -6,9 +6,67 @@ const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_FROM = '+18557915002';
 const VOICE_WEBHOOK = 'https://stoke-ai.com/api/voice/welcome';
 
+// Resend for emails
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
 // Telegram for notifications
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7448321777';
+
+async function sendEmail(to: string, name: string, business: string) {
+  if (!RESEND_API_KEY) {
+    console.error('Missing RESEND_API_KEY');
+    return false;
+  }
+
+  const firstName = name.split(' ')[0] || 'there';
+  
+  const html = `
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+  <p>Hey ${firstName}!</p>
+  
+  <p>Thanks for reaching out about AI for your business. I'm Jeff from Stoke-AI, and I help local businesses in the Magic Valley actually <em>use</em> AI to save time and grow.</p>
+  
+  <p>I'd love to learn more about ${business || 'your business'} and what you're hoping to accomplish. A few quick questions:</p>
+  
+  <ol>
+    <li><strong>What does your business do?</strong> (I want to make sure my suggestions are relevant)</li>
+    <li><strong>What's eating up most of your time right now?</strong></li>
+    <li><strong>Have you tried any AI tools yet?</strong> Or is this all new territory?</li>
+  </ol>
+  
+  <p>Most businesses I work with find <strong>10-15 hours/week</strong> of tasks that AI can handle — things like follow-ups, scheduling, answering common questions, etc.</p>
+  
+  <p>Want to hop on a quick 15-minute call this week? I can share some specific ideas based on what you tell me.</p>
+  
+  <p>Just reply to this email or text me back at the number that just reached out.</p>
+  
+  <p>Talk soon,<br>
+  <strong>Jeff Stoker</strong><br>
+  Stoke-AI<br>
+  <em>The Magic Valley's AI Guy</em></p>
+</div>
+  `.trim();
+
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Jeff from Stoke-AI <jeff@stoke-ai.com>',
+      to: [to],
+      subject: `${firstName} - let's talk AI for ${business || 'your business'} 🔥`,
+      html,
+      reply_to: 'jeff@stoke-ai.com',
+    }),
+  });
+
+  const result = await response.json();
+  console.log('Email result:', result.id || result.message);
+  return response.ok;
+}
 
 async function sendSMS(to: string, name: string) {
   if (!TWILIO_AUTH) {
@@ -16,12 +74,14 @@ async function sendSMS(to: string, name: string) {
     return false;
   }
   
+  const firstName = name.split(' ')[0] || 'there';
+  
   // Format phone number
   let phone = to.replace(/\D/g, '');
   if (phone.length === 10) phone = '1' + phone;
   if (!phone.startsWith('+')) phone = '+' + phone;
   
-  const message = `Hey ${name}! 👋 This is Spark from Stoke-AI. Thanks for reaching out about AI for your business! I just sent you an email with some ideas - check your inbox! Reply here if you have any quick questions. - Jeff's AI assistant`;
+  const message = `Hey ${firstName}! 👋 This is Spark from Stoke-AI. Thanks for reaching out about AI for your business! I just sent you an email with some ideas - check your inbox! Reply here if you have any quick questions. - Jeff's AI assistant`;
   
   const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
     method: 'POST',
@@ -70,19 +130,29 @@ async function makeCall(to: string, name: string) {
   return response.ok;
 }
 
-async function notifyTelegram(name: string, email: string, phone: string, business: string, website: string, message: string, smsOk: boolean, callOk: boolean) {
+async function notifyTelegram(
+  name: string, 
+  email: string, 
+  phone: string, 
+  business: string, 
+  website: string, 
+  message: string, 
+  emailOk: boolean,
+  smsOk: boolean, 
+  callOk: boolean
+) {
   if (!TELEGRAM_BOT_TOKEN) return;
   
   const actions = [];
+  actions.push(emailOk ? '✅ Email sent' : '❌ Email failed');
   if (phone) {
     actions.push(smsOk ? '✅ SMS sent' : '❌ SMS failed');
     actions.push(callOk ? '✅ Voice call triggered' : '❌ Call failed');
   } else {
-    actions.push('📵 No phone provided');
+    actions.push('📵 No phone provided (SMS/call skipped)');
   }
-  actions.push('📧 Send personalized email via gog');
   
-  const text = `🔥 *New Lead from stoke-ai.com!*
+  const text = `🔥 *New Lead - Fully Automated!*
 
 *Name:* ${name}
 *Email:* ${email}
@@ -106,7 +176,6 @@ ${actions.join('\n')}`;
 
 export async function POST(request: NextRequest) {
   try {
-    // FormSubmit sends form data, not JSON
     const contentType = request.headers.get('content-type') || '';
     let data: Record<string, string>;
     
@@ -121,12 +190,17 @@ export async function POST(request: NextRequest) {
     
     console.log('New lead:', { name, email, phone, business });
     
+    let emailOk = false;
     let smsOk = false;
     let callOk = false;
     
+    // Send personalized email first
+    if (email) {
+      emailOk = await sendEmail(email, name || 'there', business || '');
+    }
+    
     // If phone provided, send SMS and make call
     if (phone) {
-      // Send SMS immediately
       smsOk = await sendSMS(phone, name || 'there');
       
       // Small delay then call (2 seconds)
@@ -142,6 +216,7 @@ export async function POST(request: NextRequest) {
       business || 'Not specified',
       website || '',
       message || '',
+      emailOk,
       smsOk,
       callOk
     );
@@ -154,7 +229,5 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  return NextResponse.json({ status: 'Lead webhook active', version: '2.0' });
+  return NextResponse.json({ status: 'Lead webhook active', version: '4.0 - Full automation with Resend' });
 }
-// v3.0 - Direct form submission, no FormSubmit dependency
-// Wed Feb  4 09:24:58 MST 2026
