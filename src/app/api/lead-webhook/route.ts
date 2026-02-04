@@ -70,10 +70,19 @@ async function makeCall(to: string, name: string) {
   return response.ok;
 }
 
-async function notifyTelegram(name: string, email: string, phone: string, business: string, website: string, message: string) {
+async function notifyTelegram(name: string, email: string, phone: string, business: string, website: string, message: string, smsOk: boolean, callOk: boolean) {
   if (!TELEGRAM_BOT_TOKEN) return;
   
-  const text = `🔥 *New Lead - Auto-contacted!*
+  const actions = [];
+  if (phone) {
+    actions.push(smsOk ? '✅ SMS sent' : '❌ SMS failed');
+    actions.push(callOk ? '✅ Voice call triggered' : '❌ Call failed');
+  } else {
+    actions.push('📵 No phone provided');
+  }
+  actions.push('📧 Send personalized email via gog');
+  
+  const text = `🔥 *New Lead from stoke-ai.com!*
 
 *Name:* ${name}
 *Email:* ${email}
@@ -82,9 +91,7 @@ async function notifyTelegram(name: string, email: string, phone: string, busine
 ${website ? `*Website:* ${website}` : ''}
 ${message ? `*Message:* ${message}` : ''}
 
-✅ SMS sent
-✅ Voice call triggered
-📧 Send personalized email via gog`;
+${actions.join('\n')}`;
 
   await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: 'POST',
@@ -114,14 +121,17 @@ export async function POST(request: NextRequest) {
     
     console.log('New lead:', { name, email, phone, business });
     
+    let smsOk = false;
+    let callOk = false;
+    
     // If phone provided, send SMS and make call
     if (phone) {
       // Send SMS immediately
-      await sendSMS(phone, name || 'there');
+      smsOk = await sendSMS(phone, name || 'there');
       
       // Small delay then call (2 seconds)
       await new Promise(resolve => setTimeout(resolve, 2000));
-      await makeCall(phone, name || 'there');
+      callOk = await makeCall(phone, name || 'there');
     }
     
     // Notify Jeff via Telegram
@@ -131,7 +141,9 @@ export async function POST(request: NextRequest) {
       phone || '',
       business || 'Not specified',
       website || '',
-      message || ''
+      message || '',
+      smsOk,
+      callOk
     );
 
     return NextResponse.json({ success: true, message: 'Lead processed' });
@@ -144,4 +156,4 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({ status: 'Lead webhook active', version: '2.0' });
 }
-// Redeploy Tue Feb  3 19:59:05 MST 2026
+// v3.0 - Direct form submission, no FormSubmit dependency

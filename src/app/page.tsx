@@ -43,8 +43,8 @@ export default function Home() {
     setError('');
     
     try {
-      // Submit to FormSubmit (emails directly to Jeff)
-      const res = await fetch('https://formsubmit.co/ajax/automate@stoke-ai.com', {
+      // Submit directly to our webhook (handles email, SMS, call, notifications)
+      const res = await fetch('/api/lead-webhook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
