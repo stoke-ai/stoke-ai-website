@@ -6,20 +6,11 @@ export async function POST(request: NextRequest) {
   const url = new URL(request.url);
   const name = url.searchParams.get('name') || 'there';
   
-  // TwiML response with friendly message
+  // TwiML response - matches SMS style
   const twiml = `<?xml version="1.0" encoding="UTF-8"?>
 <Response>
   <Say voice="Polly.Matthew">
-    Hey ${name}! This is Spark, Jeff's AI assistant at Stoke AI.
-  </Say>
-  <Pause length="1"/>
-  <Say voice="Polly.Matthew">
-    Thanks for reaching out about your business. Jeff got your message and will be in touch soon. 
-    In the meantime, check your email for some ideas we put together just for you.
-  </Say>
-  <Pause length="1"/>
-  <Say voice="Polly.Matthew">
-    Talk soon! Bye for now.
+    Hey ${name}! This is Spark from Stoke AI. Just sent you an email with some ideas for your business. Check your inbox! Talk soon, bye!
   </Say>
 </Response>`;
 
