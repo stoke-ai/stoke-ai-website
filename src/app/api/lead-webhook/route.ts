@@ -157,3 +157,4 @@ export async function GET() {
   return NextResponse.json({ status: 'Lead webhook active', version: '2.0' });
 }
 // v3.0 - Direct form submission, no FormSubmit dependency
+// Wed Feb  4 09:24:58 MST 2026
