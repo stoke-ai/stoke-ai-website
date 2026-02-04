@@ -7,6 +7,7 @@ export default function Home() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    phone: '',
     business: '',
     website: '',
     message: '',
@@ -49,6 +50,7 @@ export default function Home() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          phone: formData.phone,
           business: formData.business,
           website: formData.website,
           message: formData.message,
@@ -420,6 +422,13 @@ export default function Home() {
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      />
+                      <input
+                        type="tel"
+                        placeholder="Phone (optional — for faster follow-up!)"
+                        className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       />
                       <input
                         type="text"
