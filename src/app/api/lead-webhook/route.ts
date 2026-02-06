@@ -42,11 +42,9 @@ async function sendEmail(to: string, name: string, business: string) {
   <p>Just reply to this email or text me back at the number that just reached out.</p>
   
   <p>Talk soon,<br>
-  <strong>Jeff Stoker</strong><br>
-  Stoke-AI<br>
-  <em>The Magic Valley's AI Guy</em></p>
+  <strong>Jeff Stoker</strong></p>
   
-  <p style="margin-top: 20px;">
+  <p style="margin-top: 10px;">
     <a href="https://stoke-ai.com" style="text-decoration: none;">
       <img src="https://stoke-ai.com/stoke-ai-logo.jpg" alt="Stoke-AI - Igniting Intelligence" style="max-width: 250px; height: auto;" />
     </a>
