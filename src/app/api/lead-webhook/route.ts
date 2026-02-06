@@ -13,7 +13,7 @@ const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7448321777';
 
-async function sendEmail(to: string, name: string, business: string) {
+async function sendEmail(to: string, name: string, business: string, painPoint: string) {
   if (!RESEND_API_KEY) {
     console.error('Missing RESEND_API_KEY');
     return false;
@@ -21,23 +21,36 @@ async function sendEmail(to: string, name: string, business: string) {
 
   const firstName = name.split(' ')[0] || 'there';
   
+  // Build pain point specific paragraph
+  let painPointResponse = '';
+  if (painPoint) {
+    const painPointLower = painPoint.toLowerCase();
+    if (painPointLower.includes('same questions')) {
+      painPointResponse = `<p>You mentioned you're spending time <strong>answering the same questions over and over</strong>. This is one of the easiest wins with AI — we can set up an assistant that handles FAQs automatically via your website, text, or email. Most businesses save 5-10 hours/week just on this alone.</p>`;
+    } else if (painPointLower.includes('scheduling') || painPointLower.includes('appointment')) {
+      painPointResponse = `<p>You mentioned <strong>scheduling and appointments</strong> are eating your time. AI-powered booking systems can handle this completely — confirmations, reminders, rescheduling, even follow-ups. No more phone tag or double-bookings.</p>`;
+    } else if (painPointLower.includes('leads') || painPointLower.includes('cold') || painPointLower.includes('follow')) {
+      painPointResponse = `<p>You mentioned <strong>following up with leads who go cold</strong>. This is huge — studies show 80% of sales need 5+ follow-ups, but most people stop after 1-2. AI can handle personalized follow-up sequences automatically, so no lead slips through the cracks.</p>`;
+    } else if (painPointLower.includes('review') || painPointLower.includes('social')) {
+      painPointResponse = `<p>You mentioned <strong>keeping up with reviews and social media</strong>. AI can monitor and draft responses to reviews, suggest social content, and even auto-respond to common DMs. It's like having a social media assistant working 24/7.</p>`;
+    } else if (painPointLower.includes('invoice') || painPointLower.includes('payment') || painPointLower.includes('chasing')) {
+      painPointResponse = `<p>You mentioned <strong>chasing payments and invoices</strong>. Automated reminder sequences (friendly but persistent) can dramatically improve collection rates without the awkward conversations. AI can even personalize the timing and tone based on each client's history.</p>`;
+    } else {
+      painPointResponse = `<p>You mentioned <strong>"${painPoint}"</strong> is taking up your time. I'd love to dig into this — there's likely an AI solution that can help, and I want to make sure we find the right fit for your specific situation.</p>`;
+    }
+  }
+  
   const html = `
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
   <p>Hey ${firstName}!</p>
   
-  <p>Thanks for reaching out about AI for your business. I'm Jeff from Stoke-AI, and I help local businesses in the Magic Valley actually <em>use</em> AI to save time and grow.</p>
+  <p>Thanks for reaching out about AI for ${business || 'your business'}. I'm Jeff from Stoke-AI, and I help local businesses in the Magic Valley actually <em>use</em> AI to save time and grow.</p>
   
-  <p>I'd love to learn more about ${business || 'your business'} and what you're hoping to accomplish. A few quick questions:</p>
+  ${painPointResponse}
   
-  <ol>
-    <li><strong>What does your business do?</strong> (I want to make sure my suggestions are relevant)</li>
-    <li><strong>What's eating up most of your time right now?</strong></li>
-    <li><strong>Have you tried any AI tools yet?</strong> Or is this all new territory?</li>
-  </ol>
+  <p>Most businesses I work with find <strong>10-15 hours/week</strong> of tasks that AI can handle. The key is finding the right starting point for YOUR business.</p>
   
-  <p>Most businesses I work with find <strong>10-15 hours/week</strong> of tasks that AI can handle — things like follow-ups, scheduling, answering common questions, etc.</p>
-  
-  <p>Want to hop on a quick 15-minute call this week? I can share some specific ideas based on what you tell me.</p>
+  <p>Want to hop on a quick 15-minute call this week? I can share some specific ideas tailored to what you're dealing with.</p>
   
   <p>Just reply to this email or text me back at the number that just reached out.</p>
   
@@ -139,7 +152,8 @@ async function notifyTelegram(
   email: string, 
   phone: string, 
   business: string, 
-  website: string, 
+  website: string,
+  painPoint: string,
   message: string, 
   emailOk: boolean,
   smsOk: boolean, 
@@ -162,6 +176,7 @@ async function notifyTelegram(
 *Email:* ${email}
 *Phone:* ${phone || 'Not provided'}
 *Business:* ${business}
+*Pain Point:* ${painPoint || 'Not specified'}
 ${website ? `*Website:* ${website}` : ''}
 ${message ? `*Message:* ${message}` : ''}
 
@@ -190,9 +205,9 @@ export async function POST(request: NextRequest) {
       data = Object.fromEntries(formData.entries()) as Record<string, string>;
     }
     
-    const { name, email, phone, business, website, message } = data;
+    const { name, email, phone, business, website, painPoint, message } = data;
     
-    console.log('New lead:', { name, email, phone, business });
+    console.log('New lead:', { name, email, phone, business, painPoint });
     
     let emailOk = false;
     let smsOk = false;
@@ -200,7 +215,7 @@ export async function POST(request: NextRequest) {
     
     // Send personalized email first
     if (email) {
-      emailOk = await sendEmail(email, name || 'there', business || '');
+      emailOk = await sendEmail(email, name || 'there', business || '', painPoint || '');
     }
     
     // If phone provided, send SMS and make call
@@ -219,6 +234,7 @@ export async function POST(request: NextRequest) {
       phone || '',
       business || 'Not specified',
       website || '',
+      painPoint || '',
       message || '',
       emailOk,
       smsOk,
