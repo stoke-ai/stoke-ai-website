@@ -10,6 +10,8 @@ export default function Home() {
     phone: '',
     business: '',
     website: '',
+    painPoint: '',
+    painPointOther: '',
     message: '',
   });
   const [submitted, setSubmitted] = useState(false);
@@ -53,6 +55,7 @@ export default function Home() {
           phone: formData.phone,
           business: formData.business,
           website: formData.website,
+          painPoint: formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint,
           message: formData.message,
         }),
       });
@@ -438,6 +441,30 @@ export default function Home() {
                         value={formData.business}
                         onChange={(e) => setFormData({ ...formData, business: e.target.value })}
                       />
+                      <select
+                        required
+                        className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400"
+                        value={formData.painPoint}
+                        onChange={(e) => setFormData({ ...formData, painPoint: e.target.value })}
+                      >
+                        <option value="" disabled>What task eats up most of your time?</option>
+                        <option value="Answering the same questions over and over">Answering the same questions over and over</option>
+                        <option value="Scheduling & managing appointments">Scheduling & managing appointments</option>
+                        <option value="Following up with leads who go cold">Following up with leads who go cold</option>
+                        <option value="Keeping up with reviews & social media">Keeping up with reviews & social media</option>
+                        <option value="Chasing invoices & payment reminders">Chasing invoices & payment reminders</option>
+                        <option value="other">Other</option>
+                      </select>
+                      {formData.painPoint === 'other' && (
+                        <input
+                          type="text"
+                          placeholder="Tell us what's eating your time..."
+                          required
+                          className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
+                          value={formData.painPointOther}
+                          onChange={(e) => setFormData({ ...formData, painPointOther: e.target.value })}
+                        />
+                      )}
                       <input
                         type="url"
                         placeholder="Website URL (optional — we'll analyze it!)"
