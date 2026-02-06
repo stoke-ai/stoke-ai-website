@@ -21,22 +21,34 @@ async function sendEmail(to: string, name: string, business: string, painPoint: 
 
   const firstName = name.split(' ')[0] || 'there';
   
-  // Build pain point specific paragraph
-  let painPointResponse = '';
+  // Build response based on their AI experience level
+  let aiExperienceResponse = '';
   if (painPoint) {
-    const painPointLower = painPoint.toLowerCase();
-    if (painPointLower.includes('same questions')) {
-      painPointResponse = `<p>You mentioned you're spending time <strong>answering the same questions over and over</strong>. This is one of the easiest wins with AI — we can set up an assistant that handles FAQs automatically via your website, text, or email. Most businesses save 5-10 hours/week just on this alone.</p>`;
-    } else if (painPointLower.includes('scheduling') || painPointLower.includes('appointment')) {
-      painPointResponse = `<p>You mentioned <strong>scheduling and appointments</strong> are eating your time. AI-powered booking systems can handle this completely — confirmations, reminders, rescheduling, even follow-ups. No more phone tag or double-bookings.</p>`;
-    } else if (painPointLower.includes('leads') || painPointLower.includes('cold') || painPointLower.includes('follow')) {
-      painPointResponse = `<p>You mentioned <strong>following up with leads who go cold</strong>. This is huge — studies show 80% of sales need 5+ follow-ups, but most people stop after 1-2. AI can handle personalized follow-up sequences automatically, so no lead slips through the cracks.</p>`;
-    } else if (painPointLower.includes('review') || painPointLower.includes('social')) {
-      painPointResponse = `<p>You mentioned <strong>keeping up with reviews and social media</strong>. AI can monitor and draft responses to reviews, suggest social content, and even auto-respond to common DMs. It's like having a social media assistant working 24/7.</p>`;
-    } else if (painPointLower.includes('invoice') || painPointLower.includes('payment') || painPointLower.includes('chasing')) {
-      painPointResponse = `<p>You mentioned <strong>chasing payments and invoices</strong>. Automated reminder sequences (friendly but persistent) can dramatically improve collection rates without the awkward conversations. AI can even personalize the timing and tone based on each client's history.</p>`;
+    const level = painPoint.toLowerCase();
+    if (level.includes("haven't started")) {
+      aiExperienceResponse = `<p>You mentioned you <strong>haven't started with AI yet</strong> — perfect timing. Most businesses I work with start with one simple win: automating the task that eats the most time. Could be follow-ups, scheduling, answering the same questions... Once you see AI handle that automatically, everything clicks.</p>
+      <p>Here's what that first win usually looks like: imagine every lead getting a personalized response within 60 seconds, 24/7. Or every appointment confirmed and reminded automatically. That's not futuristic — that's what I set up for businesses right now.</p>`;
+    } else if (level.includes('chatgpt') || level.includes('writing')) {
+      aiExperienceResponse = `<p>You mentioned you're <strong>using ChatGPT for writing and ideas</strong> — that's where everyone starts, and it's a great foundation. But here's what most people don't realize: ChatGPT is just the tip of the iceberg.</p>
+      <p>The real magic happens when AI <em>runs things for you</em> — not just helps you write. Imagine leads getting instant personalized responses. Follow-ups happening automatically. Your calendar managing itself. That's what "AI for business" actually looks like when it's set up right.</p>`;
+    } else if (level.includes('tried') || level.includes('nothing stuck')) {
+      aiExperienceResponse = `<p>You mentioned you've <strong>tried some tools but nothing stuck</strong> — I hear this constantly. Here's the thing: the problem usually isn't the tools. It's that nobody showed you how to connect them to YOUR specific workflow.</p>
+      <p>Most AI tools are powerful but generic. What works is building something tailored to how YOU actually run your business. That's what I help with — finding the right pieces and making them work together seamlessly.</p>`;
+    } else if (level.includes('automations running')) {
+      aiExperienceResponse = `<p>You mentioned you <strong>already have some automations running</strong> — nice! You're ahead of most. The question now is: what's the next level?</p>
+      <p>Usually it's about connecting the pieces — making your automations smarter, adding AI decision-making, or finding the gaps where manual work is still slowing you down. I'd love to hear what you've got running and brainstorm what's next.</p>`;
+    } else if (level.includes("not sure what's possible")) {
+      aiExperienceResponse = `<p>You said you're <strong>not sure what's possible</strong> — that's exactly why I do this. Let me give you a taste:</p>
+      <ul style="margin: 10px 0; padding-left: 20px;">
+        <li>An AI assistant that answers customer questions 24/7 (in YOUR voice)</li>
+        <li>Leads getting personalized follow-ups automatically — for weeks if needed</li>
+        <li>Your calendar, reminders, and scheduling running on autopilot</li>
+        <li>Review responses drafted and ready to post</li>
+        <li>Data entry and reporting that used to take hours — done in seconds</li>
+      </ul>
+      <p>And that's just the common stuff. The real fun is figuring out what's unique to YOUR business.</p>`;
     } else {
-      painPointResponse = `<p>You mentioned <strong>"${painPoint}"</strong> is taking up your time. I'd love to dig into this — there's likely an AI solution that can help, and I want to make sure we find the right fit for your specific situation.</p>`;
+      aiExperienceResponse = `<p>You mentioned: <strong>"${painPoint}"</strong> — I'd love to dig into this more and see how AI might help with your specific situation.</p>`;
     }
   }
   
@@ -46,7 +58,7 @@ async function sendEmail(to: string, name: string, business: string, painPoint: 
   
   <p>Thanks for reaching out about AI for ${business || 'your business'}. I'm Jeff from Stoke-AI, and I help local businesses in the Magic Valley actually <em>use</em> AI to save time and grow.</p>
   
-  ${painPointResponse}
+  ${aiExperienceResponse}
   
   <p>Most businesses I work with find <strong>10-15 hours/week</strong> of tasks that AI can handle. The key is finding the right starting point for YOUR business.</p>
   
@@ -176,7 +188,7 @@ async function notifyTelegram(
 *Email:* ${email}
 *Phone:* ${phone || 'Not provided'}
 *Business:* ${business}
-*Pain Point:* ${painPoint || 'Not specified'}
+*AI Experience:* ${painPoint || 'Not specified'}
 ${website ? `*Website:* ${website}` : ''}
 ${message ? `*Message:* ${message}` : ''}
 
