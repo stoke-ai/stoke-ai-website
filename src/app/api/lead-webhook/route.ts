@@ -45,6 +45,12 @@ async function sendEmail(to: string, name: string, business: string) {
   <strong>Jeff Stoker</strong><br>
   Stoke-AI<br>
   <em>The Magic Valley's AI Guy</em></p>
+  
+  <p style="margin-top: 20px;">
+    <a href="https://stoke-ai.com" style="text-decoration: none;">
+      <img src="https://stoke-ai.com/stoke-ai-logo.jpg" alt="Stoke-AI - Igniting Intelligence" style="max-width: 250px; height: auto;" />
+    </a>
+  </p>
 </div>
   `.trim();
 
