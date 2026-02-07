@@ -444,16 +444,16 @@ export default function Home() {
                   </div>
                 ))}
               </div>
-              <div className="mt-10 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl">
-                <p className="text-lg text-gray-300">
-                  <span className="text-orange-400 font-bold">This is proof, not a pitch.</span>
+              <div className="mt-10 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl text-center">
+                <p className="text-lg">
+                  <span className="text-orange-400 font-bold">No coding. No technical skills.</span>
                   <br />
-                  <span className="text-gray-400">Everything you see here — this website, the automations, the follow-ups — was built by Stoke-AI&apos;s AI assistant, Spark. No coding. No technical skills. Just plain English conversations.</span>
+                  <span className="text-gray-400">Just plain English conversations — that&apos;s how all of this was built.</span>
+                </p>
+                <p className="mt-4 text-xl text-white font-bold">
+                  Your assistant will do the same for you.
                 </p>
               </div>
-              <p className="mt-6 text-xl text-white font-bold">
-                Your assistant will do the same for you.
-              </p>
             </div>
           </div>
         </section>
