@@ -464,27 +464,30 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-black mb-6">
               What&apos;s <span className="text-orange-400">not</span> having an AI assistant costing you?
             </h2>
-            <div className="grid md:grid-cols-2 gap-4 text-left mb-8">
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
-                <div className="text-2xl mb-2">💰</div>
-                <div className="text-white font-medium">$40,000–$80,000/year</div>
-                <div className="text-gray-500 text-sm">for a full-time employee to do what AI handles for free</div>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
-                <div className="text-2xl mb-2">👨‍👩‍👧‍👦</div>
-                <div className="text-white font-medium">Time with your family</div>
-                <div className="text-gray-500 text-sm">while you answer emails at 10pm</div>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
-                <div className="text-2xl mb-2">🎿</div>
-                <div className="text-white font-medium">Powder days at Pomerelle</div>
-                <div className="text-gray-500 text-sm">because you&apos;re stuck catching up on follow-ups</div>
-              </div>
-              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
-                <div className="text-2xl mb-2">🚤</div>
-                <div className="text-white font-medium">Summers on the Snake River</div>
-                <div className="text-gray-500 text-sm">while your inbox runs your life</div>
-              </div>
+            <div className="grid md:grid-cols-2 gap-5 text-left mb-8">
+              {[
+                { icon: '/icon-money.webp', title: '$40,000–$80,000/year', desc: 'for a full-time employee to do what AI handles' },
+                { icon: '/icon-family.webp', title: 'Time with your family', desc: 'while you answer emails at 10pm' },
+                { icon: '/icon-skiing.webp', title: 'Powder days at Pomerelle', desc: 'because you\'re stuck catching up on follow-ups' },
+                { icon: '/icon-boating.webp', title: 'Summers on the Snake River', desc: 'while your inbox runs your life' },
+              ].map((item, i) => (
+                <div key={i} className="relative bg-gray-900/50 border border-gray-800 hover:border-orange-500/50 rounded-2xl p-6 transition-all duration-300 group overflow-hidden">
+                  <div className="absolute top-4 left-4 w-16 h-16 bg-orange-500/20 rounded-full blur-xl group-hover:bg-orange-500/30 transition-all" />
+                  <div className="relative flex gap-4 items-start">
+                    <Image 
+                      src={item.icon} 
+                      alt={item.title}
+                      width={56}
+                      height={56}
+                      className="rounded-xl group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <div>
+                      <div className="text-white font-medium">{item.title}</div>
+                      <div className="text-gray-500 text-sm">{item.desc}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
             <p className="text-xl text-gray-400">
               You didn&apos;t start a business to be <span className="text-white">buried in busywork</span>.
