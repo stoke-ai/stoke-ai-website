@@ -113,10 +113,16 @@ export default function Home() {
                   runs you.
                 </span>
               </h1>
-              <p className="text-xl text-gray-400 max-w-xl mb-8 leading-relaxed">
+              <p className="text-xl text-gray-400 max-w-xl mb-6 leading-relaxed">
                 Phone ringing. Emails piling up. Everyone needs something from you. 
                 You didn&apos;t start a business to be buried in busywork.
                 <span className="text-white font-medium"> Let&apos;s flip that.</span>
+              </p>
+              <p className="text-lg text-gray-500 max-w-xl mb-8">
+                <span className="text-orange-400">Never</span> calls in sick. 
+                <span className="text-orange-400">Never</span> asks for a raise. 
+                <span className="text-orange-400">Never</span> quits on you. 
+                <span className="text-orange-400">Never</span> forgets a follow-up.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
@@ -262,12 +268,26 @@ export default function Home() {
               </div>
             </div>
             
-            <div className="mt-8 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl text-center">
-              <p className="text-gray-300 text-lg">
+            <div className="mt-8 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl">
+              <p className="text-gray-300 text-lg text-center mb-4">
                 <span className="text-orange-400 font-bold">This isn&apos;t maintenance — it&apos;s membership.</span>
                 <br />
                 <span className="text-gray-400">Every upgrade, every feature, every improvement — you get it all.</span>
               </p>
+              <div className="grid md:grid-cols-3 gap-4 mt-6 text-sm">
+                <div className="text-center p-3 bg-black/30 rounded-xl">
+                  <div className="text-gray-400">While you&apos;re <span className="text-white">closing deals</span></div>
+                  <div className="text-orange-400 font-medium">It&apos;s sending follow-ups</div>
+                </div>
+                <div className="text-center p-3 bg-black/30 rounded-xl">
+                  <div className="text-gray-400">While you&apos;re <span className="text-white">sleeping</span></div>
+                  <div className="text-orange-400 font-medium">It&apos;s nurturing leads</div>
+                </div>
+                <div className="text-center p-3 bg-black/30 rounded-xl">
+                  <div className="text-gray-400">While you&apos;re <span className="text-white">at your kid&apos;s game</span></div>
+                  <div className="text-orange-400 font-medium">It&apos;s drafting content</div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
