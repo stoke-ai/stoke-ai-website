@@ -449,7 +449,9 @@ export default function Home() {
                 <p className="text-lg text-gray-300">
                   <span className="text-orange-400 font-bold">This is proof, not a pitch.</span>
                   <br />
-                  <span className="text-gray-400">Everything you see here was built and is run by Spark. Your assistant will do the same for your business.</span>
+                  <span className="text-gray-400">Everything you see here — this website, the automations, the follow-ups — was built by Stoke-AI&apos;s AI assistant, Spark. No coding. No technical skills. Just plain English conversations.</span>
+                  <br />
+                  <span className="text-gray-500 text-sm mt-2 block">Your assistant will do the same for your business.</span>
                 </p>
               </div>
             </div>
