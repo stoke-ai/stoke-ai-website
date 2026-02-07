@@ -458,6 +458,42 @@ export default function Home() {
           </div>
         </section>
 
+        {/* Cost of NOT Having AI Section */}
+        <section className="container mx-auto px-6 py-20">
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-black mb-6">
+              What&apos;s <span className="text-orange-400">not</span> having an AI assistant costing you?
+            </h2>
+            <div className="grid md:grid-cols-2 gap-4 text-left mb-8">
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
+                <div className="text-2xl mb-2">💰</div>
+                <div className="text-white font-medium">$40,000–$80,000/year</div>
+                <div className="text-gray-500 text-sm">for a full-time employee to do what AI handles for free</div>
+              </div>
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
+                <div className="text-2xl mb-2">👨‍👩‍👧‍👦</div>
+                <div className="text-white font-medium">Time with your family</div>
+                <div className="text-gray-500 text-sm">while you answer emails at 10pm</div>
+              </div>
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
+                <div className="text-2xl mb-2">🎿</div>
+                <div className="text-white font-medium">Powder days at Pomerelle</div>
+                <div className="text-gray-500 text-sm">because you&apos;re stuck catching up on follow-ups</div>
+              </div>
+              <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-5">
+                <div className="text-2xl mb-2">🚤</div>
+                <div className="text-white font-medium">Summers on the Snake River</div>
+                <div className="text-gray-500 text-sm">while your inbox runs your life</div>
+              </div>
+            </div>
+            <p className="text-xl text-gray-400">
+              You didn&apos;t start a business to be <span className="text-white">buried in busywork</span>.
+              <br />
+              <span className="text-gray-500">You started it to live better.</span>
+            </p>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section id="contact" className="container mx-auto px-6 py-20 md:py-32">
           <div className="max-w-4xl mx-auto">
