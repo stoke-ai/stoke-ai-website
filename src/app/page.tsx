@@ -216,7 +216,7 @@ export default function Home() {
 
         {/* Features Grid */}
         <section className="container mx-auto px-6 pb-20">
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-4 gap-6">
             {[
               { icon: '/icon-followups.webp', title: 'Follow-ups', desc: 'Never forget a lead again' },
               { icon: '/icon-content.webp', title: 'Content', desc: 'Posts, emails, drafts on demand' },
@@ -225,17 +225,30 @@ export default function Home() {
             ].map((item, i) => (
               <div 
                 key={i}
-                className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 hover:border-orange-500/30 p-6 rounded-2xl transition-all hover:transform hover:scale-105 group"
+                className="relative bg-gradient-to-br from-gray-900/80 to-black border border-gray-800 hover:border-orange-500/50 p-8 rounded-3xl transition-all duration-300 hover:transform hover:scale-105 hover:-translate-y-1 group overflow-hidden"
               >
-                <Image 
-                  src={item.icon} 
-                  alt={item.title}
-                  width={64}
-                  height={64}
-                  className="mb-3 group-hover:scale-110 transition-transform rounded-xl"
-                />
-                <div className="font-bold text-white mb-1">{item.title}</div>
-                <div className="text-sm text-gray-500">{item.desc}</div>
+                {/* Glow effect behind icon */}
+                <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-24 bg-orange-500/20 rounded-full blur-2xl group-hover:bg-orange-500/30 transition-all" />
+                
+                {/* Icon */}
+                <div className="relative flex justify-center mb-4">
+                  <Image 
+                    src={item.icon} 
+                    alt={item.title}
+                    width={80}
+                    height={80}
+                    className="group-hover:scale-110 transition-transform duration-300 rounded-2xl"
+                  />
+                </div>
+                
+                {/* Text */}
+                <div className="relative text-center">
+                  <div className="font-bold text-white text-lg mb-2">{item.title}</div>
+                  <div className="text-sm text-gray-400">{item.desc}</div>
+                </div>
+                
+                {/* Bottom accent line */}
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500 group-hover:w-1/2 transition-all duration-300 rounded-full" />
               </div>
             ))}
           </div>
