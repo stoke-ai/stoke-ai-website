@@ -419,7 +419,6 @@ export default function Home() {
               <p className="text-gray-400 text-lg leading-relaxed mb-8">
                 Spark handles my follow-ups, drafts my content, manages my calendar, and runs my automations 24/7. 
                 This isn&apos;t a demo of what&apos;s <em>possible</em> — it&apos;s what I use every single day.
-                <span className="text-white font-medium"> Your assistant will do the same for you.</span>
               </p>
               <div className="grid md:grid-cols-3 gap-6">
                 {[
@@ -450,10 +449,11 @@ export default function Home() {
                   <span className="text-orange-400 font-bold">This is proof, not a pitch.</span>
                   <br />
                   <span className="text-gray-400">Everything you see here — this website, the automations, the follow-ups — was built by Stoke-AI&apos;s AI assistant, Spark. No coding. No technical skills. Just plain English conversations.</span>
-                  <br />
-                  <span className="text-gray-500 text-sm mt-2 block">Your assistant will do the same for your business.</span>
                 </p>
               </div>
+              <p className="mt-6 text-xl text-white font-bold">
+                Your assistant will do the same for you.
+              </p>
             </div>
           </div>
         </section>
