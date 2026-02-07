@@ -104,45 +104,45 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <div className="inline-block mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
-                <span className="text-orange-400 text-sm font-medium">🔥 AI consulting that actually makes sense</span>
+                <span className="text-orange-400 text-sm font-medium">🔥 Your own AI assistant — not just another tool</span>
               </div>
               <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
-                Stop guessing.
+                Your business
                 <br />
                 <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 bg-clip-text text-transparent">
-                  Start growing.
+                  runs you.
                 </span>
               </h1>
               <p className="text-xl text-gray-400 max-w-xl mb-8 leading-relaxed">
-                Your business is unique. Your AI strategy should be too. 
-                We help small businesses in the Magic Valley cut through the hype 
-                and actually <span className="text-white font-medium">use AI to grow</span>.
+                Phone ringing. Emails piling up. Everyone needs something from you. 
+                You didn&apos;t start a business to be buried in busywork.
+                <span className="text-white font-medium"> Let&apos;s flip that.</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
                   href="#contact"
                   className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
                 >
-                  Let&apos;s Talk
+                  See What&apos;s Possible
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                   </svg>
                 </a>
                 <a
-                  href="#how"
+                  href="#what-you-get"
                   className="inline-flex items-center justify-center border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-4 px-8 rounded-full text-lg transition-all hover:bg-orange-500/5"
                 >
-                  See How It Works
+                  What You Get
                 </a>
               </div>
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-3xl blur-3xl" />
               <Image
-                src="/hero-image.webp"
-                alt="Business owner using AI"
-                width={600}
-                height={400}
+                src="/hero-overwhelmed.png"
+                alt="Overwhelmed business owner looking at phone"
+                width={700}
+                height={467}
                 className="relative rounded-3xl border border-gray-800 shadow-2xl"
               />
             </div>
@@ -154,16 +154,16 @@ export default function Home() {
           <div className="container mx-auto px-6 py-8">
             <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-center">
               <div>
+                <div className="text-3xl font-black text-orange-400">24/7</div>
+                <div className="text-gray-500 text-sm">Your Assistant Never Sleeps</div>
+              </div>
+              <div>
                 <div className="text-3xl font-black text-orange-400">Local</div>
-                <div className="text-gray-500 text-sm">The Magic Valley</div>
+                <div className="text-gray-500 text-sm">The Magic Valley, Idaho</div>
               </div>
               <div>
-                <div className="text-3xl font-black text-orange-400">1:1</div>
-                <div className="text-gray-500 text-sm">Personal Consulting</div>
-              </div>
-              <div>
-                <div className="text-3xl font-black text-orange-400">Real</div>
-                <div className="text-gray-500 text-sm">Results, Not Buzzwords</div>
+                <div className="text-3xl font-black text-orange-400">Yours</div>
+                <div className="text-gray-500 text-sm">Dedicated System, Not Shared</div>
               </div>
             </div>
           </div>
@@ -186,20 +186,21 @@ export default function Home() {
             </div>
             <div className="order-1 md:order-2">
               <h2 className="text-3xl md:text-4xl font-black mb-6">
-                AI is everywhere.
+                Not another app.
                 <br />
-                <span className="text-gray-500">Clarity isn&apos;t.</span>
+                <span className="text-gray-500">Your own AI assistant.</span>
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                Everyone&apos;s talking about AI. ChatGPT this, automation that. 
-                But when you actually try to figure out what it means for 
-                <em> your </em> business? It&apos;s a mess.
+                ChatGPT is great for questions. But you don&apos;t need a chatbot — 
+                you need someone who handles the follow-ups, drafts the emails, 
+                remembers your clients, and <em>actually gets things done</em>.
               </p>
               <p className="text-gray-400 text-lg leading-relaxed">
-                You don&apos;t need another tool. You need someone who gets 
-                <span className="text-white"> your business</span>, speaks 
-                <span className="text-white"> your language</span>, and shows you exactly 
-                what&apos;s worth your time.
+                We build you a 
+                <span className="text-white"> dedicated AI assistant</span> that knows 
+                <span className="text-white"> your business</span>, runs 
+                <span className="text-white"> 24/7</span>, and handles the repetitive 
+                stuff so you can focus on what you do best.
               </p>
             </div>
           </div>
@@ -209,10 +210,10 @@ export default function Home() {
         <section className="container mx-auto px-6 pb-20">
           <div className="grid md:grid-cols-4 gap-4">
             {[
-              { icon: '🎯', title: 'Tailored', desc: 'Built for YOUR business' },
-              { icon: '💬', title: 'Plain Talk', desc: 'No tech jargon' },
-              { icon: '🤝', title: 'Personal', desc: 'Not a faceless agency' },
-              { icon: '📍', title: 'Local', desc: 'Your neighbor in the Magic Valley' },
+              { icon: '📧', title: 'Follow-ups', desc: 'Never forget a lead again' },
+              { icon: '📝', title: 'Content', desc: 'Posts, emails, drafts on demand' },
+              { icon: '📅', title: 'Scheduling', desc: 'Reminders and coordination' },
+              { icon: '🔄', title: 'Automation', desc: 'Repetitive tasks handled' },
             ].map((item, i) => (
               <div 
                 key={i}
@@ -223,6 +224,51 @@ export default function Home() {
                 <div className="text-sm text-gray-500">{item.desc}</div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* What You Get Section */}
+        <section id="what-you-get" className="container mx-auto px-6 py-20 md:py-32">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-black mb-4">
+                What you actually get.
+              </h2>
+              <p className="text-gray-400 text-lg">
+                Not a subscription to another app. A dedicated system built for your business.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
+                <div className="text-2xl mb-3">🖥️</div>
+                <div className="font-bold text-white text-lg mb-2">Your Own System</div>
+                <p className="text-gray-400">A dedicated AI assistant running 24/7 on hardware we set up for you. Not shared. Not a chatbot. Yours.</p>
+              </div>
+              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
+                <div className="text-2xl mb-3">📱</div>
+                <div className="font-bold text-white text-lg mb-2">Text It Like a Team Member</div>
+                <p className="text-gray-400">Message your assistant from your phone. Ask it to draft emails, check your calendar, follow up with leads — and it does it.</p>
+              </div>
+              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
+                <div className="text-2xl mb-3">🔄</div>
+                <div className="font-bold text-white text-lg mb-2">Automations That Run</div>
+                <p className="text-gray-400">Drip campaigns, follow-up sequences, morning briefings, content calendars — set it once, it runs forever.</p>
+              </div>
+              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
+                <div className="text-2xl mb-3">📈</div>
+                <div className="font-bold text-white text-lg mb-2">It Keeps Getting Better</div>
+                <p className="text-gray-400">New AI models drop? You get them. New features we build for other clients? You get those too. Your assistant evolves.</p>
+              </div>
+            </div>
+            
+            <div className="mt-8 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl text-center">
+              <p className="text-gray-300 text-lg">
+                <span className="text-orange-400 font-bold">This isn&apos;t maintenance — it&apos;s membership.</span>
+                <br />
+                <span className="text-gray-400">Every upgrade, every feature, every improvement — you get it all.</span>
+              </p>
+            </div>
           </div>
         </section>
 
@@ -310,36 +356,36 @@ export default function Home() {
           <div className="container mx-auto px-6 py-16">
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-block mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
-                <span className="text-orange-400 text-sm font-medium">🤖 Full Transparency</span>
+                <span className="text-orange-400 text-sm font-medium">🤖 See It In Action</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-black mb-6">
                 This entire business runs on AI.
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-8">
-                The website you&apos;re looking at? Built by AI. The email you&apos;ll receive? 
-                Written by AI. The follow-up, the scheduling, the analysis — all handled by 
-                <span className="text-orange-400 font-semibold"> Spark</span>, my AI assistant. 
-                Zero employees. Zero overhead. Just results.
+                The email you&apos;re about to receive? Written by 
+                <span className="text-orange-400 font-semibold"> Spark</span>, my AI assistant.
+                The follow-up text? Spark. The website analysis? Spark. 
+                I built exactly what I&apos;m offering you — and I use it every day.
               </p>
               <div className="grid md:grid-cols-3 gap-6 text-left">
                 <div className="bg-black/30 border border-gray-800 rounded-xl p-5">
-                  <div className="text-2xl mb-2">🌐</div>
-                  <div className="font-bold text-white mb-1">Website</div>
-                  <div className="text-sm text-gray-500">Designed and coded by AI in one afternoon</div>
+                  <div className="text-2xl mb-2">📧</div>
+                  <div className="font-bold text-white mb-1">Instant Response</div>
+                  <div className="text-sm text-gray-500">Submit the form below and watch — you&apos;ll get a personalized email in minutes</div>
                 </div>
                 <div className="bg-black/30 border border-gray-800 rounded-xl p-5">
-                  <div className="text-2xl mb-2">📧</div>
-                  <div className="font-bold text-white mb-1">Emails</div>
-                  <div className="text-sm text-gray-500">Personalized responses generated instantly</div>
+                  <div className="text-2xl mb-2">📱</div>
+                  <div className="font-bold text-white mb-1">Text Follow-up</div>
+                  <div className="text-sm text-gray-500">Include your phone number and Spark will text you too</div>
                 </div>
                 <div className="bg-black/30 border border-gray-800 rounded-xl p-5">
                   <div className="text-2xl mb-2">🔍</div>
-                  <div className="font-bold text-white mb-1">Analysis</div>
-                  <div className="text-sm text-gray-500">Your business scanned and insights delivered</div>
+                  <div className="font-bold text-white mb-1">Website Analysis</div>
+                  <div className="text-sm text-gray-500">Drop your URL and get AI-generated insights about your business</div>
                 </div>
               </div>
-              <p className="text-gray-500 mt-8 text-sm">
-                This is what I help businesses build. Want to see what it could look like for you?
+              <p className="text-white mt-8 text-lg font-medium">
+                This is what your assistant could do for you.
               </p>
             </div>
           </div>
