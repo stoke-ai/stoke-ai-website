@@ -123,6 +123,8 @@ export default function Home() {
                 <span className="text-orange-400">Never</span> asks for a raise. 
                 <span className="text-orange-400">Never</span> quits on you. 
                 <span className="text-orange-400">Never</span> forgets a follow-up.
+                <br />
+                <span className="text-gray-600 text-sm italic">(Okay, it might take a break during a power outage. It&apos;s not magic.)</span>
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
