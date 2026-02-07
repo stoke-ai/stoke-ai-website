@@ -218,16 +218,22 @@ export default function Home() {
         <section className="container mx-auto px-6 pb-20">
           <div className="grid md:grid-cols-4 gap-4">
             {[
-              { icon: '📧', title: 'Follow-ups', desc: 'Never forget a lead again' },
-              { icon: '📝', title: 'Content', desc: 'Posts, emails, drafts on demand' },
-              { icon: '📅', title: 'Scheduling', desc: 'Reminders and coordination' },
-              { icon: '🔄', title: 'Automation', desc: 'Repetitive tasks handled' },
+              { icon: '/icon-followups.webp', title: 'Follow-ups', desc: 'Never forget a lead again' },
+              { icon: '/icon-content.webp', title: 'Content', desc: 'Posts, emails, drafts on demand' },
+              { icon: '/icon-scheduling.webp', title: 'Scheduling', desc: 'Reminders and coordination' },
+              { icon: '/icon-automation.webp', title: 'Automation', desc: 'Repetitive tasks handled' },
             ].map((item, i) => (
               <div 
                 key={i}
                 className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 hover:border-orange-500/30 p-6 rounded-2xl transition-all hover:transform hover:scale-105 group"
               >
-                <div className="text-3xl mb-3 group-hover:scale-110 transition-transform">{item.icon}</div>
+                <Image 
+                  src={item.icon} 
+                  alt={item.title}
+                  width={64}
+                  height={64}
+                  className="mb-3 group-hover:scale-110 transition-transform rounded-xl"
+                />
                 <div className="font-bold text-white mb-1">{item.title}</div>
                 <div className="text-sm text-gray-500">{item.desc}</div>
               </div>
