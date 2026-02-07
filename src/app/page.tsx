@@ -408,37 +408,50 @@ export default function Home() {
           <div className="container mx-auto px-6 py-16">
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-block mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
-                <span className="text-orange-400 text-sm font-medium">🤖 See It In Action</span>
+                <span className="text-orange-400 text-sm font-medium">⚡ Live Demo — Right Now</span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-black mb-6">
-                This entire business runs on AI.
+              <h2 className="text-3xl md:text-4xl font-black mb-4">
+                Meet <span className="text-orange-400">Spark</span> — my AI assistant.
               </h2>
+              <p className="text-xl text-gray-300 mb-2">
+                She built this website. She wrote the email you&apos;re about to receive.
+              </p>
               <p className="text-gray-400 text-lg leading-relaxed mb-8">
-                The email you&apos;re about to receive? Written by 
-                <span className="text-orange-400 font-semibold"> Spark</span>, my AI assistant.
-                The follow-up text? Spark. The website analysis? Spark. 
-                I built exactly what I&apos;m offering you — and I use it every day.
+                Spark handles my follow-ups, drafts my content, manages my calendar, and runs my automations 24/7. 
+                This isn&apos;t a demo of what&apos;s <em>possible</em> — it&apos;s what I use every single day.
+                <span className="text-white font-medium"> Your assistant will do the same for you.</span>
               </p>
-              <div className="grid md:grid-cols-3 gap-6 text-left">
-                <div className="bg-black/30 border border-gray-800 rounded-xl p-5">
-                  <div className="text-2xl mb-2">📧</div>
-                  <div className="font-bold text-white mb-1">Instant Response</div>
-                  <div className="text-sm text-gray-500">Submit the form below and watch — you&apos;ll get a personalized email in minutes</div>
-                </div>
-                <div className="bg-black/30 border border-gray-800 rounded-xl p-5">
-                  <div className="text-2xl mb-2">📱</div>
-                  <div className="font-bold text-white mb-1">Text Follow-up</div>
-                  <div className="text-sm text-gray-500">Include your phone number and Spark will text you too</div>
-                </div>
-                <div className="bg-black/30 border border-gray-800 rounded-xl p-5">
-                  <div className="text-2xl mb-2">🔍</div>
-                  <div className="font-bold text-white mb-1">Website Analysis</div>
-                  <div className="text-sm text-gray-500">Drop your URL and get AI-generated insights about your business</div>
-                </div>
+              <div className="grid md:grid-cols-3 gap-6">
+                {[
+                  { icon: '/icon-instant.webp', title: 'Instant Response', desc: 'Submit the form below — Spark will send you a personalized email in minutes' },
+                  { icon: '/icon-text.webp', title: 'Text Follow-up', desc: 'Include your phone and Spark will text you too — just like she does for my leads' },
+                  { icon: '/icon-analyze.webp', title: 'Website Analysis', desc: 'Drop your URL and get AI-generated insights about your business' },
+                ].map((item, i) => (
+                  <div key={i} className="relative bg-black/50 border border-gray-800 hover:border-orange-500/50 rounded-2xl p-6 transition-all duration-300 hover:transform hover:scale-105 group overflow-hidden text-left">
+                    {/* Glow effect */}
+                    <div className="absolute top-4 left-4 w-16 h-16 bg-orange-500/20 rounded-full blur-xl group-hover:bg-orange-500/30 transition-all" />
+                    
+                    <div className="relative">
+                      <Image 
+                        src={item.icon} 
+                        alt={item.title}
+                        width={56}
+                        height={56}
+                        className="mb-4 group-hover:scale-110 transition-transform duration-300 rounded-xl"
+                      />
+                      <div className="font-bold text-white mb-2">{item.title}</div>
+                      <div className="text-sm text-gray-400">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <p className="text-white mt-8 text-lg font-medium">
-                This is what your assistant could do for you.
-              </p>
+              <div className="mt-10 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl">
+                <p className="text-lg text-gray-300">
+                  <span className="text-orange-400 font-bold">This is proof, not a pitch.</span>
+                  <br />
+                  <span className="text-gray-400">Everything you see here was built and is run by Spark. Your assistant will do the same for your business.</span>
+                </p>
+              </div>
             </div>
           </div>
         </section>
