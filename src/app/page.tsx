@@ -267,26 +267,37 @@ export default function Home() {
             </div>
             
             <div className="grid md:grid-cols-2 gap-6">
-              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
-                <div className="text-2xl mb-3">🖥️</div>
-                <div className="font-bold text-white text-lg mb-2">Your Own System</div>
-                <p className="text-gray-400">A dedicated AI assistant running 24/7 on hardware we set up for you. Not shared. Not a chatbot. Yours.</p>
-              </div>
-              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
-                <div className="text-2xl mb-3">📱</div>
-                <div className="font-bold text-white text-lg mb-2">Text It Like a Team Member</div>
-                <p className="text-gray-400">Message your assistant from your phone. Ask it to draft emails, check your calendar, follow up with leads — and it does it.</p>
-              </div>
-              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
-                <div className="text-2xl mb-3">🔄</div>
-                <div className="font-bold text-white text-lg mb-2">Automations That Run</div>
-                <p className="text-gray-400">Drip campaigns, follow-up sequences, morning briefings, content calendars — set it once, it runs forever.</p>
-              </div>
-              <div className="bg-gradient-to-br from-gray-900 to-gray-900/50 border border-gray-800 p-6 rounded-2xl">
-                <div className="text-2xl mb-3">📈</div>
-                <div className="font-bold text-white text-lg mb-2">It Keeps Getting Better</div>
-                <p className="text-gray-400">New AI models drop? You get them. New features we build for other clients? You get those too. Your assistant evolves.</p>
-              </div>
+              {[
+                { icon: '/icon-system.webp', title: 'Your Own System', desc: 'A dedicated AI assistant running 24/7 on hardware we set up for you. Not shared. Not a chatbot. Yours.' },
+                { icon: '/icon-chat.webp', title: 'Text It Like a Team Member', desc: 'Message your assistant from your phone. Ask it to draft emails, check your calendar, follow up with leads — and it does it.' },
+                { icon: '/icon-running.webp', title: 'Automations That Run', desc: 'Drip campaigns, follow-up sequences, morning briefings, content calendars — set it once, it runs forever.' },
+                { icon: '/icon-growth.webp', title: 'It Keeps Getting Better', desc: 'New AI models drop? You get them. New features we build for other clients? You get those too. Your assistant evolves.' },
+              ].map((item, i) => (
+                <div key={i} className="relative bg-gradient-to-br from-gray-900/80 to-black border border-gray-800 hover:border-orange-500/50 p-8 rounded-3xl transition-all duration-300 hover:transform hover:scale-[1.02] group overflow-hidden">
+                  {/* Glow effect */}
+                  <div className="absolute top-6 left-6 w-20 h-20 bg-orange-500/20 rounded-full blur-2xl group-hover:bg-orange-500/30 transition-all" />
+                  
+                  {/* Content */}
+                  <div className="relative flex gap-5">
+                    <div className="shrink-0">
+                      <Image 
+                        src={item.icon} 
+                        alt={item.title}
+                        width={72}
+                        height={72}
+                        className="group-hover:scale-110 transition-transform duration-300 rounded-2xl"
+                      />
+                    </div>
+                    <div>
+                      <div className="font-bold text-white text-lg mb-2">{item.title}</div>
+                      <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Bottom accent */}
+                  <div className="absolute bottom-0 left-0 w-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500 group-hover:w-full transition-all duration-500" />
+                </div>
+              ))}
             </div>
             
             <div className="mt-8 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl">
