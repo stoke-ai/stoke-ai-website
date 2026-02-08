@@ -102,7 +102,7 @@ export default function Home() {
         {/* Hero */}
         <header className="container mx-auto px-6 py-12 md:py-20">
           <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div>
+            <div className="order-2 md:order-1">
               <div className="inline-block mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
                 <span className="text-orange-400 text-sm font-medium">🔥 Your own AI assistant — not just another tool</span>
               </div>
@@ -144,7 +144,7 @@ export default function Home() {
                 </a>
               </div>
             </div>
-            <div className="relative">
+            <div className="relative order-1 md:order-2">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-3xl blur-3xl" />
               <Image
                 src="/hero-overwhelmed.png"
