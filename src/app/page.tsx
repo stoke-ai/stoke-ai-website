@@ -87,8 +87,8 @@ export default function Home() {
           <Image
             src="/logo.png"
             alt="Stoke-AI"
-            width={180}
-            height={60}
+            width={500}
+            height={170}
             priority
           />
           <a
@@ -655,8 +655,8 @@ export default function Home() {
             <Image
               src="/logo.png"
               alt="Stoke-AI"
-              width={120}
-              height={40}
+              width={350}
+              height={120}
             />
             <p className="text-gray-500 text-sm">
               © {new Date().getFullYear()} Stoke-AI · The Magic Valley, Idaho
