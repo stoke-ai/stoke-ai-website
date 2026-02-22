@@ -86,7 +86,7 @@ export default function Home() {
         <nav className="container mx-auto px-6 py-6 flex justify-between items-center">
           <Image
             src="/logo.png"
-            alt="Stoke-AI"
+            alt="Stoke-AI - Operating Intelligence"
             width={500}
             height={170}
             priority
@@ -95,7 +95,7 @@ export default function Home() {
             href="#contact"
             className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-3 px-6 rounded-full transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
           >
-            Get Started
+            Get Your Free Assessment
           </a>
         </nav>
 
@@ -107,40 +107,34 @@ export default function Home() {
                 <span className="text-orange-400 text-sm font-medium">🔥 Your own AI assistant — not just another tool</span>
               </div>
               <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
-                Your business
+                Most business owners
                 <br />
                 <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 bg-clip-text text-transparent">
-                  runs you.
+                  have no idea
                 </span>
               </h1>
-              <p className="text-xl text-gray-400 max-w-xl mb-6 leading-relaxed">
-                Phone ringing. Emails piling up. Everyone needs something from you. 
-                You didn&apos;t start a business to be buried in busywork.
-                <span className="text-white font-medium"> Let&apos;s flip that.</span>
-              </p>
-              <p className="text-lg text-gray-500 max-w-xl mb-8">
-                <span className="text-orange-400">Never</span> calls in sick. 
-                <span className="text-orange-400">Never</span> asks for a raise. 
-                <span className="text-orange-400">Never</span> quits on you. 
-                <span className="text-orange-400">Never</span> forgets a follow-up.
-                <br />
-                <span className="text-gray-600 text-sm italic">(Okay, it might take a break during a power outage. It&apos;s not magic.)</span>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-300">
+                how their day actually breaks down.
+              </h2>
+              <p className="text-xl text-gray-400 max-w-xl mb-8 leading-relaxed">
+                We&apos;ll show you — for free. A 20-minute call that maps exactly where your time goes, 
+                what&apos;s automatable, and what genuinely needs you.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="#contact"
+                  href="tel:+18557915002"
                   className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
                 >
-                  See What&apos;s Possible
+                  Call (855) 791-5002
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                   </svg>
                 </a>
                 <a
-                  href="#what-you-get"
+                  href="#assessment"
                   className="inline-flex items-center justify-center border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-4 px-8 rounded-full text-lg transition-all hover:bg-orange-500/5"
                 >
-                  What You Get
+                  Learn More
                 </a>
               </div>
             </div>
@@ -176,6 +170,86 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Operating Assessment Section */}
+        <section id="assessment" className="container mx-auto px-6 py-20 md:py-32">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-black mb-4">
+                See exactly where your time goes.
+              </h2>
+              <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                Our Operating Assessment is a 20-minute call where we walk through your typical day and map out what&apos;s eating your time.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              {[
+                { icon: '/icon-automation.webp', title: 'Fully Automatable', desc: 'Tasks that need zero human judgment — scheduling, reminders, follow-ups, data entry' },
+                { icon: '/icon-content.webp', title: 'AI-Assisted', desc: 'You guide, AI executes — drafting emails, creating content, research, proposals' },
+                { icon: '/icon-running.webp', title: 'Human-Only', desc: 'What genuinely requires you — closing deals, strategy, relationships, creative work' },
+              ].map((item, i) => (
+                <div key={i} className="relative bg-gradient-to-br from-gray-900/80 to-black border border-gray-800 hover:border-orange-500/50 p-8 rounded-3xl transition-all duration-300 group text-center">
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-orange-500/20 rounded-full blur-2xl group-hover:bg-orange-500/30 transition-all" />
+                  <div className="relative">
+                    <Image 
+                      src={item.icon} 
+                      alt={item.title}
+                      width={72}
+                      height={72}
+                      className="mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 rounded-2xl"
+                    />
+                    <div className="font-bold text-white text-lg mb-2">{item.title}</div>
+                    <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/30 border border-gray-800 rounded-3xl p-8 md:p-12 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                You&apos;ll get a detailed report showing:
+              </h3>
+              <div className="grid md:grid-cols-2 gap-4 mb-8 text-left">
+                {[
+                  'How much time you could recover each week',
+                  'A clear roadmap for what to automate first',
+                  'Which tasks are costing you the most money',
+                  'Specific tools and strategies for your business',
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className="shrink-0 w-6 h-6 bg-orange-500/20 rounded-full flex items-center justify-center mt-1">
+                      <svg className="w-3 h-3 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                    <span className="text-gray-300">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xl text-gray-400 mb-8">
+                <span className="text-white font-bold">No sales pitch. No pressure.</span> Just clarity.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="tel:+18557915002"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
+                >
+                  <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  Call (855) 791-5002
+                </a>
+                <a
+                  href="#contact"
+                  className="inline-flex items-center justify-center border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-4 px-8 rounded-full text-lg transition-all hover:bg-orange-500/5"
+                >
+                  Or Send a Message
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Problem/Solution Section */}
         <section className="container mx-auto px-6 py-20 md:py-32">
@@ -408,17 +482,17 @@ export default function Home() {
           <div className="container mx-auto px-6 py-16">
             <div className="max-w-4xl mx-auto text-center">
               <div className="inline-block mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
-                <span className="text-orange-400 text-sm font-medium">⚡ Live Demo — Right Now</span>
+                <span className="text-orange-400 text-sm font-medium">⚡ Proof of Concept — See It in Action</span>
               </div>
               <h2 className="text-3xl md:text-4xl font-black mb-4">
                 Meet <span className="text-orange-400">Spark</span> — my AI assistant.
               </h2>
               <p className="text-xl text-gray-300 mb-2">
-                She built this website. She wrote the email you&apos;re about to receive.
+                This is what YOUR assistant will do for you, but tailored to your business.
               </p>
               <p className="text-gray-400 text-lg leading-relaxed mb-8">
-                Spark handles my follow-ups, drafts my content, manages my calendar, and runs my automations 24/7. 
-                This isn&apos;t a demo of what&apos;s <em>possible</em> — it&apos;s what I use every single day.
+                Spark built this website. She drafts my emails, manages leads, handles follow-ups, and runs automations 24/7. 
+                Everything you see here is what she does for <em>my</em> business — imagine her doing the same for yours.
               </p>
               <div className="grid md:grid-cols-3 gap-6">
                 {[
@@ -654,7 +728,7 @@ export default function Home() {
           <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
             <Image
               src="/logo.png"
-              alt="Stoke-AI"
+              alt="Stoke-AI - Operating Intelligence"
               width={350}
               height={120}
             />
