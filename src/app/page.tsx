@@ -22,24 +22,24 @@ export default function Home() {
   const generateInsight = (business: string): string => {
     const b = business.toLowerCase();
     if (b.includes('restaurant') || b.includes('cafe') || b.includes('food') || b.includes('bakery') || b.includes('coffee')) {
-      return "For food service businesses, an operating system can handle inventory alerts, staff scheduling, and customer re-engagement automatically — freeing you to focus on food and service.";
+      return "Restaurant owners tell us they lose 10+ hours a week on scheduling, inventory, and follow-ups alone. Those are exactly the tasks an operating system handles automatically.";
     }
     if (b.includes('retail') || b.includes('store') || b.includes('shop')) {
-      return "Retail businesses benefit from automated inventory tracking, customer follow-ups, and smart reordering — reducing stockouts and boosting repeat business.";
+      return "Retail owners we've talked to spend hours on inventory tracking, reordering, and customer follow-ups. An operating system handles all of that in the background while you focus on customers.";
     }
     if (b.includes('dental') || b.includes('medical') || b.includes('clinic') || b.includes('health')) {
-      return "Healthcare practices see huge wins from automated appointment reminders, patient follow-ups, and chart prep — reducing no-shows and admin burden.";
+      return "Medical practices lose massive time to appointment reminders, patient follow-ups, and chart prep. An operating system cuts no-shows and admin burden dramatically.";
     }
     if (b.includes('real estate') || b.includes('realtor')) {
-      return "Real estate pros use operating systems to auto-qualify leads, schedule showings, and send market updates — staying top-of-mind without manual work.";
+      return "Realtors we work with were spending hours qualifying leads and sending follow-ups. Their operating system now handles that 24/7 — they just show up to closings.";
     }
     if (b.includes('salon') || b.includes('spa') || b.includes('beauty')) {
-      return "Salons see big wins from automated booking confirmations, rebooking reminders, and product reorder alerts — keeping the chair full and inventory stocked.";
+      return "Salon owners tell us rebooking reminders and no-show follow-ups eat up their week. An operating system keeps the chair full without you chasing people down.";
     }
     if (b.includes('insurance') || b.includes('agent')) {
-      return "Insurance agencies benefit from automated renewal reminders, lead follow-up sequences, and client touchpoint campaigns — never missing a renewal or opportunity.";
+      return "Insurance agents we work with were drowning in renewal prep — 60+ hours a month of manual comparisons. Their operating system now pre-analyzes everything before the client walks in.";
     }
-    return "Every business has repetitive tasks eating up time — follow-ups, scheduling, reminders, content creation. An operating system handles these automatically, often recovering 10-15 hours per week.";
+    return "Every business owner we talk to has the same problem — they're spending hours on repetitive tasks instead of the work that actually grows the business. That's exactly what we fix.";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,7 +96,7 @@ export default function Home() {
             href="#contact"
             className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-3 px-6 rounded-full transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
           >
-            Get Your Free Assessment
+            Free Assessment
           </a>
         </nav>
 
@@ -105,45 +105,50 @@ export default function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="order-2 md:order-1">
               <div className="inline-block mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
-                <span className="text-orange-400 text-sm font-medium">🔥 An Operating System — not just another tool</span>
+                <span className="text-orange-400 text-sm font-medium">Built by a business owner, for business owners</span>
               </div>
               <h1 className="text-5xl md:text-6xl font-black mb-6 leading-tight">
-                Your Business Needs an
+                Stop Working
                 <br />
                 <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 bg-clip-text text-transparent">
-                  Operating System
+                  IN Your Business.
+                </span>
+                <br />
+                Let AI Run It
+                <br />
+                <span className="bg-gradient-to-r from-orange-400 via-amber-400 to-orange-500 bg-clip-text text-transparent">
+                  FOR You.
                 </span>
               </h1>
-              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-gray-300">
-                Not more software.
-              </h2>
               <p className="text-xl text-gray-400 max-w-xl mb-8 leading-relaxed">
-                SAIOS runs your business 24/7 — handling follow-ups, scheduling, client communication, 
-                and content creation while you focus on closing deals and strategy.
+                After 20 years of running businesses, we built the AI operating system 
+                we wish we had — one that handles the busywork 24/7 so you can focus 
+                on what actually makes you money.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <a
-                  href="tel:+18557915002"
+                  href="#contact"
                   className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
                 >
-                  Call (855) 791-5002
+                  Talk to Spark Now
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </a>
                 <a
-                  href="#assessment"
+                  href="#how"
                   className="inline-flex items-center justify-center border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-4 px-8 rounded-full text-lg transition-all hover:bg-orange-500/5"
                 >
-                  Learn More
+                  See How It Works
                 </a>
+                <p className="text-gray-500 text-sm mt-2">Our AI will analyze your workflow and show you where you&apos;re losing time. No sales pitch. No pressure.</p>
               </div>
             </div>
             <div className="relative order-1 md:order-2">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-3xl blur-3xl" />
               <Image
                 src="/hero-overwhelmed.png"
-                alt="Business owner managing multiple tasks"
+                alt="Business owner overwhelmed with paperwork"
                 width={700}
                 height={467}
                 className="relative rounded-3xl border border-gray-800 shadow-2xl"
@@ -157,12 +162,12 @@ export default function Home() {
           <div className="container mx-auto px-6 py-8">
             <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-center">
               <div>
-                <div className="text-3xl font-black text-orange-400">24/7</div>
-                <div className="text-gray-500 text-sm">Always Running</div>
+                <div className="text-3xl font-black text-orange-400">60+ hrs</div>
+                <div className="text-gray-500 text-sm">Recovered Per Month</div>
               </div>
               <div>
-                <div className="text-3xl font-black text-orange-400">Custom</div>
-                <div className="text-gray-500 text-sm">Built For Your Business</div>
+                <div className="text-3xl font-black text-orange-400">24/7</div>
+                <div className="text-gray-500 text-sm">Runs While You Sleep</div>
               </div>
               <div>
                 <div className="text-3xl font-black text-orange-400">Local</div>
@@ -172,88 +177,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Operating Assessment Section */}
-        <section id="assessment" className="container mx-auto px-6 py-20 md:py-32">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-5xl font-black mb-4">
-                We Map Your Operations First
-              </h2>
-              <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-                Before we build anything, we interview you about your business — workflows, pain points, 
-                what you do all day. Then SAIOS is custom-built around how YOU actually work.
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-6 mb-12">
-              {[
-                { icon: '/icon-automation.webp', title: 'Fully Automatable', desc: 'Tasks that need zero human judgment — scheduling, reminders, follow-ups, data entry' },
-                { icon: '/icon-content.webp', title: 'AI-Assisted', desc: 'You guide, SAIOS executes — drafting emails, creating content, research, proposals' },
-                { icon: '/icon-running.webp', title: 'Human-Only', desc: 'What genuinely requires you — closing deals, strategy, relationships, creative decisions' },
-              ].map((item, i) => (
-                <div key={i} className="relative bg-gradient-to-br from-gray-900/80 to-black border border-gray-800 hover:border-orange-500/50 p-8 rounded-3xl transition-all duration-300 group text-center">
-                  <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-orange-500/20 rounded-full blur-2xl group-hover:bg-orange-500/30 transition-all" />
-                  <div className="relative">
-                    <Image 
-                      src={item.icon} 
-                      alt={item.title}
-                      width={72}
-                      height={72}
-                      className="mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 rounded-2xl"
-                    />
-                    <div className="font-bold text-white text-lg mb-2">{item.title}</div>
-                    <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/30 border border-gray-800 rounded-3xl p-8 md:p-12 text-center">
-              <h3 className="text-2xl md:text-3xl font-bold mb-4">
-                Your Free Operating Assessment shows you:
-              </h3>
-              <div className="grid md:grid-cols-2 gap-4 mb-8 text-left">
-                {[
-                  'How much time you could recover each week',
-                  'What can run automatically vs. what needs you',
-                  'Which tasks are costing you the most money',
-                  'A custom roadmap for your SAIOS build',
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3">
-                    <div className="shrink-0 w-6 h-6 bg-orange-500/20 rounded-full flex items-center justify-center mt-1">
-                      <svg className="w-3 h-3 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                      </svg>
-                    </div>
-                    <span className="text-gray-300">{item}</span>
-                  </div>
-                ))}
-              </div>
-              <p className="text-xl text-gray-400 mb-8">
-                <span className="text-white font-bold">No sales pitch. No pressure.</span> Just clarity.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="tel:+18557915002"
-                  className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
-                >
-                  <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                  Call (855) 791-5002
-                </a>
-                <a
-                  href="#contact"
-                  className="inline-flex items-center justify-center border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-4 px-8 rounded-full text-lg transition-all hover:bg-orange-500/5"
-                >
-                  Or Send a Message
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Problem/Solution Section */}
+        {/* The Real Problem Section */}
         <section className="container mx-auto px-6 py-20 md:py-32">
           <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-center">
             <div className="order-2 md:order-1">
@@ -261,7 +185,7 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-orange-500/10 rounded-3xl blur-2xl" />
                 <Image
                   src="/abstract-ai.webp"
-                  alt="Operating system visualization"
+                  alt="Business operations running smoothly"
                   width={500}
                   height={400}
                   className="relative rounded-3xl border border-gray-800"
@@ -270,31 +194,103 @@ export default function Home() {
             </div>
             <div className="order-1 md:order-2">
               <h2 className="text-3xl md:text-4xl font-black mb-6">
-                Not a Chatbot.
-                <br />
-                <span className="text-gray-500">An Operating System.</span>
+                You know the feeling.
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                ChatGPT is great for questions. But your business doesn&apos;t need another app to check — 
-                it needs a system that runs operations automatically. Follow-ups, scheduling, client communication, 
-                content creation.
+                A client calls about their renewal and you haven&apos;t had time to review it. 
+                A lead came in last week and nobody followed up. Your desk is buried in paperwork 
+                that should have been done yesterday.
               </p>
-              <p className="text-gray-400 text-lg leading-relaxed">
-                SAIOS handles the repetitive work 24/7 while you focus on what actually grows the business — 
-                closing deals, building relationships, making strategic decisions.
+              <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                You&apos;re great at what you do — selling, advising, building relationships. 
+                But the operational stuff is eating you alive. And hiring another person 
+                at $50K+/year just to keep up with admin work doesn&apos;t pencil out.
+              </p>
+              <p className="text-white text-lg leading-relaxed font-medium">
+                What if the busywork just... handled itself?
               </p>
             </div>
           </div>
         </section>
 
-        {/* What SAIOS Does Grid */}
-        <section className="container mx-auto px-6 pb-20">
+        {/* Real Results Section */}
+        <section className="border-y border-gray-800 bg-gradient-to-r from-orange-950/20 via-black to-orange-950/20">
+          <div className="container mx-auto px-6 py-16">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-black mb-4">
+                  This is what it looks like
+                  <br />
+                  <span className="text-orange-400">when it&apos;s working.</span>
+                </h2>
+              </div>
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="bg-black/50 border border-gray-800 rounded-2xl p-8">
+                  <div className="text-red-400/80 text-sm font-semibold mb-4 uppercase tracking-wider">Before</div>
+                  <ul className="space-y-4 text-gray-400">
+                    <li className="flex items-start gap-3">
+                      <span className="text-red-400/60 mt-1">✕</span>
+                      <span>60 hours/month manually comparing renewal documents line by line</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-red-400/60 mt-1">✕</span>
+                      <span>Clients blindsiding you with questions you weren&apos;t prepared for</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-red-400/60 mt-1">✕</span>
+                      <span>4 appointments to handle what should take 1</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-red-400/60 mt-1">✕</span>
+                      <span>Losing clients because you couldn&apos;t get in front of them fast enough</span>
+                    </li>
+                  </ul>
+                </div>
+                <div className="bg-black/50 border border-orange-500/30 rounded-2xl p-8">
+                  <div className="text-orange-400 text-sm font-semibold mb-4 uppercase tracking-wider">After</div>
+                  <ul className="space-y-4 text-gray-300">
+                    <li className="flex items-start gap-3">
+                      <span className="text-orange-400 mt-1">✓</span>
+                      <span>Renewals pre-analyzed with every number ready before the client walks in</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-orange-400 mt-1">✓</span>
+                      <span>Your team flagged on big changes the moment they drop — no surprises</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-orange-400 mt-1">✓</span>
+                      <span>One prepared meeting. Client leaves feeling taken care of.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="text-orange-400 mt-1">✓</span>
+                      <span>Time to actually cross-sell, build relationships, and grow</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-center text-gray-500 text-sm mt-6 italic">
+                Based on a real client engagement. Results vary by business.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* What Gets Handled Section */}
+        <section className="container mx-auto px-6 py-20">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-black mb-4">
+              The stuff that eats your week
+            </h2>
+            <p className="text-gray-400 text-lg">
+              Your system handles these automatically. You just check in when you want to.
+            </p>
+          </div>
           <div className="grid md:grid-cols-4 gap-6">
             {[
-              { icon: '/icon-followups.webp', title: 'Follow-ups', desc: 'Never miss a lead again' },
-              { icon: '/icon-content.webp', title: 'Content', desc: 'Posts, emails, drafts on demand' },
-              { icon: '/icon-scheduling.webp', title: 'Scheduling', desc: 'Reminders and coordination' },
-              { icon: '/icon-automation.webp', title: 'Workflows', desc: 'Repetitive tasks handled' },
+              { icon: '/icon-followups.webp', title: 'Follow-ups', desc: 'Every lead gets a response. Every client gets a touchpoint. Nobody falls through the cracks.' },
+              { icon: '/icon-content.webp', title: 'Client Prep', desc: 'Documents analyzed, numbers compared, talking points ready — before you walk into the meeting.' },
+              { icon: '/icon-scheduling.webp', title: 'Reminders', desc: 'Renewals, deadlines, billing cycles — your system tracks everything and alerts your team.' },
+              { icon: '/icon-automation.webp', title: 'Busywork', desc: 'Data entry, sorting, comparisons, reports — the tasks nobody should be doing manually anymore.' },
             ].map((item, i) => (
               <div 
                 key={i}
@@ -320,7 +316,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How SAIOS Works */}
+        {/* How It Works */}
         <section id="how" className="bg-gradient-to-b from-transparent via-orange-950/10 to-transparent py-20 md:py-32">
           <div className="container mx-auto px-6">
             <div className="text-center mb-16">
@@ -328,7 +324,7 @@ export default function Home() {
                 How It Works
               </h2>
               <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-                No 47-step frameworks. No cookie-cutter solutions. Your SAIOS is custom-built for your business.
+                No generic software. No cookie-cutter setup. We build around how you actually work.
               </p>
             </div>
             
@@ -336,18 +332,18 @@ export default function Home() {
               {[
                 {
                   num: '01',
-                  title: 'Discovery Interview',
-                  desc: 'We talk about your business — what you do all day, where you\'re stuck, what\'s costing you time and money. This conversation becomes the blueprint for your system.',
+                  title: 'We Learn Your Business',
+                  desc: 'We sit down and talk about what you do all day. Where are you stuck? What takes too long? What falls through the cracks? This conversation becomes the blueprint — not some template we use for everyone.',
                 },
                 {
                   num: '02', 
-                  title: 'Custom Build',
-                  desc: 'We build your SAIOS based on that interview — workflows tailored to YOUR business, not a generic template. Every automation is designed around how you actually operate.',
+                  title: 'We Build Your System',
+                  desc: 'Your operating system is custom-built around YOUR workflows. The way you handle renewals, the way you follow up with leads, the way your team communicates — we automate the parts that don\'t need you.',
                 },
                 {
                   num: '03',
-                  title: 'Go Live',
-                  desc: 'Your system goes live and starts handling operations 24/7. You text it like a team member, it runs in the background, and you focus on running the business instead of the busywork.',
+                  title: 'You Get Your Time Back',
+                  desc: 'Your system goes live and starts working 24/7. You can text it like a team member. It handles the operations in the background while you do what you\'re actually good at — selling, advising, and taking care of clients.',
                 },
               ].map((step, i) => (
                 <div key={i} className="flex gap-6 md:gap-10 mb-12 last:mb-0">
@@ -366,52 +362,102 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Built by AI Section - Reframed as Proof */}
+        {/* Who This Is For */}
+        <section id="assessment" className="container mx-auto px-6 py-20 md:py-32">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-5xl font-black mb-4">
+                Built for people who
+                <br />
+                <span className="text-orange-400">earn what they close.</span>
+              </h2>
+              <p className="text-gray-400 text-xl max-w-2xl mx-auto">
+                Commission-based entrepreneurs — insurance agents, realtors, financial advisors — 
+                who are great at their job but buried in the operational side of running a book of business.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              {[
+                { icon: '/icon-automation.webp', title: 'Insurance Agents', desc: 'Renewal comparisons, cross-sell flagging, client prep — your system knows every policy before you do.' },
+                { icon: '/icon-followups.webp', title: 'Realtors', desc: 'Lead follow-up, market updates, showing coordination — your pipeline stays full without manual chasing.' },
+                { icon: '/icon-running.webp', title: 'Financial Advisors', desc: 'Client touchpoints, review prep, compliance tracking — relationship management on autopilot.' },
+              ].map((item, i) => (
+                <div key={i} className="relative bg-gradient-to-br from-gray-900/80 to-black border border-gray-800 hover:border-orange-500/50 p-8 rounded-3xl transition-all duration-300 group text-center">
+                  <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-orange-500/20 rounded-full blur-2xl group-hover:bg-orange-500/30 transition-all" />
+                  <div className="relative">
+                    <Image 
+                      src={item.icon} 
+                      alt={item.title}
+                      width={72}
+                      height={72}
+                      className="mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 rounded-2xl"
+                    />
+                    <div className="font-bold text-white text-lg mb-2">{item.title}</div>
+                    <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/30 border border-gray-800 rounded-3xl p-8 md:p-12 text-center">
+              <h3 className="text-2xl md:text-3xl font-bold mb-4">
+                Not sure if this fits your business?
+              </h3>
+              <p className="text-gray-400 text-lg mb-6 max-w-2xl mx-auto">
+                Start with a free Operating Assessment. We&apos;ll walk through your daily 
+                operations and show you exactly where an operating system would save you time — 
+                and where it wouldn&apos;t. No pitch, just clarity.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="tel:+18557915002"
+                  className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
+                >
+                  <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  Call (855) 791-5002
+                </a>
+                <a
+                  href="#contact"
+                  className="inline-flex items-center justify-center border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-4 px-8 rounded-full text-lg transition-all hover:bg-orange-500/5"
+                >
+                  Or Send a Message
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* The $500/month Employee */}
         <section className="border-y border-gray-800 bg-gradient-to-r from-orange-950/20 via-black to-orange-950/20">
           <div className="container mx-auto px-6 py-16">
             <div className="max-w-4xl mx-auto text-center">
-              <div className="inline-block mb-6 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full">
-                <span className="text-orange-400 text-sm font-medium">⚡ Proof of Concept</span>
-              </div>
-              <h2 className="text-3xl md:text-4xl font-black mb-4">
-                I Built My Own First
+              <h2 className="text-3xl md:text-4xl font-black mb-6">
+                Think of it as hiring
+                <br />
+                <span className="text-orange-400">a $125K employee for $500/month.</span>
               </h2>
-              <p className="text-xl text-gray-300 mb-2">
-                Spark runs Stoke-AI — my own SAIOS.
-              </p>
-              <p className="text-gray-400 text-lg leading-relaxed mb-8">
-                She built this website. She handles my leads, drafts my emails, manages follow-ups, 
-                and runs automations 24/7. Everything you see here is what she does for MY business. 
-                Now I build custom SAIOS for you.
+              <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
+                Your operating system works every hour of every day. It doesn&apos;t call in sick, 
+                forget follow-ups, or need training twice. After a one-time custom build, 
+                ongoing maintenance is $500/month — a fraction of what you&apos;d pay a full-time 
+                admin who can&apos;t work at 2 AM.
               </p>
               <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  { icon: '/icon-instant.webp', title: 'Instant Response', desc: 'Submit the form below — Spark will send you a personalized email in minutes' },
-                  { icon: '/icon-text.webp', title: 'Text Follow-up', desc: 'Include your phone and Spark will text you too — just like YOUR system will' },
-                  { icon: '/icon-analyze.webp', title: 'Business Analysis', desc: 'Drop your URL and get AI-generated insights — a preview of what SAIOS can do' },
-                ].map((item, i) => (
-                  <div key={i} className="relative bg-black/50 border border-gray-800 hover:border-orange-500/50 rounded-2xl p-6 transition-all duration-300 hover:transform hover:scale-105 group overflow-hidden text-left">
-                    <div className="absolute top-4 left-4 w-16 h-16 bg-orange-500/20 rounded-full blur-xl group-hover:bg-orange-500/30 transition-all" />
-                    <div className="relative">
-                      <Image 
-                        src={item.icon} 
-                        alt={item.title}
-                        width={56}
-                        height={56}
-                        className="mb-4 group-hover:scale-110 transition-transform duration-300 rounded-xl"
-                      />
-                      <div className="font-bold text-white mb-2">{item.title}</div>
-                      <div className="text-sm text-gray-400">{item.desc}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-10 p-6 bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-2xl text-center">
-                <p className="text-lg">
-                  <span className="text-orange-400 font-bold">No coding required.</span>
-                  <br />
-                  <span className="text-gray-400">Your SAIOS will be just as capable — but built for YOUR business.</span>
-                </p>
+                <div className="bg-black/50 border border-gray-800 rounded-2xl p-6">
+                  <div className="text-3xl font-black text-orange-400 mb-2">Custom Build</div>
+                  <div className="text-gray-400 text-sm">One-time setup tailored to your exact business operations</div>
+                </div>
+                <div className="bg-black/50 border border-gray-800 rounded-2xl p-6">
+                  <div className="text-3xl font-black text-orange-400 mb-2">$500/mo</div>
+                  <div className="text-gray-400 text-sm">Ongoing maintenance, updates, and support after Day 60</div>
+                </div>
+                <div className="bg-black/50 border border-gray-800 rounded-2xl p-6">
+                  <div className="text-3xl font-black text-orange-400 mb-2">ROI Fast</div>
+                  <div className="text-gray-400 text-sm">Most clients recover the cost in time saved within the first month</div>
+                </div>
               </div>
             </div>
           </div>
@@ -427,20 +473,21 @@ export default function Home() {
                 <span className="text-orange-400">not some agency.</span>
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                Based right here in the Magic Valley, Idaho. I&apos;m not a faceless 
-                consulting firm. I&apos;m a local guy who built my own operating system first, 
-                then started building them for other small businesses.
+                I&apos;m Jeff Stoker, based right here in the Magic Valley. I built my own 
+                operating system first — it runs my business, handles my leads, drafts my emails, 
+                and manages my follow-ups 24/7. Everything I build for you is something 
+                I use myself every day.
               </p>
               <p className="text-gray-400 text-lg leading-relaxed">
-                When you work with Stoke-AI, you get me — someone who understands 
-                small-town business and genuinely wants to see you succeed.
+                When you work with Stoke-AI, you get me. Not a support ticket. Not a chatbot. 
+                A local guy who understands small-town business and actually picks up the phone.
               </p>
             </div>
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-3xl blur-3xl" />
               <Image
                 src="/local-business.webp"
-                alt="Local Idaho business"
+                alt="Magic Valley Idaho business"
                 width={600}
                 height={400}
                 className="relative rounded-3xl border border-gray-800 shadow-2xl"
@@ -456,11 +503,11 @@ export default function Home() {
               <div className="grid md:grid-cols-2 gap-10">
                 <div>
                   <h2 className="text-3xl md:text-4xl font-black mb-4">
-                    Ready to see how SAIOS fits your business?
+                    Let&apos;s talk about your business.
                   </h2>
                   <p className="text-gray-400 text-lg mb-6">
-                    No pressure. No obligation. Just a conversation about 
-                    your business and whether an operating system makes sense.
+                    No pressure. No obligation. Just a conversation about whether an 
+                    operating system makes sense for how you work.
                   </p>
                   <div className="space-y-4 text-gray-400">
                     <div className="flex items-center gap-3">
@@ -477,7 +524,7 @@ export default function Home() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span>Honest recommendations</span>
+                      <span>Honest about what AI can and can&apos;t do</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center">
@@ -485,7 +532,7 @@ export default function Home() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span>Local, personal service</span>
+                      <span>Local, personal service — not a support ticket</span>
                     </div>
                   </div>
                 </div>
@@ -495,19 +542,19 @@ export default function Home() {
                     <div className="h-full flex flex-col justify-center p-6">
                       <div className="text-center mb-6">
                         <div className="text-5xl mb-4">🔥</div>
-                        <h3 className="text-2xl font-bold mb-2">You&apos;re in!</h3>
+                        <h3 className="text-2xl font-bold mb-2">Got it!</h3>
                         <p className="text-gray-400">
-                          I&apos;ll be in touch within 24 hours.
+                          I&apos;ll be in touch within 24 hours — usually much faster.
                         </p>
                       </div>
                       {aiInsight && (
                         <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-xl p-4 mt-4">
                           <div className="text-xs text-orange-400 font-semibold mb-2 flex items-center gap-2">
-                            <span>⚡</span> Quick Analysis
+                            <span>⚡</span> Quick Take on Your Business
                           </div>
                           <p className="text-gray-300 text-sm leading-relaxed">{aiInsight}</p>
                           <p className="text-gray-500 text-xs mt-3 italic">
-                            Generated in seconds by Spark. Imagine what a full SAIOS could do.
+                            That took 2 seconds. Imagine what a full system could do for you.
                           </p>
                         </div>
                       )}
@@ -532,14 +579,14 @@ export default function Home() {
                       />
                       <input
                         type="tel"
-                        placeholder="Phone (optional — for faster follow-up!)"
+                        placeholder="Phone (fastest way to reach you)"
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       />
                       <input
                         type="text"
-                        placeholder="What's your business?"
+                        placeholder="What's your business? (e.g. insurance agency, real estate)"
                         required
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                         value={formData.business}
@@ -551,18 +598,18 @@ export default function Home() {
                         value={formData.painPoint}
                         onChange={(e) => setFormData({ ...formData, painPoint: e.target.value })}
                       >
-                        <option value="" disabled>How are you using AI in your business right now?</option>
-                        <option value="I haven't started yet">I haven't started yet</option>
-                        <option value="Just ChatGPT for writing or ideas">Just ChatGPT for writing or ideas</option>
-                        <option value="Tried some tools but nothing stuck">Tried some tools but nothing stuck</option>
-                        <option value="I have some automations running">I have some automations running</option>
-                        <option value="I'm not sure what's possible">I'm not sure what's possible</option>
-                        <option value="other">Other</option>
+                        <option value="" disabled>What&apos;s eating most of your time?</option>
+                        <option value="Client follow-ups and renewals">Client follow-ups and renewals</option>
+                        <option value="Lead management and response time">Lead management and response time</option>
+                        <option value="Paperwork, data entry, admin tasks">Paperwork, data entry, admin tasks</option>
+                        <option value="Team coordination and communication">Team coordination and communication</option>
+                        <option value="All of the above">Honestly, all of the above</option>
+                        <option value="other">Something else</option>
                       </select>
                       {formData.painPoint === 'other' && (
                         <input
                           type="text"
-                          placeholder="Tell us more..."
+                          placeholder="Tell me more..."
                           required
                           className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                           value={formData.painPointOther}
@@ -571,13 +618,13 @@ export default function Home() {
                       )}
                       <input
                         type="url"
-                        placeholder="Website URL (optional — we'll analyze it!)"
+                        placeholder="Website URL (optional)"
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                         value={formData.website}
                         onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                       />
                       <textarea
-                        placeholder="What are you hoping AI can help with?"
+                        placeholder="Anything else you want me to know?"
                         rows={3}
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors resize-none placeholder-gray-600"
                         value={formData.message}
@@ -591,7 +638,7 @@ export default function Home() {
                         disabled={submitting}
                         className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-4 px-8 rounded-xl text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                       >
-                        {submitting ? 'Sending...' : 'Book Free Assessment →'}
+                        {submitting ? 'Sending...' : 'Get My Free Assessment →'}
                       </button>
                     </form>
                   )}
