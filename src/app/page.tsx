@@ -583,7 +583,7 @@ export default function Home() {
                       />
                       <input
                         type="text"
-                        placeholder="What's your business? (e.g. insurance agency, real estate)"
+                        placeholder="What kind of business do you run?"
                         required
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                         value={formData.business}
@@ -596,7 +596,7 @@ export default function Home() {
                         onChange={(e) => setFormData({ ...formData, painPoint: e.target.value })}
                       >
                         <option value="" disabled>What&apos;s eating most of your time?</option>
-                        <option value="Client follow-ups and renewals">Client follow-ups and renewals</option>
+                        <option value="Client follow-ups and communication">Client follow-ups and communication</option>
                         <option value="Lead management and response time">Lead management and response time</option>
                         <option value="Paperwork, data entry, admin tasks">Paperwork, data entry, admin tasks</option>
                         <option value="Team coordination and communication">Team coordination and communication</option>
