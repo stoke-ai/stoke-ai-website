@@ -318,9 +318,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-black mb-4">
-                Built for business owners who&apos;d rather
-                <br />
-                <span className="text-orange-400">work ON it than IN it.</span>
+                Built for owners who&apos;d rather <span className="text-orange-400">work ON it</span> than IN it.
               </h2>
               <p className="text-gray-400 text-xl max-w-2xl mx-auto">
                 If you started your business for freedom but ended up trapped running it — 
