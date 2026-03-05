@@ -229,19 +229,19 @@ export default function Home() {
                   <ul className="space-y-4 text-gray-400">
                     <li className="flex items-start gap-3">
                       <span className="text-red-400/60 mt-1">✕</span>
-                      <span>60 hours/month manually comparing renewal documents line by line</span>
+                      <span>Leads slipping through the cracks because nobody followed up</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-red-400/60 mt-1">✕</span>
-                      <span>Clients blindsiding you with questions you weren&apos;t prepared for</span>
+                      <span>Spending hours on repetitive tasks that don&apos;t grow the business</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-red-400/60 mt-1">✕</span>
-                      <span>4 appointments to handle what should take 1</span>
+                      <span>Working nights and weekends just to stay caught up</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-red-400/60 mt-1">✕</span>
-                      <span>Losing clients because you couldn&apos;t get in front of them fast enough</span>
+                      <span>Hiring help you can&apos;t afford or doing everything yourself</span>
                     </li>
                   </ul>
                 </div>
@@ -250,26 +250,24 @@ export default function Home() {
                   <ul className="space-y-4 text-gray-300">
                     <li className="flex items-start gap-3">
                       <span className="text-orange-400 mt-1">✓</span>
-                      <span>Renewals pre-analyzed with every number ready before the client walks in</span>
+                      <span>Every lead gets a response within minutes — automatically</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-orange-400 mt-1">✓</span>
-                      <span>Your team flagged on big changes the moment they drop — no surprises</span>
+                      <span>Repetitive tasks handled in the background, 24/7</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-orange-400 mt-1">✓</span>
-                      <span>One prepared meeting. Client leaves feeling taken care of.</span>
+                      <span>Your week opens up for the work that actually makes money</span>
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-orange-400 mt-1">✓</span>
-                      <span>Time to actually cross-sell, build relationships, and grow</span>
+                      <span>A system that scales with you — no new hires needed</span>
                     </li>
                   </ul>
                 </div>
               </div>
-              <p className="text-center text-gray-500 text-sm mt-6 italic">
-                Based on a real client engagement. Results vary by business.
-              </p>
+
             </div>
           </div>
         </section>
