@@ -212,74 +212,17 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Real Results Section */}
-        <section className="border-y border-gray-800 bg-gradient-to-r from-orange-950/20 via-black to-orange-950/20">
-          <div className="container mx-auto px-6 py-16">
-            <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-black mb-4">
-                  This is what it looks like
-                  <br />
-                  <span className="text-orange-400">when it&apos;s working.</span>
-                </h2>
-              </div>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="bg-black/50 border border-gray-800 rounded-2xl p-8">
-                  <div className="text-red-400/80 text-sm font-semibold mb-4 uppercase tracking-wider">Before</div>
-                  <ul className="space-y-4 text-gray-400">
-                    <li className="flex items-start gap-3">
-                      <span className="text-red-400/60 mt-1">✕</span>
-                      <span>Leads slipping through the cracks because nobody followed up</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-red-400/60 mt-1">✕</span>
-                      <span>Spending hours on repetitive tasks that don&apos;t grow the business</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-red-400/60 mt-1">✕</span>
-                      <span>Working nights and weekends just to stay caught up</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-red-400/60 mt-1">✕</span>
-                      <span>Hiring help you can&apos;t afford or doing everything yourself</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="bg-black/50 border border-orange-500/30 rounded-2xl p-8">
-                  <div className="text-orange-400 text-sm font-semibold mb-4 uppercase tracking-wider">After</div>
-                  <ul className="space-y-4 text-gray-300">
-                    <li className="flex items-start gap-3">
-                      <span className="text-orange-400 mt-1">✓</span>
-                      <span>Every lead gets a response within minutes — automatically</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-orange-400 mt-1">✓</span>
-                      <span>Repetitive tasks handled in the background, 24/7</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-orange-400 mt-1">✓</span>
-                      <span>Your week opens up for the work that actually makes money</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-orange-400 mt-1">✓</span>
-                      <span>A system that scales with you — no new hires needed</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
         {/* What Gets Handled Section */}
-        <section className="container mx-auto px-6 py-20">
+        <section className="border-y border-gray-800 bg-gradient-to-r from-orange-950/20 via-black to-orange-950/20 py-20">
+          <div className="container mx-auto px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-black mb-4">
-              The stuff that eats your week
+              What if it just
+              <br />
+              <span className="text-orange-400">handled itself?</span>
             </h2>
-            <p className="text-gray-400 text-lg">
-              Your system handles these automatically. You just check in when you want to.
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Your AI operating system runs these 24/7. You just check in when you want to.
             </p>
           </div>
           <div className="grid md:grid-cols-4 gap-6">
@@ -310,6 +253,7 @@ export default function Home() {
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500 group-hover:w-1/2 transition-all duration-300 rounded-full" />
               </div>
             ))}
+          </div>
           </div>
         </section>
 
