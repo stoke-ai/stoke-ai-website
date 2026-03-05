@@ -1,14 +1,24 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { Suspense } from 'react';
 
-export default function Discovery() {
+function DiscoveryContent() {
+  const searchParams = useSearchParams();
+  const leadName = searchParams.get('name') || '';
+  const leadBusiness = searchParams.get('business') || '';
+  const leadPainPoint = searchParams.get('painPoint') || '';
+  const leadEmail = searchParams.get('email') || '';
+  const leadPhone = searchParams.get('phone') || '';
+
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<Array<{role: 'user' | 'assistant', text: string}>>([]);
   const [currentText, setCurrentText] = useState('');
+  const [conversationSaved, setConversationSaved] = useState(false);
   
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -24,8 +34,12 @@ export default function Discovery() {
     try {
       setStatus('connecting');
       
-      // Get ephemeral token
-      const tokenResponse = await fetch('/api/realtime/session', { method: 'POST' });
+      // Get ephemeral token with lead context
+      const tokenResponse = await fetch('/api/realtime/session', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: leadName, business: leadBusiness, painPoint: leadPainPoint, email: leadEmail, phone: leadPhone }),
+      });
       if (!tokenResponse.ok) throw new Error('Failed to get session token');
       const { client_secret } = await tokenResponse.json();
       
@@ -117,7 +131,31 @@ export default function Discovery() {
     }
   };
 
+  const saveTranscript = async (finalTranscript: Array<{role: string, text: string}>) => {
+    try {
+      await fetch('/api/discovery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: leadName,
+          email: leadEmail,
+          phone: leadPhone,
+          business: leadBusiness,
+          painPoint: leadPainPoint,
+          transcript: finalTranscript,
+        }),
+      });
+      setConversationSaved(true);
+    } catch (err) {
+      console.error('Failed to save transcript:', err);
+    }
+  };
+
   const endConversation = () => {
+    // Save transcript before closing
+    if (transcript.length > 0) {
+      saveTranscript(transcript);
+    }
     if (peerConnectionRef.current) {
       peerConnectionRef.current.close();
       peerConnectionRef.current = null;
@@ -253,8 +291,20 @@ export default function Discovery() {
 
       {/* Footer */}
       <footer className="border-t border-gray-800 py-3 text-center text-xs text-gray-500">
-        This conversation helps us understand your needs. No commitment required.
+        {conversationSaved ? (
+          <span className="text-orange-400">✓ Conversation saved — we&apos;ll follow up soon!</span>
+        ) : (
+          'This conversation helps us understand your needs. No commitment required.'
+        )}
       </footer>
     </div>
+  );
+}
+
+export default function Discovery() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0d0d0d] text-white flex items-center justify-center">Loading...</div>}>
+      <DiscoveryContent />
+    </Suspense>
   );
 }

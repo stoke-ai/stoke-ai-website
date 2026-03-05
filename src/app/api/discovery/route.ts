@@ -1,5 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Telegram notification for completed assessments
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7448321777';
+
+async function notifyAssessmentComplete(
+  name: string,
+  email: string,
+  phone: string,
+  business: string,
+  painPoint: string,
+  transcript: Array<{role: string, text: string}>
+) {
+  if (!TELEGRAM_BOT_TOKEN) return;
+
+  const transcriptText = transcript
+    .map(msg => `${msg.role === 'assistant' ? '🤖 Spark' : '👤 ' + (name || 'Prospect')}: ${msg.text}`)
+    .join('\n\n');
+
+  // Truncate if too long for Telegram (4096 char limit)
+  const maxLen = 3500;
+  const truncatedTranscript = transcriptText.length > maxLen 
+    ? transcriptText.substring(0, maxLen) + '\n\n... (truncated)'
+    : transcriptText;
+
+  const text = `🎙️ *Voice Assessment Complete!*
+
+*Name:* ${name || 'Unknown'}
+*Email:* ${email || 'Not provided'}
+*Phone:* ${phone || 'Not provided'}
+*Business:* ${business || 'Not specified'}
+*Pain Point:* ${painPoint || 'Not specified'}
+*Messages:* ${transcript.length}
+
+---
+${truncatedTranscript}`;
+
+  await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      chat_id: TELEGRAM_CHAT_ID,
+      text,
+      parse_mode: 'Markdown',
+    }),
+  });
+}
+
 const SYSTEM_PROMPT = `You are Spark, the AI assistant at Stoke-AI. You're conducting a discovery conversation to understand if an AI assistant would be a good fit for this prospect's business.
 
 Your personality:
@@ -46,7 +93,17 @@ If they're not a good fit (just curious, not a business owner, etc.):
 
 export async function POST(request: NextRequest) {
   try {
-    const { messages } = await request.json();
+    const body = await request.json();
+
+    // If this is a transcript save (from voice assessment), handle differently
+    if (body.transcript && Array.isArray(body.transcript)) {
+      const { name, email, phone, business, painPoint, transcript } = body;
+      await notifyAssessmentComplete(name, email, phone, business, painPoint, transcript);
+      return NextResponse.json({ success: true, message: 'Assessment saved' });
+    }
+
+    // Otherwise it's a text chat message
+    const { messages } = body;
 
     // Use OpenAI API
     const response = await fetch('https://api.openai.com/v1/chat/completions', {

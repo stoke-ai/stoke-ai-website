@@ -534,7 +534,7 @@ export default function Home() {
                       )}
                       <div className="space-y-3">
                         <a
-                          href="/discovery"
+                          href={`/discovery?name=${encodeURIComponent(formData.name)}&business=${encodeURIComponent(formData.business)}&painPoint=${encodeURIComponent(formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`}
                           className="block w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-6 rounded-xl text-center text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                         >
                           <span className="flex items-center justify-center gap-2">

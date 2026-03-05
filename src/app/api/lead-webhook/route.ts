@@ -206,14 +206,63 @@ export async function POST(request: NextRequest) {
       data = Object.fromEntries(formData.entries()) as Record<string, string>;
     }
     
-    const { name, email, phone, business, website, painPoint, message } = data;
+    const { name, email, phone, business, website, painPoint, action, scheduleDate, scheduleTime } = data;
     
+    // Handle scheduled assessment
+    if (action === 'schedule') {
+      console.log('Assessment scheduled:', { name, email, scheduleDate, scheduleTime });
+      
+      // Notify Jeff about scheduled assessment
+      if (TELEGRAM_BOT_TOKEN) {
+        const scheduleText = `📅 *Assessment Scheduled*
+
+*Name:* ${name || 'Unknown'}
+*Email:* ${email || 'Not provided'}
+*Phone:* ${phone || 'Not provided'}
+*Business:* ${business || 'Not specified'}
+*Date:* ${scheduleDate}
+*Time:* ${scheduleTime}
+
+_Spark will call/text them at this time to run the assessment._`;
+
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: scheduleText, parse_mode: 'Markdown' }),
+        });
+      }
+      
+      // Send confirmation email
+      if (email && RESEND_API_KEY) {
+        const firstName = (name || 'there').split(' ')[0];
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            from: 'Spark at Stoke-AI <spark@stoke-ai.com>',
+            to: [email],
+            subject: `${firstName} — your assessment is scheduled 📅`,
+            html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
+              <p>Hey ${firstName}!</p>
+              <p>Your free AI operating assessment is scheduled for <strong>${scheduleDate} at ${scheduleTime}</strong> (Mountain Time).</p>
+              <p>I'll reach out at that time to walk through how your business runs and where an operating system could save you time.</p>
+              <p>If you want to do it sooner, just reply to this email or <a href="https://stoke-ai.com/discovery?name=${encodeURIComponent(name || '')}&business=${encodeURIComponent(business || '')}">click here to talk now</a>.</p>
+              <p>Talk soon,<br><strong>Spark</strong> · Stoke-AI</p>
+            </div>`,
+            reply_to: 'jeff@stoke-ai.com',
+          }),
+        });
+      }
+      
+      return NextResponse.json({ success: true, message: 'Assessment scheduled' });
+    }
+
     console.log('New lead:', { name, email, phone, business, painPoint });
     
     let emailOk = false;
     let smsOk = false;
     
-    // Send personalized email from Spark
+    // Send personalized email from Spark (don't send immediately if they're about to do voice assessment)
     if (email) {
       emailOk = await sendEmail(email, name || 'there', business || '', painPoint || '');
     }
@@ -231,7 +280,7 @@ export async function POST(request: NextRequest) {
       business || 'Not specified',
       website || '',
       painPoint || '',
-      message || '',
+      '',
       emailOk,
       smsOk
     );
