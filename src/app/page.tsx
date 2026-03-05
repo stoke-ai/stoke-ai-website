@@ -435,8 +435,8 @@ export default function Home() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-r from-amber-500/20 to-orange-500/20 rounded-3xl blur-3xl" />
               <Image
-                src="/local-business.webp"
-                alt="Magic Valley Idaho business"
+                src="/jeff-relaxed.png"
+                alt="Jeff Stoker relaxed at his desk while AI handles the work"
                 width={600}
                 height={400}
                 className="relative rounded-3xl border border-gray-800 shadow-2xl"
