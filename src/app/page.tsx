@@ -273,18 +273,28 @@ export default function Home() {
               {[
                 {
                   num: '01',
-                  title: 'We Learn Your Business',
-                  desc: 'We sit down and talk about what you do all day. Where are you stuck? What takes too long? What falls through the cracks? This conversation becomes the blueprint — not some template we use for everyone.',
+                  title: 'Talk to Spark',
+                  desc: 'Reach out through the form or start a conversation with Spark, our AI. Spark learns about your business, asks the right questions, and figures out if we\'re a good fit — before anyone\'s time gets wasted.',
                 },
                 {
-                  num: '02', 
+                  num: '02',
+                  title: 'We Map Your Workflow',
+                  desc: 'Once you\'re in, we dig into how your business actually runs. What tools you use, where leads come from, what falls through the cracks. This isn\'t a generic questionnaire — it\'s a real conversation with people who\'ve been running businesses for 20 years.',
+                },
+                {
+                  num: '03', 
                   title: 'We Build Your System',
-                  desc: 'Your operating system is custom-built around YOUR workflows. The way you handle customers, the way you follow up, the way your team communicates — we automate the parts that don\'t need you.',
+                  desc: 'Based on your workflow, we build a custom AI operating system around how YOU work. Not a template. Not a one-size-fits-all app. Your system, your rules, built to handle the specific stuff that\'s burying you.',
                 },
                 {
-                  num: '03',
-                  title: 'You Get Your Time Back',
-                  desc: 'Your system goes live and starts working 24/7. You can text it like a team member. It handles the operations in the background while you focus on the work that actually grows your business.',
+                  num: '04',
+                  title: 'You Review, We Refine',
+                  desc: 'You see it working, tell us what\'s right and what needs adjusting. We dial it in until it feels like it was always there.',
+                },
+                {
+                  num: '05',
+                  title: 'It Runs. You Don\'t Have To.',
+                  desc: 'Your system goes live — handling follow-ups, reminders, client prep, busywork — 24/7. You check in when you want. It checks in with you when it matters.',
                 },
               ].map((step, i) => (
                 <div key={i} className="flex gap-6 md:gap-10 mb-12 last:mb-0">
