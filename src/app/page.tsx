@@ -434,26 +434,26 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-black mb-6">
                 Think of it as hiring
                 <br />
-                <span className="text-orange-400">a $125K employee for $500/month.</span>
+                <span className="text-orange-400">a $125K employee.</span>
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-8 max-w-2xl mx-auto">
                 Your operating system works every hour of every day. It doesn&apos;t call in sick, 
-                forget follow-ups, or need training twice. After a one-time custom build, 
-                ongoing maintenance is $500/month — a fraction of what you&apos;d pay a full-time 
-                admin who can&apos;t work at 2 AM.
+                forget follow-ups, or need training twice. It handles the operational 
+                work of a full-time admin — except it works at 2 AM, never takes a day off, 
+                and costs a fraction of what you&apos;d pay a person.
               </p>
               <div className="grid md:grid-cols-3 gap-6">
                 <div className="bg-black/50 border border-gray-800 rounded-2xl p-6">
-                  <div className="text-3xl font-black text-orange-400 mb-2">Custom Build</div>
+                  <div className="text-3xl font-black text-orange-400 mb-2">Custom Built</div>
                   <div className="text-gray-400 text-sm">One-time setup tailored to your exact business operations</div>
                 </div>
                 <div className="bg-black/50 border border-gray-800 rounded-2xl p-6">
-                  <div className="text-3xl font-black text-orange-400 mb-2">$500/mo</div>
-                  <div className="text-gray-400 text-sm">Ongoing maintenance, updates, and support after Day 60</div>
+                  <div className="text-3xl font-black text-orange-400 mb-2">Always On</div>
+                  <div className="text-gray-400 text-sm">Runs 24/7 — nights, weekends, holidays. Your business never stops.</div>
                 </div>
                 <div className="bg-black/50 border border-gray-800 rounded-2xl p-6">
                   <div className="text-3xl font-black text-orange-400 mb-2">ROI Fast</div>
-                  <div className="text-gray-400 text-sm">Most clients recover the cost in time saved within the first month</div>
+                  <div className="text-gray-400 text-sm">Most owners recover the cost in time saved within the first month</div>
                 </div>
               </div>
             </div>
