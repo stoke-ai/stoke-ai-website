@@ -157,13 +157,13 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Social Proof Bar */}
+        {/* Value Props Bar */}
         <div className="border-y border-gray-800 bg-black/30 backdrop-blur-sm">
           <div className="container mx-auto px-6 py-8">
             <div className="flex flex-wrap justify-center gap-8 md:gap-16 text-center">
               <div>
-                <div className="text-3xl font-black text-orange-400">60+ hrs</div>
-                <div className="text-gray-500 text-sm">Recovered Per Month</div>
+                <div className="text-3xl font-black text-orange-400">Custom Built</div>
+                <div className="text-gray-500 text-sm">Your System, Not a Template</div>
               </div>
               <div>
                 <div className="text-3xl font-black text-orange-400">24/7</div>
@@ -171,7 +171,7 @@ export default function Home() {
               </div>
               <div>
                 <div className="text-3xl font-black text-orange-400">Local</div>
-                <div className="text-gray-500 text-sm">The Magic Valley, Idaho</div>
+                <div className="text-gray-500 text-sm">Magic Valley, Idaho</div>
               </div>
             </div>
           </div>
@@ -197,14 +197,13 @@ export default function Home() {
                 You know the feeling.
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                A client calls about their renewal and you haven&apos;t had time to review it. 
-                A lead came in last week and nobody followed up. Your desk is buried in paperwork 
-                that should have been done yesterday.
+                A customer called and you missed it because you were buried in paperwork. 
+                A lead came in last week and nobody followed up. You&apos;re working 60-hour 
+                weeks and still falling behind.
               </p>
               <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                You&apos;re great at what you do — selling, advising, building relationships. 
-                But the operational stuff is eating you alive. And hiring another person 
-                at $50K+/year just to keep up with admin work doesn&apos;t pencil out.
+                You&apos;re great at what you do. But the operational stuff is eating you alive. 
+                And hiring someone at $50K/year just to keep up with admin doesn&apos;t pencil out.
               </p>
               <p className="text-white text-lg leading-relaxed font-medium">
                 What if the busywork just... handled itself?
