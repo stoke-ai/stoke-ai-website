@@ -184,8 +184,8 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-orange-500/10 rounded-3xl blur-2xl" />
                 <Image
-                  src="/abstract-ai.webp"
-                  alt="Business operations running smoothly"
+                  src="/phone-notifications.png"
+                  alt="Phone overwhelmed with missed calls, emails, and text notifications"
                   width={500}
                   height={400}
                   className="relative rounded-3xl border border-gray-800"
