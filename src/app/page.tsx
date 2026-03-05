@@ -12,12 +12,15 @@ export default function Home() {
     website: '',
     painPoint: '',
     painPointOther: '',
-    message: '',
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [aiInsight, setAiInsight] = useState('');
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [scheduleDate, setScheduleDate] = useState('');
+  const [scheduleTime, setScheduleTime] = useState('');
+  const [scheduled, setScheduled] = useState(false);
 
   const generateInsight = (business: string): string => {
     const b = business.toLowerCase();
@@ -61,7 +64,6 @@ export default function Home() {
           business: formData.business,
           website: formData.website,
           painPoint: formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint,
-          message: formData.message,
         }),
       });
       
@@ -73,6 +75,29 @@ export default function Home() {
       setError('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleSchedule = async () => {
+    try {
+      await fetch('/api/lead-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          business: formData.business,
+          website: formData.website,
+          painPoint: formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint,
+          action: 'schedule',
+          scheduleDate,
+          scheduleTime,
+        }),
+      });
+      setScheduled(true);
+    } catch {
+      // Silent fail — the initial submission already captured their info
     }
   };
 
@@ -491,23 +516,77 @@ export default function Home() {
 
                 <div>
                   {submitted ? (
-                    <div className="h-full flex flex-col justify-center p-6">
-                      <div className="text-center mb-6">
-                        <div className="text-5xl mb-4">🔥</div>
-                        <h3 className="text-2xl font-bold mb-2">Spark&apos;s on it.</h3>
-                        <p className="text-gray-400">
-                          Check your email and phone — Spark is already reaching out to learn about your business.
+                    <div className="h-full flex flex-col justify-center p-2">
+                      <div className="text-center mb-5">
+                        <div className="text-4xl mb-3">🔥</div>
+                        <h3 className="text-2xl font-bold mb-2">You&apos;re in. Now let&apos;s get you assessed.</h3>
+                        <p className="text-gray-400 text-sm">
+                          Spark can run your free AI operating assessment right now — or schedule it for when it works for you.
                         </p>
                       </div>
                       {aiInsight && (
-                        <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-xl p-4 mt-4">
-                          <div className="text-xs text-orange-400 font-semibold mb-2 flex items-center gap-2">
-                            <span>⚡</span> Here&apos;s what we see for businesses like yours
+                        <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-xl p-3 mb-5">
+                          <div className="text-xs text-orange-400 font-semibold mb-1 flex items-center gap-2">
+                            <span>⚡</span> Quick take on your business
                           </div>
-                          <p className="text-gray-300 text-sm leading-relaxed">{aiInsight}</p>
-                          <p className="text-gray-500 text-xs mt-3 italic">
-                            Spark will dig deeper via text — this is just the start.
-                          </p>
+                          <p className="text-gray-300 text-xs leading-relaxed">{aiInsight}</p>
+                        </div>
+                      )}
+                      <div className="space-y-3">
+                        <a
+                          href="/discovery"
+                          className="block w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-6 rounded-xl text-center text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
+                        >
+                          <span className="flex items-center justify-center gap-2">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                            </svg>
+                            Talk to Spark Now
+                          </span>
+                          <span className="text-black/60 text-xs font-normal block mt-1">5-minute voice assessment — get results instantly</span>
+                        </a>
+                        <button
+                          onClick={() => setShowSchedule(true)}
+                          className="block w-full border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-4 px-6 rounded-xl text-center text-lg transition-all hover:bg-orange-500/5"
+                        >
+                          Schedule for Later
+                          <span className="text-gray-500 text-xs font-normal block mt-1">Pick a time that works for you</span>
+                        </button>
+                      </div>
+                      {showSchedule && (
+                        <div className="mt-4 space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <input
+                              type="date"
+                              className="px-3 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-300 text-sm"
+                              min={new Date().toISOString().split('T')[0]}
+                              value={scheduleDate}
+                              onChange={(e) => setScheduleDate(e.target.value)}
+                            />
+                            <select
+                              className="px-3 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
+                              value={scheduleTime}
+                              onChange={(e) => setScheduleTime(e.target.value)}
+                            >
+                              <option value="" disabled>Time</option>
+                              <option value="09:00">9:00 AM</option>
+                              <option value="10:00">10:00 AM</option>
+                              <option value="11:00">11:00 AM</option>
+                              <option value="12:00">12:00 PM</option>
+                              <option value="13:00">1:00 PM</option>
+                              <option value="14:00">2:00 PM</option>
+                              <option value="15:00">3:00 PM</option>
+                              <option value="16:00">4:00 PM</option>
+                              <option value="17:00">5:00 PM</option>
+                            </select>
+                          </div>
+                          <button
+                            onClick={handleSchedule}
+                            disabled={!scheduleDate || !scheduleTime}
+                            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-xl transition-all"
+                          >
+                            {scheduled ? '✓ Scheduled! Check your email for confirmation.' : 'Confirm Time →'}
+                          </button>
                         </div>
                       )}
                     </div>
@@ -545,12 +624,11 @@ export default function Home() {
                         onChange={(e) => setFormData({ ...formData, business: e.target.value })}
                       />
                       <select
-                        required
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400"
                         value={formData.painPoint}
                         onChange={(e) => setFormData({ ...formData, painPoint: e.target.value })}
                       >
-                        <option value="" disabled>What&apos;s eating most of your time?</option>
+                        <option value="" disabled>What&apos;s eating most of your time? (optional)</option>
                         <option value="Client follow-ups and communication">Client follow-ups and communication</option>
                         <option value="Lead management and response time">Lead management and response time</option>
                         <option value="Paperwork, data entry, admin tasks">Paperwork, data entry, admin tasks</option>
@@ -562,7 +640,6 @@ export default function Home() {
                         <input
                           type="text"
                           placeholder="Tell me more..."
-                          required
                           className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                           value={formData.painPointOther}
                           onChange={(e) => setFormData({ ...formData, painPointOther: e.target.value })}
@@ -570,17 +647,10 @@ export default function Home() {
                       )}
                       <input
                         type="url"
-                        placeholder="Website URL (optional)"
+                        placeholder="Your website URL (optional)"
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                         value={formData.website}
                         onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                      />
-                      <textarea
-                        placeholder="Anything else you want me to know?"
-                        rows={3}
-                        className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors resize-none placeholder-gray-600"
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       />
                       {error && (
                         <div className="text-red-400 text-sm text-center">{error}</div>
