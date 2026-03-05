@@ -141,8 +141,8 @@ export default function Home() {
                 >
                   See How It Works
                 </a>
-                <p className="text-gray-500 text-sm mt-2">Our AI will analyze your workflow and show you where you&apos;re losing time. No sales pitch. No pressure.</p>
               </div>
+              <p className="text-gray-500 text-sm mt-4">Our AI will analyze your workflow and show you where you&apos;re losing time. No sales pitch. No pressure.</p>
             </div>
             <div className="relative order-1 md:order-2">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-3xl blur-3xl" />
