@@ -646,7 +646,7 @@ export default function Home() {
                         />
                       )}
                       <input
-                        type="url"
+                        type="text"
                         placeholder="Your website URL (optional)"
                         className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                         value={formData.website}
