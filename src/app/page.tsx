@@ -285,8 +285,8 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-6">
             {[
               { icon: '/icon-followups.webp', title: 'Follow-ups', desc: 'Every lead gets a response. Every client gets a touchpoint. Nobody falls through the cracks.' },
-              { icon: '/icon-content.webp', title: 'Client Prep', desc: 'Documents analyzed, numbers compared, talking points ready — before you walk into the meeting.' },
-              { icon: '/icon-scheduling.webp', title: 'Reminders', desc: 'Renewals, deadlines, billing cycles — your system tracks everything and alerts your team.' },
+              { icon: '/icon-content.webp', title: 'Client Prep', desc: 'Information organized, notes ready, nothing missed — before you walk into the meeting.' },
+              { icon: '/icon-scheduling.webp', title: 'Reminders', desc: 'Deadlines, appointments, billing cycles — your system tracks everything and alerts you automatically.' },
               { icon: '/icon-automation.webp', title: 'Busywork', desc: 'Data entry, sorting, comparisons, reports — the tasks nobody should be doing manually anymore.' },
             ].map((item, i) => (
               <div 
@@ -335,12 +335,12 @@ export default function Home() {
                 {
                   num: '02', 
                   title: 'We Build Your System',
-                  desc: 'Your operating system is custom-built around YOUR workflows. The way you handle renewals, the way you follow up with leads, the way your team communicates — we automate the parts that don\'t need you.',
+                  desc: 'Your operating system is custom-built around YOUR workflows. The way you handle customers, the way you follow up, the way your team communicates — we automate the parts that don\'t need you.',
                 },
                 {
                   num: '03',
                   title: 'You Get Your Time Back',
-                  desc: 'Your system goes live and starts working 24/7. You can text it like a team member. It handles the operations in the background while you do what you\'re actually good at — selling, advising, and taking care of clients.',
+                  desc: 'Your system goes live and starts working 24/7. You can text it like a team member. It handles the operations in the background while you focus on the work that actually grows your business.',
                 },
               ].map((step, i) => (
                 <div key={i} className="flex gap-6 md:gap-10 mb-12 last:mb-0">
