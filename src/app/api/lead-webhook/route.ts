@@ -21,34 +21,25 @@ async function sendEmail(to: string, name: string, business: string, painPoint: 
 
   const firstName = name.split(' ')[0] || 'there';
   
-  // Build response based on their AI experience level
-  let aiExperienceResponse = '';
+  // Build response based on their pain point
+  let painResponse = '';
   if (painPoint) {
-    const level = painPoint.toLowerCase();
-    if (level.includes("haven't started")) {
-      aiExperienceResponse = `<p>You mentioned you <strong>haven't started with AI yet</strong> — perfect timing. Most businesses I work with start with one simple win: automating the task that eats the most time. Could be follow-ups, scheduling, answering the same questions... Once you see AI handle that automatically, everything clicks.</p>
-      <p>Here's what that first win usually looks like: imagine every lead getting a personalized response within 60 seconds, 24/7. Or every appointment confirmed and reminded automatically. That's not futuristic — that's what I set up for businesses right now.</p>`;
-    } else if (level.includes('chatgpt') || level.includes('writing')) {
-      aiExperienceResponse = `<p>You mentioned you're <strong>using ChatGPT for writing and ideas</strong> — that's where everyone starts, and it's a great foundation. But here's what most people don't realize: ChatGPT is just the tip of the iceberg.</p>
-      <p>The real magic happens when AI <em>runs things for you</em> — not just helps you write. Imagine leads getting instant personalized responses. Follow-ups happening automatically. Your calendar managing itself. That's what "AI for business" actually looks like when it's set up right.</p>`;
-    } else if (level.includes('tried') || level.includes('nothing stuck')) {
-      aiExperienceResponse = `<p>You mentioned you've <strong>tried some tools but nothing stuck</strong> — I hear this constantly. Here's the thing: the problem usually isn't the tools. It's that nobody showed you how to connect them to YOUR specific workflow.</p>
-      <p>Most AI tools are powerful but generic. What works is building something tailored to how YOU actually run your business. That's what I help with — finding the right pieces and making them work together seamlessly.</p>`;
-    } else if (level.includes('automations running')) {
-      aiExperienceResponse = `<p>You mentioned you <strong>already have some automations running</strong> — nice! You're ahead of most. The question now is: what's the next level?</p>
-      <p>Usually it's about connecting the pieces — making your automations smarter, adding AI decision-making, or finding the gaps where manual work is still slowing you down. I'd love to hear what you've got running and brainstorm what's next.</p>`;
-    } else if (level.includes("not sure what's possible")) {
-      aiExperienceResponse = `<p>You said you're <strong>not sure what's possible</strong> — that's exactly why I do this. Let me give you a taste:</p>
-      <ul style="margin: 10px 0; padding-left: 20px;">
-        <li>An AI assistant that answers customer questions 24/7 (in YOUR voice)</li>
-        <li>Leads getting personalized follow-ups automatically — for weeks if needed</li>
-        <li>Your calendar, reminders, and scheduling running on autopilot</li>
-        <li>Review responses drafted and ready to post</li>
-        <li>Data entry and reporting that used to take hours — done in seconds</li>
-      </ul>
-      <p>And that's just the common stuff. The real fun is figuring out what's unique to YOUR business.</p>`;
+    const p = painPoint.toLowerCase();
+    if (p.includes('follow-up') || p.includes('communication')) {
+      painResponse = `<p>You mentioned <strong>client follow-ups and communication</strong> are eating your time — that's the #1 thing we hear from business owners. Here's the reality: every missed follow-up is lost revenue. Not because you don't care, but because there aren't enough hours in the day.</p>
+      <p>What if every lead got a response within minutes — automatically? And every client got a touchpoint at exactly the right time, without you thinking about it? That's what an operating system does. It never forgets, never gets busy, never drops the ball.</p>`;
+    } else if (p.includes('lead') || p.includes('response time')) {
+      painResponse = `<p>You mentioned <strong>lead management and response time</strong> — this is where most businesses are bleeding money without realizing it. Studies show that responding to a lead within 5 minutes makes you 10x more likely to close them. After 30 minutes? They've already moved on.</p>
+      <p>An operating system responds instantly, qualifies the lead, and keeps the conversation going — 24/7, even at 2 AM. You just show up for the ones that are ready to buy.</p>`;
+    } else if (p.includes('paperwork') || p.includes('data entry') || p.includes('admin')) {
+      painResponse = `<p>You mentioned <strong>paperwork, data entry, and admin tasks</strong> — the stuff that has to get done but doesn't grow the business. Most owners we talk to are spending 15-20 hours a week on exactly this kind of work.</p>
+      <p>An operating system handles the repetitive stuff in the background — organizing data, generating reports, filing the right things in the right places. You stop being your own admin assistant and start being the business owner again.</p>`;
+    } else if (p.includes('team') || p.includes('coordination')) {
+      painResponse = `<p>You mentioned <strong>team coordination and communication</strong> — when you're spending more time managing people than doing actual work, something's broken. An operating system keeps everyone on the same page automatically — tasks assigned, deadlines tracked, updates flowing without you being the middleman.</p>`;
+    } else if (p.includes('all of the above') || p.includes('honestly')) {
+      painResponse = `<p>You said <strong>"honestly, all of the above"</strong> — I appreciate the honesty. That tells me you're doing everything yourself and it's not sustainable. The good news? That means there's a LOT we can take off your plate. We usually start with the one thing that's costing you the most time or money, get that running on autopilot, and go from there.</p>`;
     } else {
-      aiExperienceResponse = `<p>You mentioned: <strong>"${painPoint}"</strong> — I'd love to dig into this more and see how AI might help with your specific situation.</p>`;
+      painResponse = `<p>You mentioned: <strong>"${painPoint}"</strong> — I'd love to dig into this more and figure out exactly where an operating system would make the biggest impact for you.</p>`;
     }
   }
   
@@ -56,22 +47,20 @@ async function sendEmail(to: string, name: string, business: string, painPoint: 
 <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
   <p>Hey ${firstName}!</p>
   
-  <p>Thanks for reaching out about AI for ${business || 'your business'}. I'm Jeff from Stoke-AI, and I help local businesses in the Magic Valley actually <em>use</em> AI to save time and grow.</p>
+  <p>Thanks for reaching out about ${business || 'your business'}. This is Spark from Stoke-AI — I'm the AI that screens inquiries before they get to the team.</p>
   
-  ${aiExperienceResponse}
+  ${painResponse}
   
-  <p>Most businesses I work with find <strong>10-15 hours/week</strong> of tasks that AI can handle. The key is finding the right starting point for YOUR business.</p>
+  <p>Here's what happens next: <strong>I'll be reaching out via text to ask a few quick questions</strong> about how your business runs day-to-day. Nothing complicated — just enough for us to see if we can actually help. If we're a good fit, we'll get you connected with the team.</p>
   
-  <p>Want to hop on a quick 15-minute call this week? I can share some specific ideas tailored to what you're dealing with.</p>
-  
-  <p>Just reply to this email or text me back at the number that just reached out.</p>
+  <p>No sales pitch. No pressure. Just a real conversation about whether this makes sense for you.</p>
   
   <p>Talk soon,<br>
-  <strong>Jeff Stoker</strong></p>
+  <strong>Spark</strong> · Stoke-AI</p>
   
   <p style="margin-top: 10px;">
     <a href="https://stoke-ai.com" style="text-decoration: none;">
-      <img src="https://stoke-ai.com/stoke-ai-logo.jpg" alt="Stoke-AI - Igniting Intelligence" style="max-width: 250px; height: auto;" />
+      <img src="https://stoke-ai.com/stoke-ai-logo.jpg" alt="Stoke-AI - Operating Intelligence" style="max-width: 250px; height: auto;" />
     </a>
   </p>
 </div>
@@ -84,9 +73,9 @@ async function sendEmail(to: string, name: string, business: string, painPoint: 
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Jeff from Stoke-AI <jeff@stoke-ai.com>',
+      from: 'Spark at Stoke-AI <spark@stoke-ai.com>',
       to: [to],
-      subject: `${firstName} - let's talk AI for ${business || 'your business'} 🔥`,
+      subject: `${firstName} — got your inquiry about ${business || 'your business'} 🔥`,
       html,
       reply_to: 'jeff@stoke-ai.com',
     }),
@@ -110,7 +99,7 @@ async function sendSMS(to: string, name: string) {
   if (phone.length === 10) phone = '1' + phone;
   if (!phone.startsWith('+')) phone = '+' + phone;
   
-  const message = `Hey ${firstName}! 👋 This is Spark from Stoke-AI. Thanks for reaching out about AI for your business! I just sent you an email with some ideas - check your inbox! Reply here if you have any quick questions. - Jeff's AI assistant`;
+  const message = `Hey ${firstName}! 👋 This is Spark from Stoke-AI. Thanks for reaching out — I just sent you an email with some details.\n\nI've got a few quick questions to see if we're a good fit. What's the #1 task in your business that eats the most time every week?`;
   
   const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
     method: 'POST',
@@ -168,31 +157,31 @@ async function notifyTelegram(
   painPoint: string,
   message: string, 
   emailOk: boolean,
-  smsOk: boolean, 
-  callOk: boolean
+  smsOk: boolean
 ) {
   if (!TELEGRAM_BOT_TOKEN) return;
   
   const actions = [];
-  actions.push(emailOk ? '✅ Email sent' : '❌ Email failed');
+  actions.push(emailOk ? '✅ Email sent (from Spark)' : '❌ Email failed');
   if (phone) {
-    actions.push(smsOk ? '✅ SMS sent' : '❌ SMS failed');
-    actions.push(callOk ? '✅ Voice call triggered' : '❌ Call failed');
+    actions.push(smsOk ? '✅ SMS sent (Spark screening started)' : '❌ SMS failed');
   } else {
-    actions.push('📵 No phone provided (SMS/call skipped)');
+    actions.push('📵 No phone provided (SMS skipped)');
   }
   
-  const text = `🔥 *New Lead - Fully Automated!*
+  const text = `🔥 *New Lead — Spark is screening*
 
 *Name:* ${name}
 *Email:* ${email}
 *Phone:* ${phone || 'Not provided'}
 *Business:* ${business}
-*AI Experience:* ${painPoint || 'Not specified'}
+*Pain Point:* ${painPoint || 'Not specified'}
 ${website ? `*Website:* ${website}` : ''}
-${message ? `*Message:* ${message}` : ''}
+${message ? `*Note:* ${message}` : ''}
 
-${actions.join('\n')}`;
+${actions.join('\n')}
+
+_Spark will qualify and notify you when ready._`;
 
   await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
     method: 'POST',
@@ -223,20 +212,15 @@ export async function POST(request: NextRequest) {
     
     let emailOk = false;
     let smsOk = false;
-    let callOk = false;
     
-    // Send personalized email first
+    // Send personalized email from Spark
     if (email) {
       emailOk = await sendEmail(email, name || 'there', business || '', painPoint || '');
     }
     
-    // If phone provided, send SMS and make call
+    // If phone provided, send SMS from Spark to start screening conversation
     if (phone) {
       smsOk = await sendSMS(phone, name || 'there');
-      
-      // Small delay then call (2 seconds)
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      callOk = await makeCall(phone, name || 'there');
     }
     
     // Notify Jeff via Telegram
@@ -249,8 +233,7 @@ export async function POST(request: NextRequest) {
       painPoint || '',
       message || '',
       emailOk,
-      smsOk,
-      callOk
+      smsOk
     );
 
     return NextResponse.json({ success: true, message: 'Lead processed' });

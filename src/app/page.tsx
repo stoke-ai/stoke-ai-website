@@ -22,24 +22,27 @@ export default function Home() {
   const generateInsight = (business: string): string => {
     const b = business.toLowerCase();
     if (b.includes('restaurant') || b.includes('cafe') || b.includes('food') || b.includes('bakery') || b.includes('coffee')) {
-      return "Restaurant owners tell us they lose 10+ hours a week on scheduling, inventory, and follow-ups alone. Those are exactly the tasks an operating system handles automatically.";
+      return "Restaurant owners we talk to lose 10+ hours a week on scheduling, inventory, and follow-ups alone. An operating system handles all of that in the background — so you can focus on the food and the people.";
     }
     if (b.includes('retail') || b.includes('store') || b.includes('shop')) {
-      return "Retail owners we've talked to spend hours on inventory tracking, reordering, and customer follow-ups. An operating system handles all of that in the background while you focus on customers.";
+      return "Retail owners spend hours on inventory tracking, reordering, and customer follow-ups. An operating system handles all of that in the background while you focus on customers.";
     }
     if (b.includes('dental') || b.includes('medical') || b.includes('clinic') || b.includes('health')) {
       return "Medical practices lose massive time to appointment reminders, patient follow-ups, and chart prep. An operating system cuts no-shows and admin burden dramatically.";
     }
     if (b.includes('real estate') || b.includes('realtor')) {
-      return "Realtors we work with were spending hours qualifying leads and sending follow-ups. Their operating system now handles that 24/7 — they just show up to closings.";
+      return "Realtors are spending hours qualifying leads and sending follow-ups. An operating system handles that 24/7 — you just show up for the ones ready to buy.";
     }
     if (b.includes('salon') || b.includes('spa') || b.includes('beauty')) {
-      return "Salon owners tell us rebooking reminders and no-show follow-ups eat up their week. An operating system keeps the chair full without you chasing people down.";
+      return "Salons lose clients not because of bad cuts — but because nobody followed up. An operating system keeps the chair full without you chasing people down.";
     }
     if (b.includes('insurance') || b.includes('agent')) {
-      return "Insurance agents we work with were drowning in renewal prep — 60+ hours a month of manual comparisons. Their operating system now pre-analyzes everything before the client walks in.";
+      return "Insurance agents drown in renewal prep and lead follow-up. An operating system pre-analyzes renewals, follows up with leads 24/7, and only pulls you in when a client is ready to talk.";
     }
-    return "Every business owner we talk to has the same problem — they're spending hours on repetitive tasks instead of the work that actually grows the business. That's exactly what we fix.";
+    if (b.includes('construction') || b.includes('contractor') || b.includes('plumb') || b.includes('electric') || b.includes('hvac')) {
+      return "Trades businesses are buried in quote requests, scheduling, and follow-ups. An operating system generates quotes faster, keeps the schedule tight, and follows up automatically so no job slips through.";
+    }
+    return "Every business owner we talk to has the same problem — spending hours on repetitive tasks instead of the work that actually grows the business. That's exactly what an operating system fixes.";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -491,19 +494,19 @@ export default function Home() {
                     <div className="h-full flex flex-col justify-center p-6">
                       <div className="text-center mb-6">
                         <div className="text-5xl mb-4">🔥</div>
-                        <h3 className="text-2xl font-bold mb-2">Got it!</h3>
+                        <h3 className="text-2xl font-bold mb-2">Spark&apos;s on it.</h3>
                         <p className="text-gray-400">
-                          I&apos;ll be in touch within 24 hours — usually much faster.
+                          Check your email and phone — Spark is already reaching out to learn about your business.
                         </p>
                       </div>
                       {aiInsight && (
                         <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 border border-orange-500/20 rounded-xl p-4 mt-4">
                           <div className="text-xs text-orange-400 font-semibold mb-2 flex items-center gap-2">
-                            <span>⚡</span> Quick Take on Your Business
+                            <span>⚡</span> Here&apos;s what we see for businesses like yours
                           </div>
                           <p className="text-gray-300 text-sm leading-relaxed">{aiInsight}</p>
                           <p className="text-gray-500 text-xs mt-3 italic">
-                            That took 2 seconds. Imagine what a full system could do for you.
+                            Spark will dig deeper via text — this is just the start.
                           </p>
                         </div>
                       )}
