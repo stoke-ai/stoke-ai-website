@@ -364,21 +364,21 @@ export default function Home() {
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl md:text-5xl font-black mb-4">
-                Built for people who
+                Built for business owners who&apos;d rather
                 <br />
-                <span className="text-orange-400">earn what they close.</span>
+                <span className="text-orange-400">work ON it than IN it.</span>
               </h2>
               <p className="text-gray-400 text-xl max-w-2xl mx-auto">
-                Commission-based entrepreneurs — insurance agents, realtors, financial advisors — 
-                who are great at their job but buried in the operational side of running a book of business.
+                If you started your business for freedom but ended up trapped running it — 
+                this is for you.
               </p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-6 mb-12">
               {[
-                { icon: '/icon-automation.webp', title: 'Insurance Agents', desc: 'Renewal comparisons, cross-sell flagging, client prep — your system knows every policy before you do.' },
-                { icon: '/icon-followups.webp', title: 'Realtors', desc: 'Lead follow-up, market updates, showing coordination — your pipeline stays full without manual chasing.' },
-                { icon: '/icon-running.webp', title: 'Financial Advisors', desc: 'Client touchpoints, review prep, compliance tracking — relationship management on autopilot.' },
+                { icon: '/icon-automation.webp', title: 'Overwhelmed Owners', desc: 'You\'re doing everything yourself and there aren\'t enough hours in the day. Your system takes the busywork off your plate.' },
+                { icon: '/icon-followups.webp', title: 'Growing Businesses', desc: 'You\'re ready to scale but can\'t afford to hire for every task that needs doing. Your system grows with you.' },
+                { icon: '/icon-running.webp', title: 'Commission-Based Pros', desc: 'Your income depends on relationships, not paperwork. Let the system handle the rest so you can focus on closing.' },
               ].map((item, i) => (
                 <div key={i} className="relative bg-gradient-to-br from-gray-900/80 to-black border border-gray-800 hover:border-orange-500/50 p-8 rounded-3xl transition-all duration-300 group text-center">
                   <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-orange-500/20 rounded-full blur-2xl group-hover:bg-orange-500/30 transition-all" />
@@ -408,13 +408,13 @@ export default function Home() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
-                  href="tel:+18557915002"
+                  href="#contact"
                   className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
                 >
                   <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                  Call (855) 791-5002
+                  Talk to Spark Now
                 </a>
                 <a
                   href="#contact"
