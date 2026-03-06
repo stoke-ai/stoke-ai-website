@@ -459,14 +459,12 @@ export default function Home() {
                 <span className="text-orange-400">not some agency.</span>
               </h2>
               <p className="text-gray-400 text-lg leading-relaxed mb-6">
-                I&apos;m Jeff Stoker. I&apos;ve been running businesses for 20 years — and for 
-                most of that time, I was the one buried in the busywork. I built Stoke-AI 
-                because I needed it myself. My own operating system runs my business every day.
+                I&apos;m Jeff Stoker. I&apos;ve spent 25 years in the trenches — selling insurance, selling bank products and services along with payroll and merchant services, and building franchises from the ground up. Besides insurance, I&apos;ve owned and operated businesses in home care, insulation, and optimizing brain health. I built Stoke-AI because I needed it myself. Right now, it&apos;s running my business every day — I don&apos;t just sell it, I use it.
               </p>
               <p className="text-gray-400 text-lg leading-relaxed">
                 When you work with Stoke-AI, you get me. Not a support ticket. Not some agency 
                 across the country. A local Idaho business owner right here in the Magic Valley who 
-                gets it — because I&apos;ve been where you are.
+                gets it — because I&apos;ve probably been in your industry.
               </p>
             </div>
             <div className="relative">
