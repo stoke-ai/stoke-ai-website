@@ -711,7 +711,7 @@ export default function Home() {
                 <h4 className="text-white font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
                   <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free Assessment</a></li>
-                  <li><a href="/discovery" className="text-gray-400 hover:text-orange-500 text-sm">Talk to Spark</a></li>
+                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free Assessment</a></li>
                   <li><a href="/blog" className="text-gray-400 hover:text-orange-500 text-sm">Blog</a></li>
                   <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
                 </ul>
@@ -723,7 +723,7 @@ export default function Home() {
                 <ul className="space-y-2">
                   <li className="text-gray-400 text-sm">Ready to talk? Use the contact form above or reach out to Spark directly.</li>
                   <li><a href="mailto:hello@stoke-ai.com" className="text-gray-400 hover:text-orange-500 text-sm">hello@stoke-ai.com</a></li>
-                  <li><a href="tel:+12088881234" className="text-gray-400 hover:text-orange-500 text-sm">(208) 888-1234</a></li>
+                  <li><a href="tel:+18557915002" className="text-gray-400 hover:text-orange-500 text-sm">(855) 791-5002</a></li>
                 </ul>
               </div>
             </div>

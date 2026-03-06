@@ -13,6 +13,13 @@ function DiscoveryContent() {
   const leadEmail = searchParams.get('email') || '';
   const leadPhone = searchParams.get('phone') || '';
 
+  // Redirect to home if no opt-in (no name = didn't come through the form)
+  useEffect(() => {
+    if (!leadName && !leadEmail) {
+      window.location.href = '/#contact';
+    }
+  }, [leadName, leadEmail]);
+
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
