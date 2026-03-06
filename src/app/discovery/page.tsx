@@ -43,15 +43,18 @@ function DiscoveryContent() {
 
   const conversation = useConversation({
     onConnect: () => {
+      console.log('ElevenLabs connected');
       setConnectionError(false);
     },
     onDisconnect: () => {
+      console.log('ElevenLabs disconnected');
       // Save transcript on disconnect
       if (transcriptRef.current.length > 0 && !conversationSaved) {
         saveTranscript(transcriptRef.current);
       }
     },
     onMessage: (message: { source: string; message: string }) => {
+      console.log('ElevenLabs message:', message);
       if (message.source === 'ai') {
         setTranscript(prev => [...prev, { role: 'assistant', text: message.message }]);
         setCurrentAgentText('');

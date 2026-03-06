@@ -16,7 +16,6 @@ export async function POST(request: NextRequest) {
       const body = await request.json();
       const { name, business, painPoint, email, phone } = body;
       if (name) {
-        // Build dynamic context for the agent's first message and prompt
         let contextNote = `\n\nLEAD CONTEXT (from their inquiry form):\n- Name: ${name}`;
         if (business) contextNote += `\n- Business: ${business}`;
         if (painPoint) contextNote += `\n- Biggest pain point: ${painPoint}`;
@@ -24,12 +23,11 @@ export async function POST(request: NextRequest) {
         if (phone) contextNote += `\n- Phone: ${phone}`;
         contextNote += `\n\nSince you already know their name and business, DO NOT ask for these again. Start by greeting them by name and referencing what they told you.`;
 
+        // SDK expects camelCase keys
         overrides = {
           agent: {
-            prompt: {
-              prompt: contextNote,
-            },
-            first_message: `Hey ${name.split(' ')[0]}! This is Spark from Stoke-AI. Thanks for booking your Operating Assessment. ${business ? `I see you run a ${business} business` : 'I saw you filled out the form'}${painPoint ? ` and that ${painPoint.toLowerCase()} has been eating your time` : ''}. The whole idea here is pretty simple — I'm going to ask about how your business runs day-to-day, and we'll map out where your time is actually going. Sound good?`,
+            prompt: contextNote,
+            firstMessage: `Hey ${name.split(' ')[0]}! This is Spark from Stoke-AI. Thanks for booking your Operating Assessment. ${business ? `I see you run a ${business} business` : 'I saw you filled out the form'}${painPoint ? ` and that ${painPoint.toLowerCase()} has been eating your time` : ''}. The whole idea here is pretty simple — I'm going to ask about how your business runs day-to-day, and we'll map out where your time is actually going. Sound good?`,
           },
         };
       }
