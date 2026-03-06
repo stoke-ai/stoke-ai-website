@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { Suspense } from 'react';
+import { useConversation } from '@11labs/react';
 
 function DiscoveryContent() {
   const searchParams = useSearchParams();
@@ -12,6 +13,7 @@ function DiscoveryContent() {
   const leadPainPoint = searchParams.get('painPoint') || '';
   const leadEmail = searchParams.get('email') || '';
   const leadPhone = searchParams.get('phone') || '';
+
   // Redirect to home if no opt-in (no name = didn't come through the form)
   useEffect(() => {
     if (!leadName) {
@@ -19,11 +21,8 @@ function DiscoveryContent() {
     }
   }, [leadName]);
 
-  const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
   const [transcript, setTranscript] = useState<Array<{role: 'user' | 'assistant', text: string}>>([]);
-  const [currentText, setCurrentText] = useState('');
+  const [currentAgentText, setCurrentAgentText] = useState('');
   const [conversationSaved, setConversationSaved] = useState(false);
   const [showReschedule, setShowReschedule] = useState(false);
   const [rescheduleDate, setRescheduleDate] = useState('');
@@ -31,154 +30,74 @@ function DiscoveryContent() {
   const [rescheduleMinute, setRescheduleMinute] = useState('00');
   const [rescheduleAmPm, setRescheduleAmPm] = useState('PM');
   const [rescheduled, setRescheduled] = useState(false);
+  const [connectionError, setConnectionError] = useState(false);
 
-  const handleReschedule = async () => {
-    if (!rescheduleDate) return;
-    let h = parseInt(rescheduleHour);
-    if (rescheduleAmPm === 'PM' && h !== 12) h += 12;
-    if (rescheduleAmPm === 'AM' && h === 12) h = 0;
-    const time24 = `${h.toString().padStart(2, '0')}:${rescheduleMinute}`;
-    
-    // Save what we have so far
-    if (transcript.length > 0) {
-      saveTranscript(transcript);
-    }
-    // End the voice connection
-    endConversation();
-    
-    // Schedule follow-up
-    try {
-      await fetch('/api/lead-webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: leadName,
-          email: leadEmail,
-          phone: leadPhone,
-          business: leadBusiness,
-          painPoint: leadPainPoint,
-          action: 'schedule',
-          scheduleDate: rescheduleDate,
-          scheduleTime: time24,
-          scheduleTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        }),
-      });
-      setRescheduled(true);
-    } catch {
-      setRescheduled(true); // Still show confirmation even if backend fails
-    }
-  };
-  
-  const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
-  const dataChannelRef = useRef<RTCDataChannel | null>(null);
-  const audioElementRef = useRef<HTMLAudioElement | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const transcriptRef = useRef(transcript);
+  transcriptRef.current = transcript;
 
   // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [transcript, currentText]);
+  }, [transcript, currentAgentText]);
+
+  const conversation = useConversation({
+    onConnect: () => {
+      setConnectionError(false);
+    },
+    onDisconnect: () => {
+      // Save transcript on disconnect
+      if (transcriptRef.current.length > 0 && !conversationSaved) {
+        saveTranscript(transcriptRef.current);
+      }
+    },
+    onMessage: (message: { source: string; message: string }) => {
+      if (message.source === 'ai') {
+        setTranscript(prev => [...prev, { role: 'assistant', text: message.message }]);
+        setCurrentAgentText('');
+      } else if (message.source === 'user') {
+        setTranscript(prev => [...prev, { role: 'user', text: message.message }]);
+      }
+    },
+    onError: (error: unknown) => {
+      console.error('ElevenLabs error:', error);
+      setConnectionError(true);
+    },
+  });
 
   const startConversation = useCallback(async () => {
     try {
-      setStatus('connecting');
-      
-      // Get ephemeral token with lead context
-      const tokenResponse = await fetch('/api/realtime/session', { 
+      setConnectionError(false);
+
+      // Request microphone permission
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+
+      // Get signed URL and overrides from our API
+      const response = await fetch('/api/elevenlabs/signed-url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: leadName, business: leadBusiness, painPoint: leadPainPoint, email: leadEmail, phone: leadPhone }),
+        body: JSON.stringify({
+          name: leadName,
+          business: leadBusiness,
+          painPoint: leadPainPoint,
+          email: leadEmail,
+          phone: leadPhone,
+        }),
       });
-      if (!tokenResponse.ok) throw new Error('Failed to get session token');
-      const { client_secret } = await tokenResponse.json();
-      
-      // Create peer connection
-      const pc = new RTCPeerConnection();
-      peerConnectionRef.current = pc;
-      
-      // Set up audio playback
-      const audioEl = document.createElement('audio');
-      audioEl.autoplay = true;
-      audioElementRef.current = audioEl;
-      
-      pc.ontrack = (e) => {
-        audioEl.srcObject = e.streams[0];
-      };
-      
-      // Get microphone
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => pc.addTrack(track, stream));
-      
-      // Set up data channel for events
-      const dc = pc.createDataChannel('oai-events');
-      dataChannelRef.current = dc;
-      
-      dc.onmessage = (e) => {
-        const event = JSON.parse(e.data);
-        handleRealtimeEvent(event);
-      };
-      
-      dc.onopen = () => {
-        setStatus('connected');
-        setIsListening(true);
-        // Trigger initial response
-        dc.send(JSON.stringify({ type: 'response.create' }));
-      };
-      
-      // Create and set local description
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      
-      // Connect to OpenAI Realtime
-      const sdpResponse = await fetch('https://api.openai.com/v1/realtime?model=gpt-4o-realtime-preview-2024-12-17', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${client_secret.value}`,
-          'Content-Type': 'application/sdp'
-        },
-        body: offer.sdp
+
+      if (!response.ok) throw new Error('Failed to get session');
+      const { signedUrl, overrides } = await response.json();
+
+      // Start ElevenLabs conversation
+      await conversation.startSession({
+        signedUrl,
+        overrides,
       });
-      
-      if (!sdpResponse.ok) throw new Error('Failed to connect to OpenAI');
-      
-      const answer: RTCSessionDescriptionInit = {
-        type: 'answer',
-        sdp: await sdpResponse.text()
-      };
-      await pc.setRemoteDescription(answer);
-      
     } catch (error) {
       console.error('Connection error:', error);
-      setStatus('error');
+      setConnectionError(true);
     }
-  }, []);
-
-  const handleRealtimeEvent = (event: Record<string, unknown>) => {
-    switch (event.type) {
-      case 'response.audio_transcript.delta':
-        setCurrentText(prev => prev + (event.delta as string || ''));
-        setIsSpeaking(true);
-        break;
-      case 'response.audio_transcript.done':
-        if (currentText || event.transcript) {
-          setTranscript(prev => [...prev, { role: 'assistant', text: (event.transcript as string) || currentText }]);
-        }
-        setCurrentText('');
-        setIsSpeaking(false);
-        break;
-      case 'conversation.item.input_audio_transcription.completed':
-        if (event.transcript) {
-          setTranscript(prev => [...prev, { role: 'user', text: event.transcript as string }]);
-        }
-        break;
-      case 'input_audio_buffer.speech_started':
-        setIsListening(true);
-        break;
-      case 'input_audio_buffer.speech_stopped':
-        setIsListening(false);
-        break;
-    }
-  };
+  }, [conversation, leadName, leadBusiness, leadPainPoint, leadEmail, leadPhone]);
 
   const saveTranscript = async (finalTranscript: Array<{role: string, text: string}>) => {
     try {
@@ -200,23 +119,51 @@ function DiscoveryContent() {
     }
   };
 
-  const endConversation = () => {
-    // Save transcript before closing
-    if (transcript.length > 0) {
-      saveTranscript(transcript);
+  const endConversation = async () => {
+    if (transcriptRef.current.length > 0) {
+      saveTranscript(transcriptRef.current);
     }
-    if (peerConnectionRef.current) {
-      peerConnectionRef.current.close();
-      peerConnectionRef.current = null;
-    }
-    if (dataChannelRef.current) {
-      dataChannelRef.current.close();
-      dataChannelRef.current = null;
-    }
-    setStatus('idle');
-    setIsListening(false);
-    setIsSpeaking(false);
+    await conversation.endSession();
   };
+
+  const handleReschedule = async () => {
+    if (!rescheduleDate) return;
+    let h = parseInt(rescheduleHour);
+    if (rescheduleAmPm === 'PM' && h !== 12) h += 12;
+    if (rescheduleAmPm === 'AM' && h === 12) h = 0;
+    const time24 = `${h.toString().padStart(2, '0')}:${rescheduleMinute}`;
+
+    if (transcriptRef.current.length > 0) {
+      saveTranscript(transcriptRef.current);
+    }
+    await conversation.endSession();
+
+    try {
+      await fetch('/api/lead-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: leadName,
+          email: leadEmail,
+          phone: leadPhone,
+          business: leadBusiness,
+          painPoint: leadPainPoint,
+          action: 'schedule',
+          scheduleDate: rescheduleDate,
+          scheduleTime: time24,
+          scheduleTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
+      });
+      setRescheduled(true);
+    } catch {
+      setRescheduled(true);
+    }
+  };
+
+  const isConnected = conversation.status === 'connected';
+  const isConnecting = conversation.status === 'connecting';
+  const isIdle = conversation.status === 'disconnected' && !connectionError;
+  const isSpeaking = conversation.isSpeaking;
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white flex flex-col">
@@ -235,17 +182,17 @@ function DiscoveryContent() {
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-6 max-w-3xl flex flex-col">
         {/* Welcome Section - only show when idle */}
-        {status === 'idle' && (
+        {isIdle && transcript.length === 0 && (
           <div className="text-center mb-8 space-y-4">
             <h1 className="text-3xl font-bold text-white">
               Welcome to Your Free Assessment
             </h1>
             <div className="max-w-2xl mx-auto space-y-3 text-gray-300">
               <p>
-                I'm Spark, the AI that helps business owners identify where they're losing time and money to busywork. 
+                I&apos;m Spark, the AI that helps business owners identify where they&apos;re losing time and money to busywork.
               </p>
               <p>
-                This conversation takes about <strong className="text-orange-400">5 minutes</strong>. I'll ask you a few questions about how your business runs day-to-day, and show you exactly where an operating system could free up your time.
+                This conversation takes about <strong className="text-orange-400">5 minutes</strong>. I&apos;ll ask you a few questions about how your business runs day-to-day, and show you exactly where an operating system could free up your time.
               </p>
               <p className="text-sm text-gray-400">
                 No sales pitch. No pressure. Just an honest assessment of whether we can actually help.
@@ -253,7 +200,7 @@ function DiscoveryContent() {
             </div>
           </div>
         )}
-        
+
         {/* Transcript Area */}
         <div className="flex-1 overflow-y-auto space-y-4 pb-4 min-h-[300px]">
           {transcript.map((msg, i) => (
@@ -277,13 +224,13 @@ function DiscoveryContent() {
               )}
             </div>
           ))}
-          {currentText && (
+          {currentAgentText && (
             <div className="flex gap-3 justify-start">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center shrink-0">
                 <span className="text-lg">⚡</span>
               </div>
               <div className="bg-gray-800 rounded-2xl px-4 py-3 text-gray-100">
-                <p className="whitespace-pre-wrap">{currentText}</p>
+                <p className="whitespace-pre-wrap">{currentAgentText}</p>
               </div>
             </div>
           )}
@@ -293,7 +240,7 @@ function DiscoveryContent() {
         {/* Control Area */}
         <div className="border-t border-gray-800 pt-6 pb-4">
           <div className="flex flex-col items-center gap-4">
-            {status === 'idle' && (
+            {isIdle && transcript.length === 0 && (
               <button
                 onClick={startConversation}
                 className="px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-full text-lg font-semibold transition-all transform hover:scale-105"
@@ -301,20 +248,20 @@ function DiscoveryContent() {
                 Start Conversation
               </button>
             )}
-            
-            {status === 'connecting' && (
+
+            {isConnecting && (
               <div className="flex items-center gap-3 text-gray-400">
                 <div className="w-6 h-6 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
                 Connecting...
               </div>
             )}
-            
-            {status === 'connected' && (
+
+            {isConnected && (
               <div className="flex flex-col items-center gap-4">
                 {/* Animated orb */}
                 <div className={`relative w-32 h-32 ${isSpeaking ? 'scale-110' : ''} transition-transform`}>
                   <div className={`absolute inset-0 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 ${
-                    isSpeaking ? 'animate-pulse' : isListening ? 'opacity-80' : 'opacity-60'
+                    isSpeaking ? 'animate-pulse' : 'opacity-80'
                   }`} />
                   <div className={`absolute inset-2 rounded-full bg-gradient-to-br from-orange-400 to-amber-500 ${
                     isSpeaking ? 'animate-ping' : ''
@@ -323,17 +270,15 @@ function DiscoveryContent() {
                     <span className="text-4xl">⚡</span>
                   </div>
                 </div>
-                
+
                 <div className="text-center">
                   {isSpeaking ? (
                     <span className="text-orange-400">Spark is speaking...</span>
-                  ) : isListening ? (
-                    <span className="text-green-400">Listening...</span>
                   ) : (
-                    <span className="text-gray-400">Just start talking</span>
+                    <span className="text-green-400">Listening...</span>
                   )}
                 </div>
-                
+
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowReschedule(true)}
@@ -348,7 +293,7 @@ function DiscoveryContent() {
                     End Conversation
                   </button>
                 </div>
-                
+
                 {showReschedule && !rescheduled && (
                   <div className="bg-gray-800/80 border border-orange-500/20 rounded-xl p-4 w-full max-w-sm">
                     <p className="text-sm text-gray-300 mb-3">No worries! Pick a time and Spark will text you a link to finish.</p>
@@ -381,7 +326,7 @@ function DiscoveryContent() {
                     </div>
                   </div>
                 )}
-                
+
                 {rescheduled && (
                   <div className="bg-gray-800/80 border border-green-500/20 rounded-xl p-4 text-center">
                     <p className="text-green-400 font-medium">✓ Scheduled!</p>
@@ -390,10 +335,10 @@ function DiscoveryContent() {
                 )}
               </div>
             )}
-            
-            {status === 'error' && (
+
+            {(connectionError || (isIdle && transcript.length > 0 && !conversationSaved)) && (
               <div className="flex flex-col items-center gap-3">
-                <span className="text-red-400">Connection failed. Please try again.</span>
+                <span className="text-red-400">Connection lost. Please try again.</span>
                 <button
                   onClick={startConversation}
                   className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-full transition-all"
@@ -411,10 +356,10 @@ function DiscoveryContent() {
         {conversationSaved ? (
           <div className="space-y-2">
             <div className="text-orange-400 font-medium">✓ Assessment Complete!</div>
-            <div>We'll analyze your responses and follow up within 24 hours with a custom recommendation for your business.</div>
+            <div>We&apos;ll analyze your responses and follow up within 24 hours with a custom recommendation for your business.</div>
           </div>
-        ) : status === 'connected' ? (
-          'Speak naturally — I understand conversational language.'
+        ) : isConnected ? (
+          'Speak naturally — Spark understands conversational language.'
         ) : (
           'This conversation helps us understand your needs. No commitment required.'
         )}
