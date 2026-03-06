@@ -14,9 +14,6 @@ const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7448321777';
 
-// Conversation storage
-const CONVOS_FILE = path.join(process.cwd(), 'data', 'sms-conversations.json');
-
 interface SMSConversation {
   phone: string;
   name: string;
@@ -29,19 +26,27 @@ interface SMSConversation {
   updatedAt: string;
 }
 
-async function getConversations(): Promise<Record<string, SMSConversation>> {
+// Parse conversation state from Twilio cookies
+function parseConversationFromCookies(cookieHeader: string | null): SMSConversation | null {
+  if (!cookieHeader) return null;
+  
   try {
-    const data = await fs.readFile(CONVOS_FILE, 'utf-8');
-    return JSON.parse(data);
+    const cookies = new URLSearchParams(cookieHeader.replace(/;\s*/g, '&'));
+    const conversationData = cookies.get('conversation');
+    if (!conversationData) return null;
+    
+    // Decode base64 and parse JSON
+    const decoded = Buffer.from(conversationData, 'base64').toString('utf-8');
+    return JSON.parse(decoded);
   } catch {
-    return {};
+    return null;
   }
 }
 
-async function saveConversations(convos: Record<string, SMSConversation>): Promise<void> {
-  const dir = path.dirname(CONVOS_FILE);
-  await fs.mkdir(dir, { recursive: true });
-  await fs.writeFile(CONVOS_FILE, JSON.stringify(convos, null, 2));
+// Encode conversation state to base64 for Twilio cookies
+function encodeConversationToCookie(conversation: SMSConversation): string {
+  const json = JSON.stringify(conversation);
+  return Buffer.from(json, 'utf-8').toString('base64');
 }
 
 // Look up lead info from leads.json by phone number
@@ -179,13 +184,13 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const from = formData.get('From') as string || '';
     const body = formData.get('Body') as string || '';
+    const cookieHeader = request.headers.get('Cookie');
     const normalizedPhone = normalizePhone(from);
 
     console.log('Inbound SMS:', { from: normalizedPhone, body });
 
-    // Get or create conversation
-    const convos = await getConversations();
-    let convo = convos[normalizedPhone];
+    // Get conversation from Twilio cookies or create new one
+    let convo = parseConversationFromCookies(cookieHeader);
 
     if (!convo) {
       // New conversation — try to find lead info
@@ -231,14 +236,6 @@ export async function POST(request: NextRequest) {
       await notifyEscalation(convo);
     }
 
-    // Save conversation (best effort — Railway has ephemeral filesystem)
-    try {
-      convos[normalizedPhone] = convo;
-      await saveConversations(convos);
-    } catch (saveErr) {
-      console.error('Failed to save conversation:', saveErr);
-    }
-
     // Escape XML special characters in response
     const xmlSafe = sparkResponse
       .replace(/&/g, '&amp;')
@@ -246,10 +243,18 @@ export async function POST(request: NextRequest) {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
 
-    // Return TwiML with Spark's response directly — most reliable method
+    // Encode conversation state for Twilio cookie persistence
+    const conversationCookie = encodeConversationToCookie(convo);
+
+    // Return TwiML with Spark's response and updated conversation state in cookies
     return new NextResponse(
       `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${xmlSafe}</Message></Response>`,
-      { headers: { 'Content-Type': 'text/xml' } }
+      { 
+        headers: { 
+          'Content-Type': 'text/xml',
+          'Set-Cookie': `conversation=${conversationCookie}; Path=/; HttpOnly; SameSite=None; Secure`
+        } 
+      }
     );
   } catch (error) {
     console.error('Inbound SMS error:', error);
@@ -260,17 +265,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// GET endpoint to check conversation status
+// GET endpoint to check SMS webhook status
 export async function GET(request: NextRequest) {
-  const phone = request.nextUrl.searchParams.get('phone');
-  if (phone) {
-    const convos = await getConversations();
-    const normalized = normalizePhone(phone);
-    return NextResponse.json(convos[normalized] || { error: 'No conversation found' });
-  }
-  const convos = await getConversations();
+  const cookieHeader = request.headers.get('Cookie');
+  const conversation = parseConversationFromCookies(cookieHeader);
+  
   return NextResponse.json({ 
-    status: 'SMS webhook active',
-    conversations: Object.keys(convos).length,
+    status: 'SMS webhook active (cookie-based persistence)',
+    hasConversation: !!conversation,
+    phone: conversation?.phone || null,
+    messageCount: conversation?.messages?.length || 0,
+    lastUpdated: conversation?.updatedAt || null
   });
 }
