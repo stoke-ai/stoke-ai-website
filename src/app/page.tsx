@@ -54,26 +54,7 @@ export default function Home() {
     setError('');
     
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          business: formData.business,
-          website: formData.website,
-          message: formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint,
-        }),
-      });
-      
-      if (!res.ok) throw new Error('Failed to submit');
-      
-      const result = await res.json();
-      setAiInsight(result.insight || generateInsight(formData.business));
-      setSubmitted(true);
-      
-      // Also send to lead-webhook for notifications/SMS workflow
-      fetch('/api/lead-webhook', {
+      const res = await fetch('/api/lead-webhook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,8 +65,12 @@ export default function Home() {
           website: formData.website,
           painPoint: formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint,
         }),
-      }).catch(() => {}); // Silent fail for notifications
+      });
       
+      if (!res.ok) throw new Error('Failed to submit');
+      
+      setAiInsight(generateInsight(formData.business));
+      setSubmitted(true);
     } catch {
       setError('Something went wrong. Please try again.');
     } finally {
