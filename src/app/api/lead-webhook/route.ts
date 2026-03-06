@@ -1,29 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import crypto from 'crypto';
-
-// In-memory token store (survives within a single Railway instance)
-// Tokens expire after 30 minutes
-const assessmentTokens = new Map<string, { expires: number; used: boolean }>();
-
-export function generateAssessmentToken(expiresInMs: number = 30 * 60 * 1000): string {
-  const token = crypto.randomBytes(16).toString('hex');
-  assessmentTokens.set(token, { expires: Date.now() + expiresInMs, used: false });
-  // Clean up expired tokens
-  for (const [key, val] of assessmentTokens) {
-    if (val.expires < Date.now()) assessmentTokens.delete(key);
-  }
-  return token;
-}
-
-export function validateAssessmentToken(token: string): boolean {
-  const entry = assessmentTokens.get(token);
-  if (!entry) return false;
-  if (entry.expires < Date.now()) { assessmentTokens.delete(token); return false; }
-  if (entry.used) return false;
-  entry.used = true; // One-time use
-  return true;
-}
-
 // Twilio credentials (from Vercel env vars)
 const TWILIO_SID = process.env.TWILIO_SID;
 const TWILIO_AUTH = process.env.TWILIO_AUTH_TOKEN;
@@ -307,10 +282,8 @@ export async function POST(request: NextRequest) {
       console.log('Assessment scheduled:', { name, email, phone, scheduleDate, scheduleTime });
       const firstName = (name || 'there').split(' ')[0];
       
-      // Generate a long-lived token (7 days) for scheduled assessments
-      const scheduledToken = generateAssessmentToken(7 * 24 * 60 * 60 * 1000);
-      // Build the discovery URL with lead context + token
-      const discoveryUrl = `https://stoke-ai.com/discovery?name=${encodeURIComponent(name || '')}&business=${encodeURIComponent(business || '')}&painPoint=${encodeURIComponent(painPoint || '')}&email=${encodeURIComponent(email || '')}&phone=${encodeURIComponent(phone || '')}&token=${scheduledToken}`;
+      // Build the discovery URL with lead context
+      const discoveryUrl = `https://stoke-ai.com/discovery?name=${encodeURIComponent(name || '')}&business=${encodeURIComponent(business || '')}&painPoint=${encodeURIComponent(painPoint || '')}&email=${encodeURIComponent(email || '')}&phone=${encodeURIComponent(phone || '')}`;
       
       // Schedule automated SMS messages via Twilio if phone provided
       if (phone && TWILIO_SID && TWILIO_AUTH) {
@@ -495,9 +468,7 @@ _No action needed from you. Spark handles it._`;
       smsOk
     );
 
-    // Generate one-time assessment token for voice discovery
-    const assessmentToken = generateAssessmentToken();
-    return NextResponse.json({ success: true, message: 'Lead processed', assessmentToken });
+    return NextResponse.json({ success: true, message: 'Lead processed' });
   } catch (error) {
     console.error('Webhook error:', error);
     return NextResponse.json({ error: 'Failed to process lead' }, { status: 500 });
