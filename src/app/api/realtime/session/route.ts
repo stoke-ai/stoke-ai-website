@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateAssessmentToken } from '../../lead-webhook/route';
 
 export async function POST(request: NextRequest) {
   try {
@@ -6,6 +7,14 @@ export async function POST(request: NextRequest) {
     let leadContext = '';
     try {
       const body = await request.json();
+      
+      // Validate assessment token
+      if (body.token) {
+        const isValid = validateAssessmentToken(body.token);
+        if (!isValid) {
+          return NextResponse.json({ error: 'Invalid or expired assessment token. Please fill out the form again.' }, { status: 403 });
+        }
+      }
       const { name, business, painPoint, email, phone } = body;
       if (name) {
         leadContext = `

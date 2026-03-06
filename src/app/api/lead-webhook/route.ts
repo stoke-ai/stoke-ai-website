@@ -1,4 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import crypto from 'crypto';
+
+// In-memory token store (survives within a single Railway instance)
+// Tokens expire after 30 minutes
+const assessmentTokens = new Map<string, { expires: number; used: boolean }>();
+
+export function generateAssessmentToken(): string {
+  const token = crypto.randomBytes(16).toString('hex');
+  assessmentTokens.set(token, { expires: Date.now() + 30 * 60 * 1000, used: false });
+  // Clean up expired tokens
+  for (const [key, val] of assessmentTokens) {
+    if (val.expires < Date.now()) assessmentTokens.delete(key);
+  }
+  return token;
+}
+
+export function validateAssessmentToken(token: string): boolean {
+  const entry = assessmentTokens.get(token);
+  if (!entry) return false;
+  if (entry.expires < Date.now()) { assessmentTokens.delete(token); return false; }
+  if (entry.used) return false;
+  entry.used = true; // One-time use
+  return true;
+}
 
 // Twilio credentials (from Vercel env vars)
 const TWILIO_SID = process.env.TWILIO_SID;
@@ -452,7 +476,9 @@ _No action needed from you. Spark handles it._`;
       smsOk
     );
 
-    return NextResponse.json({ success: true, message: 'Lead processed' });
+    // Generate one-time assessment token for voice discovery
+    const assessmentToken = generateAssessmentToken();
+    return NextResponse.json({ success: true, message: 'Lead processed', assessmentToken });
   } catch (error) {
     console.error('Webhook error:', error);
     return NextResponse.json({ error: 'Failed to process lead' }, { status: 500 });

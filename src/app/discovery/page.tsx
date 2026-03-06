@@ -12,13 +12,14 @@ function DiscoveryContent() {
   const leadPainPoint = searchParams.get('painPoint') || '';
   const leadEmail = searchParams.get('email') || '';
   const leadPhone = searchParams.get('phone') || '';
+  const token = searchParams.get('token') || '';
 
-  // Redirect to home if no opt-in (no name = didn't come through the form)
+  // Redirect to home if no opt-in (no name or no token = didn't come through the form)
   useEffect(() => {
-    if (!leadName && !leadEmail) {
+    if (!leadName || !token) {
       window.location.href = '/#contact';
     }
-  }, [leadName, leadEmail]);
+  }, [leadName, token]);
 
   const [status, setStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
   const [isListening, setIsListening] = useState(false);
@@ -88,7 +89,7 @@ function DiscoveryContent() {
       const tokenResponse = await fetch('/api/realtime/session', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: leadName, business: leadBusiness, painPoint: leadPainPoint, email: leadEmail, phone: leadPhone }),
+        body: JSON.stringify({ name: leadName, business: leadBusiness, painPoint: leadPainPoint, email: leadEmail, phone: leadPhone, token }),
       });
       if (!tokenResponse.ok) throw new Error('Failed to get session token');
       const { client_secret } = await tokenResponse.json();
