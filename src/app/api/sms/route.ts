@@ -231,22 +231,30 @@ export async function POST(request: NextRequest) {
       await notifyEscalation(convo);
     }
 
-    // Save conversation
-    convos[normalizedPhone] = convo;
-    await saveConversations(convos);
+    // Save conversation (best effort — Railway has ephemeral filesystem)
+    try {
+      convos[normalizedPhone] = convo;
+      await saveConversations(convos);
+    } catch (saveErr) {
+      console.error('Failed to save conversation:', saveErr);
+    }
 
-    // Send Spark's response via SMS
-    await sendSMS(from, sparkResponse);
+    // Escape XML special characters in response
+    const xmlSafe = sparkResponse
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
 
-    // Return TwiML empty response (we're handling reply ourselves)
+    // Return TwiML with Spark's response directly — most reliable method
     return new NextResponse(
-      '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+      `<?xml version="1.0" encoding="UTF-8"?><Response><Message>${xmlSafe}</Message></Response>`,
       { headers: { 'Content-Type': 'text/xml' } }
     );
   } catch (error) {
     console.error('Inbound SMS error:', error);
     return new NextResponse(
-      '<?xml version="1.0" encoding="UTF-8"?><Response></Response>',
+      '<?xml version="1.0" encoding="UTF-8"?><Response><Message>Thanks for reaching out! We\'ll get back to you shortly.</Message></Response>',
       { headers: { 'Content-Type': 'text/xml' } }
     );
   }
