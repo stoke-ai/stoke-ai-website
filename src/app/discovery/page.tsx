@@ -31,6 +31,7 @@ function DiscoveryContent() {
   const [rescheduleAmPm, setRescheduleAmPm] = useState('PM');
   const [rescheduled, setRescheduled] = useState(false);
   const [connectionError, setConnectionError] = useState(false);
+  const [micError, setMicError] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const transcriptRef = useRef(transcript);
@@ -72,9 +73,6 @@ function DiscoveryContent() {
     try {
       setConnectionError(false);
 
-      // Request microphone permission
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-
       // Get signed URL and overrides from our API
       const response = await fetch('/api/elevenlabs/signed-url', {
         method: 'POST',
@@ -91,13 +89,17 @@ function DiscoveryContent() {
       if (!response.ok) throw new Error('Failed to get session');
       const { signedUrl, overrides } = await response.json();
 
-      // Start ElevenLabs conversation
+      // Start ElevenLabs conversation (SDK handles mic permission internally)
       await conversation.startSession({
         signedUrl,
         overrides,
       });
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Connection error:', error);
+      const msg = error instanceof Error ? error.message : String(error);
+      if (msg.includes('NotFound') || msg.includes('Permission') || msg.includes('NotAllowed')) {
+        setMicError(true);
+      }
       setConnectionError(true);
     }
   }, [conversation, leadName, leadBusiness, leadPainPoint, leadEmail, leadPhone]);
@@ -341,9 +343,20 @@ function DiscoveryContent() {
 
             {(connectionError || (isIdle && transcript.length > 0 && !conversationSaved)) && (
               <div className="flex flex-col items-center gap-3">
-                <span className="text-red-400">Connection lost. Please try again.</span>
+                {micError ? (
+                  <>
+                    <span className="text-red-400 text-center">
+                      🎙️ Microphone access is required for the voice assessment.
+                    </span>
+                    <span className="text-gray-400 text-sm text-center max-w-md">
+                      Please allow microphone access in your browser settings and try again. On mobile, make sure your browser has microphone permission in your phone&apos;s settings.
+                    </span>
+                  </>
+                ) : (
+                  <span className="text-red-400">Connection failed. Please try again.</span>
+                )}
                 <button
-                  onClick={startConversation}
+                  onClick={() => { setConnectionError(false); setMicError(false); startConversation(); }}
                   className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 rounded-full transition-all"
                 >
                   Retry
