@@ -562,17 +562,22 @@ export default function Home() {
                       </div>
                       {showSchedule && (
                         <div className="mt-4 space-y-3">
-                          <div className="grid grid-cols-2 gap-3">
-                            <input
-                              type="date"
-                              className="px-3 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-300 text-sm"
-                              min={new Date().toISOString().split('T')[0]}
-                              value={scheduleDate}
-                              onChange={(e) => setScheduleDate(e.target.value)}
-                            />
-                            <div className="flex gap-1">
+                          <div className="space-y-3">
+                            <div>
+                              <label className="text-gray-400 text-xs mb-1 block">Pick a date</label>
+                              <input
+                                type="date"
+                                className="w-full px-3 py-2 bg-gray-800 border border-orange-500/30 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-white text-sm cursor-pointer [color-scheme:dark]"
+                                min={new Date().toISOString().split('T')[0]}
+                                value={scheduleDate}
+                                onChange={(e) => setScheduleDate(e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-gray-400 text-xs mb-1 block">Pick a time</label>
+                              <div className="flex gap-1">
                               <select
-                                className="px-2 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
+                                className="px-2 py-2 bg-gray-800 border border-orange-500/30 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-white text-sm cursor-pointer"
                                 value={scheduleHour}
                                 onChange={(e) => setScheduleHour(e.target.value)}
                               >
@@ -581,7 +586,7 @@ export default function Home() {
                                 ))}
                               </select>
                               <select
-                                className="px-2 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
+                                className="px-2 py-2 bg-gray-800 border border-orange-500/30 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-white text-sm cursor-pointer"
                                 value={scheduleMinute}
                                 onChange={(e) => setScheduleMinute(e.target.value)}
                               >
@@ -591,13 +596,14 @@ export default function Home() {
                                 <option value="45">:45</option>
                               </select>
                               <select
-                                className="px-2 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
+                                className="px-2 py-2 bg-gray-800 border border-orange-500/30 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-white text-sm cursor-pointer"
                                 value={scheduleAmPm}
                                 onChange={(e) => setScheduleAmPm(e.target.value)}
                               >
                                 <option value="AM">AM</option>
                                 <option value="PM">PM</option>
                               </select>
+                              </div>
                             </div>
                           </div>
                           <button
