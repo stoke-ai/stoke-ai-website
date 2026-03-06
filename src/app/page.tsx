@@ -367,7 +367,7 @@ export default function Home() {
               {[
                 { icon: '/icon-automation.webp', title: 'Overwhelmed Owners', desc: 'You\'re doing everything yourself and there aren\'t enough hours in the day. Your system takes the busywork off your plate.' },
                 { icon: '/icon-followups.webp', title: 'Growing Businesses', desc: 'You\'re ready to scale but can\'t afford to hire for every task that needs doing. Your system grows with you.' },
-                { icon: '/icon-running.webp', title: 'Commission-Based Pros', desc: 'Your income depends on relationships, not paperwork. Let the system handle the rest so you can focus on closing.' },
+                { icon: '/icon-running.webp', title: 'Revenue-Driven Entrepreneurs', desc: 'Your income depends on relationships, not paperwork. Let the system handle the rest so you can focus on growing.' },
               ].map((item, i) => (
                 <div key={i} className="relative bg-gradient-to-br from-gray-900/80 to-black border border-gray-800 hover:border-orange-500/50 p-8 rounded-3xl transition-all duration-300 group text-center">
                   <div className="absolute top-6 left-1/2 -translate-x-1/2 w-20 h-20 bg-orange-500/20 rounded-full blur-2xl group-hover:bg-orange-500/30 transition-all" />
