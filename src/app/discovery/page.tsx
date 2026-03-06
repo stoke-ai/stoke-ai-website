@@ -47,11 +47,15 @@ function DiscoveryContent() {
       console.log('ElevenLabs connected');
       setConnectionError(false);
     },
-    onDisconnect: () => {
-      console.log('ElevenLabs disconnected');
+    onDisconnect: (details: unknown) => {
+      console.log('ElevenLabs disconnected', details);
       // Save transcript on disconnect
       if (transcriptRef.current.length > 0 && !conversationSaved) {
         saveTranscript(transcriptRef.current);
+      }
+      // If disconnected with no transcript, it was an unexpected drop — show error
+      if (transcriptRef.current.length === 0) {
+        setConnectionError(true);
       }
     },
     onMessage: (message: { source: string; message: string }) => {
@@ -355,7 +359,12 @@ function DiscoveryContent() {
                     </span>
                   </>
                 ) : (
-                  <span className="text-red-400">Connection failed. Please try again.</span>
+                  <>
+                    <span className="text-red-400">Connection failed. Please try again.</span>
+                    <span className="text-gray-400 text-sm text-center max-w-md">
+                      Make sure you have a stable internet connection and your browser allows microphone access for this site.
+                    </span>
+                  </>
                 )}
                 <button
                   onClick={() => { setConnectionError(false); setMicError(false); startConversation(); }}
