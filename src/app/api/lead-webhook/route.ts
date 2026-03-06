@@ -210,11 +210,87 @@ export async function POST(request: NextRequest) {
     
     // Handle scheduled assessment
     if (action === 'schedule') {
-      console.log('Assessment scheduled:', { name, email, scheduleDate, scheduleTime });
+      console.log('Assessment scheduled:', { name, email, phone, scheduleDate, scheduleTime });
+      const firstName = (name || 'there').split(' ')[0];
+      
+      // Build the discovery URL with lead context
+      const discoveryUrl = `https://stoke-ai.com/discovery?name=${encodeURIComponent(name || '')}&business=${encodeURIComponent(business || '')}&painPoint=${encodeURIComponent(painPoint || '')}&email=${encodeURIComponent(email || '')}&phone=${encodeURIComponent(phone || '')}`;
+      
+      // Schedule automated SMS messages via Twilio if phone provided
+      if (phone && TWILIO_SID && TWILIO_AUTH) {
+        let formattedPhone = phone.replace(/\D/g, '');
+        if (formattedPhone.length === 10) formattedPhone = '1' + formattedPhone;
+        if (!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
+        
+        // Parse scheduled date/time into UTC for Twilio (Mountain Time = UTC-7)
+        const scheduledMT = new Date(`${scheduleDate}T${scheduleTime}:00-07:00`);
+        const followUp15 = new Date(scheduledMT.getTime() + 15 * 60 * 1000); // 15 min later
+        const nextDay10am = new Date(scheduledMT);
+        nextDay10am.setDate(nextDay10am.getDate() + 1);
+        nextDay10am.setHours(10, 0, 0, 0); // Next day 10 AM MT
+        const nextDayUTC = new Date(`${nextDay10am.toISOString().split('T')[0]}T17:00:00Z`); // 10 AM MT = 5 PM UTC
+        
+        const twilioAuth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString('base64');
+        
+        // Message 1: At scheduled time
+        try {
+          await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${twilioAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              To: formattedPhone,
+              From: TWILIO_FROM,
+              Body: `Hey ${firstName}! 👋 It's Spark from Stoke-AI. Ready for your free operating assessment? Tap here to start — it takes about 5 minutes: ${discoveryUrl}`,
+              ScheduleType: 'fixed',
+              SendAt: scheduledMT.toISOString(),
+              MessagingServiceSid: '', // Empty since we removed from service
+            }),
+          });
+        } catch (e) { console.error('Schedule msg 1 failed:', e); }
+        
+        // Message 2: 15 minutes later (gentle nudge)
+        try {
+          await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${twilioAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              To: formattedPhone,
+              From: TWILIO_FROM,
+              Body: `Still available if now works, ${firstName}! Here's the link whenever you're ready: ${discoveryUrl}`,
+              ScheduleType: 'fixed',
+              SendAt: followUp15.toISOString(),
+            }),
+          });
+        } catch (e) { console.error('Schedule msg 2 failed:', e); }
+        
+        // Message 3: Next day 10 AM (reschedule offer)
+        try {
+          await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Basic ${twilioAuth}`,
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              To: formattedPhone,
+              From: TWILIO_FROM,
+              Body: `Hey ${firstName}, we missed each other yesterday. No worries — want to reschedule? Just reply with a time that works or tap here to do it now: ${discoveryUrl}`,
+              ScheduleType: 'fixed',
+              SendAt: nextDayUTC.toISOString(),
+            }),
+          });
+        } catch (e) { console.error('Schedule msg 3 failed:', e); }
+      }
       
       // Notify Jeff about scheduled assessment
       if (TELEGRAM_BOT_TOKEN) {
-        const scheduleText = `📅 *Assessment Scheduled*
+        const scheduleText = `📅 *Assessment Scheduled — Automated*
 
 *Name:* ${name || 'Unknown'}
 *Email:* ${email || 'Not provided'}
@@ -223,7 +299,9 @@ export async function POST(request: NextRequest) {
 *Date:* ${scheduleDate}
 *Time:* ${scheduleTime}
 
-_Spark will call/text them at this time to run the assessment._`;
+${phone ? '✅ 3 automated texts scheduled:\n• At scheduled time (assessment link)\n• 15 min follow-up\n• Next day reschedule offer' : '⚠️ No phone provided — email only'}
+
+_No action needed from you. Spark handles it._`;
 
         await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
           method: 'POST',
@@ -234,7 +312,10 @@ _Spark will call/text them at this time to run the assessment._`;
       
       // Send confirmation email
       if (email && RESEND_API_KEY) {
-        const firstName = (name || 'there').split(' ')[0];
+        // Format time for display
+        const hour = parseInt(scheduleTime.split(':')[0]);
+        const displayTime = hour > 12 ? `${hour - 12}:00 PM` : hour === 12 ? '12:00 PM' : `${hour}:00 AM`;
+        
         await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
@@ -244,10 +325,15 @@ _Spark will call/text them at this time to run the assessment._`;
             subject: `${firstName} — your assessment is scheduled 📅`,
             html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
               <p>Hey ${firstName}!</p>
-              <p>Your free AI operating assessment is scheduled for <strong>${scheduleDate} at ${scheduleTime}</strong> (Mountain Time).</p>
-              <p>I'll reach out at that time to walk through how your business runs and where an operating system could save you time.</p>
-              <p>If you want to do it sooner, just reply to this email or <a href="https://stoke-ai.com/discovery?name=${encodeURIComponent(name || '')}&business=${encodeURIComponent(business || '')}">click here to talk now</a>.</p>
+              <p>Your free AI operating assessment is locked in for <strong>${scheduleDate} at ${displayTime} Mountain Time</strong>.</p>
+              <p>I'll text you at that time with a link to start. It takes about 5 minutes — I'll ask you some questions about how your business runs and where an operating system could save you time.</p>
+              <p>Can't wait? <a href="${discoveryUrl}">Click here to do it right now.</a></p>
               <p>Talk soon,<br><strong>Spark</strong> · Stoke-AI</p>
+              <p style="margin-top: 10px;">
+                <a href="https://stoke-ai.com" style="text-decoration: none;">
+                  <img src="https://stoke-ai.com/stoke-ai-logo.jpg" alt="Stoke-AI - Operating Intelligence" style="max-width: 250px; height: auto;" />
+                </a>
+              </p>
             </div>`,
             reply_to: 'jeff@stoke-ai.com',
           }),
