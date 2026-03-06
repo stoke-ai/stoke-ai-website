@@ -711,7 +711,6 @@ export default function Home() {
                 <h4 className="text-white font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
                   <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free Assessment</a></li>
-                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free Assessment</a></li>
                   <li><a href="/blog" className="text-gray-400 hover:text-orange-500 text-sm">Blog</a></li>
                   <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
                 </ul>
