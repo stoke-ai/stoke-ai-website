@@ -19,7 +19,9 @@ export default function Home() {
   const [aiInsight, setAiInsight] = useState('');
   const [showSchedule, setShowSchedule] = useState(false);
   const [scheduleDate, setScheduleDate] = useState('');
-  const [scheduleTime, setScheduleTime] = useState('');
+  const [scheduleHour, setScheduleHour] = useState('12');
+  const [scheduleMinute, setScheduleMinute] = useState('00');
+  const [scheduleAmPm, setScheduleAmPm] = useState('PM');
   const [scheduled, setScheduled] = useState(false);
 
   const generateInsight = (business: string): string => {
@@ -92,7 +94,12 @@ export default function Home() {
           painPoint: formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint,
           action: 'schedule',
           scheduleDate,
-          scheduleTime,
+          scheduleTime: (() => {
+            let h = parseInt(scheduleHour);
+            if (scheduleAmPm === 'PM' && h !== 12) h += 12;
+            if (scheduleAmPm === 'AM' && h === 12) h = 0;
+            return `${h.toString().padStart(2, '0')}:${scheduleMinute}`;
+          })(),
         }),
       });
       setScheduled(true);
@@ -563,17 +570,39 @@ export default function Home() {
                               value={scheduleDate}
                               onChange={(e) => setScheduleDate(e.target.value)}
                             />
-                            <input
-                              type="time"
-                              step="900"
-                              className="px-3 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
-                              value={scheduleTime}
-                              onChange={(e) => setScheduleTime(e.target.value)}
-                            />
+                            <div className="flex gap-1">
+                              <select
+                                className="px-2 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
+                                value={scheduleHour}
+                                onChange={(e) => setScheduleHour(e.target.value)}
+                              >
+                                {['12','1','2','3','4','5','6','7','8','9','10','11'].map(h => (
+                                  <option key={h} value={h}>{h}</option>
+                                ))}
+                              </select>
+                              <select
+                                className="px-2 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
+                                value={scheduleMinute}
+                                onChange={(e) => setScheduleMinute(e.target.value)}
+                              >
+                                <option value="00">:00</option>
+                                <option value="15">:15</option>
+                                <option value="30">:30</option>
+                                <option value="45">:45</option>
+                              </select>
+                              <select
+                                className="px-2 py-2 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors text-gray-400 text-sm"
+                                value={scheduleAmPm}
+                                onChange={(e) => setScheduleAmPm(e.target.value)}
+                              >
+                                <option value="AM">AM</option>
+                                <option value="PM">PM</option>
+                              </select>
+                            </div>
                           </div>
                           <button
                             onClick={handleSchedule}
-                            disabled={!scheduleDate || !scheduleTime}
+                            disabled={!scheduleDate}
                             className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3 px-6 rounded-xl transition-all"
                           >
                             {scheduled ? '✓ Scheduled! Check your email for confirmation.' : 'Confirm Time →'}
