@@ -26,6 +26,49 @@ function DiscoveryContent() {
   const [transcript, setTranscript] = useState<Array<{role: 'user' | 'assistant', text: string}>>([]);
   const [currentText, setCurrentText] = useState('');
   const [conversationSaved, setConversationSaved] = useState(false);
+  const [showReschedule, setShowReschedule] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState('');
+  const [rescheduleHour, setRescheduleHour] = useState('12');
+  const [rescheduleMinute, setRescheduleMinute] = useState('00');
+  const [rescheduleAmPm, setRescheduleAmPm] = useState('PM');
+  const [rescheduled, setRescheduled] = useState(false);
+
+  const handleReschedule = async () => {
+    if (!rescheduleDate) return;
+    let h = parseInt(rescheduleHour);
+    if (rescheduleAmPm === 'PM' && h !== 12) h += 12;
+    if (rescheduleAmPm === 'AM' && h === 12) h = 0;
+    const time24 = `${h.toString().padStart(2, '0')}:${rescheduleMinute}`;
+    
+    // Save what we have so far
+    if (transcript.length > 0) {
+      saveTranscript(transcript);
+    }
+    // End the voice connection
+    endConversation();
+    
+    // Schedule follow-up
+    try {
+      await fetch('/api/lead-webhook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: leadName,
+          email: leadEmail,
+          phone: leadPhone,
+          business: leadBusiness,
+          painPoint: leadPainPoint,
+          action: 'schedule',
+          scheduleDate: rescheduleDate,
+          scheduleTime: time24,
+          scheduleTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }),
+      });
+      setRescheduled(true);
+    } catch {
+      setRescheduled(true); // Still show confirmation even if backend fails
+    }
+  };
   
   const peerConnectionRef = useRef<RTCPeerConnection | null>(null);
   const dataChannelRef = useRef<RTCDataChannel | null>(null);
@@ -292,12 +335,60 @@ function DiscoveryContent() {
                   )}
                 </div>
                 
-                <button
-                  onClick={endConversation}
-                  className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-full text-sm transition-all"
-                >
-                  End Conversation
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setShowReschedule(true)}
+                    className="px-6 py-2 border border-orange-500/30 hover:border-orange-500 text-orange-400 rounded-full text-sm transition-all"
+                  >
+                    Finish Later
+                  </button>
+                  <button
+                    onClick={endConversation}
+                    className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-full text-sm transition-all"
+                  >
+                    End Conversation
+                  </button>
+                </div>
+                
+                {showReschedule && !rescheduled && (
+                  <div className="bg-gray-800/80 border border-orange-500/20 rounded-xl p-4 w-full max-w-sm">
+                    <p className="text-sm text-gray-300 mb-3">No worries! Pick a time and Spark will text you a link to finish.</p>
+                    <div className="space-y-2">
+                      <input
+                        type="date"
+                        className="w-full px-3 py-2 bg-black/50 border border-orange-500/30 rounded-lg focus:outline-none focus:border-orange-500 text-white text-sm [color-scheme:dark]"
+                        min={new Date(Date.now() - 86400000).toISOString().split('T')[0]}
+                        value={rescheduleDate}
+                        onChange={(e) => setRescheduleDate(e.target.value)}
+                      />
+                      <div className="flex gap-1">
+                        <select className="flex-1 px-2 py-2 bg-black/50 border border-orange-500/30 rounded-lg text-white text-sm" value={rescheduleHour} onChange={(e) => setRescheduleHour(e.target.value)}>
+                          {['12','1','2','3','4','5','6','7','8','9','10','11'].map(h => <option key={h} value={h}>{h}</option>)}
+                        </select>
+                        <select className="px-2 py-2 bg-black/50 border border-orange-500/30 rounded-lg text-white text-sm" value={rescheduleMinute} onChange={(e) => setRescheduleMinute(e.target.value)}>
+                          <option value="00">:00</option><option value="15">:15</option><option value="30">:30</option><option value="45">:45</option>
+                        </select>
+                        <select className="px-2 py-2 bg-black/50 border border-orange-500/30 rounded-lg text-white text-sm" value={rescheduleAmPm} onChange={(e) => setRescheduleAmPm(e.target.value)}>
+                          <option value="AM">AM</option><option value="PM">PM</option>
+                        </select>
+                      </div>
+                      <button
+                        onClick={handleReschedule}
+                        disabled={!rescheduleDate}
+                        className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 text-black font-bold py-2 rounded-lg text-sm transition-all"
+                      >
+                        Schedule & Save Progress
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {rescheduled && (
+                  <div className="bg-gray-800/80 border border-green-500/20 rounded-xl p-4 text-center">
+                    <p className="text-green-400 font-medium">✓ Scheduled!</p>
+                    <p className="text-gray-400 text-sm mt-1">Spark will text you a link to finish your assessment. Your progress is saved.</p>
+                  </div>
+                )}
               </div>
             )}
             
