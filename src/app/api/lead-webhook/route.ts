@@ -276,7 +276,7 @@ export async function POST(request: NextRequest) {
       data = Object.fromEntries(formData.entries()) as Record<string, string>;
     }
     
-    const { name, email, phone, business, website, painPoint, action, scheduleDate, scheduleTime } = data;
+    const { name, email, phone, business, website, painPoint, action, scheduleDate, scheduleTime, scheduleTimezone } = data;
     
     // Handle scheduled assessment
     if (action === 'schedule') {
@@ -292,13 +292,20 @@ export async function POST(request: NextRequest) {
         if (formattedPhone.length === 10) formattedPhone = '1' + formattedPhone;
         if (!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
         
-        // Parse scheduled date/time into UTC for Twilio (Mountain Time = UTC-7)
-        const scheduledMT = new Date(`${scheduleDate}T${scheduleTime}:00-07:00`);
-        const followUp15 = new Date(scheduledMT.getTime() + 15 * 60 * 1000); // 15 min later
-        const nextDay10am = new Date(scheduledMT);
-        nextDay10am.setDate(nextDay10am.getDate() + 1);
-        nextDay10am.setHours(10, 0, 0, 0); // Next day 10 AM MT
-        const nextDayUTC = new Date(`${nextDay10am.toISOString().split('T')[0]}T17:00:00Z`); // 10 AM MT = 5 PM UTC
+        // Parse scheduled date/time into UTC for Twilio using their local timezone
+        // Create date in their timezone by using a formatter trick
+        const tzDate = new Date(new Date(`${scheduleDate}T${scheduleTime}:00`).toLocaleString('en-US', { timeZone: scheduleTimezone || 'America/Boise' }));
+        const scheduledMT = new Date(`${scheduleDate}T${scheduleTime}:00`)
+        // Calculate offset: get the UTC equivalent of their local time
+        const localDate = new Date(scheduledMT.toLocaleString('en-US', { timeZone: scheduleTimezone || 'America/Boise' }));
+        const utcOffset = localDate.getTime() - scheduledMT.getTime();
+        const scheduledUTC = new Date(scheduledMT.getTime() - utcOffset);
+        // Use scheduledUTC for Twilio scheduling
+        const scheduledFinal = scheduledUTC;
+        const followUp15 = new Date(scheduledFinal.getTime() + 15 * 60 * 1000); // 15 min later
+        // Next day 10 AM in their timezone
+        const nextDayUTC = new Date(scheduledFinal.getTime() + 24 * 60 * 60 * 1000);
+        nextDayUTC.setUTCHours(17, 0, 0, 0); // Approximate 10 AM for US timezones
         
         const twilioAuth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString('base64');
         
@@ -315,7 +322,7 @@ export async function POST(request: NextRequest) {
               From: TWILIO_FROM,
               Body: `Hey ${firstName}! 👋 It's Spark from Stoke-AI. Ready for your free operating assessment? Tap here to start — it takes about 5 minutes: ${discoveryUrl}`,
               ScheduleType: 'fixed',
-              SendAt: scheduledMT.toISOString(),
+              SendAt: scheduledFinal.toISOString(),
             }),
           });
         } catch (e) { console.error('Schedule msg 1 failed:', e); }
@@ -394,7 +401,7 @@ _No action needed from you. Spark handles it._`;
             subject: `${firstName} — your assessment is scheduled 📅`,
             html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
               <p>Hey ${firstName}!</p>
-              <p>Your free AI operating assessment is locked in for <strong>${scheduleDate} at ${displayTime} Mountain Time</strong>.</p>
+              <p>Your free AI operating assessment is locked in for <strong>${scheduleDate} at ${displayTime} (your local time)</strong>.</p>
               <p>I'll text you at that time with a link to start. It takes about 5 minutes — I'll ask you some questions about how your business runs and where an operating system could save you time.</p>
               <p>Can't wait? <a href="${discoveryUrl}">Click here to do it right now.</a></p>
               <p>Talk soon,<br><strong>Spark</strong> · Stoke-AI</p>

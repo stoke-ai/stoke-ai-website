@@ -100,6 +100,7 @@ export default function Home() {
             if (scheduleAmPm === 'AM' && h === 12) h = 0;
             return `${h.toString().padStart(2, '0')}:${scheduleMinute}`;
           })(),
+          scheduleTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
       });
       setScheduled(true);
