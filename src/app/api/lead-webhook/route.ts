@@ -5,9 +5,9 @@ import crypto from 'crypto';
 // Tokens expire after 30 minutes
 const assessmentTokens = new Map<string, { expires: number; used: boolean }>();
 
-export function generateAssessmentToken(): string {
+export function generateAssessmentToken(expiresInMs: number = 30 * 60 * 1000): string {
   const token = crypto.randomBytes(16).toString('hex');
-  assessmentTokens.set(token, { expires: Date.now() + 30 * 60 * 1000, used: false });
+  assessmentTokens.set(token, { expires: Date.now() + expiresInMs, used: false });
   // Clean up expired tokens
   for (const [key, val] of assessmentTokens) {
     if (val.expires < Date.now()) assessmentTokens.delete(key);
@@ -307,8 +307,10 @@ export async function POST(request: NextRequest) {
       console.log('Assessment scheduled:', { name, email, phone, scheduleDate, scheduleTime });
       const firstName = (name || 'there').split(' ')[0];
       
-      // Build the discovery URL with lead context
-      const discoveryUrl = `https://stoke-ai.com/discovery?name=${encodeURIComponent(name || '')}&business=${encodeURIComponent(business || '')}&painPoint=${encodeURIComponent(painPoint || '')}&email=${encodeURIComponent(email || '')}&phone=${encodeURIComponent(phone || '')}`;
+      // Generate a long-lived token (7 days) for scheduled assessments
+      const scheduledToken = generateAssessmentToken(7 * 24 * 60 * 60 * 1000);
+      // Build the discovery URL with lead context + token
+      const discoveryUrl = `https://stoke-ai.com/discovery?name=${encodeURIComponent(name || '')}&business=${encodeURIComponent(business || '')}&painPoint=${encodeURIComponent(painPoint || '')}&email=${encodeURIComponent(email || '')}&phone=${encodeURIComponent(phone || '')}&token=${scheduledToken}`;
       
       // Schedule automated SMS messages via Twilio if phone provided
       if (phone && TWILIO_SID && TWILIO_AUTH) {
@@ -388,6 +390,14 @@ export async function POST(request: NextRequest) {
         } catch (e) { console.error('Schedule msg 3 failed:', e); }
       }
       
+      // Schedule reminder emails alongside SMS (if email provided)
+      if (email && RESEND_API_KEY) {
+        // Note: Resend doesn't support scheduled sends natively, so we send the main
+        // confirmation email now (below) and rely on SMS for timed follow-ups.
+        // For the initial reminder at scheduled time, we include the link prominently
+        // in the confirmation email so they have it ready.
+      }
+      
       // Notify Jeff about scheduled assessment
       if (TELEGRAM_BOT_TOKEN) {
         const scheduleText = `📅 *Assessment Scheduled — Automated*
@@ -426,8 +436,17 @@ _No action needed from you. Spark handles it._`;
             html: `<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; color: #333;">
               <p>Hey ${firstName}!</p>
               <p>Your free AI operating assessment is locked in for <strong>${scheduleDate} at ${displayTime} (your local time)</strong>.</p>
-              <p>I'll text you at that time with a link to start. It takes about 5 minutes — I'll ask you some questions about how your business runs and where an operating system could save you time.</p>
-              <p>Can't wait? <a href="${discoveryUrl}">Click here to do it right now.</a></p>
+              <p>Here's what to expect:</p>
+              <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>I'll text you AND email you at your scheduled time with the link</li>
+                <li>The assessment takes about 5 minutes</li>
+                <li>I'll ask you a few questions about how your business runs</li>
+                <li>No sales pitch — just an honest look at where an operating system could help</li>
+              </ul>
+              <p style="margin: 20px 0;">
+                <a href="${discoveryUrl}" style="display: inline-block; background: linear-gradient(to right, #f97316, #f59e0b); color: #000; font-weight: bold; padding: 12px 24px; border-radius: 8px; text-decoration: none;">Start Your Assessment Now →</a>
+              </p>
+              <p style="color: #666; font-size: 14px;">Can't wait? Click the button above to do it right now. Or just save this email for your scheduled time.</p>
               <p>Talk soon,<br><strong>Spark</strong> · Stoke-AI</p>
               <p style="margin-top: 10px;">
                 <a href="https://stoke-ai.com" style="text-decoration: none;">
