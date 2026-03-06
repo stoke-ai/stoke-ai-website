@@ -208,7 +208,7 @@ export default function Home() {
               </div>
               <div>
                 <div className="text-3xl font-black text-orange-400">Local</div>
-                <div className="text-gray-500 text-sm">Magic Valley, Idaho</div>
+                <div className="text-gray-500 text-sm">Burley, Idaho</div>
               </div>
             </div>
           </div>
@@ -465,7 +465,7 @@ export default function Home() {
               </p>
               <p className="text-gray-400 text-lg leading-relaxed">
                 When you work with Stoke-AI, you get me. Not a support ticket. Not some agency 
-                across the country. A local business owner right here in the Magic Valley who 
+                across the country. A local Idaho business owner right here in the Magic Valley who 
                 gets it — because I&apos;ve been where you are.
               </p>
             </div>
@@ -712,10 +712,10 @@ export default function Home() {
                   className="mb-4"
                 />
                 <p className="text-gray-400 text-sm mb-4">
-                  Custom AI operating systems for Magic Valley businesses. Built by a local business owner who gets it.
+                  Custom AI operating systems for Idaho businesses. Built by a local business owner in the Magic Valley who gets it.
                 </p>
                 <p className="text-gray-500 text-sm">
-                  The Magic Valley, Idaho
+                  Burley, Idaho · Serving the Magic Valley and beyond
                 </p>
               </div>
 
@@ -743,7 +743,7 @@ export default function Home() {
             {/* Bottom Bar */}
             <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
               <p className="text-gray-500 text-sm">
-                © {new Date().getFullYear()} Stoke-AI · Operating Intelligence for the Magic Valley
+                © {new Date().getFullYear()} Stoke-AI · Based in Burley, ID — Serving Idaho business owners and the Magic Valley
               </p>
               <div className="flex gap-6">
                 <a href="/privacy" className="text-gray-500 hover:text-orange-500 text-sm">Privacy Policy</a>

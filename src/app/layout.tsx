@@ -6,9 +6,9 @@ import ChatWidget from "@/components/ChatWidget";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Stoke-AI | AI Consulting for Small Businesses | The Magic Valley, Idaho",
-  description: "Practical AI consulting tailored to your specific business. No jargon, no cookie-cutter solutions. Based in the Magic Valley, Idaho.",
-  keywords: ["AI consulting", "small business", "Magic Valley", "Idaho", "artificial intelligence", "business automation"],
+  title: "Stoke-AI | AI Operating Systems for Idaho Business Owners | Burley & Magic Valley",
+  description: "Custom AI operating systems that give Idaho business owners their freedom back. Built by a local entrepreneur in Burley, ID — serving the Magic Valley and beyond. No jargon, no cookie-cutter solutions.",
+  keywords: ["AI operating system", "Idaho business", "Magic Valley", "Burley Idaho", "small business automation", "commission-based entrepreneurs", "insurance agent AI", "realtor AI", "business automation Idaho"],
   openGraph: {
     title: "Stoke-AI | Igniting Intelligence",
     description: "Practical AI consulting tailored to your specific business.",
