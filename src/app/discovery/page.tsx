@@ -90,9 +90,11 @@ function DiscoveryContent() {
       const { signedUrl, overrides } = await response.json();
 
       // Start ElevenLabs conversation (SDK handles mic permission internally)
+      // Force WebSocket mode for reliable connections
       await conversation.startSession({
         signedUrl,
         overrides,
+        connectionType: 'websocket' as const,
       });
     } catch (error: unknown) {
       console.error('Connection error:', error);
