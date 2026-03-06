@@ -671,17 +671,58 @@ export default function Home() {
         </section>
 
         {/* Footer */}
-        <footer className="border-t border-gray-800 py-8">
-          <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <Image
-              src="/logo.png"
-              alt="Stoke-AI - Operating Intelligence"
-              width={350}
-              height={120}
-            />
-            <p className="text-gray-500 text-sm">
-              © {new Date().getFullYear()} Stoke-AI · The Magic Valley, Idaho
-            </p>
+        <footer className="border-t border-gray-800 py-12">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+              {/* Logo and Description */}
+              <div>
+                <Image
+                  src="/logo.png"
+                  alt="Stoke-AI - Operating Intelligence"
+                  width={280}
+                  height={96}
+                  className="mb-4"
+                />
+                <p className="text-gray-400 text-sm mb-4">
+                  Custom AI operating systems for Magic Valley businesses. Built by a local business owner who gets it.
+                </p>
+                <p className="text-gray-500 text-sm">
+                  The Magic Valley, Idaho
+                </p>
+              </div>
+
+              {/* Quick Links */}
+              <div>
+                <h4 className="text-white font-semibold mb-4">Quick Links</h4>
+                <ul className="space-y-2">
+                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free Assessment</a></li>
+                  <li><a href="/discovery" className="text-gray-400 hover:text-orange-500 text-sm">Talk to Spark</a></li>
+                  <li><a href="/blog" className="text-gray-400 hover:text-orange-500 text-sm">Blog</a></li>
+                  <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
+                </ul>
+              </div>
+
+              {/* Contact Info */}
+              <div>
+                <h4 className="text-white font-semibold mb-4">Get In Touch</h4>
+                <ul className="space-y-2">
+                  <li className="text-gray-400 text-sm">Ready to talk? Use the contact form above or reach out to Spark directly.</li>
+                  <li><a href="mailto:hello@stoke-ai.com" className="text-gray-400 hover:text-orange-500 text-sm">hello@stoke-ai.com</a></li>
+                  <li><a href="tel:+12088881234" className="text-gray-400 hover:text-orange-500 text-sm">(208) 888-1234</a></li>
+                </ul>
+              </div>
+            </div>
+
+            {/* Bottom Bar */}
+            <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-gray-500 text-sm">
+                © {new Date().getFullYear()} Stoke-AI · Operating Intelligence for the Magic Valley
+              </p>
+              <div className="flex gap-6">
+                <a href="/privacy" className="text-gray-500 hover:text-orange-500 text-sm">Privacy Policy</a>
+                <a href="/terms" className="text-gray-500 hover:text-orange-500 text-sm">Terms of Service</a>
+              </div>
+            </div>
           </div>
         </footer>
       </div>
