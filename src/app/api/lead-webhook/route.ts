@@ -194,6 +194,76 @@ _Spark will qualify and notify you when ready._`;
   });
 }
 
+async function scheduleBounceSequence(email: string, name: string, business: string, painPoint: string, phone: string) {
+  if (!RESEND_API_KEY || !TWILIO_SID || !TWILIO_AUTH) return;
+
+  const firstName = name.split(' ')[0] || 'there';
+  const now = new Date();
+  
+  // Day 3 follow-up email
+  const day3 = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+  
+  // Day 7 final email  
+  const day7 = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  
+  // For emails, we'll use a simple approach with scheduled SMS that includes email trigger
+  // This is a workaround since we need a proper email scheduler
+  
+  // Day 3 SMS (if phone provided)
+  if (phone) {
+    try {
+      let formattedPhone = phone.replace(/\D/g, '');
+      if (formattedPhone.length === 10) formattedPhone = '1' + formattedPhone;
+      if (!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
+      
+      const twilioAuth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString('base64');
+      
+      await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${twilioAuth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          To: formattedPhone,
+          From: TWILIO_FROM,
+          Body: `Hey ${firstName}, still thinking about getting your time back? Here's that assessment link again: https://stoke-ai.com/discovery?name=${encodeURIComponent(name)}&business=${encodeURIComponent(business)}&painPoint=${encodeURIComponent(painPoint)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`,
+          ScheduleType: 'fixed',
+          SendAt: day3.toISOString(),
+        }),
+      });
+    } catch (e) { console.error('Day 3 SMS failed:', e); }
+
+    // Day 7 SMS
+    try {
+      let formattedPhone = phone.replace(/\D/g, '');
+      if (formattedPhone.length === 10) formattedPhone = '1' + formattedPhone;
+      if (!formattedPhone.startsWith('+')) formattedPhone = '+' + formattedPhone;
+      
+      const twilioAuth = Buffer.from(`${TWILIO_SID}:${TWILIO_AUTH}`).toString('base64');
+      
+      await fetch(`https://api.twilio.com/2010-04-01/Accounts/${TWILIO_SID}/Messages.json`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Basic ${twilioAuth}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          To: formattedPhone,
+          From: TWILIO_FROM,
+          Body: `Last chance, ${firstName}! Free assessment ends soon. 5 minutes could save you 10 hours a week: https://stoke-ai.com/discovery?name=${encodeURIComponent(name)}&business=${encodeURIComponent(business)}&painPoint=${encodeURIComponent(painPoint)}&email=${encodeURIComponent(email)}&phone=${encodeURIComponent(phone)}`,
+          ScheduleType: 'fixed',
+          SendAt: day7.toISOString(),
+        }),
+      });
+    } catch (e) { console.error('Day 7 SMS failed:', e); }
+  }
+
+  // TODO: Add email scheduling system for Day 3 and Day 7 follow-up emails
+  // For now, we rely on SMS for the bounce sequence
+  console.log('Bounce sequence scheduled for:', email, 'at Day 3 and Day 7');
+}
+
 export async function POST(request: NextRequest) {
   try {
     const contentType = request.headers.get('content-type') || '';
@@ -246,7 +316,6 @@ export async function POST(request: NextRequest) {
               Body: `Hey ${firstName}! 👋 It's Spark from Stoke-AI. Ready for your free operating assessment? Tap here to start — it takes about 5 minutes: ${discoveryUrl}`,
               ScheduleType: 'fixed',
               SendAt: scheduledMT.toISOString(),
-              MessagingServiceSid: '', // Empty since we removed from service
             }),
           });
         } catch (e) { console.error('Schedule msg 1 failed:', e); }
@@ -358,6 +427,11 @@ _No action needed from you. Spark handles it._`;
       smsOk = await sendSMS(phone, name || 'there');
     }
     
+    // Schedule bounce nurture sequence for leads who fill form but don't engage immediately
+    if (email) {
+      await scheduleBounceSequence(email, name || 'there', business || '', painPoint || '', phone || '');
+    }
+
     // Notify Jeff via Telegram
     await notifyTelegram(
       name || 'Unknown',

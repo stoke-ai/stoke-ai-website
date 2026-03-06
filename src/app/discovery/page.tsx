@@ -185,6 +185,26 @@ function DiscoveryContent() {
 
       {/* Main Content */}
       <main className="flex-1 container mx-auto px-4 py-6 max-w-3xl flex flex-col">
+        {/* Welcome Section - only show when idle */}
+        {status === 'idle' && (
+          <div className="text-center mb-8 space-y-4">
+            <h1 className="text-3xl font-bold text-white">
+              Welcome to Your Free Assessment
+            </h1>
+            <div className="max-w-2xl mx-auto space-y-3 text-gray-300">
+              <p>
+                I'm Spark, the AI that helps business owners identify where they're losing time and money to busywork. 
+              </p>
+              <p>
+                This conversation takes about <strong className="text-orange-400">5 minutes</strong>. I'll ask you a few questions about how your business runs day-to-day, and show you exactly where an operating system could free up your time.
+              </p>
+              <p className="text-sm text-gray-400">
+                No sales pitch. No pressure. Just an honest assessment of whether we can actually help.
+              </p>
+            </div>
+          </div>
+        )}
+        
         {/* Transcript Area */}
         <div className="flex-1 overflow-y-auto space-y-4 pb-4 min-h-[300px]">
           {transcript.map((msg, i) => (
@@ -292,7 +312,12 @@ function DiscoveryContent() {
       {/* Footer */}
       <footer className="border-t border-gray-800 py-3 text-center text-xs text-gray-500">
         {conversationSaved ? (
-          <span className="text-orange-400">✓ Conversation saved — we&apos;ll follow up soon!</span>
+          <div className="space-y-2">
+            <div className="text-orange-400 font-medium">✓ Assessment Complete!</div>
+            <div>We'll analyze your responses and follow up within 24 hours with a custom recommendation for your business.</div>
+          </div>
+        ) : status === 'connected' ? (
+          'Speak naturally — I understand conversational language.'
         ) : (
           'This conversation helps us understand your needs. No commitment required.'
         )}
