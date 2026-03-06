@@ -732,7 +732,7 @@ export default function Home() {
                 <h4 className="text-white font-semibold mb-4">Get In Touch</h4>
                 <ul className="space-y-2">
                   <li className="text-gray-400 text-sm">Ready to talk? Use the contact form above or reach out to Spark directly.</li>
-                  <li><a href="mailto:hello@stoke-ai.com" className="text-gray-400 hover:text-orange-500 text-sm">hello@stoke-ai.com</a></li>
+                  <li><a href="mailto:automate@stoke-ai.com" className="text-gray-400 hover:text-orange-500 text-sm">automate@stoke-ai.com</a></li>
                   <li><a href="tel:+18557915002" className="text-gray-400 hover:text-orange-500 text-sm">(855) 791-5002</a></li>
                 </ul>
               </div>
