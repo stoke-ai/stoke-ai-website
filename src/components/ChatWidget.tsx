@@ -54,7 +54,7 @@ export default function ChatWidget() {
       {
         id: '1',
         role: 'assistant',
-        content: `Hey ${firstName}! 👋 I'm Spark, the AI at Stoke-AI. I help business owners figure out if an operating system could save them time. What kind of business do you run?`,
+        content: `Hey 👋 I'm Spark, Stoke's custom AI assistant. I help business owners figure out if custom automation can eliminate the manual data entry and busywork slowing down their daily operations. What kind of business do you run?`,
         timestamp: new Date(),
       },
     ]);
