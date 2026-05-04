@@ -25,3 +25,7 @@ npm-debug.log*
 
 # data files (local only)
 data/
+
+# Local-only Google OAuth files
+.google-calendar-env.local
+google-oauth-client.json
