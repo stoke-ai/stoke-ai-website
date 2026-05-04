@@ -8,6 +8,7 @@ type Slot = { start: string; end: string; label: string };
 export default function BookPage() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
   const [configured, setConfigured] = useState(true);
   const [loadingSlots, setLoadingSlots] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -37,6 +38,40 @@ export default function BookPage() {
   const updateForm = (field: keyof typeof form, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
   };
+
+  const slotsByDate = slots.reduce<Record<string, Slot[]>>((groups, slot) => {
+    const key = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'America/Boise',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(new Date(slot.start));
+    groups[key] = [...(groups[key] || []), slot];
+    return groups;
+  }, {});
+
+  const availableDates = Object.keys(slotsByDate);
+  const visibleTimes = selectedDate ? slotsByDate[selectedDate] || [] : [];
+
+  useEffect(() => {
+    if (!selectedDate && availableDates.length > 0) {
+      setSelectedDate(availableDates[0]);
+    }
+  }, [availableDates, selectedDate]);
+
+  const formatDateButton = (dateKey: string) => {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day, 12));
+    const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Boise', weekday: 'short' }).format(date);
+    const monthDay = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Boise', month: 'short', day: 'numeric' }).format(date);
+    return { weekday, monthDay };
+  };
+
+  const formatTimeButton = (slot: Slot) => new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Boise',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(slot.start));
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -118,15 +153,49 @@ export default function BookPage() {
             ) : (
               <form onSubmit={submit} className="space-y-4">
                 <h2 className="text-2xl font-bold">Choose a time</h2>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Available appointments</label>
+                <div className="space-y-3">
+                  <label className="block text-sm text-gray-400">Available appointments</label>
                   {loadingSlots ? (
                     <div className="text-gray-400">Loading available times…</div>
+                  ) : availableDates.length === 0 ? (
+                    <div className="rounded-xl border border-gray-800 bg-[#111] p-4 text-gray-300">No available appointments are showing right now. Try again later or use the current Google booking link.</div>
                   ) : (
-                    <select required value={selectedSlot} onChange={(e) => setSelectedSlot(e.target.value)} className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white">
-                      <option value="">Select a time</option>
-                      {slots.map((slot) => <option key={slot.start} value={slot.start}>{slot.label}</option>)}
-                    </select>
+                    <>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {availableDates.map((dateKey) => {
+                          const label = formatDateButton(dateKey);
+                          const active = selectedDate === dateKey;
+                          return (
+                            <button
+                              key={dateKey}
+                              type="button"
+                              onClick={() => { setSelectedDate(dateKey); setSelectedSlot(''); }}
+                              className={`rounded-xl border px-3 py-3 text-left transition ${active ? 'border-orange-400 bg-orange-500/20 text-white' : 'border-gray-800 bg-[#111] text-gray-300 hover:border-orange-500/50'}`}
+                            >
+                              <div className="text-xs uppercase tracking-wide text-gray-500">{label.weekday}</div>
+                              <div className="font-semibold">{label.monthDay}</div>
+                              <div className="text-xs text-gray-500">{slotsByDate[dateKey].length} times</div>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                        {visibleTimes.map((slot) => {
+                          const active = selectedSlot === slot.start;
+                          return (
+                            <button
+                              key={slot.start}
+                              type="button"
+                              onClick={() => setSelectedSlot(slot.start)}
+                              className={`rounded-xl border px-3 py-3 font-semibold transition ${active ? 'border-orange-400 bg-gradient-to-r from-orange-500 to-amber-500 text-black' : 'border-gray-800 bg-[#111] text-white hover:border-orange-500/50'}`}
+                            >
+                              {formatTimeButton(slot)}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </>
                   )}
                 </div>
 
