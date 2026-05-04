@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from 'react';
 import Image from 'next/image';
+import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 type Slot = { start: string; end: string; label: string };
 
@@ -204,13 +205,22 @@ export default function BookPage() {
                   ['business', 'Business name'],
                   ['email', 'Email'],
                   ['phone', 'Phone'],
-                  ['officeAddress', 'Office address for Jeff to visit'],
                 ] as const).map(([field, label]) => (
                   <div key={field}>
                     <label className="block text-sm text-gray-400 mb-2">{label}</label>
                     <input required value={form[field]} onChange={(e) => updateForm(field, e.target.value)} className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white" />
                   </div>
                 ))}
+
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">Office address for Jeff to visit</label>
+                  <AddressAutocomplete
+                    required
+                    value={form.officeAddress}
+                    onChange={(value) => updateForm('officeAddress', value)}
+                  />
+                  <p className="mt-2 text-xs text-gray-500">Start typing and select the matching address so Jeff has the right location.</p>
+                </div>
 
                 <div>
                   <label className="block text-sm text-gray-400 mb-2">One or two workflows you’d love to stop doing manually</label>
