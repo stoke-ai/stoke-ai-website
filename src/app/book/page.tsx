@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 
@@ -40,7 +40,7 @@ export default function BookPage() {
     setForm((current) => ({ ...current, [field]: value }));
   };
 
-  const slotsByDate = slots.reduce<Record<string, Slot[]>>((groups, slot) => {
+  const slotsByDate = useMemo(() => slots.reduce<Record<string, Slot[]>>((groups, slot) => {
     const key = new Intl.DateTimeFormat('en-CA', {
       timeZone: 'America/Boise',
       year: 'numeric',
@@ -49,10 +49,11 @@ export default function BookPage() {
     }).format(new Date(slot.start));
     groups[key] = [...(groups[key] || []), slot];
     return groups;
-  }, {});
+  }, {}), [slots]);
 
-  const availableDates = Object.keys(slotsByDate);
+  const availableDates = useMemo(() => Object.keys(slotsByDate).sort(), [slotsByDate]);
   const visibleTimes = selectedDate ? slotsByDate[selectedDate] || [] : [];
+  const selectedSlotLabel = slots.find((slot) => slot.start === selectedSlot)?.label;
 
   useEffect(() => {
     if (!selectedDate && availableDates.length > 0) {
@@ -60,13 +61,32 @@ export default function BookPage() {
     }
   }, [availableDates, selectedDate]);
 
-  const formatDateButton = (dateKey: string) => {
-    const [year, month, day] = dateKey.split('-').map(Number);
-    const date = new Date(Date.UTC(year, month - 1, day, 12));
-    const weekday = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Boise', weekday: 'short' }).format(date);
-    const monthDay = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Boise', month: 'short', day: 'numeric' }).format(date);
-    return { weekday, monthDay };
-  };
+  const calendarDays = useMemo(() => {
+    if (availableDates.length === 0) return [];
+    const [year, month] = availableDates[0].split('-').map(Number);
+    const first = new Date(Date.UTC(year, month - 1, 1, 12));
+    const start = new Date(first);
+    start.setUTCDate(first.getUTCDate() - first.getUTCDay());
+    return Array.from({ length: 35 }, (_, index) => {
+      const date = new Date(start);
+      date.setUTCDate(start.getUTCDate() + index);
+      const key = date.toISOString().slice(0, 10);
+      return {
+        key,
+        day: date.getUTCDate(),
+        inMonth: date.getUTCMonth() === month - 1,
+        available: Boolean(slotsByDate[key]),
+      };
+    });
+  }, [availableDates, slotsByDate]);
+
+  const calendarMonthLabel = availableDates.length > 0
+    ? new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${availableDates[0]}T12:00:00.000Z`))
+    : '';
+
+  const selectedDateLabel = selectedDate
+    ? new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${selectedDate}T12:00:00.000Z`))
+    : '';
 
   const formatTimeButton = (slot: Slot) => new Intl.DateTimeFormat('en-US', {
     timeZone: 'America/Boise',
@@ -161,42 +181,71 @@ export default function BookPage() {
                   ) : availableDates.length === 0 ? (
                     <div className="rounded-xl border border-gray-800 bg-[#111] p-4 text-gray-300">No available appointments are showing right now. Try again later or use the current Google booking link.</div>
                   ) : (
-                    <>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {availableDates.map((dateKey) => {
-                          const label = formatDateButton(dateKey);
-                          const active = selectedDate === dateKey;
+                    <div className="rounded-2xl border border-gray-800 bg-[#0f0f0f] p-4 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-xs uppercase tracking-wide text-gray-500">Select a date</div>
+                          <div className="text-lg font-semibold text-white">{calendarMonthLabel}</div>
+                        </div>
+                        <div className="text-xs text-gray-500">Mountain Time</div>
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => <div key={day}>{day}</div>)}
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1">
+                        {calendarDays.map((day) => {
+                          const active = selectedDate === day.key;
                           return (
                             <button
-                              key={dateKey}
+                              key={day.key}
                               type="button"
-                              onClick={() => { setSelectedDate(dateKey); setSelectedSlot(''); }}
-                              className={`rounded-xl border px-3 py-3 text-left transition ${active ? 'border-orange-400 bg-orange-500/20 text-white' : 'border-gray-800 bg-[#111] text-gray-300 hover:border-orange-500/50'}`}
+                              disabled={!day.available}
+                              onClick={() => { setSelectedDate(day.key); setSelectedSlot(''); }}
+                              className={`relative aspect-square rounded-lg border text-sm font-semibold transition ${
+                                active
+                                  ? 'border-orange-400 bg-gradient-to-br from-orange-500 to-amber-500 text-black shadow-lg shadow-orange-500/20'
+                                  : day.available
+                                    ? 'border-gray-700 bg-black/60 text-white hover:border-orange-500/70 hover:bg-orange-500/10'
+                                    : 'border-transparent text-gray-700 cursor-not-allowed'
+                              } ${!day.inMonth ? 'opacity-40' : ''}`}
                             >
-                              <div className="text-xs uppercase tracking-wide text-gray-500">{label.weekday}</div>
-                              <div className="font-semibold">{label.monthDay}</div>
-                              <div className="text-xs text-gray-500">{slotsByDate[dateKey].length} times</div>
+                              {day.day}
+                              {day.available && !active && <span className="absolute bottom-1 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-orange-400" />}
                             </button>
                           );
                         })}
                       </div>
 
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                        {visibleTimes.map((slot) => {
-                          const active = selectedSlot === slot.start;
-                          return (
-                            <button
-                              key={slot.start}
-                              type="button"
-                              onClick={() => setSelectedSlot(slot.start)}
-                              className={`rounded-xl border px-3 py-3 font-semibold transition ${active ? 'border-orange-400 bg-gradient-to-r from-orange-500 to-amber-500 text-black' : 'border-gray-800 bg-[#111] text-white hover:border-orange-500/50'}`}
-                            >
-                              {formatTimeButton(slot)}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </>
+                      {selectedDate && (
+                        <div className="border-t border-gray-800 pt-4 space-y-3">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="text-xs uppercase tracking-wide text-gray-500">Available times</div>
+                              <div className="font-semibold text-white">{selectedDateLabel}</div>
+                            </div>
+                            {selectedSlotLabel && <div className="text-xs text-orange-300">Selected: {selectedSlotLabel.split(', ').pop()}</div>}
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {visibleTimes.map((slot) => {
+                              const active = selectedSlot === slot.start;
+                              return (
+                                <button
+                                  key={slot.start}
+                                  type="button"
+                                  onClick={() => setSelectedSlot(slot.start)}
+                                  className={`rounded-lg border px-3 py-2.5 font-semibold transition ${active ? 'border-orange-400 bg-orange-500 text-black' : 'border-gray-800 bg-black/70 text-white hover:border-orange-500/60'}`}
+                                >
+                                  {formatTimeButton(slot)}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
 
