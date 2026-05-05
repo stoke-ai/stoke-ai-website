@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 type Slot = { start: string; end: string; label: string };
@@ -143,10 +144,10 @@ export default function BookPage() {
 
       <main className="relative z-10 container mx-auto px-6 py-8 max-w-5xl">
         <nav className="mb-12 flex items-center justify-between">
-          <a href="/" className="inline-flex items-center">
+          <Link href="/" className="inline-flex items-center">
             <Image src="/logo.png" alt="Stoke AI" width={220} height={75} priority />
-          </a>
-          <a href="/" className="text-sm text-gray-400 hover:text-orange-400">Back to site</a>
+          </Link>
+          <Link href="/" className="text-sm text-gray-400 hover:text-orange-400">Back to site</Link>
         </nav>
 
         <section className="grid lg:grid-cols-[1fr_420px] gap-10 items-start">
@@ -163,11 +164,63 @@ export default function BookPage() {
               <p className="text-orange-200">Please have one or two workflows in mind that you’d love to stop doing manually.</p>
             </div>
 
-            <div className="mt-10 grid sm:grid-cols-3 gap-4">
-              {['Office workflow review', 'Bottleneck map', 'AI system recommendations'].map((item) => (
-                <div key={item} className="rounded-2xl border border-gray-800 bg-black/40 p-4 text-gray-300">
-                  <div className="text-orange-400 mb-2">✓</div>
-                  <div className="font-semibold text-white">{item}</div>
+            <div className="mt-10 grid gap-3 min-[520px]:grid-cols-3">
+              {[
+                {
+                  label: 'Office workflow review',
+                  detail: 'Walk the real process',
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                      <path d="M8 6h13" />
+                      <path d="M8 12h13" />
+                      <path d="M8 18h13" />
+                      <path d="m3 6 .8.8L5.5 5" />
+                      <path d="m3 12 .8.8 1.7-1.8" />
+                      <path d="m3 18 .8.8 1.7-1.8" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: 'Bottleneck map',
+                  detail: 'Find the expensive drag',
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                      <path d="M4 19V5" />
+                      <path d="M4 7h12l-2 4 2 4H4" />
+                      <path d="M18 19v-5" />
+                      <path d="M14 19h8" />
+                    </svg>
+                  ),
+                },
+                {
+                  label: 'AI system recommendations',
+                  detail: 'Prioritized next build',
+                  icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
+                      <path d="M12 2a7 7 0 0 0-4 12.74V17h8v-2.26A7 7 0 0 0 12 2Z" />
+                      <path d="M9 21h6" />
+                      <path d="M10 17h4" />
+                      <path d="M12 6v4l3 2" />
+                    </svg>
+                  ),
+                },
+              ].map((item, index) => (
+                <div
+                  key={item.label}
+                  className="group relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.045] p-4 shadow-2xl shadow-black/25 transition-all hover:-translate-y-0.5 hover:border-orange-400/50 hover:bg-orange-500/[0.07]"
+                >
+                  <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-orange-300/70 to-transparent" />
+                  <div className="absolute -right-8 -top-8 h-20 w-20 rounded-full bg-orange-500/15 blur-2xl" />
+                  <div className="relative flex items-start gap-3 min-[520px]:block">
+                    <div className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-orange-400/30 bg-gradient-to-br from-orange-500/25 to-amber-400/10 text-orange-200 shadow-inner shadow-orange-500/20">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <div className="mb-1 text-[0.62rem] font-black uppercase tracking-[0.22em] text-orange-300/75">0{index + 1}</div>
+                      <div className="text-base font-black leading-snug text-white">{item.label}</div>
+                      <div className="mt-1 text-xs font-medium leading-relaxed text-gray-400">{item.detail}</div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
