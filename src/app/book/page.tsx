@@ -6,6 +6,26 @@ import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 type Slot = { start: string; end: string; label: string };
 
+const boiseDateKeyFormatter = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/Boise',
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+function boiseDateKey(value: string | Date) {
+  const parts = boiseDateKeyFormatter.formatToParts(new Date(value));
+  const year = parts.find((part) => part.type === 'year')?.value;
+  const month = parts.find((part) => part.type === 'month')?.value;
+  const day = parts.find((part) => part.type === 'day')?.value;
+  return `${year}-${month}-${day}`;
+}
+
+function utcNoonFromDateKey(dateKey: string) {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  return new Date(Date.UTC(year, month - 1, day, 12));
+}
+
 export default function BookPage() {
   const [slots, setSlots] = useState<Slot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState('');
@@ -41,12 +61,7 @@ export default function BookPage() {
   };
 
   const slotsByDate = useMemo(() => slots.reduce<Record<string, Slot[]>>((groups, slot) => {
-    const key = new Intl.DateTimeFormat('en-CA', {
-      timeZone: 'America/Boise',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).format(new Date(slot.start));
+    const key = boiseDateKey(slot.start);
     groups[key] = [...(groups[key] || []), slot];
     return groups;
   }, {}), [slots]);
@@ -81,11 +96,11 @@ export default function BookPage() {
   }, [availableDates, slotsByDate]);
 
   const calendarMonthLabel = availableDates.length > 0
-    ? new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${availableDates[0]}T12:00:00.000Z`))
+    ? new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(utcNoonFromDateKey(availableDates[0]))
     : '';
 
   const selectedDateLabel = selectedDate
-    ? new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${selectedDate}T12:00:00.000Z`))
+    ? new Intl.DateTimeFormat('en-US', { weekday: 'long', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(utcNoonFromDateKey(selectedDate))
     : '';
 
   const formatTimeButton = (slot: Slot) => new Intl.DateTimeFormat('en-US', {
