@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Home() {
   const [formData, setFormData] = useState({
@@ -129,12 +130,20 @@ export default function Home() {
             height={170}
             priority
           />
-          <a
-            href="#contact"
-            className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-3 px-6 rounded-full transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
-          >
-            Free Assessment
-          </a>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/portal"
+              className="hidden sm:inline-flex border border-gray-700 hover:border-orange-500/50 text-white font-semibold py-3 px-5 rounded-full transition-all hover:bg-orange-500/5"
+            >
+              Client Portal
+            </Link>
+            <a
+              href="#contact"
+              className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-3 px-6 rounded-full transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
+            >
+              Free Assessment
+            </a>
+          </div>
         </nav>
 
         {/* Hero */}
