@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import AddressAutocomplete from '@/components/AddressAutocomplete';
 
 type Slot = { start: string; end: string; label: string };
 
@@ -41,7 +40,7 @@ export default function BookPage() {
     business: '',
     email: '',
     phone: '',
-    officeAddress: '',
+    meetingPreference: 'Web conference call',
     workflows: '',
     tools: '',
   });
@@ -153,21 +152,21 @@ export default function BookPage() {
         <section className="grid lg:grid-cols-[1fr_420px] gap-10 items-start">
           <div>
             <div className="inline-block mb-5 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full text-orange-400 text-sm font-medium">
-              In-person · 90 minutes · Jeff comes to your office
+              Free · 90 minutes · Web conference call
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6">
-              Book an <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">AI Strategy Audit</span>
+              Book a <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Free 90-Minute AI Audit</span>
             </h1>
             <div className="space-y-4 text-lg text-gray-300 leading-relaxed max-w-2xl">
-              <p>Book an in-person appointment with Jeff to talk through where custom AI systems could save time, reduce manual work, or create more operating leverage in your business.</p>
-              <p>This is a practical strategy conversation — not a sales demo. Jeff will come to your office, learn how your team works, look for bottlenecks, and help identify whether an AI-powered workflow, assistant, or automation system makes sense for you.</p>
+              <p>Book a free 90-minute web conference with Jeff to talk through where custom AI systems could save time, reduce manual work, or create more operating leverage in your business.</p>
+              <p>This is a practical strategy conversation — not a sales demo. Jeff will learn how your team works, look for bottlenecks, and help identify whether an AI-powered workflow, assistant, or automation system makes sense for you.</p>
               <p className="text-orange-200">Please have one or two workflows in mind that you’d love to stop doing manually.</p>
             </div>
 
             <div className="mt-10 grid gap-3 min-[520px]:grid-cols-3">
               {[
                 {
-                  label: 'Office workflow review',
+                  label: 'Workflow review',
                   detail: 'Walk the real process',
                   icon: (
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">
@@ -231,7 +230,7 @@ export default function BookPage() {
               <div className="py-8 text-center space-y-4">
                 <div className="mx-auto w-14 h-14 rounded-full bg-orange-500 text-black flex items-center justify-center text-2xl font-black">✓</div>
                 <h2 className="text-2xl font-bold">You’re booked.</h2>
-                <p className="text-gray-300">Jeff has the office address and workflow notes. You’ll receive a confirmation shortly.</p>
+                <p className="text-gray-300">Jeff has your workflow notes. You’ll receive a web conference confirmation shortly.</p>
               </div>
             ) : !configured ? (
               <div className="space-y-4">
@@ -330,13 +329,13 @@ export default function BookPage() {
                 ))}
 
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">Office address for Jeff to visit</label>
-                  <AddressAutocomplete
-                    required
-                    value={form.officeAddress}
-                    onChange={(value) => updateForm('officeAddress', value)}
+                  <label className="block text-sm text-gray-400 mb-2">Preferred meeting note</label>
+                  <input
+                    value={form.meetingPreference}
+                    onChange={(e) => updateForm('meetingPreference', e.target.value)}
+                    className="w-full bg-[#111] border border-gray-700 rounded-xl px-4 py-3 text-white"
                   />
-                  <p className="mt-2 text-xs text-gray-500">Start typing and select the matching address so Jeff has the right location.</p>
+                  <p className="mt-2 text-xs text-gray-500">Default is web conference. Add anything useful before the call.</p>
                 </div>
 
                 <div>
@@ -352,7 +351,7 @@ export default function BookPage() {
                 {error && <div className="rounded-xl border border-red-500/40 bg-red-500/10 p-3 text-sm text-red-200">{error}</div>}
 
                 <button disabled={submitting || !selectedSlot} className="w-full bg-gradient-to-r from-orange-500 to-amber-500 disabled:opacity-50 text-black font-bold py-4 px-5 rounded-xl">
-                  {submitting ? 'Booking…' : 'Book AI Strategy Audit'}
+                  {submitting ? 'Booking…' : 'Book Free AI Audit'}
                 </button>
               </form>
             )}

@@ -54,17 +54,17 @@ export interface CreateBookingInput {
   business: string;
   email: string;
   phone: string;
-  officeAddress: string;
+  meetingPreference: string;
   workflows: string;
   tools?: string;
 }
 
 export async function createCalendarBooking(input: CreateBookingInput) {
   const accessToken = await getAccessToken();
-  const summary = `AI Strategy Audit — ${input.business} / ${input.name}`;
-  const description = `AI Strategy Audit booked from stoke-ai.com/book\n\nName: ${input.name}\nBusiness: ${input.business}\nEmail: ${input.email}\nPhone: ${input.phone}\nOffice address: ${input.officeAddress}\n\nManual workflows they want to improve:\n${input.workflows}\n\nCurrent tools/systems:\n${input.tools || 'Not provided'}\n\nBooking source: Stoke AI custom booking page`;
+  const summary = `Free 90-Minute AI Audit — ${input.business} / ${input.name}`;
+  const description = `Free 90-Minute AI Audit booked from stoke-ai.com/book\n\nName: ${input.name}\nBusiness: ${input.business}\nEmail: ${input.email}\nPhone: ${input.phone}\nMeeting preference: ${input.meetingPreference}\n\nManual workflows they want to improve:\n${input.workflows}\n\nCurrent tools/systems:\n${input.tools || 'Not provided'}\n\nBooking source: Stoke AI custom booking page`;
 
-  const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(bookingConfig.calendarId)}/events?sendUpdates=all`, {
+  const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(bookingConfig.calendarId)}/events?sendUpdates=all&conferenceDataVersion=1`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
@@ -72,11 +72,17 @@ export async function createCalendarBooking(input: CreateBookingInput) {
     },
     body: JSON.stringify({
       summary,
-      location: input.officeAddress,
+      location: 'Google Meet / web conference',
       description,
       start: { dateTime: input.slotStart, timeZone: bookingConfig.timezone },
       end: { dateTime: input.slotEnd, timeZone: bookingConfig.timezone },
       attendees: [{ email: input.email, displayName: input.name }],
+      conferenceData: {
+        createRequest: {
+          requestId: `stoke-ai-audit-${Date.now()}`,
+          conferenceSolutionKey: { type: 'hangoutsMeet' },
+        },
+      },
     }),
   });
 

@@ -141,7 +141,7 @@ export default function Home() {
               href="#contact"
               className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-3 px-6 rounded-full transition-all transform hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
             >
-              Free Assessment
+              Free 90-Min AI Audit
             </a>
           </div>
         </nav>
@@ -176,7 +176,7 @@ export default function Home() {
                   href="#contact"
                   className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-8 rounded-full text-lg transition-all transform hover:scale-105 hover:shadow-xl hover:shadow-orange-500/25"
                 >
-                  Talk to Spark Now
+                  Book Free AI Audit
                   <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
@@ -188,7 +188,7 @@ export default function Home() {
                   See How It Works
                 </a>
               </div>
-              <p className="text-gray-500 text-sm mt-4">Our AI will analyze your workflow and show you where you&apos;re losing time. No sales pitch. No pressure.</p>
+              <p className="text-gray-500 text-sm mt-4">Book a free 90-minute AI audit by web conference. We’ll map the bottlenecks, show practical AI opportunities, and tell you honestly what is worth building — no pressure.</p>
             </div>
             <div className="relative order-1 md:order-2">
               <div className="absolute inset-0 bg-gradient-to-r from-orange-500/20 to-amber-500/20 rounded-3xl blur-3xl" />
@@ -400,9 +400,7 @@ export default function Home() {
                 Not sure if this fits your business?
               </h3>
               <p className="text-gray-400 text-lg mb-6 max-w-2xl mx-auto">
-                Start with a free Operating Assessment. We&apos;ll walk through your daily 
-                operations and show you exactly where an operating system would save you time — 
-                and where it wouldn&apos;t. No pitch, just clarity.
+                Start with a free 90-minute AI audit over web conference. We&apos;ll walk through your daily operations, map the bottlenecks, and show you exactly where AI could save time — and where it wouldn&apos;t. No pitch, just clarity.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <a
@@ -412,7 +410,7 @@ export default function Home() {
                   <svg className="mr-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                  Talk to Spark Now
+                  Book Free AI Audit
                 </a>
                 <a
                   href="#contact"
@@ -499,8 +497,7 @@ export default function Home() {
                     Let&apos;s talk about your business.
                   </h2>
                   <p className="text-gray-400 text-lg mb-6">
-                    No pressure. No obligation. Just a conversation about whether an 
-                    operating system makes sense for how you work.
+                    No pressure. No obligation. Just a free 90-minute web conference where we map whether AI makes sense for how you work.
                   </p>
                   <div className="space-y-4 text-gray-400">
                     <div className="flex items-center gap-3">
@@ -509,7 +506,7 @@ export default function Home() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span>Free operating assessment</span>
+                      <span>Free 90-minute AI audit</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-orange-500/20 rounded-full flex items-center justify-center">
@@ -550,16 +547,16 @@ export default function Home() {
                       )}
                       <div className="space-y-3">
                         <a
-                          href={`/discovery?name=${encodeURIComponent(formData.name)}&business=${encodeURIComponent(formData.business)}&painPoint=${encodeURIComponent(formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`}
+                          href="/book"
                           className="block w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-6 rounded-xl text-center text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                         >
                           <span className="flex items-center justify-center gap-2">
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                             </svg>
-                            Talk to Spark Now
+                            Book Free AI Audit
                           </span>
-                          <span className="text-black/60 text-xs font-normal block mt-1">5-minute voice assessment — get results instantly</span>
+                          <span className="text-black/60 text-xs font-normal block mt-1">90-minute web conference audit — pick a time with Jeff</span>
                         </a>
                         <button
                           onClick={() => setShowSchedule(true)}
@@ -695,7 +692,7 @@ export default function Home() {
                         disabled={submitting}
                         className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-4 px-8 rounded-xl text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                       >
-                        {submitting ? 'Sending...' : 'Get My Free Assessment →'}
+                        {submitting ? 'Sending...' : 'Get My Free 90-Min AI Audit →'}
                       </button>
                     </form>
                   )}
@@ -730,8 +727,9 @@ export default function Home() {
               <div>
                 <h4 className="text-white font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
-                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free Assessment</a></li>
-                  <li><a href="/blog" className="text-gray-400 hover:text-orange-500 text-sm">Blog</a></li>
+                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free 90-Min AI Audit</a></li>
+                  <li><Link href="/magic-valley-ai" className="text-gray-400 hover:text-orange-500 text-sm">Magic Valley AI Workshop</Link></li>
+                  <li><Link href="/blog" className="text-gray-400 hover:text-orange-500 text-sm">Blog</Link></li>
                   <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
                 </ul>
               </div>
@@ -753,8 +751,8 @@ export default function Home() {
                 © {new Date().getFullYear()} Stoke-AI · Based in Burley, ID — Serving Idaho business owners and the Magic Valley
               </p>
               <div className="flex gap-6">
-                <a href="/privacy" className="text-gray-500 hover:text-orange-500 text-sm">Privacy Policy</a>
-                <a href="/terms" className="text-gray-500 hover:text-orange-500 text-sm">Terms of Service</a>
+                <Link href="/privacy" className="text-gray-500 hover:text-orange-500 text-sm">Privacy Policy</Link>
+                <Link href="/terms" className="text-gray-500 hover:text-orange-500 text-sm">Terms of Service</Link>
               </div>
             </div>
           </div>
