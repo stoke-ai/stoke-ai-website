@@ -13,7 +13,7 @@ export default function Home() {
     painPoint: '',
     painPointOther: '',
   });
-  const [submitted] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [aiInsight, setAiInsight] = useState('');
@@ -45,7 +45,7 @@ export default function Home() {
 
     try {
       const painPoint = formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint;
-      const res = await fetch('/api/audit-checkout', {
+      const res = await fetch('/api/lead-webhook', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -55,16 +55,16 @@ export default function Home() {
           business: formData.business,
           website: formData.website,
           painPoint,
+          action: 'free-ai-audit-request',
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error || 'Failed to start checkout');
+      if (!res.ok) throw new Error('Failed to submit');
 
       setAiInsight(generateInsight(formData.business));
-      window.location.href = data.url;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
+      setSubmitted(true);
+    } catch {
+      setError('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -122,7 +122,7 @@ export default function Home() {
             href="#contact"
             className="hidden sm:inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-3 px-6 rounded-full transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
           >
-            Book Your Audit
+            Book Your Free Audit
           </a>
         </nav>
 
@@ -155,7 +155,7 @@ export default function Home() {
                   href="#contact"
                   className="w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-4 sm:py-5 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
                 >
-                  Book Your Audit
+                  Book Your Free Audit
                 </a>
                 <p className="text-sm text-gray-500 max-w-sm">
                   Built for agriculture, logistics, insurance, and the local businesses that keep Southern Idaho moving.
@@ -305,7 +305,7 @@ export default function Home() {
               href="#contact"
               className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-5 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
             >
-              Book Your Audit
+              Book Your Free Audit
             </a>
           </div>
         </section>
@@ -330,13 +330,13 @@ export default function Home() {
                     Low-risk first step
                   </p>
                   <h3 className="text-2xl md:text-3xl font-black mb-4">
-                    Step 1: The AI Impact Audit
+                    Step 1: The Free AI Impact Audit
                   </h3>
                   <p className="hidden lg:block text-4xl font-black text-white mb-4">
-                    $1,000 <span className="text-lg text-gray-300 font-bold">Flat Fee</span>
+                    90-minute <span className="text-lg text-gray-300 font-bold">web conference</span>
                   </p>
                   <p className="hidden lg:block text-amber-200 italic leading-relaxed bg-orange-500/10 border border-orange-500/25 rounded-2xl p-4 mb-6">
-                    Guaranteed: We find $5,000+ in annual waste or your audit is fully refunded. No questions asked.
+                    No disguised sales funnel. We map the bottlenecks, show useful examples, and tell you honestly what is worth building.
                   </p>
                   <div className="grid gap-4 mb-8">
                     {[
@@ -436,10 +436,10 @@ export default function Home() {
                 Start here
               </p>
               <p className="text-4xl font-black text-white mb-4">
-                $1,000 <span className="text-lg text-gray-300 font-bold">Flat Fee Audit</span>
+                Free 90-minute <span className="text-lg text-gray-300 font-bold">AI Audit</span>
               </p>
               <p className="text-amber-200 italic leading-relaxed bg-orange-500/10 border border-orange-500/25 rounded-2xl p-4">
-                Guaranteed: We find $5,000+ in annual waste or your audit is fully refunded. No questions asked.
+                Built for conference credibility: useful owner education first, optional roadmap conversations second.
               </p>
             </div>
 
@@ -448,7 +448,7 @@ export default function Home() {
                 href="#contact"
                 className="whitespace-nowrap inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-4 px-10 rounded-full text-lg transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-orange-500/25"
               >
-                Book Your Audit
+                Book Your Free Audit
               </a>
             </div>
           </div>
@@ -459,12 +459,12 @@ export default function Home() {
           <div className="max-w-5xl mx-auto bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/30 border border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/25">
             <div className="grid md:grid-cols-2 gap-10 md:gap-14">
               <div>
-                <p className="text-orange-300 font-bold mb-3">AI Impact Audit</p>
+                <p className="text-orange-300 font-bold mb-3">Free AI Impact Audit</p>
                 <h2 className="text-3xl md:text-5xl font-black mb-5">
                   Show me the bottlenecks. I&apos;ll show you what to build first.
                 </h2>
                 <p className="text-gray-300 text-lg leading-relaxed mb-7">
-                  No Silicon Valley pitch. No generic automation checklist. We&apos;ll look at where your team loses time, where human error shows up, and what custom AI system would create the fastest relief. The audit is a $1,000 flat-fee checkout, then you&apos;ll book time with Jeff.
+                  No Silicon Valley pitch. No generic automation checklist. We&apos;ll look at where your team loses time, where human error shows up, and what custom AI system would create the fastest relief. The first audit is a free 90-minute web conference with Jeff.
                 </p>
                 <div className="space-y-4 text-gray-300">
                   <div className="flex gap-3">
@@ -624,10 +624,10 @@ export default function Home() {
                       disabled={submitting}
                       className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black py-4 px-8 rounded-xl text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                     >
-                      {submitting ? 'Opening secure checkout...' : 'Continue to Secure Checkout →'}
+                      {submitting ? 'Sending...' : 'Book My Free AI Audit →'}
                     </button>
                     <p className="text-gray-500 text-xs text-center">
-                      $1,000 flat-fee AI Impact Audit. Calendar booking happens after checkout.
+                      Free 90-minute web conference. We’ll map whether AI makes sense for how you work — no pressure.
                     </p>
                   </form>
                 )}
@@ -649,14 +649,14 @@ export default function Home() {
               <div>
                 <h4 className="text-white font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
-                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">AI Impact Audit</a></li>
+                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free AI Impact Audit</a></li>
                   <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
                 </ul>
               </div>
               <div>
                 <h4 className="text-white font-semibold mb-4">Get In Touch</h4>
                 <ul className="space-y-2">
-                  <li className="text-gray-400 text-sm">Ready to stop babysitting operations? Start with the audit.</li>
+                  <li className="text-gray-400 text-sm">Ready to stop babysitting operations? Start with the free audit.</li>
                   <li><a href="mailto:automate@stoke-ai.com" className="text-gray-400 hover:text-orange-500 text-sm">automate@stoke-ai.com</a></li>
                   <li><a href="tel:+18557915002" className="text-gray-400 hover:text-orange-500 text-sm">(855) 791-5002</a></li>
                 </ul>
