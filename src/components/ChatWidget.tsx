@@ -17,8 +17,11 @@ export default function ChatWidget() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [keyboardOffset, setKeyboardOffset] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const hasNotified = useRef(false);
+  const sessionIdRef = useRef(`chat_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
+  const lastTranscriptKeyRef = useRef('');
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -28,67 +31,99 @@ export default function ChatWidget() {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const updateIsMobile = () => setIsMobile(window.matchMedia('(max-width: 639px)').matches);
+    updateIsMobile();
+    window.addEventListener('resize', updateIsMobile);
+    return () => window.removeEventListener('resize', updateIsMobile);
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isOpen) return;
+
+    const updateKeyboardOffset = () => {
+      const visualViewport = window.visualViewport;
+      if (!visualViewport) {
+        setKeyboardOffset(0);
+        return;
+      }
+
+      const offset = Math.max(0, window.innerHeight - visualViewport.height - visualViewport.offsetTop);
+      setKeyboardOffset(offset);
+      setTimeout(scrollToBottom, 50);
+      setTimeout(scrollToBottom, 250);
+    };
+
+    updateKeyboardOffset();
+    window.visualViewport?.addEventListener('resize', updateKeyboardOffset);
+    window.visualViewport?.addEventListener('scroll', updateKeyboardOffset);
+    window.addEventListener('orientationchange', updateKeyboardOffset);
+
+    return () => {
+      window.visualViewport?.removeEventListener('resize', updateKeyboardOffset);
+      window.visualViewport?.removeEventListener('scroll', updateKeyboardOffset);
+      window.removeEventListener('orientationchange', updateKeyboardOffset);
+      setKeyboardOffset(0);
+    };
+  }, [isOpen]);
+
+  const transcriptPayload = (messagesToSend: Message[], reason: string) => ({
+    name: leadName,
+    phone: leadPhone,
+    business: '',
+    painPoint: '',
+    source: `chat-widget:${reason}`,
+    sessionId: sessionIdRef.current,
+    transcript: messagesToSend.map(m => ({ role: m.role, text: m.content })),
+  });
+
+  const saveTranscript = (messagesToSend: Message[], reason: string, useBeacon = false) => {
+    if (!optedIn || messagesToSend.length < 2) return;
+
+    const transcriptKey = messagesToSend.map(m => `${m.role}:${m.content}`).join('|');
+    if (transcriptKey === lastTranscriptKeyRef.current) return;
+    lastTranscriptKeyRef.current = transcriptKey;
+
+    const payload = JSON.stringify(transcriptPayload(messagesToSend, reason));
+    if (useBeacon && typeof navigator !== 'undefined' && navigator.sendBeacon) {
+      navigator.sendBeacon('/api/discovery', payload);
+      return;
+    }
+
+    fetch('/api/discovery', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload,
+    }).catch(() => {});
+  };
+
   // Save conversation to backend when window closes or they leave
   useEffect(() => {
     const saveOnExit = () => {
-      if (optedIn && messages.length > 1 && !hasNotified.current) {
-        hasNotified.current = true;
-        const payload = JSON.stringify({
-          name: leadName,
-          phone: leadPhone,
-          source: 'chat-widget',
-          messages: messages.map(m => ({ role: m.role, text: m.content })),
-        });
-        navigator.sendBeacon('/api/discovery', payload);
-      }
+      saveTranscript(messages, 'exit', true);
     };
     window.addEventListener('beforeunload', saveOnExit);
     return () => window.removeEventListener('beforeunload', saveOnExit);
-  }, [optedIn, messages, leadName, leadPhone]);
+  }, [optedIn, messages]);
 
   const handleOptIn = () => {
     if (!leadName.trim() || !leadPhone.trim()) return;
     setOptedIn(true);
-    const firstName = leadName.split(' ')[0];
     setMessages([
       {
         id: '1',
         role: 'assistant',
-        content: `Hey ${firstName}! 👋 I'm Spark, the AI at Stoke-AI. I help business owners figure out if an operating system could save them time. What kind of business do you run?`,
+        content: "Hey 👋 I'm Spark, Stoke's custom AI assistant. I help business owners figure out if custom automation can eliminate the manual data entry and busywork slowing down their daily operations. What kind of business do you run?",
         timestamp: new Date(),
       },
     ]);
-    // Notify backend about new chat lead
-    fetch('/api/lead-webhook', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: leadName,
-        phone: leadPhone,
-        email: '',
-        business: '',
-        website: '',
-        painPoint: '',
-        source: 'chat-widget',
-      }),
-    }).catch(() => {});
   };
 
   const handleClose = () => {
-    // Save conversation when closing
-    if (optedIn && messages.length > 1 && !hasNotified.current) {
-      hasNotified.current = true;
-      fetch('/api/discovery', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: leadName,
-          phone: leadPhone,
-          source: 'chat-widget',
-          transcript: messages.map(m => ({ role: m.role, text: m.content })),
-        }),
-      }).catch(() => {});
-    }
+    // Save final conversation when closing
+    saveTranscript(messages, 'close');
     setIsOpen(false);
   };
 
@@ -131,17 +166,19 @@ export default function ChatWidget() {
         timestamp: new Date(),
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      const nextMessages = [...messages, userMessage, assistantMessage];
+      setMessages(nextMessages);
+      saveTranscript(nextMessages, 'assistant-reply');
     } catch {
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: (Date.now() + 1).toString(),
-          role: 'assistant',
-          content: "Connection issue — but don't worry! Fill out the form above and we'll reach out within 24 hours.",
-          timestamp: new Date(),
-        },
-      ]);
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: "Connection issue — but don't worry! Fill out the form above and we'll reach out within 24 hours.",
+        timestamp: new Date(),
+      };
+      const nextMessages = [...messages, userMessage, assistantMessage];
+      setMessages(nextMessages);
+      saveTranscript(nextMessages, 'assistant-error');
     } finally {
       setIsLoading(false);
     }
@@ -152,14 +189,18 @@ export default function ChatWidget() {
       {/* Chat Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full shadow-lg shadow-orange-500/25 flex items-center justify-center text-2xl hover:scale-110 transition-transform z-50"
+        style={{ bottom: isOpen ? undefined : `calc(1rem + ${keyboardOffset}px)` }}
+        className={`${isOpen ? 'hidden sm:flex' : 'flex'} fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full shadow-lg shadow-orange-500/25 items-center justify-center text-xl sm:text-2xl hover:scale-110 transition-transform z-50`}
       >
         {isOpen ? '✕' : '💬'}
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-24 right-6 w-80 sm:w-96 h-[500px] bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden">
+        <div
+          style={isMobile ? { height: `calc(100dvh - ${keyboardOffset}px)`, bottom: 'env(safe-area-inset-bottom)' } : undefined}
+          className="fixed inset-x-0 top-0 bottom-0 sm:top-auto sm:left-auto sm:right-6 sm:bottom-24 sm:w-96 h-[100dvh] sm:h-[70vh] sm:max-h-[500px] bg-gray-900 border border-gray-800 rounded-none sm:rounded-2xl shadow-2xl flex flex-col z-50 overflow-hidden"
+        >
           {/* Header */}
           <div className="bg-gradient-to-r from-orange-500 to-amber-500 p-4">
             <div className="flex items-center justify-between">
@@ -178,7 +219,7 @@ export default function ChatWidget() {
 
           {!optedIn ? (
             /* Opt-in Form */
-            <div className="flex-1 flex flex-col justify-center p-6">
+            <div className="flex-1 flex flex-col justify-center p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
               <div className="text-center mb-6">
                 <div className="text-3xl mb-2">⚡</div>
                 <h3 className="text-lg font-bold text-white mb-1">Chat with Spark</h3>
@@ -216,7 +257,8 @@ export default function ChatWidget() {
           ) : (
             <>
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-4">
+                <div className="min-h-full flex flex-col justify-end space-y-4">
                 {messages.map((msg) => (
                   <div
                     key={msg.id}
@@ -245,23 +287,29 @@ export default function ChatWidget() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
+                </div>
               </div>
 
               {/* Input */}
-              <div className="p-4 border-t border-gray-800">
-                <div className="flex gap-2">
+              <div className="p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] border-t border-gray-800 bg-gray-900">
+                <div className="flex gap-2 max-w-xl mx-auto">
                   <input
                     type="text"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
+                    onFocus={() => {
+                      setTimeout(scrollToBottom, 50);
+                      setTimeout(scrollToBottom, 250);
+                      setTimeout(scrollToBottom, 500);
+                    }}
                     onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
                     placeholder="Ask me anything..."
-                    className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-orange-500 text-white placeholder-gray-500"
+                    className="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-4 py-3 sm:py-2 text-base sm:text-sm focus:outline-none focus:border-orange-500 text-white placeholder-gray-500"
                   />
                   <button
                     onClick={sendMessage}
                     disabled={isLoading || !input.trim()}
-                    className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-bold px-4 py-2 rounded-xl transition-colors"
+                    className="bg-orange-500 hover:bg-orange-600 disabled:opacity-50 text-black font-bold px-5 sm:px-4 py-3 sm:py-2 rounded-xl transition-colors"
                   >
                     →
                   </button>
