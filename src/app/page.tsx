@@ -349,7 +349,107 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 4: How We Turn Bottlenecks Into Working Systems */}
+        {/* Section 4: Client Workspace Rhythm */}
+        <section className="bg-[#0f0f0f] border-y border-white/5 py-16 md:py-24">
+          <div className="container mx-auto px-6">
+            <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 md:gap-14 items-center max-w-7xl mx-auto">
+              <div>
+                <p className="text-orange-300 font-bold mb-3">Included client workspace</p>
+                <h2 className="text-3xl md:text-5xl font-black leading-tight mb-5">
+                  Your AI Work Has One Place to Live.
+                </h2>
+                <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-8">
+                  Every Stoke AI client gets a simple workspace to capture ideas, track active builds, make decisions, and keep the next priority visible — without turning every improvement into another meeting.
+                </p>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    {
+                      title: 'Build Queue',
+                      desc: 'Bottlenecks, ideas, and AI opportunities are captured in one place so they don’t disappear into texts, meetings, or “someday” conversations.',
+                    },
+                    {
+                      title: 'Current Priority',
+                      desc: 'One highest-leverage system stays front and center, with clear next steps and progress your team can actually follow.',
+                    },
+                    {
+                      title: 'Decisions Needed',
+                      desc: 'Input, approvals, examples, and access requests show up clearly instead of getting buried in email threads.',
+                    },
+                    {
+                      title: 'Wins & What’s Next',
+                      desc: 'Completed improvements, lessons learned, and the next round of priorities stay visible so the work keeps compounding.',
+                    },
+                  ].map((item) => (
+                    <div key={item.title} className="rounded-3xl border border-white/10 bg-white/[0.035] p-5 hover:border-orange-400/30 transition-colors">
+                      <h3 className="text-xl font-black text-white mb-3">{item.title}</h3>
+                      <p className="text-sm text-gray-400 leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="mt-7 rounded-3xl border border-orange-400/20 bg-orange-500/10 p-5 text-lg font-bold text-white leading-relaxed">
+                  The goal is simple: keep AI work moving without adding more chaos to your business.
+                </p>
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-500/20 via-amber-500/5 to-black blur-2xl" />
+                <div className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-[#101112] shadow-xl shadow-black/30">
+                  <div className="flex items-center justify-between border-b border-white/10 bg-white/[0.035] px-5 py-4">
+                    <div>
+                      <p className="text-sm font-black text-white">Client Workspace</p>
+                      <p className="text-xs text-gray-500">Stoke AI operating rhythm</p>
+                    </div>
+                    <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-200">active</span>
+                  </div>
+
+                  <div className="p-5 md:p-6 space-y-4">
+                    <div className="rounded-3xl border border-orange-400/25 bg-orange-500/10 p-5">
+                      <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-200/80">Current build</p>
+                      <p className="mt-2 text-2xl font-black text-white">Renewal follow-up system</p>
+                      <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/40">
+                        <div className="h-full w-[68%] rounded-full bg-gradient-to-r from-orange-400 to-amber-300" />
+                      </div>
+                      <p className="mt-3 text-sm text-gray-300">Next: review first draft with team</p>
+                    </div>
+
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">Waiting on</p>
+                        <p className="mt-2 text-sm font-semibold text-white">Sample email templates</p>
+                      </div>
+                      <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
+                        <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">Next up</p>
+                        <p className="mt-2 text-sm font-semibold text-white">Dispatch tracker cleanup</p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-3xl border border-white/10 bg-black/25 p-4">
+                      <div className="mb-3 flex items-center justify-between">
+                        <p className="text-sm font-black text-white">Build queue</p>
+                        <p className="text-xs text-gray-500">4 ideas captured</p>
+                      </div>
+                      {['Customer follow-up prompts', 'Weekly operations report', 'New lead intake routing'].map((item) => (
+                        <div key={item} className="flex items-center gap-3 border-t border-white/5 py-3 first:border-t-0 first:pt-0 last:pb-0">
+                          <span className="h-2 w-2 rounded-full bg-orange-300" />
+                          <span className="text-sm text-gray-300">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="rounded-3xl border border-emerald-400/15 bg-emerald-400/5 p-4">
+                      <p className="text-xs font-bold uppercase tracking-[0.16em] text-emerald-200/70">Recently completed</p>
+                      <p className="mt-2 text-sm font-semibold text-white">Intake automation · renewal checklist · reporting cleanup</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: How We Turn Bottlenecks Into Working Systems */}
         <section className="bg-gradient-to-b from-black via-orange-950/5 to-black border-y border-white/5 py-16 md:py-24">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-4xl mx-auto mb-12">
