@@ -456,24 +456,41 @@ export default function Home() {
 
         {/* Section 5: Local Operator */}
         <section className="container mx-auto px-6 py-16 md:py-24">
-          <div className="max-w-5xl mx-auto rounded-[2rem] border border-gray-800 bg-gradient-to-br from-gray-900/85 via-black to-orange-950/20 p-8 md:p-10 shadow-2xl shadow-black/25">
-            <div className="grid md:grid-cols-[0.9fr_1.1fr] gap-8 md:gap-12 items-center">
+          <div className="max-w-6xl mx-auto rounded-[2rem] border border-gray-800 bg-gradient-to-br from-gray-900/85 via-black to-orange-950/20 p-6 md:p-10 shadow-2xl shadow-black/25 overflow-hidden">
+            <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 md:gap-12 items-center">
+              <div className="relative max-w-sm mx-auto lg:max-w-none">
+                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-500/35 via-amber-500/10 to-black blur-2xl" />
+                <div className="relative rounded-[2rem] border border-orange-500/25 bg-gradient-to-br from-orange-500/20 via-gray-950 to-black p-3 shadow-2xl shadow-black/35">
+                  <Image
+                    src="/jeff-stoker-local.jpg"
+                    alt="Jeff Stoker, founder of Stoke AI in Burley Idaho"
+                    width={900}
+                    height={1100}
+                    className="h-[360px] md:h-[440px] w-full rounded-[1.5rem] object-cover object-[50%_42%] saturate-110 contrast-105"
+                  />
+                  <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/55 via-transparent to-orange-500/10" />
+                  <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
+                    <p className="text-sm font-bold text-orange-200">Jeff Stoker · Burley, Idaho</p>
+                    <p className="text-xs text-gray-300">Local operator building practical AI systems</p>
+                  </div>
+                </div>
+              </div>
               <div>
                 <p className="text-orange-300 font-bold mb-3">Built locally</p>
                 <h2 className="text-3xl md:text-4xl font-black leading-tight mb-4">
                   Work directly with Jeff — not an anonymous AI vendor.
                 </h2>
-                <p className="text-gray-300 leading-relaxed text-lg">
+                <p className="text-gray-300 leading-relaxed text-lg mb-5">
                   Stoke AI is led by Jeff Stoker in Burley, Idaho. Jeff grew up in the Burley area around the dairy and milk-processing side of local business, so the work starts from a simple place: understand how the business actually runs, then build practical AI systems around the people doing the work.
                 </p>
-              </div>
-              <div className="rounded-3xl border border-orange-500/20 bg-black/35 p-6 md:p-7">
-                <p className="text-gray-300 leading-relaxed mb-5">
-                  That local context matters. The goal is not to impress you with AI buzzwords. The goal is to sit down with an established business owner, find the systems that are starting to strain, and build the next practical improvement with your team.
-                </p>
-                <a href="/about" className="inline-flex items-center text-orange-300 hover:text-orange-200 font-bold">
-                  Learn more about Jeff →
-                </a>
+                <div className="rounded-3xl border border-orange-500/20 bg-black/35 p-6 md:p-7">
+                  <p className="text-gray-300 leading-relaxed mb-5">
+                    That local context matters. The goal is not to impress you with AI buzzwords. The goal is to sit down with an established business owner, find the systems that are starting to strain, and build the next practical improvement with your team.
+                  </p>
+                  <a href="/about" className="inline-flex items-center text-orange-300 hover:text-orange-200 font-bold">
+                    Learn more about Jeff →
+                  </a>
+                </div>
               </div>
             </div>
           </div>

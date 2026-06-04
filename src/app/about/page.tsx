@@ -41,6 +41,22 @@ export default function AboutPage() {
               I grew up in the Burley, Idaho area around the dairy and milk-processing side of local business. Stoke AI exists because local companies do real, complicated work — and the systems around that work should be just as practical as the people running it.
             </p>
 
+            <div className="relative mb-10 max-w-3xl rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/20 via-gray-950 to-black p-3 shadow-2xl shadow-black/30">
+              <Image
+                src="/jeff-stoker-local.jpg"
+                alt="Jeff Stoker, founder of Stoke AI"
+                width={1200}
+                height={900}
+                priority
+                className="h-[420px] w-full rounded-[1.5rem] object-cover object-[50%_42%] saturate-110 contrast-105"
+              />
+              <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/60 via-transparent to-orange-500/10" />
+              <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
+                <p className="text-sm font-bold text-orange-200">A real local person, not an anonymous AI vendor.</p>
+                <p className="text-xs text-gray-300">I’ll swap in older Burley/dairy photos here as I find them.</p>
+              </div>
+            </div>
+
             <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
               <div className="rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-gray-900 via-black to-orange-950/25 p-8 shadow-2xl shadow-black/25">
                 <h2 className="text-2xl md:text-3xl font-black mb-4">Why local context matters</h2>
