@@ -242,12 +242,12 @@ export default function Home() {
         <section id="how" className="container mx-auto px-6 py-20 md:py-28">
           <div className="text-center max-w-3xl mx-auto mb-14">
             <h2 className="text-3xl md:text-5xl font-black mb-5">
-              Executive-Level Tech
+              How Stoke AI Works
               <br />
-              <span className="bg-gradient-to-r from-orange-300 to-amber-400 bg-clip-text text-transparent">Zero Software Bloat</span>
+              <span className="bg-gradient-to-r from-orange-300 to-amber-400 bg-clip-text text-transparent">With Your Team</span>
             </h2>
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-              Stop paying for hourly consulting or massive full-time salaries. We operate on a flat-rate, execution-focused model. You don’t manage developers. You hand us bottlenecks, and we turn them into working systems.
+              You don’t need another app to babysit or another consultant handing you ideas. We give your team a simple way to capture bottlenecks, choose the next priority, and turn practical AI opportunities into working systems.
             </p>
           </div>
 
@@ -255,15 +255,15 @@ export default function Home() {
             {[
               {
                 title: 'Your Private Build Queue.',
-                desc: 'We give you a simple private request board. You and your team can submit an unlimited queue of AI requests, software phases, or automation ideas. One active build at a time.',
+                desc: 'Your team gets one organized place to submit bottlenecks, ideas, and AI opportunities. We help sort the noise, clarify the priority, and keep the next build visible.',
               },
               {
-                title: 'Relentless Execution.',
-                desc: 'We work on your requests one at a time. Every 48 to 72 hours, we deliver tangible momentum: a shippable update, a completed workflow, or a strategic milestone, then immediately start the next priority.',
+                title: 'One Priority at a Time.',
+                desc: 'Instead of trying to overhaul everything at once, we focus on the highest-leverage system first. You see steady progress, clear updates, and working improvements your team can actually use.',
               },
               {
-                title: 'Total Flexibility.',
-                desc: "No long-term contract or oversized retainer. You pay month to month. If priorities slow down, you can pause before the next month starts.",
+                title: 'Built Around Your Business.',
+                desc: 'No generic templates or software bloat. We build around how your team already works, then improve the workflows, handoffs, and repeatable tasks that create the most operational drag.',
               },
             ].map((step, index) => (
               <div key={step.title} className="relative bg-gradient-to-br from-gray-900/90 to-black border border-gray-800 rounded-3xl p-8 md:p-10 hover:border-orange-500/40 transition-colors">
