@@ -111,7 +111,7 @@ export default async function ClientPortalPage() {
                 <PortalLoginForm />
                 {process.env.NODE_ENV !== 'production' ? (
                   <p className="mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-5 text-zinc-500">
-                    Local preview: username austin-kevin, password austin-preview.
+                    Local preview: username jeff, password stoke-preview.
                   </p>
                 ) : null}
               </>
