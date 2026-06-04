@@ -462,11 +462,11 @@ export default function Home() {
                 <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-500/35 via-amber-500/10 to-black blur-2xl" />
                 <div className="relative rounded-[2rem] border border-orange-500/25 bg-gradient-to-br from-orange-500/20 via-gray-950 to-black p-3 shadow-2xl shadow-black/35">
                   <Image
-                    src="/jeff-stoker-local.jpg"
+                    src="/jeff-stoker-local.png"
                     alt="Jeff Stoker, founder of Stoke AI in Burley Idaho"
                     width={900}
                     height={1100}
-                    className="h-[360px] md:h-[440px] w-full rounded-[1.5rem] object-cover object-[50%_42%] saturate-110 contrast-105"
+                    className="h-[360px] md:h-[440px] w-full rounded-[1.5rem] object-cover object-[50%_32%] saturate-105 contrast-105"
                   />
                   <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/55 via-transparent to-orange-500/10" />
                   <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">

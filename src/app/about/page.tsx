@@ -44,12 +44,12 @@ export default function AboutPage() {
             <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start mb-10">
               <div className="relative rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/20 via-gray-950 to-black p-3 shadow-2xl shadow-black/30">
                 <Image
-                  src="/jeff-stoker-local.jpg"
+                  src="/jeff-stoker-local.png"
                   alt="Jeff Stoker, founder of Stoke AI"
                   width={1200}
                   height={900}
                   priority
-                  className="h-[420px] lg:h-[540px] w-full rounded-[1.5rem] object-cover object-[50%_42%] saturate-110 contrast-105"
+                  className="h-[420px] lg:h-[540px] w-full rounded-[1.5rem] object-cover object-[50%_32%] saturate-105 contrast-105"
                 />
                 <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/60 via-transparent to-orange-500/10" />
                 <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
