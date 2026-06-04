@@ -305,12 +305,12 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
     ],
     'waiting-blocked': [
       {
-        id: 'stoke-production-password',
+        id: 'stoke-client-details',
         client: 'Stoke-AI',
-        title: 'Production password setup',
-        status: 'Waiting on deployment env',
-        detail: 'The portal supports username/password locally. The live site needs the production password configured in Vercel before sharing the login outside this test.',
-        action: 'Choose the real test password or let Blaze generate one and configure it.',
+        title: 'Real client workspace details',
+        status: 'Waiting on client info',
+        detail: 'Before Austin, Kevin, or any future client gets access, the workspace should use their real business name, first priorities, and approved users.',
+        action: 'Confirm the client name, who needs access, and the first 3-5 priorities to show in their workspace.',
       },
     ],
   },
