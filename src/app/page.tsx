@@ -122,7 +122,7 @@ export default function Home() {
             href="#contact"
             className="hidden sm:inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-3 px-6 rounded-full transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
           >
-            Book Your Free Audit
+            Talk Through What’s Possible
           </a>
         </nav>
 
@@ -155,10 +155,10 @@ export default function Home() {
                   href="#contact"
                   className="w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-4 sm:py-5 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
                 >
-                  Book Your Free Audit
+                  Talk Through What’s Possible
                 </a>
                 <p className="text-sm text-gray-500 max-w-sm">
-                  Built for agriculture, logistics, insurance, and the local businesses that keep Southern Idaho moving.
+                  Built for established local businesses with real operational complexity.
                 </p>
               </div>
             </div>
@@ -305,7 +305,7 @@ export default function Home() {
               href="#contact"
               className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-5 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
             >
-              Book Your Free Audit
+              Talk Through What’s Possible
             </a>
           </div>
         </section>
@@ -448,7 +448,7 @@ export default function Home() {
                 href="#contact"
                 className="whitespace-nowrap inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-4 px-10 rounded-full text-lg transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-orange-500/25"
               >
-                Book Your Free Audit
+                Talk Through What’s Possible
               </a>
             </div>
           </div>
@@ -459,25 +459,25 @@ export default function Home() {
           <div className="max-w-5xl mx-auto bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/30 border border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/25">
             <div className="grid md:grid-cols-2 gap-10 md:gap-14">
               <div>
-                <p className="text-orange-300 font-bold mb-3">Free AI Impact Audit</p>
+                <p className="text-orange-300 font-bold mb-3">Practical AI Conversation</p>
                 <h2 className="text-3xl md:text-5xl font-black mb-5">
-                  Show me the bottlenecks. I&apos;ll show you what to build first.
+                  Let&apos;s talk through what AI could actually do for your business.
                 </h2>
                 <p className="text-gray-300 text-lg leading-relaxed mb-7">
-                  No Silicon Valley pitch. No generic automation checklist. We&apos;ll look at where your team loses time, where human error shows up, and what custom AI system would create the fastest relief. The first audit is a free 90-minute web conference with Jeff.
+                  Most local businesses have only scratched the surface of AI. ChatGPT is useful, but the real leverage comes when AI is connected to your workflows, follow-ups, quoting, scheduling, reporting, customer communication, and internal systems.
                 </p>
                 <div className="space-y-4 text-gray-300">
                   <div className="flex gap-3">
                     <span className="text-orange-400 font-black">✓</span>
-                    <span>Practical workflow review for your actual business</span>
+                    <span>A practical conversation about your actual business</span>
                   </div>
                   <div className="flex gap-3">
                     <span className="text-orange-400 font-black">✓</span>
-                    <span>Clear first-build recommendation</span>
+                    <span>Where AI could give your team more capacity</span>
                   </div>
                   <div className="flex gap-3">
                     <span className="text-orange-400 font-black">✓</span>
-                    <span>Local operator, not a support queue</span>
+                    <span>No pressure, no generic AI pitch</span>
                   </div>
                 </div>
               </div>
@@ -487,9 +487,9 @@ export default function Home() {
                   <div className="h-full flex flex-col justify-center p-2">
                     <div className="text-center mb-5">
                       <div className="text-4xl mb-3">🔥</div>
-                      <h3 className="text-2xl font-bold mb-2">You&apos;re in. Now let&apos;s get your audit started.</h3>
+                      <h3 className="text-2xl font-bold mb-2">You&apos;re in. Now let&apos;s talk through what&apos;s possible.</h3>
                       <p className="text-gray-400 text-sm">
-                        Spark can run your free AI capability audit right now — or you can schedule it for when it works for you.
+                        Spark can start a short AI discovery conversation right now — or you can schedule it for when it works for you.
                       </p>
                     </div>
                     {aiInsight && (
@@ -505,7 +505,7 @@ export default function Home() {
                         href={`/discovery?name=${encodeURIComponent(formData.name)}&business=${encodeURIComponent(formData.business)}&painPoint=${encodeURIComponent(formData.painPoint === 'other' ? formData.painPointOther : formData.painPoint)}&email=${encodeURIComponent(formData.email)}&phone=${encodeURIComponent(formData.phone)}`}
                         className="block w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold py-4 px-6 rounded-xl text-center text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                       >
-                        Start My Audit Now
+                        Start My AI Discovery Now
                         <span className="text-black/60 text-xs font-normal block mt-1">5-minute voice assessment — get results instantly</span>
                       </a>
                       <button
@@ -624,10 +624,10 @@ export default function Home() {
                       disabled={submitting}
                       className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black py-4 px-8 rounded-xl text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                     >
-                      {submitting ? 'Sending...' : 'Book My Free AI Audit →'}
+                      {submitting ? 'Sending...' : 'Talk Through What’s Possible →'}
                     </button>
                     <p className="text-gray-500 text-xs text-center">
-                      Free 90-minute web conference. We’ll map whether AI makes sense for how you work — no pressure.
+                      No pressure, no generic AI pitch — just a practical conversation about where your business is losing time.
                     </p>
                   </form>
                 )}
@@ -649,14 +649,14 @@ export default function Home() {
               <div>
                 <h4 className="text-white font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
-                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Free AI Impact Audit</a></li>
+                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Talk Through What’s Possible</a></li>
                   <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
                 </ul>
               </div>
               <div>
                 <h4 className="text-white font-semibold mb-4">Get In Touch</h4>
                 <ul className="space-y-2">
-                  <li className="text-gray-400 text-sm">Ready to stop babysitting operations? Start with the free audit.</li>
+                  <li className="text-gray-400 text-sm">Ready to stop babysitting operations? Start with a practical AI conversation.</li>
                   <li><a href="mailto:automate@stoke-ai.com" className="text-gray-400 hover:text-orange-500 text-sm">automate@stoke-ai.com</a></li>
                   <li><a href="tel:+18557915002" className="text-gray-400 hover:text-orange-500 text-sm">(855) 791-5002</a></li>
                 </ul>
