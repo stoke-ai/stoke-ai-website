@@ -27,15 +27,15 @@ export default function Home() {
   const generateInsight = (business: string): string => {
     const b = business.toLowerCase();
     if (b.includes('farm') || b.includes('ag') || b.includes('ranch') || b.includes('crop')) {
-      return 'Agriculture businesses lose expensive time to repeat data entry, missed handoffs, and seasonal chaos. A custom AI system can organize the work before it becomes another fire drill.';
+      return 'Agriculture businesses carry a lot of repeatable information across seasons, teams, and customer work. A practical AI system can help organize the flow before it turns into another fire drill.';
     }
     if (b.includes('truck') || b.includes('logistics') || b.includes('dispatch') || b.includes('freight')) {
       return 'Logistics teams cannot afford spreadsheet mistakes. The right AI-backed operating system can tighten dispatch, maintenance tracking, and handoffs so fewer things slip through the cracks.';
     }
     if (b.includes('insurance') || b.includes('agent') || b.includes('policy')) {
-      return 'Insurance agencies drown in renewal prep and repetitive account review. A custom system can turn hours of manual work into a repeatable workflow your team can trust.';
+      return 'Insurance agencies carry heavy renewal prep and repetitive account review. A custom system can turn hours of manual work into a repeatable workflow your team can trust.';
     }
-    return 'Most local businesses do not need more software to learn. They need the daily bottlenecks mapped, simplified, and automated so the team can execute without constant cleanup.';
+    return 'Most established local businesses do not need more software to learn. They need daily bottlenecks mapped, simplified, and supported with practical AI so the team can execute without constant cleanup.';
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -55,7 +55,7 @@ export default function Home() {
           business: formData.business,
           website: formData.website,
           painPoint,
-          action: 'free-ai-audit-request',
+          action: 'ai-conversation-request',
         }),
       });
 
@@ -148,7 +148,7 @@ export default function Home() {
                 />
               </div>
               <p className="text-lg sm:text-xl md:text-2xl text-gray-300 leading-relaxed max-w-3xl mx-auto lg:mx-0 mb-7 md:mb-10">
-                Off-the-shelf software doesn&apos;t fix local, heavy-duty businesses. We build custom, automated workflows that eliminate human error, drastically reduce your overhead, and run your daily operations on autopilot.
+                Successful local businesses eventually outgrow the systems that got them here. Stoke AI helps owners use practical AI to reduce repetitive work, organize follow-ups, and give their team more room to grow — without adding more chaos.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 items-center lg:items-start sm:items-center justify-center lg:justify-start">
                 <a
@@ -200,7 +200,7 @@ export default function Home() {
                     className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover object-top border border-orange-500/30 shadow-xl shadow-black/30"
                   />
                   <div>
-                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">Giving the Office Its Capacity Back</p>
+                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">30 Renewals in the Time One Used to Take</p>
                     <p className="text-gray-400 font-semibold">Rachel · Hansen Insurance Agency</p>
                   </div>
                 </div>
@@ -223,7 +223,7 @@ export default function Home() {
                     className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover object-top border border-orange-500/30 shadow-xl shadow-black/30"
                   />
                   <div>
-                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">Escaping the Google Sheets Trap</p>
+                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">From Spreadsheet Ceiling to Custom System</p>
                     <p className="text-gray-400 font-semibold">Bryce · Handy Truck Line</p>
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export default function Home() {
               <span className="bg-gradient-to-r from-orange-300 to-amber-400 bg-clip-text text-transparent">With Your Team</span>
             </h2>
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-              You don’t need another app to babysit or another consultant handing you ideas. We give your team a simple way to capture bottlenecks, choose the next priority, and turn practical AI opportunities into working systems.
+              You don’t need another app to manage or another consultant handing you ideas. We give your team a simple way to capture bottlenecks, choose the next priority, and turn practical AI opportunities into working systems.
             </p>
           </div>
 
@@ -263,7 +263,7 @@ export default function Home() {
               },
               {
                 title: 'Built Around Your Business.',
-                desc: 'No generic templates or software bloat. We build around how your team already works, then improve the workflows, handoffs, and repeatable tasks that create the most operational drag.',
+                desc: 'No generic templates or disconnected tools. We build around how your team already works, then improve the workflows, handoffs, and repeatable tasks that create the most operational drag.',
               },
             ].map((step, index) => (
               <div key={step.title} className="relative bg-gradient-to-br from-gray-900/90 to-black border border-gray-800 rounded-3xl p-8 md:p-10 hover:border-orange-500/40 transition-colors">
@@ -450,6 +450,31 @@ export default function Home() {
               >
                 Talk Through What’s Possible
               </a>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 5: Local Operator */}
+        <section className="container mx-auto px-6 py-16 md:py-24">
+          <div className="max-w-5xl mx-auto rounded-[2rem] border border-gray-800 bg-gradient-to-br from-gray-900/85 via-black to-orange-950/20 p-8 md:p-10 shadow-2xl shadow-black/25">
+            <div className="grid md:grid-cols-[0.9fr_1.1fr] gap-8 md:gap-12 items-center">
+              <div>
+                <p className="text-orange-300 font-bold mb-3">Built locally</p>
+                <h2 className="text-3xl md:text-4xl font-black leading-tight mb-4">
+                  Work directly with Jeff — not an anonymous AI vendor.
+                </h2>
+                <p className="text-gray-300 leading-relaxed text-lg">
+                  Stoke AI is led by Jeff Stoker in Burley, Idaho. Jeff grew up in the Burley area around the dairy and milk-processing side of local business, so the work starts from a simple place: understand how the business actually runs, then build practical AI systems around the people doing the work.
+                </p>
+              </div>
+              <div className="rounded-3xl border border-orange-500/20 bg-black/35 p-6 md:p-7">
+                <p className="text-gray-300 leading-relaxed mb-5">
+                  That local context matters. The goal is not to impress you with AI buzzwords. The goal is to sit down with an established business owner, find the systems that are starting to strain, and build the next practical improvement with your team.
+                </p>
+                <a href="/about" className="inline-flex items-center text-orange-300 hover:text-orange-200 font-bold">
+                  Learn more about Jeff →
+                </a>
+              </div>
             </div>
           </div>
         </section>
@@ -651,6 +676,7 @@ export default function Home() {
                 <ul className="space-y-2">
                   <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Talk Through What’s Possible</a></li>
                   <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
+                  <li><a href="/about" className="text-gray-400 hover:text-orange-500 text-sm">About Jeff</a></li>
                 </ul>
               </div>
               <div>
