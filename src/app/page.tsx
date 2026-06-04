@@ -310,15 +310,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 4: How We Rebuild Your Operations */}
+        {/* Section 4: How We Turn Bottlenecks Into Working Systems */}
         <section className="bg-gradient-to-b from-black via-orange-950/10 to-black border-y border-gray-800 py-20 md:py-28">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-4xl mx-auto mb-12">
               <h2 className="text-3xl md:text-5xl font-black mb-5">
-                How We Rebuild Your Operations
+                How We Turn Bottlenecks Into Working Systems
               </h2>
               <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-                We don&apos;t guess; we diagnose. Here is exactly how we step into your business without locking you into a massive long-term contract.
+                We start with the way your business actually works, then identify where AI, automation, or better systems could create the most breathing room for your team.
               </p>
             </div>
 
@@ -327,23 +327,23 @@ export default function Home() {
                 <div className="absolute top-0 right-0 w-56 h-56 bg-orange-500/15 rounded-full blur-3xl" />
                 <div className="relative">
                   <p className="inline-flex mb-4 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-200 text-sm font-bold">
-                    Low-risk first step
+                    First conversation
                   </p>
                   <h3 className="text-2xl md:text-3xl font-black mb-4">
-                    Step 1: The Free AI Impact Audit
+                    Step 1: Talk Through What&apos;s Possible
                   </h3>
                   <p className="hidden lg:block text-4xl font-black text-white mb-4">
-                    90-minute <span className="text-lg text-gray-300 font-bold">web conference</span>
+                    Practical <span className="text-lg text-gray-300 font-bold">AI conversation</span>
                   </p>
                   <p className="hidden lg:block text-amber-200 italic leading-relaxed bg-orange-500/10 border border-orange-500/25 rounded-2xl p-4 mb-6">
-                    No disguised sales funnel. We map the bottlenecks, show useful examples, and tell you honestly what is worth building.
+                    No generic AI pitch. We look at your real workflows and talk through where AI could actually help.
                   </p>
                   <div className="grid gap-4 mb-8">
                     {[
                       {
                         eyebrow: '01',
                         title: 'Bottleneck Map',
-                        desc: 'Exactly where owner time, team time, and momentum are leaking out of the business.',
+                        desc: 'Where time, attention, and follow-through are leaking.',
                         icon: (
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
                             <path d="M4 19V5" />
@@ -355,8 +355,8 @@ export default function Home() {
                       },
                       {
                         eyebrow: '02',
-                        title: 'Automation Opportunity',
-                        desc: 'The repeatable human-error and busywork zones that should stop being manual.',
+                        title: 'AI Opportunity',
+                        desc: 'Where AI or automation could support your team without disrupting how they work.',
                         icon: (
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
                             <path d="M13 2 4 14h7l-1 8 10-13h-7l0-7Z" />
@@ -365,8 +365,8 @@ export default function Home() {
                       },
                       {
                         eyebrow: '03',
-                        title: 'Execution Blueprint',
-                        desc: 'What to build first, what it costs, and when it should pay for itself.',
+                        title: 'First Systems Priority',
+                        desc: 'The first practical system worth exploring.',
                         icon: (
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
                             <path d="M9 18h6" />
@@ -408,10 +408,10 @@ export default function Home() {
                   2
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black mb-5">
-                  Step 2: The Action Plan
+                  Step 2: Choose the First Build
                 </h3>
                 <p className="text-gray-300 leading-relaxed text-lg">
-                  We hand over your custom AI Implementation Roadmap. It outlines exactly what tools you need, what it will cost, and how much time it will save. You can take this roadmap and have your internal team build it, or partner with us for Step 3. <strong>If we don&apos;t see a clear automation ROI, we will tell you not to build.</strong>
+                  We help separate useful AI opportunities from distractions, then identify the first system that would create visible relief for your team. Sometimes that&apos;s a workflow, sometimes it&apos;s an automation, and sometimes it&apos;s simply a better way for information to move through the business.
                 </p>
               </article>
 
@@ -420,13 +420,13 @@ export default function Home() {
                   3
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black mb-4">
-                  Step 3: Fractional CTO Implementation
+                  Step 3: Build the System With Your Team
                 </h3>
                 <p className="text-gray-300 leading-relaxed text-lg mb-6">
-                  We take the roadmap and build it for you using a flat-rate, unlimited-request system. Your team adds requests to one organized board, and we execute them one at a time until the systems are fully integrated.
+                  If there&apos;s a fit, Stoke AI works alongside your team to build the workflow, automation, or internal system one priority at a time — with clear updates and a simple place to track progress.
                 </p>
                 <p className="text-sm text-gray-300 leading-relaxed border-t border-gray-800 pt-5">
-                  Note: Fractional CTO Retainers are exclusively available upon completion of the Step 1 Audit.
+                  The goal is not to replace your people. The goal is to give them better systems around the work they already do.
                 </p>
               </article>
             </div>
@@ -436,10 +436,10 @@ export default function Home() {
                 Start here
               </p>
               <p className="text-4xl font-black text-white mb-4">
-                Free 90-minute <span className="text-lg text-gray-300 font-bold">AI Audit</span>
+                Practical <span className="text-lg text-gray-300 font-bold">AI Conversation</span>
               </p>
               <p className="text-amber-200 italic leading-relaxed bg-orange-500/10 border border-orange-500/25 rounded-2xl p-4">
-                Built for conference credibility: useful owner education first, optional roadmap conversations second.
+                We look at your real workflows and talk through where AI could actually help.
               </p>
             </div>
 
