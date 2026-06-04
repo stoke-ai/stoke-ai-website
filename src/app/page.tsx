@@ -642,7 +642,7 @@ export default function Home() {
               <div>
                 <Image src="/logo.png" alt="Stoke AI" width={280} height={96} className="mb-4" />
                 <p className="text-gray-400 text-sm mb-4">
-                  Fractional AI CTO services for practical, blue-collar businesses that need execution — not more software noise.
+                  AI systems partner for established local businesses that need more capacity — not more software noise.
                 </p>
                 <p className="text-gray-500 text-sm">Burley, Idaho · Serving the Magic Valley and beyond</p>
               </div>
@@ -656,14 +656,14 @@ export default function Home() {
               <div>
                 <h4 className="text-white font-semibold mb-4">Get In Touch</h4>
                 <ul className="space-y-2">
-                  <li className="text-gray-400 text-sm">Ready to stop babysitting operations? Start with a practical AI conversation.</li>
+                  <li className="text-gray-400 text-sm">Ready to see where AI could support your team? Start with a practical conversation.</li>
                   <li><a href="mailto:automate@stoke-ai.com" className="text-gray-400 hover:text-orange-500 text-sm">automate@stoke-ai.com</a></li>
                   <li><a href="tel:+18557915002" className="text-gray-400 hover:text-orange-500 text-sm">(855) 791-5002</a></li>
                 </ul>
               </div>
             </div>
             <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row justify-between items-center gap-4">
-              <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Stoke AI · Practical AI systems for Magic Valley businesses</p>
+              <p className="text-gray-500 text-sm">© {new Date().getFullYear()} Stoke AI · Practical AI systems for established Magic Valley businesses</p>
               <div className="flex gap-6">
                 <a href="/privacy" className="text-gray-500 hover:text-orange-500 text-sm">Privacy Policy</a>
                 <a href="/terms" className="text-gray-500 hover:text-orange-500 text-sm">Terms of Service</a>
