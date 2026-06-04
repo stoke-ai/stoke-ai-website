@@ -481,7 +481,7 @@ export default function Home() {
                   Work directly with Jeff — not an anonymous AI vendor.
                 </h2>
                 <p className="text-gray-300 leading-relaxed text-lg mb-5">
-                  Stoke AI is led by Jeff Stoker, born and raised in Declo and now back in the Burley area. Jeff grew up in the Stoker milk family, where real work meant processing, homogenizing, and delivering milk across the Magic Valley and southern Idaho.
+                  Stoke AI is led by Jeff Stoker, born and raised in Declo and now back in the Burley area. Jeff grew up around Stoker&apos;s Milk, where real work meant processing, homogenizing, and delivering milk across the Magic Valley and southern Idaho.
                 </p>
                 <div className="rounded-3xl border border-orange-500/20 bg-black/35 p-6 md:p-7">
                   <p className="text-gray-300 leading-relaxed mb-5">

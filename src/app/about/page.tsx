@@ -38,7 +38,7 @@ export default function AboutPage() {
               I’m Jeff Stoker. I help established Magic Valley businesses use AI on the operating side of the business.
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-4xl mb-10">
-              I was born and raised in Declo, part of the Stoker milk family. I grew up around the work of processing, homogenizing, and delivering milk throughout the Magic Valley and eventually across southern Idaho.
+              I was born and raised in Declo and grew up around Stoker&apos;s Milk. I was around the work of processing, homogenizing, and delivering milk throughout the Magic Valley and eventually across southern Idaho.
             </p>
 
             <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start mb-10">
