@@ -277,7 +277,49 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 3: How It Works */}
+        {/* Section 3: Local Operator */}
+        <section className="container mx-auto px-6 py-16 md:py-24">
+          <div className="max-w-6xl mx-auto rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-10 shadow-xl shadow-black/20 overflow-hidden">
+            <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 md:gap-12 items-center">
+              <div className="relative max-w-sm mx-auto lg:max-w-none">
+                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-500/20 via-amber-500/5 to-black blur-2xl" />
+                <div className="relative rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/10 via-gray-950 to-black p-3 shadow-xl shadow-black/30">
+                  <Image
+                    src="/jeff-stoker-local.png"
+                    alt="Jeff Stoker, founder of Stoke AI in Burley Idaho"
+                    width={900}
+                    height={1100}
+                    className="h-[360px] md:h-[440px] w-full rounded-[1.5rem] object-cover object-[50%_32%] saturate-105 contrast-105"
+                  />
+                  <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/55 via-transparent to-orange-500/10" />
+                  <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
+                    <p className="text-sm font-bold text-orange-200">Jeff Stoker · Burley, Idaho</p>
+                    <p className="text-xs text-gray-300">Local operator building practical AI systems</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <p className="text-orange-300 font-bold mb-3">Built locally</p>
+                <h2 className="text-3xl md:text-4xl font-black leading-tight mb-4">
+                  Work directly with Jeff — not an anonymous AI vendor.
+                </h2>
+                <p className="text-gray-300 leading-relaxed text-lg mb-5">
+                  Stoke AI is led by Jeff Stoker, born and raised in Declo and now back in the Burley area. Jeff grew up around Stoker&apos;s Milk, where real work meant processing, homogenizing, and delivering milk across the Magic Valley and southern Idaho.
+                </p>
+                <div className="rounded-3xl border border-orange-500/20 bg-black/35 p-6 md:p-7">
+                  <p className="text-gray-300 leading-relaxed mb-5">
+                    That local operating background matters. After insurance, banking, business services, growing a home care company, and serving as a CFO/COO, Jeff sees AI as a practical way to help owners get more capacity back in the operating side of the business.
+                  </p>
+                  <a href="/about" className="inline-flex items-center text-orange-300 hover:text-orange-200 font-bold">
+                    Learn more about Jeff →
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section 4: How It Works */}
         <section id="how" className="container mx-auto px-6 py-16 md:py-24">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl md:text-5xl font-black mb-5">
@@ -349,7 +391,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 4: Client Workspace Rhythm */}
+        {/* Section 5: Client Workspace Rhythm */}
         <section className="bg-[#0f0f0f] border-y border-white/5 py-16 md:py-24">
           <div className="container mx-auto px-6">
             <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 md:gap-14 items-center max-w-7xl mx-auto">
@@ -449,7 +491,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Section 5: How We Turn Bottlenecks Into Working Systems */}
+        {/* Section 6: How We Turn Bottlenecks Into Working Systems */}
         <section className="bg-gradient-to-b from-black via-orange-950/5 to-black border-y border-white/5 py-16 md:py-24">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-4xl mx-auto mb-12">
@@ -589,48 +631,6 @@ export default function Home() {
               >
                 Talk Through What’s Possible
               </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 5: Local Operator */}
-        <section className="container mx-auto px-6 py-16 md:py-24">
-          <div className="max-w-6xl mx-auto rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-10 shadow-xl shadow-black/20 overflow-hidden">
-            <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 md:gap-12 items-center">
-              <div className="relative max-w-sm mx-auto lg:max-w-none">
-                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-500/20 via-amber-500/5 to-black blur-2xl" />
-                <div className="relative rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/10 via-gray-950 to-black p-3 shadow-xl shadow-black/30">
-                  <Image
-                    src="/jeff-stoker-local.png"
-                    alt="Jeff Stoker, founder of Stoke AI in Burley Idaho"
-                    width={900}
-                    height={1100}
-                    className="h-[360px] md:h-[440px] w-full rounded-[1.5rem] object-cover object-[50%_32%] saturate-105 contrast-105"
-                  />
-                  <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/55 via-transparent to-orange-500/10" />
-                  <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
-                    <p className="text-sm font-bold text-orange-200">Jeff Stoker · Burley, Idaho</p>
-                    <p className="text-xs text-gray-300">Local operator building practical AI systems</p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <p className="text-orange-300 font-bold mb-3">Built locally</p>
-                <h2 className="text-3xl md:text-4xl font-black leading-tight mb-4">
-                  Work directly with Jeff — not an anonymous AI vendor.
-                </h2>
-                <p className="text-gray-300 leading-relaxed text-lg mb-5">
-                  Stoke AI is led by Jeff Stoker, born and raised in Declo and now back in the Burley area. Jeff grew up around Stoker&apos;s Milk, where real work meant processing, homogenizing, and delivering milk across the Magic Valley and southern Idaho.
-                </p>
-                <div className="rounded-3xl border border-orange-500/20 bg-black/35 p-6 md:p-7">
-                  <p className="text-gray-300 leading-relaxed mb-5">
-                    That local operating background matters. After insurance, banking, business services, growing a home care company, and serving as a CFO/COO, Jeff sees AI as a practical way to help owners get more capacity back in the operating side of the business.
-                  </p>
-                  <a href="/about" className="inline-flex items-center text-orange-300 hover:text-orange-200 font-bold">
-                    Learn more about Jeff →
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
         </section>

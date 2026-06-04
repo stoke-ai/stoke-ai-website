@@ -23,6 +23,7 @@ function parsePortalAccessCodes(): PortalCodeMap {
 
   if (!raw && process.env.NODE_ENV !== 'production') {
     return {
+      'austin-kevin': 'austin-preview',
       'rachel-hansen': 'rachel-preview',
       'handy-truck-lines': 'htl-preview',
       'stoke-ai': 'stoke-preview',

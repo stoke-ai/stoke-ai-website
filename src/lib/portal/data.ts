@@ -34,6 +34,15 @@ export type PortalBoard = {
 
 export const portalClients: PortalClient[] = [
   {
+    id: 'austin-kevin',
+    name: 'Austin & Kevin',
+    contactEmail: 'portal@stoke-ai.com',
+    headline: 'Austin & Kevin workspace',
+    summary:
+      'A simple place to see the first Stoke AI priorities, what is being organized now, what is waiting on your input, and what comes next.',
+    trelloBoardId: process.env.TRELLO_AUSTIN_KEVIN_BOARD_ID,
+  },
+  {
     id: 'rachel-hansen',
     name: 'Rachel Hansen Agency',
     contactEmail: 'rachel@example.com',
@@ -84,6 +93,68 @@ export const stageShell: Omit<PortalStage, 'cards'>[] = [
 ];
 
 const internalCards: Record<string, Record<string, PortalCard[]>> = {
+  'austin-kevin': {
+    discovery: [
+      {
+        id: 'ak-workspace-opened',
+        client: 'Austin & Kevin',
+        title: 'Client workspace opened',
+        status: 'Ready',
+        detail: 'This portal is the shared place for Stoke AI priorities, build ideas, decisions needed, and progress updates.',
+        updatedAt: '2026-06-04',
+      },
+      {
+        id: 'ak-operating-map',
+        client: 'Austin & Kevin',
+        title: 'Initial operating map',
+        status: 'Starting point',
+        detail: 'Capture the main workflows, handoffs, follow-ups, reports, and bottlenecks worth reviewing first.',
+        action: 'Add the first 3-5 business bottlenecks you want Stoke AI to understand.',
+      },
+    ],
+    'building-now': [
+      {
+        id: 'ak-build-queue',
+        client: 'Austin & Kevin',
+        title: 'First build queue setup',
+        status: 'In progress',
+        detail: 'Organize ideas into a practical queue so the first AI/system build is chosen intentionally instead of from scattered conversations.',
+      },
+      {
+        id: 'ak-decision-rhythm',
+        client: 'Austin & Kevin',
+        title: 'Decision and request rhythm',
+        status: 'In progress',
+        detail: 'Create a simple pattern for what Stoke AI needs, what is waiting on the client, and where progress is visible.',
+      },
+    ],
+    'up-next': [
+      {
+        id: 'ak-first-priority',
+        client: 'Austin & Kevin',
+        title: 'Choose the first systems priority',
+        status: 'Next conversation',
+        detail: 'Review the bottleneck list and select one high-leverage workflow to improve first.',
+      },
+      {
+        id: 'ak-90-day-focus',
+        client: 'Austin & Kevin',
+        title: 'Draft the first 90-day focus',
+        status: 'Planned',
+        detail: 'Turn the first priorities into a clear near-term roadmap: current build, next build, decisions needed, and completed wins.',
+      },
+    ],
+    'waiting-blocked': [
+      {
+        id: 'ak-client-input',
+        client: 'Austin & Kevin',
+        title: 'First client inputs',
+        status: 'Waiting on input',
+        detail: 'Stoke AI needs a short list of the first workflows or recurring tasks that feel most annoying, slow, or hard to track.',
+        action: 'Send examples, screenshots, forms, spreadsheets, or a quick explanation of the workflow.',
+      },
+    ],
+  },
   'rachel-hansen': {
     discovery: [
       {

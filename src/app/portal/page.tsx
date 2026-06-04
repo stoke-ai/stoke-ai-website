@@ -110,7 +110,7 @@ export default async function ClientPortalPage() {
                 <PortalLoginForm clients={portalClients} />
                 {process.env.NODE_ENV !== 'production' ? (
                   <p className="mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-5 text-zinc-500">
-                    Local preview codes: rachel-preview, htl-preview, stoke-preview.
+                    Local preview codes: austin-preview, rachel-preview, htl-preview, stoke-preview.
                   </p>
                 ) : null}
               </>
@@ -175,6 +175,18 @@ export default async function ClientPortalPage() {
                   <li>• A clean timeline of recently completed milestones.</li>
                   <li>• No internal notes, private credentials, or messy build chatter.</li>
                 </ul>
+                <div className="mt-6 rounded-2xl border border-orange-500/20 bg-orange-500/10 p-4">
+                  <p className="text-sm font-bold text-orange-200">Need to add something?</p>
+                  <p className="mt-2 text-sm leading-6 text-zinc-300">
+                    Send bottlenecks, examples, screenshots, or “we should look at this” ideas and Stoke AI will turn them into visible queue items.
+                  </p>
+                  <a
+                    href={`mailto:${board.client.contactEmail}?subject=${encodeURIComponent(`${board.client.name} portal request`)}&body=${encodeURIComponent('What should Stoke AI look at?\n\nWhy does it matter?\n\nAny examples, links, screenshots, or files to attach?\n')}`}
+                    className="mt-4 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-black text-black transition hover:from-orange-600 hover:to-amber-600"
+                  >
+                    Send a new request
+                  </a>
+                </div>
               </div>
               <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
                 <h2 className="text-xl font-bold">Recent activity</h2>
