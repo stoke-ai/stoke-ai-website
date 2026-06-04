@@ -426,7 +426,7 @@ export default function Home() {
                   If there&apos;s a fit, Stoke AI works alongside your team to build the workflow, automation, or internal system one priority at a time — with clear updates and a simple place to track progress.
                 </p>
                 <p className="text-sm text-gray-300 leading-relaxed border-t border-gray-800 pt-5">
-                  The goal is not to replace your people. The goal is to give them better systems around the work they already do.
+                  The goal is not to replace your people. The goal is to give them better systems around the work they already do, so your business can grow without adding more chaos.
                 </p>
               </article>
             </div>
