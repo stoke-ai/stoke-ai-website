@@ -131,10 +131,10 @@ export default function Home() {
           <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-8 lg:gap-12 items-center">
             <div className="max-w-5xl text-center lg:text-left">
               <div className="inline-flex mb-5 px-3 sm:px-4 py-2 bg-orange-500/10 border border-orange-500/25 rounded-full text-orange-300 text-xs sm:text-sm font-semibold">
-                Fractional AI CTO for Magic Valley operators
+                AI partner for established local businesses
               </div>
               <h1 className="text-[2.55rem] sm:text-5xl md:text-7xl font-black leading-[0.94] tracking-tight mb-5 md:mb-8 max-w-4xl">
-                We Build Custom Systems That Do the Work of Three Employees.
+                We Build AI Systems That Give Your Team More Capacity.
               </h1>
               <div className="relative mb-6 lg:hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-orange-500/25 to-amber-500/10 rounded-[1.75rem] blur-3xl" />
