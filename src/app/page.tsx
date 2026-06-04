@@ -464,20 +464,20 @@ export default function Home() {
                   Let&apos;s talk through what AI could actually do for your business.
                 </h2>
                 <p className="text-gray-300 text-lg leading-relaxed mb-7">
-                  Most local businesses have only scratched the surface of AI. ChatGPT is useful, but the real leverage comes when AI is connected to your workflows, follow-ups, quoting, scheduling, reporting, customer communication, and internal systems.
+                  Most local businesses are only using AI at the surface level. The real opportunity is using it to support the work your team already does — quoting, scheduling, follow-ups, reporting, customer communication, and internal handoffs.
                 </p>
                 <div className="space-y-4 text-gray-300">
                   <div className="flex gap-3">
                     <span className="text-orange-400 font-black">✓</span>
-                    <span>A practical conversation about your actual business</span>
+                    <span>We look at your real workflows, not a generic AI checklist</span>
                   </div>
                   <div className="flex gap-3">
                     <span className="text-orange-400 font-black">✓</span>
-                    <span>Where AI could give your team more capacity</span>
+                    <span>We identify where your team is losing time or dropping follow-ups</span>
                   </div>
                   <div className="flex gap-3">
                     <span className="text-orange-400 font-black">✓</span>
-                    <span>No pressure, no generic AI pitch</span>
+                    <span>You leave with a clearer sense of what AI could actually help with</span>
                   </div>
                 </div>
               </div>
@@ -583,7 +583,7 @@ export default function Home() {
                     />
                     <input
                       type="text"
-                      placeholder="What kind of business do you run?"
+                      placeholder="What business are you with?"
                       required
                       className="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-xl focus:outline-none focus:border-orange-500 transition-colors placeholder-gray-600"
                       value={formData.business}
@@ -594,7 +594,7 @@ export default function Home() {
                       value={formData.painPoint}
                       onChange={(e) => setFormData({ ...formData, painPoint: e.target.value })}
                     >
-                      <option value="" disabled>Where do you feel the most operational drag? (optional)</option>
+                      <option value="" disabled>Where does your team lose the most time? (optional)</option>
                       <option value="Human error and rework">Human error and rework</option>
                       <option value="Manual paperwork and data entry">Manual paperwork and data entry</option>
                       <option value="Follow-ups and team handoffs">Follow-ups and team handoffs</option>
@@ -627,7 +627,7 @@ export default function Home() {
                       {submitting ? 'Sending...' : 'Talk Through What’s Possible →'}
                     </button>
                     <p className="text-gray-500 text-xs text-center">
-                      No pressure, no generic AI pitch — just a practical conversation about where your business is losing time.
+                      No pressure. Just a practical conversation about your business.
                     </p>
                   </form>
                 )}
