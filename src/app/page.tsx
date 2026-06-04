@@ -148,7 +148,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white overflow-hidden">
-      <div className="fixed inset-0 opacity-25 pointer-events-none">
+      <div className="fixed inset-0 opacity-[0.18] pointer-events-none">
         <div className="absolute -top-24 -left-32 w-96 h-96 bg-orange-500 rounded-full mix-blend-screen filter blur-[128px]" />
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-amber-600 rounded-full mix-blend-screen filter blur-[128px]" />
       </div>
@@ -210,9 +210,9 @@ export default function Home() {
         </header>
 
         {/* Section 2: Local Proof */}
-        <section className="bg-[#16120f] border-y border-orange-500/10 py-20 md:py-28">
+        <section className="bg-[#11100f] border-y border-white/5 py-16 md:py-24">
           <div className="container mx-auto px-6">
-            <div className="max-w-3xl mb-12">
+            <div className="max-w-3xl mb-10 md:mb-12">
               <h2 className="text-3xl md:text-5xl font-black mb-5">
                 Real Results for Magic Valley Businesses.
               </h2>
@@ -221,49 +221,55 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="grid lg:grid-cols-2 gap-8 items-stretch">
-              <article className="relative bg-gradient-to-br from-gray-900/95 via-black to-orange-950/25 border border-orange-500/20 rounded-[2rem] p-7 md:p-8 shadow-2xl shadow-black/25 overflow-hidden">
-                <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl" />
-                <div className="relative flex items-center gap-5 mb-7">
+            <div className="grid lg:grid-cols-2 gap-6 md:gap-8 items-stretch">
+              <article className="relative bg-white/[0.035] border border-white/10 rounded-[1.75rem] p-6 md:p-7 shadow-xl shadow-black/20 overflow-hidden">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl" />
+                <div className="relative flex items-center gap-5 mb-6">
                   <Image
                     src="/testimonial-rachel-hansen.jpg"
                     alt="Rachel from Hansen Insurance Agency"
                     width={160}
                     height={160}
-                    className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover object-top border border-orange-500/30 shadow-xl shadow-black/30"
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover object-top border border-white/10 shadow-xl shadow-black/30"
                   />
                   <div>
-                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">30 Renewals in the Time One Used to Take</p>
+                    <p className="text-white font-black text-xl md:text-2xl leading-tight mb-2">Hansen Insurance Agency</p>
                     <p className="text-gray-400 font-semibold">Rachel · Hansen Insurance Agency</p>
                   </div>
                 </div>
-                <div className="relative bg-black/35 border border-gray-800/80 rounded-3xl p-6 md:p-7">
-                  <div className="text-orange-400/35 text-6xl font-black leading-none mb-1" aria-hidden="true">“</div>
-                  <blockquote className="text-lg md:text-xl text-gray-100 font-semibold leading-relaxed">
-                    Before Stoke AI, my team was buried in manual data entry. Prepping a single policy renewal took 30 minutes of brute-force typing. Jeff built a custom automated system that lets us do 30 renewals in that exact same 30 minutes. He didn&apos;t just give us a piece of software; he gave my office our capacity back.
+                <div className="relative mb-5 rounded-3xl border border-orange-400/25 bg-orange-500/10 p-5">
+                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-orange-200/80">Outcome</p>
+                  <p className="mt-2 text-3xl md:text-4xl font-black leading-tight text-white">30 renewals in the time one used to take</p>
+                </div>
+                <div className="relative bg-black/25 border border-white/10 rounded-3xl p-5 md:p-6">
+                  <blockquote className="text-base md:text-lg text-gray-200 font-semibold leading-relaxed">
+                    “Jeff built a custom automated system that lets us do 30 renewals in that exact same 30 minutes. He didn&apos;t just give us a piece of software; he gave my office our capacity back.”
                   </blockquote>
                 </div>
               </article>
 
-              <article className="relative bg-gradient-to-br from-gray-900/95 via-black to-orange-950/25 border border-orange-500/20 rounded-[2rem] p-7 md:p-8 shadow-2xl shadow-black/25 overflow-hidden">
-                <div className="absolute -top-20 -right-20 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl" />
-                <div className="relative flex items-center gap-5 mb-7">
+              <article className="relative bg-white/[0.035] border border-white/10 rounded-[1.75rem] p-6 md:p-7 shadow-xl shadow-black/20 overflow-hidden">
+                <div className="absolute -top-24 -right-24 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl" />
+                <div className="relative flex items-center gap-5 mb-6">
                   <Image
                     src="/testimonial-bryce-morgan.jpg"
                     alt="Bryce from Handy Truck Line"
                     width={160}
                     height={160}
-                    className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover object-top border border-orange-500/30 shadow-xl shadow-black/30"
+                    className="w-20 h-20 md:w-24 md:h-24 rounded-2xl object-cover object-top border border-white/10 shadow-xl shadow-black/30"
                   />
                   <div>
-                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">From Spreadsheet Ceiling to Custom System</p>
+                    <p className="text-white font-black text-xl md:text-2xl leading-tight mb-2">Handy Truck Line</p>
                     <p className="text-gray-400 font-semibold">Bryce · Handy Truck Line</p>
                   </div>
                 </div>
-                <div className="relative bg-black/35 border border-gray-800/80 rounded-3xl p-6 md:p-7">
-                  <div className="text-orange-400/35 text-6xl font-black leading-none mb-1" aria-hidden="true">“</div>
-                  <blockquote className="text-lg md:text-xl text-gray-100 font-semibold leading-relaxed">
-                    We ran dispatch on Google Sheets for a long time, and it worked — until the business outgrew it. As we kept growing, the manual data entry started becoming a ceiling. Jeff is turning that into a custom automated system built around how we actually operate. But the biggest ROI so far has been the shift in how we think. Partnering with Stoke AI showed us what&apos;s actually possible. Jeff inspired me to start using AI myself to build custom truck and tire maintenance trackers. He doesn&apos;t just implement AI — he upgrades how you look at your business.
+                <div className="relative mb-5 rounded-3xl border border-orange-400/25 bg-orange-500/10 p-5">
+                  <p className="text-sm font-bold uppercase tracking-[0.18em] text-orange-200/80">Outcome</p>
+                  <p className="mt-2 text-3xl md:text-4xl font-black leading-tight text-white">From spreadsheet ceiling to custom system</p>
+                </div>
+                <div className="relative bg-black/25 border border-white/10 rounded-3xl p-5 md:p-6">
+                  <blockquote className="text-base md:text-lg text-gray-200 font-semibold leading-relaxed">
+                    “Partnering with Stoke AI showed us what&apos;s actually possible. Jeff doesn&apos;t just implement AI — he upgrades how you look at your business.”
                   </blockquote>
                 </div>
               </article>
@@ -272,8 +278,8 @@ export default function Home() {
         </section>
 
         {/* Section 3: How It Works */}
-        <section id="how" className="container mx-auto px-6 py-20 md:py-28">
-          <div className="text-center max-w-3xl mx-auto mb-14">
+        <section id="how" className="container mx-auto px-6 py-16 md:py-24">
+          <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl md:text-5xl font-black mb-5">
               How Stoke AI Works
               <br />
@@ -299,8 +305,8 @@ export default function Home() {
                 desc: 'No generic templates or disconnected tools. We build around how your team already works, then improve the workflows, handoffs, and repeatable tasks that create the most operational drag.',
               },
             ].map((step, index) => (
-              <div key={step.title} className="relative bg-gradient-to-br from-gray-900/90 to-black border border-gray-800 rounded-3xl p-8 md:p-10 hover:border-orange-500/40 transition-colors">
-                <div className="absolute -top-4 -right-4 w-14 h-14 rounded-2xl bg-orange-500 text-black font-black flex items-center justify-center shadow-lg shadow-orange-500/20">
+              <div key={step.title} className="relative bg-white/[0.03] border border-white/10 rounded-3xl p-7 md:p-8 hover:border-orange-500/35 transition-colors">
+                <div className="absolute -top-4 -right-4 w-12 h-12 rounded-2xl bg-orange-500 text-black font-black flex items-center justify-center shadow-lg shadow-orange-500/15">
                   {index + 1}
                 </div>
                 <div className="mb-7 w-14 h-14 rounded-2xl border border-orange-500/30 bg-orange-500/10 flex items-center justify-center text-orange-300" aria-hidden="true">
@@ -344,7 +350,7 @@ export default function Home() {
         </section>
 
         {/* Section 4: How We Turn Bottlenecks Into Working Systems */}
-        <section className="bg-gradient-to-b from-black via-orange-950/10 to-black border-y border-gray-800 py-20 md:py-28">
+        <section className="bg-gradient-to-b from-black via-orange-950/5 to-black border-y border-white/5 py-16 md:py-24">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-4xl mx-auto mb-12">
               <h2 className="text-3xl md:text-5xl font-black mb-5">
@@ -356,8 +362,8 @@ export default function Home() {
             </div>
 
             <div className="grid lg:grid-cols-3 gap-6 max-w-7xl mx-auto items-stretch">
-              <article className="relative lg:scale-[1.03] rounded-[2rem] border border-orange-500/45 bg-gradient-to-br from-gray-900 via-black to-orange-950/45 p-7 md:p-8 shadow-2xl shadow-orange-950/25 overflow-hidden">
-                <div className="absolute top-0 right-0 w-56 h-56 bg-orange-500/15 rounded-full blur-3xl" />
+              <article className="relative rounded-[2rem] border border-orange-500/30 bg-gradient-to-br from-gray-900 via-black to-orange-950/25 p-7 md:p-8 shadow-xl shadow-black/25 overflow-hidden">
+                <div className="absolute top-0 right-0 w-56 h-56 bg-orange-500/10 rounded-full blur-3xl" />
                 <div className="relative">
                   <p className="inline-flex mb-4 px-3 py-1 rounded-full bg-orange-500/15 border border-orange-500/30 text-orange-200 text-sm font-bold">
                     First conversation
@@ -464,7 +470,7 @@ export default function Home() {
               </article>
             </div>
 
-            <div className="lg:hidden max-w-2xl mx-auto mt-6 rounded-[2rem] border border-orange-500/40 bg-gradient-to-br from-gray-900 via-black to-orange-950/45 p-7 shadow-2xl shadow-orange-950/25">
+            <div className="lg:hidden max-w-2xl mx-auto mt-6 rounded-[2rem] border border-orange-500/30 bg-gradient-to-br from-gray-900 via-black to-orange-950/25 p-7 shadow-xl shadow-black/25">
               <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-300 mb-3">
                 Start here
               </p>
@@ -489,11 +495,11 @@ export default function Home() {
 
         {/* Section 5: Local Operator */}
         <section className="container mx-auto px-6 py-16 md:py-24">
-          <div className="max-w-6xl mx-auto rounded-[2rem] border border-gray-800 bg-gradient-to-br from-gray-900/85 via-black to-orange-950/20 p-6 md:p-10 shadow-2xl shadow-black/25 overflow-hidden">
+          <div className="max-w-6xl mx-auto rounded-[2rem] border border-white/10 bg-white/[0.03] p-6 md:p-10 shadow-xl shadow-black/20 overflow-hidden">
             <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 md:gap-12 items-center">
               <div className="relative max-w-sm mx-auto lg:max-w-none">
-                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-500/35 via-amber-500/10 to-black blur-2xl" />
-                <div className="relative rounded-[2rem] border border-orange-500/25 bg-gradient-to-br from-orange-500/20 via-gray-950 to-black p-3 shadow-2xl shadow-black/35">
+                <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-orange-500/20 via-amber-500/5 to-black blur-2xl" />
+                <div className="relative rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/10 via-gray-950 to-black p-3 shadow-xl shadow-black/30">
                   <Image
                     src="/jeff-stoker-local.png"
                     alt="Jeff Stoker, founder of Stoke AI in Burley Idaho"
@@ -530,8 +536,8 @@ export default function Home() {
         </section>
 
         {/* CTA / Lead Capture */}
-        <section id="contact" className="container mx-auto px-6 py-20 md:py-28">
-          <div className="max-w-5xl mx-auto bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/30 border border-gray-800 rounded-3xl p-8 md:p-12 shadow-2xl shadow-black/25">
+        <section id="contact" className="container mx-auto px-6 py-16 md:py-24">
+          <div className="max-w-5xl mx-auto bg-gradient-to-br from-gray-900 via-gray-900 to-orange-950/15 border border-white/10 rounded-3xl p-8 md:p-12 shadow-xl shadow-black/20">
             <div className="grid md:grid-cols-2 gap-10 md:gap-14">
               <div>
                 <p className="text-orange-300 font-bold mb-3">Practical AI Conversation</p>
