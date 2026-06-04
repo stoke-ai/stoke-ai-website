@@ -99,6 +99,53 @@ export default function Home() {
     }
   };
 
+  const PortalPreview = () => (
+    <div className="relative w-full overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0f1011] shadow-2xl shadow-black/40">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(249,115,22,0.22),transparent_34%),radial-gradient(circle_at_95%_80%,rgba(245,158,11,0.16),transparent_35%)]" />
+      <div className="relative border-b border-white/10 px-5 py-4 flex items-center justify-between">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.22em] text-orange-300/80">Stoke AI workspace</p>
+          <p className="text-lg font-black text-white">Operations queue</p>
+        </div>
+        <div className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-200">Active</div>
+      </div>
+      <div className="relative grid gap-4 p-5 sm:p-6">
+        <div className="rounded-2xl border border-orange-400/25 bg-orange-500/10 p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <p className="text-sm font-black text-orange-100">Current priority</p>
+            <span className="rounded-full bg-orange-400/15 px-3 py-1 text-[0.68rem] font-bold text-orange-200">BUILDING</span>
+          </div>
+          <p className="text-xl font-black leading-tight text-white">Renewal follow-up system</p>
+          <p className="mt-2 text-sm leading-relaxed text-gray-300">Automate repeatable prep, organize handoffs, and keep the team focused on exceptions.</p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+            <p className="mb-3 text-sm font-bold text-gray-200">Build queue</p>
+            {['Quote follow-ups', 'Dispatch handoffs', 'Weekly reporting'].map((item) => (
+              <div key={item} className="mb-2 last:mb-0 flex items-center gap-2 text-sm text-gray-300">
+                <span className="h-2 w-2 rounded-full bg-orange-300" /> {item}
+              </div>
+            ))}
+          </div>
+          <div className="rounded-2xl border border-white/10 bg-white/[0.045] p-4">
+            <p className="mb-3 text-sm font-bold text-gray-200">Decisions needed</p>
+            <div className="rounded-xl border border-white/10 bg-black/30 p-3 text-sm text-gray-300">Approve first workflow map</div>
+            <div className="mt-3 rounded-xl border border-white/10 bg-black/30 p-3 text-sm text-gray-300">Pick next team bottleneck</div>
+          </div>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
+          <div className="mb-3 flex items-center justify-between text-sm">
+            <span className="font-bold text-gray-200">Team capacity gained</span>
+            <span className="font-black text-orange-200">+18 hrs/wk</span>
+          </div>
+          <div className="h-2 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full w-2/3 rounded-full bg-gradient-to-r from-orange-500 to-amber-300" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-[#0d0d0d] text-white overflow-hidden">
       <div className="fixed inset-0 opacity-25 pointer-events-none">
@@ -133,19 +180,12 @@ export default function Home() {
               <div className="inline-flex mb-5 px-3 sm:px-4 py-2 bg-orange-500/10 border border-orange-500/25 rounded-full text-orange-300 text-xs sm:text-sm font-semibold">
                 AI partner for established local businesses
               </div>
-              <h1 className="text-[2.55rem] sm:text-5xl md:text-7xl font-black leading-[0.94] tracking-tight mb-5 md:mb-8 max-w-4xl">
+              <h1 className="text-[2.55rem] sm:text-5xl md:text-6xl xl:text-7xl font-black leading-[0.96] tracking-tight mb-5 md:mb-8 max-w-4xl">
                 We Build AI Systems That Give Your Team More Capacity.
               </h1>
               <div className="relative mb-6 lg:hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/25 to-amber-500/10 rounded-[1.75rem] blur-3xl" />
-                <Image
-                  src="/hero-ai-impact-audit.jpg"
-                  alt="Stoke AI builds practical custom AI systems for local business operations"
-                  width={900}
-                  height={900}
-                  priority
-                  className="relative w-full aspect-[4/3] rounded-[1.75rem] border border-orange-500/20 shadow-2xl shadow-black/40 object-cover"
-                />
+                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/10 rounded-[1.75rem] blur-3xl" />
+                <PortalPreview />
               </div>
               <p className="text-lg sm:text-xl md:text-2xl text-gray-300 leading-relaxed max-w-3xl mx-auto lg:mx-0 mb-7 md:mb-10">
                 Successful local businesses eventually outgrow the systems that got them here. Stoke AI helps owners use practical AI to reduce repetitive work, organize follow-ups, and give their team more room to grow — without adding more chaos.
@@ -153,25 +193,18 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-4 items-center lg:items-start sm:items-center justify-center lg:justify-start">
                 <a
                   href="#contact"
-                  className="w-full sm:w-auto inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-4 sm:py-5 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
+                  className="w-full sm:w-auto whitespace-nowrap inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-4 sm:py-5 px-7 sm:px-8 rounded-full text-base sm:text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
                 >
                   Talk Through What’s Possible
                 </a>
-                <p className="text-sm text-gray-500 max-w-sm">
+                <p className="text-sm text-gray-400 max-w-sm">
                   Built for established local businesses with real operational complexity.
                 </p>
               </div>
             </div>
             <div className="relative hidden lg:block">
-              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/25 to-amber-500/10 rounded-[2rem] blur-3xl" />
-              <Image
-                src="/hero-ai-impact-audit.jpg"
-                alt="Stoke AI builds practical custom AI systems for local business operations"
-                width={900}
-                height={900}
-                priority
-                className="relative w-full rounded-[2rem] border border-orange-500/20 shadow-2xl shadow-black/40 object-cover"
-              />
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-amber-500/10 rounded-[2rem] blur-3xl" />
+              <PortalPreview />
             </div>
           </div>
         </header>
