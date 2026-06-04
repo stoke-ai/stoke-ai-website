@@ -243,7 +243,7 @@ export default function Home() {
                 </div>
                 <div className="relative bg-black/25 border border-white/10 rounded-3xl p-5 md:p-6">
                   <blockquote className="text-base md:text-lg text-gray-200 font-semibold leading-relaxed">
-                    “Jeff built a custom automated system that lets us do 30 renewals in that exact same 30 minutes. He didn&apos;t just give us a piece of software; he gave my office our capacity back.”
+                    “Before Stoke AI, my team was buried in manual data entry. Prepping a single policy renewal took 30 minutes of brute-force typing. Jeff built a custom automated system that lets us do 30 renewals in that exact same 30 minutes. He didn&apos;t just give us a piece of software; he gave my office our capacity back.”
                   </blockquote>
                 </div>
               </article>
@@ -269,7 +269,7 @@ export default function Home() {
                 </div>
                 <div className="relative bg-black/25 border border-white/10 rounded-3xl p-5 md:p-6">
                   <blockquote className="text-base md:text-lg text-gray-200 font-semibold leading-relaxed">
-                    “Partnering with Stoke AI showed us what&apos;s actually possible. Jeff doesn&apos;t just implement AI — he upgrades how you look at your business.”
+                    “We ran dispatch on Google Sheets for a long time, and it worked — until the business outgrew it. As we kept growing, the manual data entry started becoming a ceiling. Jeff is turning that into a custom automated system built around how we actually operate. But the biggest ROI so far has been the shift in how we think. Partnering with Stoke AI showed us what&apos;s actually possible. Jeff inspired me to start using AI myself to build custom truck and tire maintenance trackers. He doesn&apos;t just implement AI — he upgrades how you look at your business.”
                   </blockquote>
                 </div>
               </article>
