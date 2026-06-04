@@ -53,8 +53,8 @@ export default function AboutPage() {
                 />
                 <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/60 via-transparent to-orange-500/10" />
                 <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
-                  <p className="text-sm font-bold text-orange-200">A real local person, not an anonymous AI vendor.</p>
-                  <p className="text-xs text-gray-300">I’ll swap in older Declo/Stoker milk photos as I find them.</p>
+                  <p className="text-sm font-bold text-orange-200">Jeff Stoker · Declo roots, Burley based</p>
+                  <p className="text-xs text-gray-300">Practical AI systems for established Magic Valley businesses</p>
                 </div>
               </div>
 
@@ -62,7 +62,7 @@ export default function AboutPage() {
                 <h2 className="text-2xl md:text-3xl font-black mb-5">Why this work matters to me</h2>
                 <div className="space-y-5 text-gray-300 leading-relaxed text-lg">
                   <p>
-                    After leaving Declo, I served a mission for The Church of Jesus Christ of Latter-day Saints in South Carolina, then came back to Idaho and moved to Boise to attend Boise State.
+                    After leaving Declo, I moved to Boise to attend Boise State University.
                   </p>
                   <p>
                     From there, my work kept circling around the same thing: business operations. I sold insurance with Farmers, bought and ran an Allstate agency, worked in retail banking at Wells Fargo, then sold merchant services and payroll services in business services.
