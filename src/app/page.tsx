@@ -184,7 +184,7 @@ export default function Home() {
                 Real Results for Magic Valley Businesses.
               </h2>
               <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-                Off-the-shelf software doesn&apos;t fix local, heavy-duty businesses. We replace manual data entry, messy spreadsheets, and repetitive paperwork with custom automated systems. Whether it&apos;s streamlining dispatch for logistics, accelerating policy renewals for insurance, or untangling back-office operations for agriculture, we build the behind-the-scenes engines that get your team out of the weeds and back to running the business.
+                Off-the-shelf software rarely fits how established local businesses actually operate. Stoke AI helps teams turn repetitive paperwork, messy spreadsheets, follow-ups, scheduling, reporting, and internal handoffs into practical systems that create more capacity without adding more chaos.
               </p>
             </div>
 
@@ -200,7 +200,7 @@ export default function Home() {
                     className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover object-top border border-orange-500/30 shadow-xl shadow-black/30"
                   />
                   <div>
-                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">The 30x Efficiency Jump</p>
+                    <p className="text-orange-300 font-black text-xl md:text-2xl leading-tight mb-2">Giving the Office Its Capacity Back</p>
                     <p className="text-gray-400 font-semibold">Rachel · Hansen Insurance Agency</p>
                   </div>
                 </div>
