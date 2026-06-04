@@ -30,34 +30,51 @@ export default function AboutPage() {
         </nav>
 
         <section className="container mx-auto px-6 pt-10 pb-20 md:pt-20 md:pb-28">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <p className="inline-flex mb-5 px-4 py-2 bg-orange-500/10 border border-orange-500/25 rounded-full text-orange-300 text-sm font-semibold">
-              Local roots, practical AI systems
+              Declo roots, practical AI systems
             </p>
-            <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight mb-6">
-              I’m Jeff Stoker. I build AI systems for established Magic Valley businesses.
+            <h1 className="text-4xl md:text-6xl font-black leading-tight tracking-tight mb-6 max-w-5xl">
+              I’m Jeff Stoker. I help established Magic Valley businesses use AI on the operating side of the business.
             </h1>
             <p className="text-xl md:text-2xl text-gray-300 leading-relaxed max-w-4xl mb-10">
-              I grew up in the Burley, Idaho area around the dairy and milk-processing side of local business. Stoke AI exists because local companies do real, complicated work — and the systems around that work should be just as practical as the people running it.
+              I was born and raised in Declo, part of the Stoker milk family. I grew up around the work of processing, homogenizing, and delivering milk throughout the Magic Valley and eventually across southern Idaho.
             </p>
 
-            <div className="relative mb-10 max-w-3xl rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/20 via-gray-950 to-black p-3 shadow-2xl shadow-black/30">
-              <Image
-                src="/jeff-stoker-local.jpg"
-                alt="Jeff Stoker, founder of Stoke AI"
-                width={1200}
-                height={900}
-                priority
-                className="h-[420px] w-full rounded-[1.5rem] object-cover object-[50%_42%] saturate-110 contrast-105"
-              />
-              <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/60 via-transparent to-orange-500/10" />
-              <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
-                <p className="text-sm font-bold text-orange-200">A real local person, not an anonymous AI vendor.</p>
-                <p className="text-xs text-gray-300">I’ll swap in older Burley/dairy photos here as I find them.</p>
+            <div className="grid lg:grid-cols-[0.85fr_1.15fr] gap-8 items-start mb-10">
+              <div className="relative rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-orange-500/20 via-gray-950 to-black p-3 shadow-2xl shadow-black/30">
+                <Image
+                  src="/jeff-stoker-local.jpg"
+                  alt="Jeff Stoker, founder of Stoke AI"
+                  width={1200}
+                  height={900}
+                  priority
+                  className="h-[420px] lg:h-[540px] w-full rounded-[1.5rem] object-cover object-[50%_42%] saturate-110 contrast-105"
+                />
+                <div className="pointer-events-none absolute inset-3 rounded-[1.5rem] bg-gradient-to-t from-black/60 via-transparent to-orange-500/10" />
+                <div className="absolute bottom-6 left-6 right-6 rounded-2xl border border-white/10 bg-black/55 p-4 backdrop-blur-md">
+                  <p className="text-sm font-bold text-orange-200">A real local person, not an anonymous AI vendor.</p>
+                  <p className="text-xs text-gray-300">I’ll swap in older Declo/Stoker milk photos as I find them.</p>
+                </div>
+              </div>
+
+              <div className="rounded-[2rem] border border-gray-800 bg-gray-950/75 p-8 shadow-xl shadow-black/20">
+                <h2 className="text-2xl md:text-3xl font-black mb-5">Why this work matters to me</h2>
+                <div className="space-y-5 text-gray-300 leading-relaxed text-lg">
+                  <p>
+                    After leaving Declo, I served a mission for The Church of Jesus Christ of Latter-day Saints in South Carolina, then came back to Idaho and moved to Boise to attend Boise State.
+                  </p>
+                  <p>
+                    From there, my work kept circling around the same thing: business operations. I sold insurance with Farmers, bought and ran an Allstate agency, worked in retail banking at Wells Fargo, then sold merchant services and payroll services in business services.
+                  </p>
+                  <p>
+                    Later, I started a Home Helpers Home Care franchise from scratch and grew it to about 65 employees at its peak, with offices in Middleton, Meridian, and Coeur d’Alene. More recently, I served as CFO/COO for a growing company.
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="grid lg:grid-cols-[0.9fr_1.1fr] gap-8 items-stretch">
+            <div className="grid lg:grid-cols-2 gap-8 items-stretch">
               <div className="rounded-[2rem] border border-orange-500/20 bg-gradient-to-br from-gray-900 via-black to-orange-950/25 p-8 shadow-2xl shadow-black/25">
                 <h2 className="text-2xl md:text-3xl font-black mb-4">Why local context matters</h2>
                 <p className="text-gray-300 leading-relaxed mb-5">
@@ -69,16 +86,16 @@ export default function AboutPage() {
               </div>
 
               <div className="rounded-[2rem] border border-gray-800 bg-gray-950/75 p-8 shadow-xl shadow-black/20">
-                <h2 className="text-2xl md:text-3xl font-black mb-4">What I’m building Stoke AI to be</h2>
+                <h2 className="text-2xl md:text-3xl font-black mb-4">Why Stoke AI exists</h2>
                 <div className="space-y-4 text-gray-300 leading-relaxed">
                   <p>
-                    Stoke AI is an AI systems partner for successful established businesses that have outgrown spreadsheets, disconnected apps, and manual follow-up loops.
+                    I know what it feels like to manage the moving pieces of a business: customers, employees, schedules, follow-ups, reporting, payroll, vendors, and the constant decisions that never quite fit inside one piece of software.
                   </p>
                   <p>
-                    The goal is not to replace your people. The goal is to give good teams better systems around the work they already do, so the business can grow without everything depending on memory, heroic effort, or one owner holding the whole operation together.
+                    When I started using AI seriously, I saw a light at the end of the tunnel. Not because AI replaces the people in a business, but because it can support the operating side of the business in a way owners have needed for a long time.
                   </p>
                   <p>
-                    As I add older local photos and more of the story, this page will become a fuller introduction. For now, the most important thing to know is simple: you work directly with me, and the work stays grounded in your actual business.
+                    The part of entrepreneurship I have always loved is the freedom it can create — especially the freedom to spend time with the people you love. Stoke AI is being built to help good businesses grow without making the owner carry every system in their head.
                   </p>
                 </div>
               </div>

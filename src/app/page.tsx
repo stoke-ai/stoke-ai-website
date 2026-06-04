@@ -481,11 +481,11 @@ export default function Home() {
                   Work directly with Jeff — not an anonymous AI vendor.
                 </h2>
                 <p className="text-gray-300 leading-relaxed text-lg mb-5">
-                  Stoke AI is led by Jeff Stoker in Burley, Idaho. Jeff grew up in the Burley area around the dairy and milk-processing side of local business, so the work starts from a simple place: understand how the business actually runs, then build practical AI systems around the people doing the work.
+                  Stoke AI is led by Jeff Stoker, born and raised in Declo and now back in the Burley area. Jeff grew up in the Stoker milk family, where real work meant processing, homogenizing, and delivering milk across the Magic Valley and southern Idaho.
                 </p>
                 <div className="rounded-3xl border border-orange-500/20 bg-black/35 p-6 md:p-7">
                   <p className="text-gray-300 leading-relaxed mb-5">
-                    That local context matters. The goal is not to impress you with AI buzzwords. The goal is to sit down with an established business owner, find the systems that are starting to strain, and build the next practical improvement with your team.
+                    That local operating background matters. After insurance, banking, business services, growing a home care company, and serving as a CFO/COO, Jeff sees AI as a practical way to help owners get more capacity back in the operating side of the business.
                   </p>
                   <a href="/about" className="inline-flex items-center text-orange-300 hover:text-orange-200 font-bold">
                     Learn more about Jeff →
