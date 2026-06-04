@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import PortalLoginForm from '@/components/PortalLoginForm';
 import { getPortalSessionClientId } from '@/lib/portal/auth';
-import { portalClients } from '@/lib/portal/data';
 import { getPortalBoard } from '@/lib/portal/trello';
 
 export const dynamic = 'force-dynamic';
@@ -39,7 +38,7 @@ export default async function ClientPortalPage() {
           </Link>
           <div className="flex items-center gap-3 text-sm text-zinc-400">
             <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-emerald-300">
-              {board ? `${board.client.name} portal` : 'Secure portal'}
+              {board ? `${board.client.name} portal` : 'Client portal'}
             </span>
             {board ? (
               <form action="/api/portal/logout" method="post">
@@ -57,30 +56,32 @@ export default async function ClientPortalPage() {
         <section className="grid gap-6 py-10 lg:grid-cols-[1.4fr_0.6fr] lg:items-stretch">
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 shadow-2xl shadow-black/30 backdrop-blur">
             <p className="mb-4 inline-flex rounded-full border border-orange-500/25 bg-orange-500/10 px-4 py-2 text-sm font-semibold text-orange-300">
-              Internal customer portal
+              Stoke AI
             </p>
             <h1 className="max-w-4xl text-4xl font-black leading-tight md:text-6xl">
-              {board ? board.client.headline : 'A simple place for clients to see what Stoke AI is working on next.'}
+              {board ? board.client.headline : 'Client Portal'}
             </h1>
             <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-400">
               {board
                 ? board.client.summary
-                : 'Log in to see current work, active sprint cards, blockers, and next steps — presented like a clean Trello board without exposing internal operations.'}
+                : 'Sign in to see current work, next steps, and anything Stoke AI needs from you.'}
             </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-3">
-              <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-                <div className="text-3xl font-black text-orange-300">{board?.stages.length ?? 4}</div>
-                <div className="text-sm text-zinc-400">Project lanes</div>
+            {board ? (
+              <div className="mt-8 grid gap-4 sm:grid-cols-3">
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <div className="text-3xl font-black text-orange-300">{board.stages.length}</div>
+                  <div className="text-sm text-zinc-400">Project lanes</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <div className="text-3xl font-black text-orange-300">{totalCards}</div>
+                  <div className="text-sm text-zinc-400">Visible cards</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
+                  <div className="text-3xl font-black text-orange-300">Active</div>
+                  <div className="text-sm text-zinc-400">Workspace</div>
+                </div>
               </div>
-              <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-                <div className="text-3xl font-black text-orange-300">{board ? totalCards : 'Client'}</div>
-                <div className="text-sm text-zinc-400">Visible cards</div>
-              </div>
-              <div className="rounded-2xl border border-white/10 bg-black/25 p-5">
-                <div className="text-3xl font-black text-orange-300">{board?.source === 'trello' ? 'Live' : 'Safe'}</div>
-                <div className="text-sm text-zinc-400">{board?.source === 'trello' ? 'Trello sync' : 'Internal data'}</div>
-              </div>
-            </div>
+            ) : null}
           </div>
 
           <aside className="rounded-3xl border border-white/10 bg-black/40 p-6 shadow-2xl shadow-black/30 backdrop-blur">
@@ -103,14 +104,14 @@ export default async function ClientPortalPage() {
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold">Client login</h2>
+                <h2 className="text-xl font-bold">Sign in</h2>
                 <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  Access is scoped by client so customers only see their own roadmap, blockers, and recent delivery updates.
+                  Use the username and password Stoke AI provided.
                 </p>
-                <PortalLoginForm clients={portalClients} />
+                <PortalLoginForm />
                 {process.env.NODE_ENV !== 'production' ? (
                   <p className="mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-xs leading-5 text-zinc-500">
-                    Local preview codes: austin-preview, rachel-preview, htl-preview, stoke-preview.
+                    Local preview: username austin-kevin, password austin-preview.
                   </p>
                 ) : null}
               </>
@@ -202,10 +203,10 @@ export default async function ClientPortalPage() {
           </>
         ) : (
           <section className="rounded-3xl border border-white/10 bg-black/35 p-8 text-center backdrop-blur">
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Board locked</p>
-            <h2 className="mt-3 text-3xl font-black">Log in to view your project roadmap.</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-orange-300">Private workspace</p>
+            <h2 className="mt-3 text-3xl font-black">Sign in to view your workspace.</h2>
             <p className="mx-auto mt-3 max-w-2xl text-zinc-400">
-              This keeps customer work separated by client and makes the portal safe to share from the Stoke AI website.
+              Use the username and password Stoke AI provided to view your workspace.
             </p>
           </section>
         )}

@@ -1,15 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import type { PortalClient } from '@/lib/portal/data';
 
-type Props = {
-  clients: PortalClient[];
-};
-
-export default function PortalLoginForm({ clients }: Props) {
-  const [clientId, setClientId] = useState(clients[0]?.id ?? '');
-  const [accessCode, setAccessCode] = useState('');
+export default function PortalLoginForm() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -21,12 +16,12 @@ export default function PortalLoginForm({ clients }: Props) {
     const response = await fetch('/api/portal/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ clientId, accessCode }),
+      body: JSON.stringify({ username, password }),
     });
 
     if (!response.ok) {
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      setError(body?.error || 'Could not open the portal.');
+      setError(body?.error || 'Username or password is incorrect.');
       setLoading(false);
       return;
     }
@@ -37,27 +32,24 @@ export default function PortalLoginForm({ clients }: Props) {
   return (
     <form onSubmit={submit} className="mt-6 space-y-4">
       <label className="block text-sm font-semibold text-zinc-300">
-        Client
-        <select
-          className="mt-2 w-full rounded-xl border border-white/10 bg-[#151515] px-4 py-3 text-white outline-none transition focus:border-orange-400"
-          value={clientId}
-          onChange={(event) => setClientId(event.target.value)}
-        >
-          {clients.map((client) => (
-            <option key={client.id} value={client.id}>
-              {client.name}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="block text-sm font-semibold text-zinc-300">
-        Access code
+        Username
         <input
           className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-400"
-          placeholder="Enter client access code"
+          placeholder="Enter username"
+          autoComplete="username"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+        />
+      </label>
+      <label className="block text-sm font-semibold text-zinc-300">
+        Password
+        <input
+          className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-400"
+          placeholder="Enter password"
           type="password"
-          value={accessCode}
-          onChange={(event) => setAccessCode(event.target.value)}
+          autoComplete="current-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
         />
       </label>
       {error ? <p className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">{error}</p> : null}
@@ -66,7 +58,7 @@ export default function PortalLoginForm({ clients }: Props) {
         disabled={loading}
         className="w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 font-bold text-black transition hover:from-orange-600 hover:to-amber-600 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {loading ? 'Opening portal…' : 'Open portal'}
+        {loading ? 'Signing in…' : 'Sign in'}
       </button>
     </form>
   );

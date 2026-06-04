@@ -17,6 +17,7 @@ export type PortalStage = {
 
 export type PortalClient = {
   id: string;
+  username: string;
   name: string;
   contactEmail: string;
   headline: string;
@@ -35,6 +36,7 @@ export type PortalBoard = {
 export const portalClients: PortalClient[] = [
   {
     id: 'austin-kevin',
+    username: 'austin-kevin',
     name: 'Austin & Kevin',
     contactEmail: 'portal@stoke-ai.com',
     headline: 'Austin & Kevin workspace',
@@ -44,6 +46,7 @@ export const portalClients: PortalClient[] = [
   },
   {
     id: 'rachel-hansen',
+    username: 'rachel',
     name: 'Rachel Hansen Agency',
     contactEmail: 'rachel@example.com',
     headline: 'Insurance renewal operating system',
@@ -53,6 +56,7 @@ export const portalClients: PortalClient[] = [
   },
   {
     id: 'handy-truck-lines',
+    username: 'handytruck',
     name: 'Handy Truck Lines',
     contactEmail: 'bryce@example.com',
     headline: 'Dispatching operating system',
@@ -61,6 +65,7 @@ export const portalClients: PortalClient[] = [
   },
   {
     id: 'stoke-ai',
+    username: 'stoke',
     name: 'Stoke AI',
     contactEmail: 'automate@stoke-ai.com',
     headline: 'Internal portal and delivery system',
@@ -277,6 +282,12 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
 
 export function getPortalClient(clientId: string | undefined | null) {
   return portalClients.find((client) => client.id === clientId) ?? null;
+}
+
+export function getPortalClientByUsername(username: string | undefined | null) {
+  const normalized = username?.trim().toLowerCase();
+  if (!normalized) return null;
+  return portalClients.find((client) => client.username.toLowerCase() === normalized || client.id === normalized) ?? null;
 }
 
 export function getInternalPortalBoard(clientId: string): PortalBoard | null {

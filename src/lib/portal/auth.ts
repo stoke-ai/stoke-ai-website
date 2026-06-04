@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { cookies } from 'next/headers';
-import { portalClients } from './data';
+import { getPortalClientByUsername, portalClients } from './data';
 
 const COOKIE_NAME = 'stoke_portal_session';
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 14;
@@ -61,6 +61,13 @@ export function verifyPortalCode(clientId: string, code: string) {
   if (!expectedCode) return false;
 
   return safeCompare(code, expectedCode);
+}
+
+export function verifyPortalLogin(username: string, password: string) {
+  const client = getPortalClientByUsername(username);
+  if (!client) return null;
+
+  return verifyPortalCode(client.id, password) ? client.id : null;
 }
 
 export function createPortalToken(clientId: string) {
