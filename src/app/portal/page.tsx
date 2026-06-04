@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import PortalLoginForm from '@/components/PortalLoginForm';
+import PortalUpdateForm from '@/components/PortalUpdateForm';
 import { getPortalSessionClientId } from '@/lib/portal/auth';
 import { getPortalBoard } from '@/lib/portal/trello';
 
@@ -21,7 +22,9 @@ function Card({
   detail,
   action,
   featured = false,
+  cardId,
 }: {
+  cardId: string;
   title: string;
   status: string;
   detail: string;
@@ -48,6 +51,15 @@ function Card({
           <span className="font-semibold text-amber-200">Needed:</span> {action}
         </div>
       ) : null}
+      <PortalUpdateForm
+        kind="reply"
+        cardId={cardId}
+        cardTitle={title}
+        label={action ? 'Send update' : 'Comment'}
+        title={action ? 'Send what Blaze needs' : `Comment on ${title}`}
+        prompt={action || 'Add a note, question, link, screenshot description, or correction for this item.'}
+        buttonClassName="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-zinc-100 transition hover:border-orange-400/40 hover:bg-orange-400/10"
+      />
     </article>
   );
 }
@@ -189,12 +201,15 @@ export default async function ClientPortalPage() {
                 <div className="mt-6 rounded-2xl border border-amber-300/25 bg-amber-300/[0.08] p-4">
                   <p className="text-sm font-semibold text-amber-200">Needed from you</p>
                   <p className="mt-2 text-sm leading-6 text-zinc-200">{needsCard.action ?? needsCard.detail}</p>
-                  <a
-                    href={`mailto:${board.client.contactEmail}?subject=${encodeURIComponent(`${board.client.name}: ${needsCard.title}`)}&body=${encodeURIComponent(`${needsCard.action ?? needsCard.detail}\n\nHere is the info:\n\n`)}`}
-                    className="mt-4 inline-flex rounded-full bg-amber-300 px-4 py-2 text-xs font-black text-black transition hover:bg-amber-200"
-                  >
-                    Reply to Jeff
-                  </a>
+                  <PortalUpdateForm
+                    kind="reply"
+                    cardId={needsCard.id}
+                    cardTitle={needsCard.title}
+                    label="Send update"
+                    title="Send what Blaze needs"
+                    prompt={needsCard.action ?? needsCard.detail}
+                    buttonClassName="mt-4 inline-flex rounded-full bg-amber-300 px-4 py-2 text-xs font-black text-black transition hover:bg-amber-200"
+                  />
                 </div>
               ) : (
                 <div className="mt-6 rounded-2xl border border-emerald-300/20 bg-emerald-300/[0.07] p-4">
@@ -212,7 +227,7 @@ export default async function ClientPortalPage() {
             <h2 className="mt-2 text-3xl font-black tracking-tight">Everything in one place.</h2>
           </div>
           <p className="max-w-xl text-sm leading-6 text-zinc-400">
-            In progress, waiting on you, next, and done.
+            Clients can add items or send updates. Blaze keeps the board organized so nothing gets moved by accident.
           </p>
         </section>
 
@@ -235,6 +250,7 @@ export default async function ClientPortalPage() {
                   column.cards.map((card, index) => (
                     <Card
                       key={card.id}
+                      cardId={card.id}
                       title={card.title}
                       status={card.status}
                       detail={card.detail}
@@ -259,12 +275,12 @@ export default async function ClientPortalPage() {
             <p className="mt-3 text-sm leading-6 text-zinc-400">
               If something is slow, repetitive, hard to track, or living in someone’s head, send it here.
             </p>
-            <a
-              href={`mailto:${board.client.contactEmail}?subject=${encodeURIComponent(`${board.client.name} portal request`)}&body=${encodeURIComponent('What should Jeff look at?\n\nWhat is happening now?\n\nWhy does it matter?\n\nAttach examples, screenshots, forms, spreadsheets, or links if helpful.\n')}`}
-              className="mt-5 inline-flex rounded-full bg-gradient-to-r from-orange-500 to-amber-500 px-5 py-3 text-sm font-black text-black transition hover:from-orange-600 hover:to-amber-600"
-            >
-              Send new item
-            </a>
+            <PortalUpdateForm
+              kind="new-item"
+              label="Send new item"
+              title="Add something for Blaze to review"
+              prompt="Share the issue, bottleneck, idea, screenshot description, link, or workflow detail. Blaze will turn it into the right workspace item."
+            />
           </div>
 
           <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">

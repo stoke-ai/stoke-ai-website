@@ -110,11 +110,12 @@ export async function setPortalSession(clientId: string) {
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     maxAge: MAX_AGE_SECONDS,
-    path: '/portal',
+    path: '/',
   });
 }
 
 export async function clearPortalSession() {
   const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+  cookieStore.set(COOKIE_NAME, '', { maxAge: 0, path: '/' });
+  cookieStore.set(COOKIE_NAME, '', { maxAge: 0, path: '/portal' });
 }
