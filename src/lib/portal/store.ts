@@ -202,7 +202,7 @@ export async function updatePortalMessage(
       createdAt: timestamp,
       visibleToClient: true,
     });
-    message.status = 'replied';
+    if (!updates.status) message.status = 'replied';
   }
 
   if (updates.progressNote?.trim()) {
