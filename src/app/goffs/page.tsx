@@ -10,45 +10,53 @@ export const metadata: Metadata = {
 
 const focusAreas = [
   {
-    title: 'Training and shop knowledge',
-    body: 'Turn the way Goff Welding actually works into a living system the team can search, use, and improve instead of relying on tribal knowledge.',
+    title: 'Training hub + “Goff Bible”',
+    body: 'Austin called training the most important need right now. Goff Welding went from roughly 30 employees to 50+ quickly, and new people need one source of truth for who Goff is, how onboarding works, SOPs, foreman training, procurement training, tests, hands-on verification, and reminders when homework is not getting done.',
   },
   {
-    title: 'Estimate and customer follow-up visibility',
-    body: 'Create clearer tracking around estimates, opportunities, customer questions, next steps, and owner-level follow-up so good work does not disappear in texts or memory.',
+    title: 'Hiring and applicant flow',
+    body: 'Welding has constant churn, traveling workers, walk-ins, Facebook leads, website leads, Indeed, and the EIS/ATS process. The goal is to centralize intake, screen consistently, track experience levels, and reduce the quarter-day manual drag that used to come with applicants.',
   },
   {
-    title: 'Office, purchasing, and admin workflows',
-    body: 'Find the repetitive office work, purchasing intake, exception handling, document chasing, and handoffs that slow the team down — then build practical systems around them.',
+    title: 'CRM follow-up and quote pipeline',
+    body: 'CRMs are managing customers, quotes, projects, and follow-up. The obvious win is helping them chase lukewarm opportunities, log next steps after calls, surface open quotes, and keep attention on the hot jobs most likely to close.',
   },
   {
-    title: 'Owner decision support',
-    body: 'Give Goff Welding and Jeff a shared place to review priorities, decisions, bottlenecks, and what is being built next.',
+    title: 'Procurement + BOM assistant',
+    body: 'Kevin has already been testing AI around BOMs and procurement. A Goff assistant can help with sanitary fittings, welding consumables, materials, structured quote-to-procurement handoffs, and double-checking the details before they hit SAP Business One.',
+  },
+  {
+    title: 'Office admin, AR/AP, and time-entry checks',
+    body: 'The office workload is heavy: collections calls, late invoice follow-up, AP invoice reading, received/match checks, time-entry troubleshooting, and routing questions back to the CRM who knows the job. AI can handle alerts, drafts, checks, and exception queues.',
+  },
+  {
+    title: 'Scheduling and job visibility',
+    body: 'Right now scheduling lives heavily in a Google Sheet with a lot of logic around qualifications, capacity, jobs, and timing. A future system could help optimize who goes where, flag constraints, summarize daily reports, and show Austin what was completed or suspicious enough to review.',
   },
 ];
 
 const included = [
-  'Private Stoke AI workspace and live project board',
-  'Monthly roadmap focused on the highest-value bottlenecks',
-  'AI-assisted workflow design, buildout, and iteration',
+  'Private Stoke AI workspace and live project board for Goff priorities',
+  'Monthly roadmap focused on the highest-value bottlenecks Austin, Kevin, and Jeff identify together',
+  'AI-assisted workflow design, buildout, and iteration around training, hiring, CRM follow-up, procurement, AR/AP, scheduling, and admin exceptions',
   'Weekly written progress updates: done, blocked, waiting, next',
-  'Request and comment loop so ideas turn into tracked work',
+  'Request and comment loop so Austin/Kevin can drop ideas, examples, documents, and priorities without losing them in texts or memory',
   'Quarterly one-day Business Systems Review to reset priorities and choose the next highest-value work',
-  'Priority access to Jeff as the business systems partner — without relying on scattered texts',
+  'Priority access to Jeff as the business systems partner — without turning Jeff into another day-to-day bottleneck',
 ];
 
 const quarterlyReview = [
-  'Step back from the weekly work and review what changed in the business',
-  'Re-rank the biggest constraints, opportunities, and owner-level bottlenecks',
-  'Decide what to stop, continue, or build next for the coming quarter',
-  'Update the live roadmap so the retainer stays tied to business priorities, not random AI ideas',
+  'Do the “rules do not exist” brain dump Austin described: if Goff Welding were built from scratch today, how should the work flow?',
+  'Re-rank the live backlog: training, hiring, CRM follow-up, procurement, AR/AP, scheduling, admin exceptions, SAP/Samsara/API opportunities, and custom software ideas',
+  'Decide what to stop, continue, or build next for the coming quarter based on where the business actually changed',
+  'Update the roadmap so the $5k/month engagement stays tied to business priorities, not random AI ideas or stale projects',
 ];
 
 const firstMonth = [
-  'Map the current operating bottlenecks and pick the first 1–3 priorities',
-  'Set up the shared workspace so comments, tasks, and decisions have one home',
-  'Build the first useful workflow or knowledge-system pilot',
-  'Review what worked, what needs Goff Welding’s input, and what should be built next',
+  'Turn the transcript and meeting notes into a ranked Goff AI roadmap Austin, Kevin, and Jeff can react to',
+  'Set up the shared workspace so comments, tasks, decisions, documents, and examples have one home',
+  'Start with the training / Goff Bible system unless Austin and Kevin choose a different top priority',
+  'Define the first practical build: reminders, completion tracking, tests, hands-on verification, and a simple dashboard of who is done, stuck, or overdue',
 ];
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -74,7 +82,7 @@ function WorkspacePreview() {
       <div className="relative border-b border-white/10 px-5 py-4 flex items-center justify-between gap-4">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-orange-200/80">Goff Welding workspace</p>
-          <p className="text-lg font-black text-white">Operating priorities</p>
+          <p className="text-lg font-black text-white">Austin + Kevin priorities</p>
         </div>
         <span className="rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs font-bold text-emerald-200">
           Live rhythm
@@ -86,15 +94,15 @@ function WorkspacePreview() {
             <p className="text-sm font-black text-orange-100">Current focus</p>
             <span className="rounded-full bg-orange-400/15 px-3 py-1 text-[0.68rem] font-bold text-orange-200">MONTH 1</span>
           </div>
-          <p className="text-2xl font-black leading-tight text-white">Build the first operating system layer</p>
+          <p className="text-2xl font-black leading-tight text-white">Training hub + Goff Bible</p>
           <p className="mt-2 text-sm leading-relaxed text-gray-300">
-            Capture knowledge, track decisions, and turn owner-level bottlenecks into visible work.
+            One place for onboarding, SOPs, tests, reminders, hands-on verification, and completion visibility.
           </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-            <p className="mb-3 text-sm font-bold text-gray-200">Build queue</p>
-            {['Training / shop knowledge', 'Estimate and customer follow-up flow', 'Purchasing and admin handoff cleanup'].map((item) => (
+            <p className="mb-3 text-sm font-bold text-gray-200">Backlog from the meeting</p>
+            {['Hiring / ATS flow', 'CRM follow-up and quotes', 'Procurement + BOM assistant', 'AR/AP and time-entry checks'].map((item) => (
               <div key={item} className="mb-2 flex items-center gap-2 text-sm text-gray-300 last:mb-0">
                 <span className="h-2 w-2 rounded-full bg-orange-300" />
                 {item}
@@ -103,14 +111,14 @@ function WorkspacePreview() {
           </div>
           <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
             <p className="mb-3 text-sm font-bold text-gray-200">Needs Goff Welding</p>
-            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300">Approve first workflow priority</div>
-            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300">Share examples of repeated shop, office, and customer questions</div>
+            <div className="rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300">Approve top priority: training unless the team re-ranks it</div>
+            <div className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-sm text-gray-300">Share real SOPs, training materials, procurement examples, and quote follow-up examples</div>
           </div>
         </div>
         <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
           <div className="mb-3 flex items-center justify-between text-sm">
-            <span className="font-bold text-gray-200">Comment loop</span>
-            <span className="font-black text-orange-200">Received → Seen → Action</span>
+            <span className="font-bold text-gray-200">Quarterly reset</span>
+            <span className="font-black text-orange-200">Review → Re-rank → Roadmap</span>
           </div>
           <div className="h-2 overflow-hidden rounded-full bg-white/10">
             <div className="h-full w-3/4 rounded-full bg-gradient-to-r from-orange-500 to-amber-300" />
@@ -159,10 +167,10 @@ export default function GoffsOfferPage() {
               Private offer for Goff Welding • goffwelding.com
             </div>
             <h1 className="max-w-5xl text-[2.75rem] font-black leading-[0.94] tracking-[-0.06em] text-[#f7f8f8] sm:text-6xl lg:text-7xl">
-              A working AI and systems partner for the business you are building.
+              A working AI and systems partner for Goff Welding’s next stage of growth.
             </h1>
             <p className="mt-7 max-w-3xl text-lg leading-8 text-gray-300 sm:text-xl">
-              Stoke AI is not a one-off chatbot project. It is an ongoing operating partnership: Jeff helps identify the highest-value bottlenecks, Blaze helps keep the work organized, and we build practical systems that make the business easier to run as it grows.
+              Goff Welding has grown fast, built a strong leadership group, and now has real operational complexity across training, hiring, quoting, procurement, scheduling, AR/AP, and customer follow-up. Stoke AI gives Austin, Kevin, and the team an outside systems partner to turn those bottlenecks into a visible roadmap and practical builds.
             </p>
             <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:items-center">
               <a
@@ -172,7 +180,7 @@ export default function GoffsOfferPage() {
                 Start at $5,000/month
               </a>
               <p className="max-w-sm text-sm leading-6 text-gray-400">
-                Month-to-month. Built around real priorities, not software licenses or hourly consulting blocks.
+                Month-to-month. One shared board. Weekly progress rhythm. Quarterly priority reset.
               </p>
             </div>
           </div>
@@ -186,12 +194,12 @@ export default function GoffsOfferPage() {
                 <SectionLabel>The offer</SectionLabel>
                 <h2 className="text-4xl font-black tracking-tight text-white sm:text-5xl">Stoke AI Operating Partnership</h2>
                 <p className="mt-5 text-lg leading-8 text-gray-300">
-                  A monthly implementation relationship for an owner who wants better systems, clearer follow-up, and more team capacity without adding another disconnected tool.
+                  A monthly implementation relationship for a growing welding and fabrication business that does not need random AI experiments. It needs a ranked operating roadmap, practical systems, and a recurring cadence to decide what matters most next.
                 </p>
                 <div className="mt-8 rounded-2xl border border-orange-300/25 bg-orange-500/10 p-5">
                   <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Investment</p>
                   <p className="mt-2 text-5xl font-black text-white">$5,000<span className="text-xl text-gray-300">/month</span></p>
-                  <p className="mt-3 text-sm leading-6 text-gray-300">Standard Stoke AI engagement. Month-to-month operating partnership.</p>
+                  <p className="mt-3 text-sm leading-6 text-gray-300">Standard Stoke AI engagement. Month-to-month operating partnership with a quarterly review/reset after every three paid months.</p>
                 </div>
               </Card>
 
@@ -212,10 +220,10 @@ export default function GoffsOfferPage() {
 
         <section className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
           <div className="mb-10 max-w-3xl">
-            <SectionLabel>Where we would start</SectionLabel>
-            <h2 className="text-4xl font-black tracking-tight sm:text-5xl">First, we pick the work that matters most.</h2>
+            <SectionLabel>Meeting-specific priorities</SectionLabel>
+            <h2 className="text-4xl font-black tracking-tight sm:text-5xl">This is the real backlog from the conversation.</h2>
             <p className="mt-5 text-lg leading-8 text-gray-300">
-              The point is not to invent random AI projects. The point is to stay close to the business, find the places where growth is creating drag, and build the systems that reduce that drag.
+              Austin said training is the most important priority right now, but the meeting surfaced a broader set of systems that can be ranked and built over time.
             </p>
           </div>
           <div className="grid gap-5 md:grid-cols-2">
@@ -232,9 +240,9 @@ export default function GoffsOfferPage() {
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
             <div>
               <SectionLabel>First 30 days</SectionLabel>
-              <h2 className="text-4xl font-black tracking-tight sm:text-5xl">A practical launch, not a theory project.</h2>
+              <h2 className="text-4xl font-black tracking-tight sm:text-5xl">Start where Austin already pointed.</h2>
               <p className="mt-5 text-lg leading-8 text-gray-300">
-                We start with the operating rhythm, then build the first useful system from real examples inside the business.
+                Training is the clearest first system: Goff has a lot of new people, SOPs exist in pieces, and the team needs a culture of going back to the Goff Bible instead of always asking Cecilia, Austin, Jesse, or Billy.
               </p>
             </div>
             <div className="grid gap-4">
@@ -256,11 +264,11 @@ export default function GoffsOfferPage() {
               <SectionLabel>Every quarter</SectionLabel>
               <h2 className="text-4xl font-black tracking-tight sm:text-5xl">One day to reset priorities.</h2>
               <p className="mt-5 text-lg leading-8 text-gray-300">
-                After every three paid months, we include a focused Business Systems Review day. The purpose is to keep the engagement aimed at Goff Welding’s real business priorities as they change — not just keep building because something is already on the board.
+                Austin named the exact reason this matters: six months from now, a project that looked important may not matter anymore because the business changed. The quarterly review keeps Stoke AI outside the day-to-day fires and focused on the highest-leverage work.
               </p>
               <div className="mt-7 rounded-2xl border border-orange-300/25 bg-black/30 p-5">
                 <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Included in the $5,000/month engagement</p>
-                <p className="mt-3 text-2xl font-black text-white">Quarterly priority reset + next-quarter roadmap</p>
+                <p className="mt-3 text-2xl font-black text-white">Quarterly one-day reset + next-quarter roadmap</p>
               </div>
             </Card>
             <div className="grid gap-4">
@@ -282,21 +290,21 @@ export default function GoffsOfferPage() {
               <SectionLabel>How we work</SectionLabel>
               <h3 className="text-2xl font-black">One shared workspace</h3>
               <p className="mt-3 leading-7 text-gray-300">
-                Comments, priorities, decisions, requests, and progress live in one place so the work does not get lost in scattered conversations.
+                Austin and Kevin can drop priorities, examples, documents, screenshots, ideas, and “this is driving me crazy” notes into one board. Blaze keeps the loop visible so comments become work instead of disappearing.
               </p>
             </Card>
             <Card>
               <SectionLabel>Jeff’s role</SectionLabel>
-              <h3 className="text-2xl font-black">Business judgment + system design</h3>
+              <h3 className="text-2xl font-black">Outside business judgment + system design</h3>
               <p className="mt-3 leading-7 text-gray-300">
-                Jeff helps decide what is worth building, what should wait, and how the system should fit the way the team actually operates.
+                Jeff stays outside the daily fires, helps decide what is worth building, pushes back when the list gets too scattered, and keeps the work tied to Austin’s actual operating priorities.
               </p>
             </Card>
             <Card>
               <SectionLabel>Blaze’s role</SectionLabel>
               <h3 className="text-2xl font-black">Track, summarize, and move work forward</h3>
               <p className="mt-3 leading-7 text-gray-300">
-                Blaze watches the board, pulls comments into action, drafts updates, preserves context, and keeps the loop visible.
+                Blaze watches the board, pulls comments into action, drafts updates, preserves context, summarizes decisions, and keeps the Goff roadmap current between meetings.
               </p>
             </Card>
           </div>
@@ -307,7 +315,7 @@ export default function GoffsOfferPage() {
             <SectionLabel>Next step</SectionLabel>
             <h2 className="text-4xl font-black tracking-tight sm:text-5xl">If this fits Goff Welding, we start with one month.</h2>
             <p className="mx-auto mt-5 max-w-3xl text-lg leading-8 text-gray-300">
-              The first month is about getting the rhythm live, choosing the most valuable first system for Goff Welding, and proving that Stoke AI can create clarity and capacity inside the business.
+              The first month is about getting the rhythm live, confirming the ranked priorities with Austin and Kevin, and starting the training / Goff Bible system unless the team intentionally chooses something else first.
             </p>
             <div className="mt-8 rounded-2xl border border-white/10 bg-black/30 p-5 text-left sm:flex sm:items-center sm:justify-between sm:gap-6">
               <div>
