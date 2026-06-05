@@ -65,6 +65,14 @@ const ownerQuestions = [
   'What changed in the business that makes last month’s plan stale?',
 ];
 
+const assistantMemory = [
+  'Training paths, SOPs, homework, tests, and hands-on signoffs',
+  'Quote follow-up patterns, open opportunities, and customer next steps',
+  'Procurement examples, BOM details, consumables, and SAP handoff context',
+  'Recurring office exceptions across AR, AP, invoices, collections, and time entries',
+  'Austin and Kevin’s quarterly priorities as the business changes',
+];
+
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[0.7rem] font-black uppercase tracking-[0.32em] text-[#ff8a2a]">{children}</p>;
 }
@@ -177,14 +185,45 @@ export default function GoffsOfferPage() {
                 <p className="mt-3 leading-7 text-white/58">Keep the work tied to what is worth doing, push back on scattered ideas, and help Austin/Kevin choose the next constraint.</p>
               </div>
               <div className="p-7">
-                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Blaze</p>
-                <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Operating memory</p>
-                <p className="mt-3 leading-7 text-white/58">Watch the board, capture comments, draft updates, preserve context, and turn loose notes into visible movement.</p>
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Stoke AI</p>
+                <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Operating assistant</p>
+                <p className="mt-3 leading-7 text-white/58">Capture comments, preserve context, draft updates, watch for stuck items, and turn loose notes into visible movement.</p>
               </div>
               <div className="p-7">
                 <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Goff</p>
                 <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Real examples</p>
                 <p className="mt-3 leading-7 text-white/58">Supply the SOPs, screenshots, quote examples, procurement details, and field realities that make the system useful.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
+          <div className="relative overflow-hidden rounded-[2.4rem] border border-[#ff8a2a]/25 bg-[#ff8a2a]/10 p-8 shadow-[0_0_90px_rgba(255,138,42,0.12)] sm:p-10 lg:p-12">
+            <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/4 -translate-y-1/4 rounded-full bg-[#ff8a2a]/25 blur-3xl" />
+            <div className="relative grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
+              <div>
+                <Eyebrow>Where this can go</Eyebrow>
+                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Eventually, Goff can have its own operating assistant.</h2>
+                <p className="mt-6 text-lg leading-8 text-white/68">
+                  Not a generic chatbot. A Goff-specific assistant that remembers how the business works, what Austin and Kevin care about, and what changed since the last reset.
+                </p>
+              </div>
+              <div className="rounded-[1.9rem] border border-white/10 bg-black/45 p-6">
+                <div className="mb-5 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-black uppercase tracking-[0.25em] text-[#ffb06a]">Goff operating assistant</p>
+                    <p className="mt-1 text-2xl font-black">Built from Goff’s real work</p>
+                  </div>
+                  <div className="hidden rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-black text-white/60 sm:block">Future state</div>
+                </div>
+                <div className="grid gap-3">
+                  {assistantMemory.map((item) => (
+                    <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-base font-bold leading-7 text-white/76">
+                      {item}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
