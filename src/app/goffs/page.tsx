@@ -296,8 +296,8 @@ export default function GoffsOfferPage() {
                     <a href="https://buy.stripe.com/9B6cMXgFP5Uw2ht2qh4ko01" className="inline-flex items-center justify-center rounded-full bg-[#ff8a2a] px-7 py-4 text-base font-black text-white transition hover:bg-white hover:text-black">
                       Start monthly service
                     </a>
-                    <a href="mailto:jeff@stoke-ai.com?subject=Goff%20Welding%20Growth%20Systems%20Brief" className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#ff8a2a] hover:text-white">
-                      Ask Jeff first
+                    <a href="https://calendar.app.google/YeqJLsyJHv1SQeXQ6" className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#ff8a2a] hover:text-white">
+                      Schedule Google Meet discussion
                     </a>
                   </div>
                 </div>
