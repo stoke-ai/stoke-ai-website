@@ -289,9 +289,17 @@ export default function GoffsOfferPage() {
                 <div className="mx-auto mt-9 max-w-2xl rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-7">
                   <p className="text-sm font-black uppercase tracking-[0.26em] text-[#ffb06a]">Standard engagement</p>
                   <p className="mt-4 text-5xl font-black tracking-[-0.06em] sm:text-6xl">$5,000/month</p>
-                  <a href="mailto:jeff@stoke-ai.com?subject=Goff%20Welding%20Growth%20Systems%20Brief" className="mt-7 inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#ff8a2a] hover:text-white">
-                    Tell Jeff this is worth a conversation
-                  </a>
+                  <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/55">
+                    Secure Stripe checkout includes the month-to-month terms, in-person first-week kickoff, weekly rhythm, and in-person 90-day review.
+                  </p>
+                  <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                    <a href="https://buy.stripe.com/9B6cMXgFP5Uw2ht2qh4ko01" className="inline-flex items-center justify-center rounded-full bg-[#ff8a2a] px-7 py-4 text-base font-black text-white transition hover:bg-white hover:text-black">
+                      Start monthly service
+                    </a>
+                    <a href="mailto:jeff@stoke-ai.com?subject=Goff%20Welding%20Growth%20Systems%20Brief" className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#ff8a2a] hover:text-white">
+                      Ask Jeff first
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
