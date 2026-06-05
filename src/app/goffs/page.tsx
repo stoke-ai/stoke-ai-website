@@ -38,22 +38,22 @@ const ninetyDays = [
   {
     day: 'First week',
     title: 'Set up the workspace, then meet in person',
-    detail: 'After payment, Stoke AI begins setting up the private workspace and first operating board. The kickoff is about a 90-minute in-person working session with Austin and Goff’s leadership team to confirm priorities and decide what moves first.',
+    detail: 'After payment, Stoke AI begins setting up the private workspace and first operating board. The kickoff is about a 90-minute in-person working session with Austin and Goff’s leadership team to confirm the first priority and decide what moves first.',
   },
   {
     day: 'Days 8–30',
-    title: 'Build the first useful version',
-    detail: 'Focus on one priority system at a time. Start with the Training / Goff Bible system unless Austin and the leadership team intentionally move another constraint above it.',
+    title: 'Build, test, and tune the first system',
+    detail: 'Build the first useful version, get Goff feedback from real work, and tune it until the team can actually use it.',
   },
   {
     day: 'Days 31–60',
-    title: 'Use feedback to fine-tune it',
-    detail: 'Goff uses the first version, gives feedback from the real work, and Stoke AI tightens the loop around assignments, reminders, completion, tests, signoffs, and owner updates.',
+    title: 'Deepen it or move to the next priority',
+    detail: 'If the first system needs more depth, improve it. If it is useful enough, move to the next highest-value constraint.',
   },
   {
     day: 'Days 61–90',
-    title: 'Re-rank what should move next',
-    detail: 'When the system is useful, decide whether to keep improving it or move to the next highest-value priority: hiring flow, CRM follow-up, procurement/BOM, office exceptions, or scheduling.',
+    title: 'Keep the operating rhythm moving',
+    detail: 'Continue the build → feedback → fine-tune cycle, then use the 90-day review to decide the next phase.',
   },
 ];
 
