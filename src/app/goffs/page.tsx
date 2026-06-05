@@ -36,12 +36,12 @@ const pressurePoints = [
 
 const ninetyDays = [
   {
-    day: 'Days 1–10',
-    title: 'Map the real work',
-    detail: 'Turn the conversation, documents, screenshots, SOPs, training material, and examples into one ranked operating map Austin and Kevin can correct.',
+    day: 'First week',
+    title: 'Meet in person and set the board',
+    detail: 'Jeff meets with Austin and Kevin in person, confirms the real priorities, and turns the first constraint into a working operating board everyone can see.',
   },
   {
-    day: 'Days 11–30',
+    day: 'Days 8–30',
     title: 'Build the first wedge',
     detail: 'Start with the Training / Goff Bible system unless Austin and Kevin intentionally move another constraint above it.',
   },
@@ -257,7 +257,7 @@ export default function GoffsOfferPage() {
               <Eyebrow>Why the quarterly reset matters</Eyebrow>
               <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Six months from now, the right answer may be different.</h2>
               <p className="mt-6 text-lg leading-8 text-white/62">
-                Austin already said the important thing: if the business changes, the plan has to change. The quarterly reset keeps this from becoming a stale software project. It becomes a recurring business-systems discipline.
+                Austin already said the important thing: if the business changes, the plan has to change. After the first 90 days, Jeff meets with Austin and Kevin again in person to review what improved, what the team is actually using, what still feels clunky, and whether the engagement should continue into the next phase.
               </p>
             </div>
             <div className="space-y-4">
@@ -283,7 +283,7 @@ export default function GoffsOfferPage() {
                 <Eyebrow>Decision</Eyebrow>
                 <h2 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-7xl">If this feels like Goff, start with one month.</h2>
                 <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-white/65">
-                  Month-to-month. One shared operating board. Weekly progress rhythm. Quarterly priority reset. Start with the first useful system and keep earning the next month by making real work easier to see and move.
+                  Month-to-month. An in-person first-week kickoff. One shared operating board. Weekly progress rhythm. In-person 90-day review. Start with the first useful system and keep earning the next month by making real work easier to see and move.
                 </p>
                 <WeldLine />
                 <div className="mx-auto mt-9 max-w-2xl rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-7">
