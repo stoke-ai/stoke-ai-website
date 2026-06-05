@@ -3,289 +3,257 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Goff Welding | Private Operating Brief',
-  description: 'A private Stoke AI operating brief for Austin, Kevin, and the Goff Welding team.',
+  title: 'Goff Welding | Growth Systems Brief',
+  description: 'A private Goff Welding growth systems brief prepared from Austin and Kevin’s conversation.',
 };
 
-const signalCards = [
+const pressurePoints = [
   {
-    label: 'What I heard',
-    title: 'Training is the first real system gap.',
-    body: 'Goff has grown fast. The knowledge exists, but too much of it still lives in people, partial SOPs, repeated questions, and “ask Cecilia / Austin / Jesse / Billy.”',
+    label: 'Training',
+    line: 'The company knows how to do the work. The challenge is getting that knowledge out of heads and into a system new people actually follow.',
   },
   {
-    label: 'What that means',
-    title: 'The business needs a living Goff Bible, not another document folder.',
-    body: 'Onboarding, foreman training, procurement training, quizzes, reminders, hands-on signoffs, and visibility into who is stuck or overdue.',
+    label: 'Hiring',
+    line: 'Walk-ins, Facebook, website leads, Indeed, and EIS/ATS should not feel like five separate doors into the same shop.',
   },
   {
-    label: 'Where this goes',
-    title: 'The same rhythm becomes the model for hiring, CRM, procurement, AR/AP, and scheduling.',
-    body: 'Start with the clearest bottleneck, prove the cadence, then keep ranking the next highest-value system instead of chasing random AI ideas.',
-  },
-];
-
-const operatingMap = [
-  {
-    number: '01',
-    eyebrow: 'Training / Goff Bible',
-    title: 'Turn tribal knowledge into a system people actually use.',
-    body: 'One source of truth for onboarding, SOPs, tests, homework reminders, hands-on verification, and completion visibility.',
-    status: 'Recommended first build',
+    label: 'Quotes',
+    line: 'Open opportunities and lukewarm follow-ups need a rhythm before good jobs quietly go cold.',
   },
   {
-    number: '02',
-    eyebrow: 'Hiring / applicant flow',
-    title: 'Centralize walk-ins, Facebook, website leads, Indeed, and EIS/ATS.',
-    body: 'Screen consistently, track experience, reduce manual drag, and make the applicant flow visible instead of scattered.',
-    status: 'Backlog candidate',
+    label: 'Procurement',
+    line: 'BOMs, sanitary fittings, consumables, and SAP handoffs are exactly where structured assistance can remove drag without replacing judgment.',
   },
   {
-    number: '03',
-    eyebrow: 'CRM / quote follow-up',
-    title: 'Keep hot opportunities from cooling off quietly.',
-    body: 'Surface open quotes, log call next steps, draft follow-ups, and keep CRMs pointed at the jobs most likely to close.',
-    status: 'Backlog candidate',
+    label: 'Office load',
+    line: 'AR, AP, collections, invoice checks, received/match, and time-entry problems should become exception queues — not invisible stress.',
   },
   {
-    number: '04',
-    eyebrow: 'Procurement / BOM',
-    title: 'Give Kevin a structured assistant for materials and quote handoff.',
-    body: 'Support sanitary fittings, welding consumables, BOM checks, procurement notes, and SAP Business One handoff details.',
-    status: 'Backlog candidate',
-  },
-  {
-    number: '05',
-    eyebrow: 'Office admin / AR / AP',
-    title: 'Create exception queues instead of more invisible office load.',
-    body: 'Collections follow-up, AP invoice reading, received/match checks, time-entry issues, and routing questions back to the CRM who owns the job.',
-    status: 'Backlog candidate',
-  },
-  {
-    number: '06',
-    eyebrow: 'Scheduling / visibility',
-    title: 'Move from spreadsheet logic toward operational visibility.',
-    body: 'Qualifications, crew capacity, job timing, daily reports, suspicious items, and what Austin needs to review.',
-    status: 'Future system',
+    label: 'Scheduling',
+    line: 'The Google Sheet already contains business logic. The next step is visibility: who, where, capacity, qualifications, and what Austin should review.',
   },
 ];
 
-const firstThirty = [
-  'Turn the meeting transcript into a ranked Goff operating roadmap Austin and Kevin can mark up.',
-  'Launch the shared Goff workspace: priorities, comments, decisions, examples, documents, and progress in one place.',
-  'Design the first Training / Goff Bible workflow around real materials Goff already has.',
-  'Build the first visible loop: assigned training, reminders, tests, hands-on signoff, and a dashboard of done / stuck / overdue.',
+const ninetyDays = [
+  {
+    day: 'Days 1–10',
+    title: 'Map the real work',
+    detail: 'Turn the conversation, documents, screenshots, SOPs, training material, and examples into one ranked operating map Austin and Kevin can correct.',
+  },
+  {
+    day: 'Days 11–30',
+    title: 'Build the first wedge',
+    detail: 'Start with the Training / Goff Bible system unless Austin and Kevin intentionally move another constraint above it.',
+  },
+  {
+    day: 'Days 31–60',
+    title: 'Make the loop visible',
+    detail: 'Assignments, reminders, completion, tests, hands-on signoff, stuck items, and weekly owner updates become visible instead of scattered.',
+  },
+  {
+    day: 'Days 61–90',
+    title: 'Choose the next system',
+    detail: 'Use what was learned to decide whether the next highest-value move is hiring flow, CRM follow-up, procurement/BOM, office exceptions, or scheduling.',
+  },
 ];
 
-const boardLoop = [
-  'Austin or Kevin drops a note, file, screenshot, bottleneck, or “this is driving me crazy” item.',
-  'Blaze captures it, keeps it visible, and turns it into either a decision, task, question, or backlog item.',
-  'Jeff reviews the important judgment calls and keeps the work from drifting into low-value automation theater.',
-  'The board shows what is done, what is next, what needs Goff, and what changed since last review.',
+const ownerQuestions = [
+  'Who is waiting on training, and why?',
+  'Which open quotes need attention this week?',
+  'Where is procurement losing time or context?',
+  'Which admin problems are real exceptions vs. repeated patterns?',
+  'What changed in the business that makes last month’s plan stale?',
 ];
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return <p className="text-[0.72rem] font-black uppercase tracking-[0.28em] text-[#b8793a]">{children}</p>;
+function Eyebrow({ children }: { children: React.ReactNode }) {
+  return <p className="text-[0.7rem] font-black uppercase tracking-[0.32em] text-[#ff8a2a]">{children}</p>;
 }
 
-function ShellCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`rounded-[1.75rem] border border-[#171717]/10 bg-white shadow-[0_24px_70px_rgba(15,23,42,0.08)] ${className}`}>{children}</div>;
-}
-
-function OwnerMemo() {
-  return (
-    <div className="relative overflow-hidden rounded-[2rem] border border-[#1f2937]/10 bg-[#111315] p-5 text-white shadow-2xl shadow-black/25">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(255,122,26,0.26),transparent_32%),linear-gradient(135deg,rgba(255,255,255,0.08),transparent_35%)]" />
-      <div className="relative rounded-[1.4rem] border border-white/10 bg-black/25 p-5 backdrop-blur">
-        <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
-          <div>
-            <p className="text-xs font-black uppercase tracking-[0.24em] text-orange-200">Private operating brief</p>
-            <p className="mt-1 text-2xl font-black tracking-tight">Austin + Kevin</p>
-          </div>
-          <div className="rounded-full border border-orange-300/30 bg-orange-400/10 px-3 py-1 text-xs font-black text-orange-100">Not a pitch deck</div>
-        </div>
-        <div className="mt-5 grid gap-3">
-          {['Training hub', 'Hiring flow', 'CRM follow-up', 'Procurement / BOM', 'AR/AP exceptions', 'Scheduling visibility'].map((item, index) => (
-            <div key={item} className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 bg-white/[0.045] p-4 transition hover:border-orange-300/35 hover:bg-orange-400/10">
-              <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-xs font-black text-orange-100">{index + 1}</span>
-                <span className="font-bold text-gray-100">{item}</span>
-              </div>
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-gray-500 group-hover:text-orange-200">Rank</span>
-            </div>
-          ))}
-        </div>
-        <div className="mt-5 rounded-2xl border border-orange-300/25 bg-orange-400/10 p-4">
-          <p className="text-sm font-black text-orange-100">Default recommendation</p>
-          <p className="mt-1 text-xl font-black tracking-tight">Start with the Goff Bible, then let the board decide what earns attention next.</p>
-        </div>
-      </div>
-    </div>
-  );
+function WeldLine() {
+  return <div className="h-px w-full bg-gradient-to-r from-transparent via-[#ff8a2a]/70 to-transparent" />;
 }
 
 export default function GoffsOfferPage() {
   return (
-    <main className="min-h-screen bg-[#f5f0e8] text-[#181512]">
-      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(rgba(24,21,18,0.045)_1px,transparent_1px),linear-gradient(90deg,rgba(24,21,18,0.045)_1px,transparent_1px)] bg-[size:42px_42px]" />
+    <main className="min-h-screen overflow-hidden bg-[#050505] text-white">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(255,122,24,0.24),transparent_34%),radial-gradient(circle_at_85%_18%,rgba(255,255,255,0.08),transparent_24%),linear-gradient(rgba(255,255,255,0.035)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.035)_1px,transparent_1px)] bg-[size:auto,auto,56px_56px,56px_56px]" />
+      <div className="pointer-events-none fixed inset-0 bg-[linear-gradient(120deg,transparent,rgba(255,138,42,0.08)_38%,transparent_58%)]" />
+
       <div className="relative z-10">
         <nav className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8">
-          <div className="flex items-center gap-4">
-            <Link href="/" aria-label="Stoke AI home" className="block w-28 sm:w-36">
-              <Image src="/logo.png" alt="Stoke AI" width={500} height={170} priority className="h-auto w-full brightness-0" />
-            </Link>
-            <div className="h-10 w-px bg-black/10" />
-            <a href="https://goffwelding.com/" target="_blank" rel="noreferrer" aria-label="Goff Welding website" className="flex h-14 w-20 items-center justify-center rounded-2xl border border-black/10 bg-white px-3 shadow-sm">
-              <Image src="/goff-welding-logo.png" alt="Goff Welding" width={260} height={190} className="max-h-12 w-auto object-contain" />
-            </a>
-          </div>
+          <Link href="/" aria-label="Stoke AI home" className="text-xs font-black uppercase tracking-[0.28em] text-white/45 transition hover:text-white">
+            Goff Welding growth systems brief
+          </Link>
           <div className="hidden items-center gap-3 sm:flex">
-            <a href="#map" className="rounded-full border border-black/10 bg-white/70 px-5 py-3 text-sm font-black text-[#181512] transition hover:bg-white">Operating map</a>
-            <a href="#start" className="rounded-full bg-[#181512] px-5 py-3 text-sm font-black text-white transition hover:bg-[#2b2520]">Final offer</a>
+            <a href="#cockpit" className="rounded-full border border-white/10 bg-white/[0.04] px-5 py-3 text-sm font-bold text-white/75 hover:border-[#ff8a2a]/45 hover:text-white">The cockpit</a>
+            <a href="#decision" className="rounded-full bg-white px-5 py-3 text-sm font-black text-black hover:bg-[#ff8a2a] hover:text-white">Decision</a>
           </div>
         </nav>
 
-        <header className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-8 sm:px-8 lg:grid-cols-[1.02fr_0.98fr] lg:pb-24 lg:pt-16">
+        <header className="mx-auto grid max-w-7xl gap-10 px-5 pb-20 pt-8 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:pb-28 lg:pt-12">
           <div>
-            <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-[#181512]/10 bg-white/70 px-4 py-2 text-sm font-black shadow-sm">
-              <span className="h-2.5 w-2.5 rounded-full bg-[#e87322]" />
-              Private page for Goff Welding — built from the conversation
+            <div className="mb-8 inline-flex rounded-full border border-[#ff8a2a]/25 bg-[#ff8a2a]/10 px-4 py-2 text-sm font-black text-[#ffd1aa] shadow-[0_0_60px_rgba(255,138,42,0.12)]">
+              Private growth systems brief for Austin + Kevin
             </div>
-            <h1 className="max-w-5xl text-[3.2rem] font-black leading-[0.88] tracking-[-0.07em] text-[#181512] sm:text-7xl lg:text-8xl">
-              This is what I heard inside Goff Welding.
+            <h1 className="text-[3.6rem] font-black leading-[0.82] tracking-[-0.08em] text-white sm:text-7xl lg:text-8xl">
+              Goff Welding has outgrown memory.
             </h1>
-            <p className="mt-7 max-w-3xl text-xl leading-9 text-[#4a4037] sm:text-2xl">
-              Not a generic AI proposal. A private operating brief for Austin and Kevin: what seems to matter, where the first leverage is, and how Stoke AI would turn the work into a visible rhythm.
+            <p className="mt-7 max-w-2xl text-xl font-medium leading-9 text-white/68 sm:text-2xl">
+              That is not a weakness. It is what happens when a real company grows. The next stage is turning the way Goff already works into systems your team can see, trust, and improve.
             </p>
-            <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
-              <a href="#map" className="inline-flex items-center justify-center rounded-full bg-[#e87322] px-7 py-4 text-base font-black text-white shadow-xl shadow-orange-900/15 transition hover:-translate-y-0.5 hover:bg-[#d65f14]">
-                See the operating map
-              </a>
-              <p className="max-w-md text-sm font-semibold leading-6 text-[#6d6258]">
-                The goal is simple: make the work visible enough that the right next system becomes obvious.
-              </p>
+          </div>
+
+          <div className="relative">
+            <div className="absolute -inset-6 rounded-[2.5rem] bg-[#ff8a2a]/20 blur-3xl" />
+            <div className="relative overflow-hidden rounded-[2.2rem] border border-white/12 bg-[#101010] shadow-2xl shadow-black">
+              <div className="bg-white p-8 sm:p-10">
+                <Image src="/goff-welding-logo.png" alt="Goff Welding" width={520} height={380} priority className="mx-auto h-auto w-full max-w-md object-contain" />
+              </div>
+              <div className="border-t border-white/10 bg-[#0b0b0b] p-6 sm:p-8">
+                <Eyebrow>The point</Eyebrow>
+                <p className="mt-4 text-3xl font-black leading-tight tracking-[-0.045em] sm:text-4xl">
+                  This should feel like someone walked through the shop, listened, and came back with the first version of the operating system.
+                </p>
+              </div>
             </div>
           </div>
-          <OwnerMemo />
         </header>
 
-        <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-16">
-          <div className="grid gap-5 lg:grid-cols-3">
-            {signalCards.map((card) => (
-              <ShellCard key={card.title} className="p-6">
-                <SectionLabel>{card.label}</SectionLabel>
-                <h2 className="mt-5 text-3xl font-black leading-tight tracking-[-0.04em]">{card.title}</h2>
-                <p className="mt-4 text-base leading-8 text-[#5c5248]">{card.body}</p>
-              </ShellCard>
-            ))}
-          </div>
-        </section>
-
-        <section id="map" className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-24">
-          <div className="mb-10 grid gap-6 lg:grid-cols-[0.78fr_1.22fr] lg:items-end">
-            <div>
-              <SectionLabel>Operating map</SectionLabel>
-              <h2 className="mt-5 text-5xl font-black leading-[0.95] tracking-[-0.06em] sm:text-6xl">Six systems surfaced in one conversation.</h2>
-            </div>
-            <p className="text-xl leading-9 text-[#4f463e]">
-              This is the part that should feel different: the conversation was not summarized into generic AI ideas. It was translated into the actual operating systems Goff can rank, build, and improve.
-            </p>
-          </div>
-          <div className="grid gap-4">
-            {operatingMap.map((item) => (
-              <div key={item.number} className="group grid gap-5 rounded-[2rem] border border-[#181512]/10 bg-white/80 p-5 shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:shadow-xl hover:shadow-orange-900/10 lg:grid-cols-[0.18fr_0.32fr_1fr_0.22fr] lg:items-center lg:p-6">
-                <p className="text-5xl font-black tracking-[-0.08em] text-[#d5c4b2] group-hover:text-[#e87322]">{item.number}</p>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-[0.24em] text-[#b8793a]">{item.eyebrow}</p>
-                  <p className="mt-2 text-sm font-bold text-[#7b7066]">{item.status}</p>
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black leading-tight tracking-[-0.035em]">{item.title}</h3>
-                  <p className="mt-2 max-w-3xl leading-7 text-[#5c5248]">{item.body}</p>
-                </div>
-                <div className="h-2 rounded-full bg-[#efe4d8]">
-                  <div className={`h-full rounded-full bg-[#e87322] ${item.number === '01' ? 'w-full' : item.number === '06' ? 'w-1/3' : 'w-2/3'}`} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-[#181512] py-16 text-white lg:py-24">
-          <div className="mx-auto grid max-w-7xl gap-10 px-5 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
+        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
+          <div className="grid gap-8 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
             <div className="lg:sticky lg:top-8">
-              <SectionLabel>First 30 days</SectionLabel>
-              <h2 className="mt-5 text-5xl font-black leading-[0.95] tracking-[-0.06em] sm:text-6xl">Start with a visible win, not a vague AI initiative.</h2>
-              <p className="mt-6 text-lg leading-8 text-[#c9bfb4]">
-                The default first build is the Training / Goff Bible system because Austin already named training as the most important priority. If Austin and Kevin re-rank it, the roadmap changes. That is the point.
+              <Eyebrow>What is actually happening</Eyebrow>
+              <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">The bottleneck is not effort. It is visibility.</h2>
+              <p className="mt-6 text-lg leading-8 text-white/62">
+                Goff already has capable people, existing tools, and working habits. The opportunity is to make the important work easier to find, easier to assign, easier to follow up, and easier to improve.
               </p>
             </div>
-            <div className="grid gap-4">
-              {firstThirty.map((item, index) => (
-                <div key={item} className="rounded-[1.6rem] border border-white/10 bg-white/[0.055] p-6">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-orange-400/15 text-sm font-black text-orange-100">{index + 1}</div>
-                  <p className="text-xl font-bold leading-8 text-[#f4efe8]">{item}</p>
+
+            <div className="grid gap-3">
+              {pressurePoints.map((point, index) => (
+                <div key={point.label} className="group grid gap-4 rounded-[1.5rem] border border-white/10 bg-white/[0.045] p-5 transition hover:-translate-y-0.5 hover:border-[#ff8a2a]/45 hover:bg-[#ff8a2a]/10 md:grid-cols-[84px_160px_1fr] md:items-center">
+                  <p className="text-4xl font-black tracking-[-0.08em] text-white/18 group-hover:text-[#ff8a2a]">{String(index + 1).padStart(2, '0')}</p>
+                  <p className="text-lg font-black text-white">{point.label}</p>
+                  <p className="leading-7 text-white/64">{point.line}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
-            <ShellCard className="overflow-hidden">
-              <div className="border-b border-black/10 bg-[#fffaf3] p-6">
-                <SectionLabel>The work loop</SectionLabel>
-                <h2 className="mt-4 text-4xl font-black tracking-[-0.05em] sm:text-5xl">Comments do not disappear. They become movement.</h2>
+        <section id="cockpit" className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
+          <div className="overflow-hidden rounded-[2.4rem] border border-white/10 bg-[#0d0d0d] shadow-2xl shadow-black">
+            <div className="grid border-b border-white/10 lg:grid-cols-[0.88fr_1.12fr]">
+              <div className="p-8 sm:p-10 lg:p-12">
+                <Eyebrow>The cockpit Austin should have</Eyebrow>
+                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">A command view for the questions that actually matter.</h2>
+                <p className="mt-6 text-lg leading-8 text-white/62">
+                  Not another dashboard full of fake numbers. A practical owner view: what changed, what needs attention, what is stuck, and what the team needs next.
+                </p>
               </div>
-              <div className="grid gap-0 divide-y divide-black/10">
-                {boardLoop.map((item, index) => (
-                  <div key={item} className="grid gap-4 p-6 sm:grid-cols-[56px_1fr] sm:items-start">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#181512] text-sm font-black text-white">{index + 1}</div>
-                    <p className="text-lg font-semibold leading-8 text-[#4f463e]">{item}</p>
+              <div className="border-t border-white/10 bg-black/35 p-5 lg:border-l lg:border-t-0 sm:p-8">
+                <div className="rounded-[1.7rem] border border-[#ff8a2a]/20 bg-[#ff8a2a]/8 p-5">
+                  <div className="mb-5 flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-[0.25em] text-[#ffb06a]">Goff operating cockpit</p>
+                      <p className="mt-1 text-2xl font-black">This week</p>
+                    </div>
+                    <div className="rounded-full border border-[#ff8a2a]/30 px-3 py-1 text-xs font-black text-[#ffd1aa]">Live priorities</div>
                   </div>
-                ))}
+                  <div className="grid gap-3">
+                    {ownerQuestions.map((question) => (
+                      <div key={question} className="rounded-2xl border border-white/10 bg-black/35 p-4 text-base font-bold leading-7 text-white/78">
+                        {question}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </ShellCard>
-
-            <ShellCard className="bg-[#fffaf3] p-7">
-              <SectionLabel>Every quarter</SectionLabel>
-              <h2 className="mt-5 text-4xl font-black leading-tight tracking-[-0.05em]">One day to reset the business systems roadmap.</h2>
-              <p className="mt-5 text-lg leading-8 text-[#5c5248]">
-                Austin named the reason this matters: six months from now, a project that looked important may not matter because the business changed. The quarterly review protects the engagement from stale priorities.
-              </p>
-              <div className="mt-7 rounded-3xl border border-[#181512]/10 bg-white p-5">
-                <p className="text-sm font-black uppercase tracking-[0.22em] text-[#b8793a]">Quarterly reset agenda</p>
-                <ul className="mt-4 space-y-3 text-base font-semibold leading-7 text-[#4f463e]">
-                  <li>• The “rules do not exist” brain dump</li>
-                  <li>• Re-rank the live backlog</li>
-                  <li>• Decide stop / continue / build next</li>
-                  <li>• Publish the next-quarter roadmap</li>
-                </ul>
+            </div>
+            <div className="grid divide-y divide-white/10 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+              <div className="p-7">
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Jeff</p>
+                <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Business judgment</p>
+                <p className="mt-3 leading-7 text-white/58">Keep the work tied to what is worth doing, push back on scattered ideas, and help Austin/Kevin choose the next constraint.</p>
               </div>
-            </ShellCard>
+              <div className="p-7">
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Blaze</p>
+                <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Operating memory</p>
+                <p className="mt-3 leading-7 text-white/58">Watch the board, capture comments, draft updates, preserve context, and turn loose notes into visible movement.</p>
+              </div>
+              <div className="p-7">
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Goff</p>
+                <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Real examples</p>
+                <p className="mt-3 leading-7 text-white/58">Supply the SOPs, screenshots, quote examples, procurement details, and field realities that make the system useful.</p>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section id="start" className="mx-auto max-w-6xl px-5 pb-24 sm:px-8">
-          <div className="overflow-hidden rounded-[2.4rem] bg-[#181512] text-white shadow-2xl shadow-orange-950/20">
-            <div className="grid gap-0 lg:grid-cols-[1fr_0.72fr]">
-              <div className="p-8 sm:p-12">
-                <SectionLabel>Final offer</SectionLabel>
-                <h2 className="mt-5 text-5xl font-black leading-[0.95] tracking-[-0.06em] sm:text-6xl">If this fits Goff Welding, start with one month.</h2>
-                <p className="mt-6 max-w-3xl text-xl leading-9 text-[#d7cec4]">
-                  Month-to-month operating partnership. One shared board. Weekly progress rhythm. Quarterly priority reset. Practical systems built around the work that matters most.
-                </p>
+        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
+          <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+            <div className="max-w-3xl">
+              <Eyebrow>The first 90 days</Eyebrow>
+              <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Earn trust by building the first useful loop.</h2>
+            </div>
+            <p className="max-w-lg text-lg leading-8 text-white/62">
+              The first target is not “AI transformation.” It is one visible system that Goff people can use and Austin can inspect.
+            </p>
+          </div>
+
+          <div className="grid gap-4 lg:grid-cols-4">
+            {ninetyDays.map((phase) => (
+              <div key={phase.day} className="min-h-[310px] rounded-[1.8rem] border border-white/10 bg-white/[0.045] p-6 transition hover:border-[#ff8a2a]/45 hover:bg-white/[0.07]">
+                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">{phase.day}</p>
+                <h3 className="mt-6 text-3xl font-black leading-tight tracking-[-0.045em]">{phase.title}</h3>
+                <p className="mt-4 leading-7 text-white/60">{phase.detail}</p>
               </div>
-              <div className="flex flex-col justify-between border-t border-white/10 bg-[#0f0d0c] p-8 sm:p-12 lg:border-l lg:border-t-0">
-                <div>
-                  <p className="text-sm font-black uppercase tracking-[0.26em] text-orange-200">Standard engagement</p>
-                  <p className="mt-5 text-5xl font-black tracking-[-0.06em] sm:text-6xl">$5,000/month</p>
-                  <p className="mt-4 text-sm font-semibold leading-6 text-[#b8aca0]">No long-term contract. Start the rhythm, prove the value, and keep earning the next month.</p>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
+          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="rounded-[2.2rem] border border-white/10 bg-[#111] p-8 sm:p-10">
+              <Eyebrow>Why the quarterly reset matters</Eyebrow>
+              <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Six months from now, the right answer may be different.</h2>
+              <p className="mt-6 text-lg leading-8 text-white/62">
+                Austin already said the important thing: if the business changes, the plan has to change. The quarterly reset keeps this from becoming a stale software project. It becomes a recurring business-systems discipline.
+              </p>
+            </div>
+            <div className="space-y-4">
+              {['Rules do not exist brain dump', 'Re-rank the constraints', 'Stop stale work', 'Publish the next-quarter build plan'].map((item, index) => (
+                <div key={item} className="flex items-center gap-4 rounded-[1.4rem] border border-white/10 bg-black/35 p-5">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#ff8a2a] text-sm font-black text-black">{index + 1}</div>
+                  <p className="text-xl font-black tracking-[-0.03em]">{item}</p>
                 </div>
-                <a href="mailto:jeff@stoke-ai.com?subject=Goff%20Welding%20Operating%20Partnership" className="mt-8 inline-flex items-center justify-center rounded-full bg-[#e87322] px-7 py-4 text-base font-black text-white transition hover:bg-[#d65f14]">
-                  Tell Jeff this is worth a conversation
-                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="decision" className="mx-auto max-w-6xl px-5 pb-24 pt-8 sm:px-8">
+          <div className="relative overflow-hidden rounded-[2.6rem] border border-[#ff8a2a]/35 bg-[#ff8a2a] p-[1px] shadow-[0_0_90px_rgba(255,138,42,0.2)]">
+            <div className="rounded-[2.55rem] bg-[#080808] p-8 sm:p-12">
+              <div className="mb-8 flex justify-center">
+                <div className="rounded-[1.4rem] bg-white px-8 py-5 shadow-2xl shadow-black/50">
+                  <Image src="/goff-welding-logo.png" alt="Goff Welding" width={300} height={220} priority className="h-auto w-52 object-contain" />
+                </div>
+              </div>
+              <div className="text-center">
+                <Eyebrow>Decision</Eyebrow>
+                <h2 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-7xl">If this feels like Goff, start with one month.</h2>
+                <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-white/65">
+                  Month-to-month. One shared operating board. Weekly progress rhythm. Quarterly priority reset. Start with the first useful system and keep earning the next month by making real work easier to see and move.
+                </p>
+                <WeldLine />
+                <div className="mx-auto mt-9 max-w-2xl rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-7">
+                  <p className="text-sm font-black uppercase tracking-[0.26em] text-[#ffb06a]">Standard engagement</p>
+                  <p className="mt-4 text-5xl font-black tracking-[-0.06em] sm:text-6xl">$5,000/month</p>
+                  <a href="mailto:jeff@stoke-ai.com?subject=Goff%20Welding%20Growth%20Systems%20Brief" className="mt-7 inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#ff8a2a] hover:text-white">
+                    Tell Jeff this is worth a conversation
+                  </a>
+                </div>
               </div>
             </div>
           </div>
