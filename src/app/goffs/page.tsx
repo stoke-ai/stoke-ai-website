@@ -344,7 +344,7 @@ export default function GoffsOfferPage() {
                       Start monthly service
                     </a>
                     <a href="https://calendar.app.google/YeqJLsyJHv1SQeXQ6" className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#ff8a2a] hover:text-white">
-                      Schedule Google Meet discussion
+                      Ask a question first
                     </a>
                   </div>
                 </div>
