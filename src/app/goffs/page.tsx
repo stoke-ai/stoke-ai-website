@@ -37,8 +37,8 @@ const pressurePoints = [
 const ninetyDays = [
   {
     day: 'First week',
-    title: 'Meet in person and set the board',
-    detail: 'Jeff meets with Austin and Kevin in person, confirms the real priorities, and turns the first constraint into a working operating board everyone can see.',
+    title: 'Set up the workspace, then meet in person',
+    detail: 'After payment, Stoke AI begins setting up the private workspace and first operating board. The kickoff is about a 90-minute in-person working session with Austin and Kevin to confirm priorities and decide what moves first.',
   },
   {
     day: 'Days 8–30',
@@ -283,14 +283,14 @@ export default function GoffsOfferPage() {
                 <Eyebrow>Decision</Eyebrow>
                 <h2 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-7xl">If this feels like Goff, start with one month.</h2>
                 <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-white/65">
-                  Month-to-month. An in-person first-week kickoff. One shared operating board. Weekly progress rhythm. In-person 90-day review. Start with the first useful system and keep earning the next month by making real work easier to see and move.
+                  Month-to-month. Work starts when payment is complete: private workspace setup, first operating board preparation, weekly progress rhythm, about a 90-minute in-person kickoff, and an in-person 90-day review. Start with the first useful system and keep earning the next month by making real work easier to see and move.
                 </p>
                 <WeldLine />
                 <div className="mx-auto mt-9 max-w-2xl rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-7">
                   <p className="text-sm font-black uppercase tracking-[0.26em] text-[#ffb06a]">Standard engagement</p>
                   <p className="mt-4 text-5xl font-black tracking-[-0.06em] sm:text-6xl">$5,000/month</p>
                   <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/55">
-                    Secure Stripe checkout includes the month-to-month terms, in-person first-week kickoff, weekly rhythm, and in-person 90-day review.
+                    Secure Stripe checkout starts the monthly service. Stoke AI begins preparing the private workspace and first operating board before the in-person kickoff, which is about 90 minutes.
                   </p>
                   <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                     <a href="https://buy.stripe.com/9B6cMXgFP5Uw2ht2qh4ko01" className="inline-flex items-center justify-center rounded-full bg-[#ff8a2a] px-7 py-4 text-base font-black text-white transition hover:bg-white hover:text-black">

@@ -9,15 +9,15 @@ export const metadata: Metadata = {
 const kickoffSteps = [
   {
     label: 'Schedule the kickoff',
-    detail: 'Pick a time for Jeff to come meet with Austin and Kevin in person.',
+    detail: 'Pick a time for Jeff to come meet with Austin and Kevin in person for about 90 minutes.',
   },
   {
-    label: 'Confirm the first constraint',
-    detail: 'Use the meeting to decide whether Training / the Goff Bible is still the right first operating loop.',
+    label: 'Workspace setup begins',
+    detail: 'Stoke AI starts setting up the private workspace and preparing the first operating board before the meeting.',
   },
   {
-    label: 'Set the working board',
-    detail: 'Turn priorities, examples, owners, and next steps into the first shared operating board.',
+    label: 'Set the first priorities',
+    detail: 'At kickoff, confirm the first constraint, who needs to be involved, and what should move first.',
   },
 ];
 
@@ -50,7 +50,7 @@ export default function GoffsThankYouPage() {
               </h1>
 
               <p className="mt-7 max-w-3xl text-xl leading-9 text-white/66">
-                Thanks — the Stoke AI Operating System monthly service is started. Please schedule a time for Jeff to come meet with Austin and Kevin, confirm the first priority, and set up the working board.
+                Thanks — the Stoke AI monthly service is started. Before kickoff, Stoke AI begins setting up the private workspace and preparing the first operating board so the in-person meeting is practical from the beginning.
               </p>
 
               <div className="mt-10 grid gap-4 md:grid-cols-3">
@@ -67,7 +67,7 @@ export default function GoffsThankYouPage() {
                 <div>
                   <p className="text-sm font-black uppercase tracking-[0.25em] text-[#ffb06a]">Kickoff meeting</p>
                   <p className="mt-3 text-lg leading-8 text-white/64">
-                    Use the booking link to choose a time. Jeff will treat this as the in-person first-week kickoff, not another sales call.
+                    Use the booking link to choose a time. Jeff will treat this as the in-person first-week kickoff — about 90 minutes, not another sales call.
                   </p>
                 </div>
                 <a href="https://calendar.app.google/YeqJLsyJHv1SQeXQ6" className="mt-6 inline-flex shrink-0 items-center justify-center rounded-full bg-[#ff8a2a] px-7 py-4 text-base font-black text-white transition hover:bg-white hover:text-black sm:mt-0">
