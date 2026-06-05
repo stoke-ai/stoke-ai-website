@@ -10,11 +10,29 @@ type PortalUpdateFormProps = {
   title: string;
   prompt: string;
   buttonClassName?: string;
+  latestMessage?: {
+    message: string;
+    status: 'new' | 'seen' | 'replied' | 'converted' | 'closed';
+    createdAt: string;
+    blazeReply?: string;
+    progressNote?: string;
+  } | null;
 };
 
 type SavedSubmission = {
   message: string;
   sentAt: string;
+  status?: 'new' | 'seen' | 'replied' | 'converted' | 'closed';
+  blazeReply?: string;
+  progressNote?: string;
+};
+
+const statusLabels = {
+  new: 'Sent to Blaze',
+  seen: 'Seen by Blaze',
+  replied: 'Blaze replied',
+  converted: 'Converted to task',
+  closed: 'Closed',
 };
 
 function formatSentAt(value: string) {
@@ -37,6 +55,7 @@ export default function PortalUpdateForm({
   title,
   prompt,
   buttonClassName,
+  latestMessage,
 }: PortalUpdateFormProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
@@ -50,13 +69,24 @@ export default function PortalUpdateForm({
   );
 
   useEffect(() => {
+    if (latestMessage) {
+      setSavedSubmission({
+        message: latestMessage.message,
+        sentAt: latestMessage.createdAt,
+        status: latestMessage.status,
+        blazeReply: latestMessage.blazeReply,
+        progressNote: latestMessage.progressNote,
+      });
+      return;
+    }
+
     try {
       const stored = window.localStorage.getItem(storageKey);
       if (stored) setSavedSubmission(JSON.parse(stored) as SavedSubmission);
     } catch {
       // Local receipt is best-effort only. Server submission still works.
     }
-  }, [storageKey]);
+  }, [latestMessage, storageKey]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -76,7 +106,14 @@ export default function PortalUpdateForm({
       return;
     }
 
-    const receipt = { message, sentAt: new Date().toISOString() };
+    const data = await response.json().catch(() => null);
+    const receipt = {
+      message,
+      sentAt: data?.message?.createdAt || new Date().toISOString(),
+      status: data?.message?.status || 'new',
+      blazeReply: data?.message?.blazeReply,
+      progressNote: data?.message?.progressNote,
+    } as SavedSubmission;
     setSavedSubmission(receipt);
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(receipt));
@@ -93,11 +130,21 @@ export default function PortalUpdateForm({
       <div className="mt-4 rounded-2xl border border-emerald-300/25 bg-emerald-300/[0.08] p-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-emerald-100">Sent to Blaze</p>
+            <p className="text-sm font-semibold text-emerald-100">{statusLabels[savedSubmission.status || 'new']}</p>
             <p className="mt-1 text-xs leading-5 text-zinc-300">
-              Received {formatSentAt(savedSubmission.sentAt)}. This item is marked as responded on this device.
+              Received {formatSentAt(savedSubmission.sentAt)}. This update is saved in the shared portal inbox.
             </p>
             <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-400">“{savedSubmission.message}”</p>
+            {savedSubmission.blazeReply ? (
+              <p className="mt-3 rounded-xl border border-emerald-300/20 bg-black/20 p-3 text-xs leading-5 text-emerald-50">
+                <span className="font-semibold">Blaze replied:</span> {savedSubmission.blazeReply}
+              </p>
+            ) : null}
+            {savedSubmission.progressNote ? (
+              <p className="mt-3 rounded-xl border border-sky-300/20 bg-black/20 p-3 text-xs leading-5 text-sky-50">
+                <span className="font-semibold">Progress:</span> {savedSubmission.progressNote}
+              </p>
+            ) : null}
           </div>
           <button
             type="button"

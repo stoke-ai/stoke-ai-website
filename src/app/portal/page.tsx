@@ -4,6 +4,7 @@ import PortalLoginForm from '@/components/PortalLoginForm';
 import PortalUpdateForm from '@/components/PortalUpdateForm';
 import { getPortalSessionClientId } from '@/lib/portal/auth';
 import { getPortalBoard } from '@/lib/portal/trello';
+import { getLatestPortalMessage } from '@/lib/portal/store';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,7 +17,8 @@ function getStage(board: NonNullable<Awaited<ReturnType<typeof getPortalBoard>>>
   return board.stages.find((stage) => stage.id === stageId);
 }
 
-function Card({
+async function Card({
+  clientId,
   title,
   status,
   detail,
@@ -24,6 +26,7 @@ function Card({
   featured = false,
   cardId,
 }: {
+  clientId: string;
   cardId: string;
   title: string;
   status: string;
@@ -31,6 +34,8 @@ function Card({
   action?: string;
   featured?: boolean;
 }) {
+  const latestMessage = await getLatestPortalMessage(clientId, cardId);
+
   return (
     <article
       className={`rounded-2xl border p-4 transition ${
@@ -58,6 +63,7 @@ function Card({
         label={action ? 'Send update' : 'Comment'}
         title={action ? 'Send what Blaze needs' : `Comment on ${title}`}
         prompt={action || 'Add a note, question, link, screenshot description, or correction for this item.'}
+        latestMessage={latestMessage}
         buttonClassName="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-zinc-100 transition hover:border-orange-400/40 hover:bg-orange-400/10"
       />
     </article>
@@ -127,6 +133,7 @@ export default async function ClientPortalPage() {
   const currentCard = activeCards[0] ?? nextCards[0] ?? doneCards[0];
   const nextCard = nextCards[0];
   const needsCard = needsCards[0];
+  const latestNeedsMessage = needsCard ? await getLatestPortalMessage(board.client.id, needsCard.id) : null;
 
   const columns = [
     { title: 'In progress', subtitle: 'What Jeff is working on now', cards: activeCards, accent: 'bg-orange-400' },
@@ -208,6 +215,7 @@ export default async function ClientPortalPage() {
                     label="Send update"
                     title="Send what Blaze needs"
                     prompt={needsCard.action ?? needsCard.detail}
+                    latestMessage={latestNeedsMessage}
                     buttonClassName="mt-4 inline-flex rounded-full bg-amber-300 px-4 py-2 text-xs font-black text-black transition hover:bg-amber-200"
                   />
                 </div>
@@ -250,6 +258,7 @@ export default async function ClientPortalPage() {
                   column.cards.map((card, index) => (
                     <Card
                       key={card.id}
+                      clientId={board.client.id}
                       cardId={card.id}
                       title={card.title}
                       status={card.status}

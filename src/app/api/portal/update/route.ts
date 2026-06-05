@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getPortalSessionClientId } from '@/lib/portal/auth';
 import { portalClients } from '@/lib/portal/data';
+import { createPortalMessage } from '@/lib/portal/store';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7448321777';
@@ -79,9 +80,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'That is too long. Send a shorter update.' }, { status: 400 });
     }
 
+    const savedMessage = await createPortalMessage({
+      clientId,
+      clientName: client.name,
+      kind,
+      cardId: body?.cardId ? String(body.cardId).trim().slice(0, 160) : undefined,
+      cardTitle,
+      message,
+    });
+
     await notifyBlaze({ clientName: client.name, kind, cardTitle, message });
 
-    return NextResponse.json({ ok: true });
+    return NextResponse.json({ ok: true, message: savedMessage });
   } catch (error) {
     console.error('Portal update error:', error);
     return NextResponse.json({ error: 'Could not send that update. Try again.' }, { status: 500 });
