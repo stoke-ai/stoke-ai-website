@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Goff Welding | Stoke AI Operating Partnership',
   description:
-    'A private Stoke AI offer page for Goff Welding: ongoing AI and business systems implementation at $5,000/month.',
+    'A private Stoke AI offer page for Goff Welding: ongoing AI and business systems implementation.',
 };
 
 const focusAreas = [
@@ -49,7 +49,7 @@ const quarterlyReview = [
   'Do the “rules do not exist” brain dump Austin described: if Goff Welding were built from scratch today, how should the work flow?',
   'Re-rank the live backlog: training, hiring, CRM follow-up, procurement, AR/AP, scheduling, admin exceptions, SAP/Samsara/API opportunities, and custom software ideas',
   'Decide what to stop, continue, or build next for the coming quarter based on where the business actually changed',
-  'Update the roadmap so the $5k/month engagement stays tied to business priorities, not random AI ideas or stale projects',
+  'Update the roadmap so the engagement stays tied to business priorities, not random AI ideas or stale projects',
 ];
 
 const firstMonth = [
@@ -177,7 +177,7 @@ export default function GoffsOfferPage() {
                 href="#start"
                 className="inline-flex items-center justify-center rounded-full bg-gradient-to-r from-orange-500 to-amber-400 px-7 py-4 text-base font-black text-black shadow-2xl shadow-orange-500/20 transition hover:scale-[1.02]"
               >
-                Start at $5,000/month
+                Review the plan
               </a>
               <p className="max-w-sm text-sm leading-6 text-gray-400">
                 Month-to-month. One shared board. Weekly progress rhythm. Quarterly priority reset.
@@ -197,9 +197,9 @@ export default function GoffsOfferPage() {
                   A monthly implementation relationship for a growing welding and fabrication business that does not need random AI experiments. It needs a ranked operating roadmap, practical systems, and a recurring cadence to decide what matters most next.
                 </p>
                 <div className="mt-8 rounded-2xl border border-orange-300/25 bg-orange-500/10 p-5">
-                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Investment</p>
-                  <p className="mt-2 text-5xl font-black text-white">$5,000<span className="text-xl text-gray-300">/month</span></p>
-                  <p className="mt-3 text-sm leading-6 text-gray-300">Standard Stoke AI engagement. Month-to-month operating partnership with a quarterly review/reset after every three paid months.</p>
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">How it works</p>
+                  <p className="mt-2 text-2xl font-black text-white">Month-to-month operating partnership</p>
+                  <p className="mt-3 text-sm leading-6 text-gray-300">One shared board, weekly progress rhythm, and a quarterly review/reset after every three paid months.</p>
                 </div>
               </Card>
 
@@ -267,7 +267,7 @@ export default function GoffsOfferPage() {
                 Austin named the exact reason this matters: six months from now, a project that looked important may not matter anymore because the business changed. The quarterly review keeps Stoke AI outside the day-to-day fires and focused on the highest-leverage work.
               </p>
               <div className="mt-7 rounded-2xl border border-orange-300/25 bg-black/30 p-5">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Included in the $5,000/month engagement</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Included in the standard engagement</p>
                 <p className="mt-3 text-2xl font-black text-white">Quarterly one-day reset + next-quarter roadmap</p>
               </div>
             </Card>
