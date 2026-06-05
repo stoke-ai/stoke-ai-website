@@ -1,6 +1,6 @@
 'use client';
 
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useMemo, useState } from 'react';
 
 type PortalUpdateFormProps = {
   kind: 'reply' | 'new-item';
@@ -11,6 +11,23 @@ type PortalUpdateFormProps = {
   prompt: string;
   buttonClassName?: string;
 };
+
+type SavedSubmission = {
+  message: string;
+  sentAt: string;
+};
+
+function formatSentAt(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'just now';
+
+  return date.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
 
 export default function PortalUpdateForm({
   kind,
@@ -25,6 +42,21 @@ export default function PortalUpdateForm({
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [error, setError] = useState('');
+  const [savedSubmission, setSavedSubmission] = useState<SavedSubmission | null>(null);
+
+  const storageKey = useMemo(
+    () => `stoke-portal-update:${kind}:${cardId || 'new-item'}:${cardTitle || ''}`,
+    [cardId, cardTitle, kind],
+  );
+
+  useEffect(() => {
+    try {
+      const stored = window.localStorage.getItem(storageKey);
+      if (stored) setSavedSubmission(JSON.parse(stored) as SavedSubmission);
+    } catch {
+      // Local receipt is best-effort only. Server submission still works.
+    }
+  }, [storageKey]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -44,8 +76,43 @@ export default function PortalUpdateForm({
       return;
     }
 
+    const receipt = { message, sentAt: new Date().toISOString() };
+    setSavedSubmission(receipt);
+    try {
+      window.localStorage.setItem(storageKey, JSON.stringify(receipt));
+    } catch {
+      // Ignore local storage failures; the success state still confirms this session.
+    }
+
     setMessage('');
     setStatus('sent');
+  }
+
+  if (savedSubmission && !open) {
+    return (
+      <div className="mt-4 rounded-2xl border border-emerald-300/25 bg-emerald-300/[0.08] p-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-sm font-semibold text-emerald-100">Sent to Blaze</p>
+            <p className="mt-1 text-xs leading-5 text-zinc-300">
+              Received {formatSentAt(savedSubmission.sentAt)}. This item is marked as responded on this device.
+            </p>
+            <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-400">“{savedSubmission.message}”</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setOpen(true);
+              setStatus('idle');
+              setError('');
+            }}
+            className="shrink-0 rounded-full border border-emerald-300/30 px-3 py-2 text-xs font-semibold text-emerald-100 transition hover:bg-emerald-300/10"
+          >
+            Add another update
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
