@@ -1,9 +1,19 @@
 import { NextResponse } from 'next/server';
+import { getPortalSessionClientId } from '@/lib/portal/auth';
 import { listPortalMessages, updatePortalMessage, type PortalMessageStatus } from '@/lib/portal/store';
 
 const validStatuses = new Set<PortalMessageStatus>(['new', 'seen', 'replied', 'converted', 'closed']);
 
+async function requireAdminSession() {
+  const clientId = await getPortalSessionClientId();
+  return clientId === 'stoke-ai';
+}
+
 export async function GET(request: Request) {
+  if (!(await requireAdminSession())) {
+    return NextResponse.json({ error: 'Portal admin session required.' }, { status: 401 });
+  }
+
   const url = new URL(request.url);
   const clientId = url.searchParams.get('clientId') || undefined;
   const messages = await listPortalMessages(clientId);
@@ -11,6 +21,10 @@ export async function GET(request: Request) {
 }
 
 export async function PATCH(request: Request) {
+  if (!(await requireAdminSession())) {
+    return NextResponse.json({ error: 'Portal admin session required.' }, { status: 401 });
+  }
+
   const body = (await request.json().catch(() => null)) as {
     id?: string;
     status?: PortalMessageStatus;

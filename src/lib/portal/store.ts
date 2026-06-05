@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
+import { get, put } from '@vercel/blob';
 
 export type PortalMessageStatus = 'new' | 'seen' | 'replied' | 'converted' | 'closed';
 export type PortalActivityType = 'client-update' | 'blaze-reply' | 'status-change' | 'progress-note';
@@ -37,6 +38,30 @@ type PortalStore = {
 };
 
 const STORE_PATH = process.env.PORTAL_STORE_PATH || path.join(os.tmpdir(), 'stoke-portal-store.json');
+const BLOB_STORE_PATH = 'portal-store/store.json';
+
+function useBlobStore() {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID || process.env.VERCEL_OIDC_TOKEN);
+}
+
+function emptyStore(): PortalStore {
+  return { messages: [], activity: [] };
+}
+
+async function streamToText(stream: ReadableStream<Uint8Array>) {
+  const reader = stream.getReader();
+  const decoder = new TextDecoder();
+  let text = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    text += decoder.decode(value, { stream: true });
+  }
+
+  text += decoder.decode();
+  return text;
+}
 
 function now() {
   return new Date().toISOString();
@@ -47,6 +72,18 @@ function makeId(prefix: string) {
 }
 
 async function readStore(): Promise<PortalStore> {
+  if (useBlobStore()) {
+    const blob = await get(BLOB_STORE_PATH, { access: 'private', useCache: false });
+    if (!blob?.stream) return emptyStore();
+
+    const raw = await streamToText(blob.stream);
+    const parsed = JSON.parse(raw) as Partial<PortalStore>;
+    return {
+      messages: Array.isArray(parsed.messages) ? parsed.messages : [],
+      activity: Array.isArray(parsed.activity) ? parsed.activity : [],
+    };
+  }
+
   try {
     const raw = await fs.readFile(STORE_PATH, 'utf8');
     const parsed = JSON.parse(raw) as Partial<PortalStore>;
@@ -56,12 +93,22 @@ async function readStore(): Promise<PortalStore> {
     };
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
-    if (code === 'ENOENT') return { messages: [], activity: [] };
+    if (code === 'ENOENT') return emptyStore();
     throw error;
   }
 }
 
 async function writeStore(store: PortalStore) {
+  if (useBlobStore()) {
+    await put(BLOB_STORE_PATH, JSON.stringify(store, null, 2), {
+      access: 'private',
+      allowOverwrite: true,
+      contentType: 'application/json',
+      cacheControlMaxAge: 60,
+    });
+    return;
+  }
+
   await fs.mkdir(path.dirname(STORE_PATH), { recursive: true });
   await fs.writeFile(STORE_PATH, JSON.stringify(store, null, 2));
 }

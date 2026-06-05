@@ -3,8 +3,11 @@ import { getPortalSessionClientId } from '@/lib/portal/auth';
 import { portalClients } from '@/lib/portal/data';
 import { createPortalMessage } from '@/lib/portal/store';
 
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || '7448321777';
+// Portal updates should be handled by the durable portal inbox first.
+// Only send an optional backup Telegram ping when portal-specific credentials are configured.
+// This avoids routing portal updates through the older site-wide Spark bot token.
+const TELEGRAM_BOT_TOKEN = process.env.PORTAL_TELEGRAM_BOT_TOKEN;
+const TELEGRAM_CHAT_ID = process.env.PORTAL_TELEGRAM_CHAT_ID;
 
 function escapeHtml(value: string) {
   return value
@@ -37,8 +40,8 @@ async function notifyBlaze({
     .filter(Boolean)
     .join('\n');
 
-  if (!TELEGRAM_BOT_TOKEN) {
-    console.log('Portal update received:', { clientName, kind, cardTitle, message });
+  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.log('Portal update saved to inbox:', { clientName, kind, cardTitle, message });
     return;
   }
 
