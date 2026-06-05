@@ -33,7 +33,15 @@ const included = [
   'AI-assisted workflow design, buildout, and iteration',
   'Weekly written progress updates: done, blocked, waiting, next',
   'Request and comment loop so ideas turn into tracked work',
+  'Quarterly one-day Business Systems Review to reset priorities and choose the next highest-value work',
   'Priority access to Jeff as the business systems partner — without relying on scattered texts',
+];
+
+const quarterlyReview = [
+  'Step back from the weekly work and review what changed in the business',
+  'Re-rank the biggest constraints, opportunities, and owner-level bottlenecks',
+  'Decide what to stop, continue, or build next for the coming quarter',
+  'Update the live roadmap so the retainer stays tied to business priorities, not random AI ideas',
 ];
 
 const firstMonth = [
@@ -243,6 +251,32 @@ export default function GoffsOfferPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
+          <div className="grid gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
+            <Card className="bg-gradient-to-br from-orange-500/[0.10] via-white/[0.045] to-indigo-500/[0.08]">
+              <SectionLabel>Every quarter</SectionLabel>
+              <h2 className="text-4xl font-black tracking-tight sm:text-5xl">One day to reset priorities.</h2>
+              <p className="mt-5 text-lg leading-8 text-gray-300">
+                After every three paid months, we include a focused Business Systems Review day. The purpose is to keep the engagement aimed at Goff Welding’s real business priorities as they change — not just keep building because something is already on the board.
+              </p>
+              <div className="mt-7 rounded-2xl border border-orange-300/25 bg-black/30 p-5">
+                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Included in the $5,000/month engagement</p>
+                <p className="mt-3 text-2xl font-black text-white">Quarterly priority reset + next-quarter roadmap</p>
+              </div>
+            </Card>
+            <div className="grid gap-4">
+              {quarterlyReview.map((item, index) => (
+                <div key={item} className="flex gap-4 rounded-3xl border border-white/10 bg-white/[0.04] p-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-orange-300/30 bg-orange-500/10 text-sm font-black text-orange-200">
+                    Q{index + 1}
+                  </div>
+                  <p className="pt-1 text-lg leading-8 text-gray-200">{item}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-6 py-16 lg:py-24">
           <div className="grid gap-6 lg:grid-cols-3">
             <Card>
               <SectionLabel>How we work</SectionLabel>
@@ -281,7 +315,7 @@ export default function GoffsOfferPage() {
                 <p className="mt-2 text-4xl font-black">$5,000/month</p>
               </div>
               <p className="mt-4 max-w-md text-sm leading-6 text-gray-300 sm:mt-0">
-                Month-to-month. One shared operating board. Weekly progress rhythm. Practical systems built around the work that matters most.
+                Month-to-month. One shared operating board. Weekly progress rhythm. Quarterly priority reset. Practical systems built around the work that matters most.
               </p>
             </div>
           </div>
