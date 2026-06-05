@@ -68,7 +68,7 @@ const operatingLoop = [
   },
   {
     title: 'Get Goff feedback from real work',
-    detail: 'Goff uses it, points out what is wrong, missing, awkward, or unclear, and the system gets tuned around how the business really operates.',
+    detail: 'Goff uses it, points out what is wrong, missing, awkward, or unclear, and comments become acknowledged next steps instead of notes that disappear.',
   },
   {
     title: 'Decide the next move',
@@ -206,7 +206,7 @@ export default function GoffsOfferPage() {
               <div className="p-7">
                 <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Stoke AI</p>
                 <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Operating assistant</p>
-                <p className="mt-3 leading-7 text-white/58">Capture comments, preserve context, draft updates, watch for stuck items, and turn loose notes into visible movement.</p>
+                <p className="mt-3 leading-7 text-white/58">Capture comments, preserve context, acknowledge what was seen, assign next steps, watch for stuck items, and turn loose notes into visible movement.</p>
               </div>
               <div className="p-7">
                 <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Goff</p>
@@ -223,7 +223,7 @@ export default function GoffsOfferPage() {
             <div className="relative grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
               <div>
                 <Eyebrow>Where this can go</Eyebrow>
-                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Eventually, Goff can have its own operating assistant.</h2>
+                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Over time, Goff can have its own operating assistant.</h2>
                 <p className="mt-6 text-lg leading-8 text-white/68">
                   Not a generic chatbot. A Goff-specific assistant that remembers how the business works, what Austin and the leadership team care about, and what changed since the last reset.
                 </p>
@@ -308,7 +308,7 @@ export default function GoffsOfferPage() {
               </p>
             </div>
             <div className="space-y-4">
-              {['Rules do not exist brain dump', 'Re-rank the constraints', 'Stop stale work', 'Publish the next-quarter build plan'].map((item, index) => (
+              {['Rules that no longer fit', 'Re-rank the constraints', 'Stop stale work', 'Publish the next-quarter build plan'].map((item, index) => (
                 <div key={item} className="flex items-center gap-4 rounded-[1.4rem] border border-white/10 bg-black/35 p-5">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#ff8a2a] text-sm font-black text-black">{index + 1}</div>
                   <p className="text-xl font-black tracking-[-0.03em]">{item}</p>
@@ -344,7 +344,7 @@ export default function GoffsOfferPage() {
                       Start monthly service
                     </a>
                     <a href="https://calendar.app.google/YeqJLsyJHv1SQeXQ6" className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#ff8a2a] hover:text-white">
-                      Ask a question first
+                      Talk with Jeff first
                     </a>
                   </div>
                 </div>
