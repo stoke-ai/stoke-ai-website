@@ -42,18 +42,37 @@ const ninetyDays = [
   },
   {
     day: 'Days 8–30',
-    title: 'Build the first wedge',
-    detail: 'Start with the Training / Goff Bible system unless Austin and Kevin intentionally move another constraint above it.',
+    title: 'Build the first useful version',
+    detail: 'Focus on one priority system at a time. Start with the Training / Goff Bible system unless Austin and Kevin intentionally move another constraint above it.',
   },
   {
     day: 'Days 31–60',
-    title: 'Make the loop visible',
-    detail: 'Assignments, reminders, completion, tests, hands-on signoff, stuck items, and weekly owner updates become visible instead of scattered.',
+    title: 'Use feedback to fine-tune it',
+    detail: 'Goff uses the first version, gives feedback from the real work, and Stoke AI tightens the loop around assignments, reminders, completion, tests, signoffs, and owner updates.',
   },
   {
     day: 'Days 61–90',
-    title: 'Choose the next system',
-    detail: 'Use what was learned to decide whether the next highest-value move is hiring flow, CRM follow-up, procurement/BOM, office exceptions, or scheduling.',
+    title: 'Re-rank what should move next',
+    detail: 'When the system is useful, decide whether to keep improving it or move to the next highest-value priority: hiring flow, CRM follow-up, procurement/BOM, office exceptions, or scheduling.',
+  },
+];
+
+const operatingLoop = [
+  {
+    title: 'Choose one priority system',
+    detail: 'Jeff, Austin, and Kevin choose the highest-value operating constraint instead of trying to work every idea at once.',
+  },
+  {
+    title: 'Build the first useful version',
+    detail: 'Stoke AI turns the real examples, notes, screenshots, and decisions into a working system the team can actually react to.',
+  },
+  {
+    title: 'Get Goff feedback from real work',
+    detail: 'Goff uses it, points out what is wrong, missing, awkward, or unclear, and the system gets tuned around how the business really operates.',
+  },
+  {
+    title: 'Decide the next move',
+    detail: 'Once the loop is useful, decide whether to keep improving it or shift to the next priority system.',
   },
 ];
 
@@ -251,6 +270,34 @@ export default function GoffsOfferPage() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
+          <div className="overflow-hidden rounded-[2.4rem] border border-white/10 bg-[#101010] shadow-2xl shadow-black">
+            <div className="grid gap-8 border-b border-white/10 p-8 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:p-12">
+              <div>
+                <Eyebrow>How the monthly partnership works</Eyebrow>
+                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">One priority system at a time.</h2>
+              </div>
+              <div className="space-y-5 text-lg leading-8 text-white/64">
+                <p>
+                  This is not a full-time employee or an hourly support desk. The goal is not to fill every gap in the business with more labor.
+                </p>
+                <p>
+                  The goal is to use Jeff’s judgment, Stoke AI’s operating workspace, and Goff’s real examples to move the highest-value system forward each month: build, get feedback, fine-tune, then decide what should move next.
+                </p>
+              </div>
+            </div>
+            <div className="grid divide-y divide-white/10 lg:grid-cols-4 lg:divide-x lg:divide-y-0">
+              {operatingLoop.map((item, index) => (
+                <div key={item.title} className="p-6 sm:p-7">
+                  <p className="text-4xl font-black tracking-[-0.08em] text-[#ff8a2a]">{String(index + 1).padStart(2, '0')}</p>
+                  <h3 className="mt-5 text-2xl font-black leading-tight tracking-[-0.04em]">{item.title}</h3>
+                  <p className="mt-4 leading-7 text-white/58">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 lg:py-24">
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="rounded-[2.2rem] border border-white/10 bg-[#111] p-8 sm:p-10">
@@ -283,14 +330,14 @@ export default function GoffsOfferPage() {
                 <Eyebrow>Decision</Eyebrow>
                 <h2 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-7xl">If this feels like Goff, start with one month.</h2>
                 <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-white/65">
-                  Month-to-month. Work starts when payment is complete: private workspace setup, first operating board preparation, weekly progress rhythm, about a 90-minute in-person kickoff, and an in-person 90-day review. Start with the first useful system and keep earning the next month by making real work easier to see and move.
+                  Month-to-month. Work starts when payment is complete: private workspace setup, first operating board preparation, weekly progress rhythm, about a 90-minute in-person kickoff, and an in-person 90-day review. The partnership focuses on one priority system at a time — not hourly staff augmentation or a full-time employee.
                 </p>
                 <WeldLine />
                 <div className="mx-auto mt-9 max-w-2xl rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-7">
                   <p className="text-sm font-black uppercase tracking-[0.26em] text-[#ffb06a]">Standard engagement</p>
                   <p className="mt-4 text-5xl font-black tracking-[-0.06em] sm:text-6xl">$5,000/month</p>
                   <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/55">
-                    Secure Stripe checkout starts the monthly service. Stoke AI begins preparing the private workspace and first operating board before the in-person kickoff, which is about 90 minutes.
+                    Secure Stripe checkout starts the monthly service. Stoke AI begins preparing the private workspace and first operating board before the in-person kickoff. Monthly work focuses on one priority operating system at a time.
                   </p>
                   <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
                     <a href="https://buy.stripe.com/9B6cMXgFP5Uw2ht2qh4ko01" className="inline-flex items-center justify-center rounded-full bg-[#ff8a2a] px-7 py-4 text-base font-black text-white transition hover:bg-white hover:text-black">

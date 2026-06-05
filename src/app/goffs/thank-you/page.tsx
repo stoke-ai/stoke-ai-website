@@ -16,8 +16,8 @@ const kickoffSteps = [
     detail: 'Stoke AI starts setting up the private workspace and preparing the first operating board before the meeting.',
   },
   {
-    label: 'Set the first priorities',
-    detail: 'At kickoff, confirm the first constraint, who needs to be involved, and what should move first.',
+    label: 'Set the first priority',
+    detail: 'At kickoff, confirm the first constraint, who needs to be involved, and what should move first. The work stays focused on one priority system at a time.',
   },
 ];
 
