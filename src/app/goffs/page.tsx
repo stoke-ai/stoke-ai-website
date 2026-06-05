@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Goff Welding | Growth Systems Brief',
-  description: 'A private Goff Welding growth systems brief prepared from Austin and Kevin’s conversation.',
+  description: 'A private Goff Welding growth systems brief prepared from the initial conversation.',
 };
 
 const pressurePoints = [
@@ -38,12 +38,12 @@ const ninetyDays = [
   {
     day: 'First week',
     title: 'Set up the workspace, then meet in person',
-    detail: 'After payment, Stoke AI begins setting up the private workspace and first operating board. The kickoff is about a 90-minute in-person working session with Austin and Kevin to confirm priorities and decide what moves first.',
+    detail: 'After payment, Stoke AI begins setting up the private workspace and first operating board. The kickoff is about a 90-minute in-person working session with Austin and Goff’s leadership team to confirm priorities and decide what moves first.',
   },
   {
     day: 'Days 8–30',
     title: 'Build the first useful version',
-    detail: 'Focus on one priority system at a time. Start with the Training / Goff Bible system unless Austin and Kevin intentionally move another constraint above it.',
+    detail: 'Focus on one priority system at a time. Start with the Training / Goff Bible system unless Austin and the leadership team intentionally move another constraint above it.',
   },
   {
     day: 'Days 31–60',
@@ -60,7 +60,7 @@ const ninetyDays = [
 const operatingLoop = [
   {
     title: 'Choose one priority system',
-    detail: 'Jeff, Austin, and Kevin choose the highest-value operating constraint instead of trying to work every idea at once.',
+    detail: 'Jeff, Austin, and Goff’s leadership team choose the highest-value operating constraint instead of trying to work every idea at once.',
   },
   {
     title: 'Build the first useful version',
@@ -89,7 +89,7 @@ const assistantMemory = [
   'Quote follow-up patterns, open opportunities, and customer next steps',
   'Procurement examples, BOM details, consumables, and SAP handoff context',
   'Recurring office exceptions across AR, AP, invoices, collections, and time entries',
-  'Austin and Kevin’s quarterly priorities as the business changes',
+  'Austin and the leadership team’s quarterly priorities as the business changes',
 ];
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
@@ -120,7 +120,7 @@ export default function GoffsOfferPage() {
         <header className="mx-auto grid max-w-7xl gap-10 px-5 pb-20 pt-8 sm:px-8 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:pb-28 lg:pt-12">
           <div>
             <div className="mb-8 inline-flex rounded-full border border-[#ff8a2a]/25 bg-[#ff8a2a]/10 px-4 py-2 text-sm font-black text-[#ffd1aa] shadow-[0_0_60px_rgba(255,138,42,0.12)]">
-              Private growth systems brief for Austin + Kevin
+              Private growth systems brief for Austin + leadership team
             </div>
             <h1 className="text-[3.6rem] font-black leading-[0.82] tracking-[-0.08em] text-white sm:text-7xl lg:text-8xl">
               Goff Welding has outgrown memory.
@@ -201,7 +201,7 @@ export default function GoffsOfferPage() {
               <div className="p-7">
                 <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Jeff</p>
                 <p className="mt-3 text-2xl font-black tracking-[-0.03em]">Business judgment</p>
-                <p className="mt-3 leading-7 text-white/58">Keep the work tied to what is worth doing, push back on scattered ideas, and help Austin/Kevin choose the next constraint.</p>
+                <p className="mt-3 leading-7 text-white/58">Keep the work tied to what is worth doing, push back on scattered ideas, and help Austin and the leadership team choose the next constraint.</p>
               </div>
               <div className="p-7">
                 <p className="text-sm font-black uppercase tracking-[0.24em] text-[#ff8a2a]">Stoke AI</p>
@@ -225,7 +225,7 @@ export default function GoffsOfferPage() {
                 <Eyebrow>Where this can go</Eyebrow>
                 <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Eventually, Goff can have its own operating assistant.</h2>
                 <p className="mt-6 text-lg leading-8 text-white/68">
-                  Not a generic chatbot. A Goff-specific assistant that remembers how the business works, what Austin and Kevin care about, and what changed since the last reset.
+                  Not a generic chatbot. A Goff-specific assistant that remembers how the business works, what Austin and the leadership team care about, and what changed since the last reset.
                 </p>
               </div>
               <div className="rounded-[1.9rem] border border-white/10 bg-black/45 p-6">
@@ -304,7 +304,7 @@ export default function GoffsOfferPage() {
               <Eyebrow>Why the quarterly reset matters</Eyebrow>
               <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Six months from now, the right answer may be different.</h2>
               <p className="mt-6 text-lg leading-8 text-white/62">
-                Austin already said the important thing: if the business changes, the plan has to change. After the first 90 days, Jeff meets with Austin and Kevin again in person to review what improved, what the team is actually using, what still feels clunky, and whether the engagement should continue into the next phase.
+                Austin already said the important thing: if the business changes, the plan has to change. After the first 90 days, Jeff meets with Austin and the leadership team again in person to review what improved, what the team is actually using, what still feels clunky, and whether the engagement should continue into the next phase.
               </p>
             </div>
             <div className="space-y-4">

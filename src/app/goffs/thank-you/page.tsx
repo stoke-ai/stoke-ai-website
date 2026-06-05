@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 const kickoffSteps = [
   {
     label: 'Schedule the kickoff',
-    detail: 'Pick a time for Jeff to come meet with Austin and Kevin in person for about 90 minutes.',
+    detail: 'Pick a time for Jeff to come meet with Austin and Goff’s leadership team in person for about 90 minutes.',
   },
   {
     label: 'Workspace setup begins',
