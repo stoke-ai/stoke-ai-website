@@ -285,11 +285,11 @@ export default function JordiOfferPage() {
                   <p className="mt-4 text-5xl font-black tracking-[-0.06em] sm:text-6xl">$3,500 build</p>
                   <p className="mt-3 text-3xl font-black tracking-[-0.05em] text-white/86">+ $500/month active-season support</p>
                   <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/55">
-                    Build the first useful version, then maintain and tune it during the months Jordi is actively using it. Winter support can pause when there is no meaningful maintenance needed.
+                    Secure checkout starts the starter build and active-season support. Winter support can pause when there is no meaningful maintenance needed.
                   </p>
                   <div className="mt-7 flex flex-col items-center justify-center gap-3 sm:flex-row">
-                    <a href="sms:+12085737224?&body=Jordi%20is%20ready%20to%20start%20the%20Landscape%20Ops%20Assistant%20starter%20build." className="inline-flex items-center justify-center rounded-full bg-[#77d86d] px-7 py-4 text-base font-black text-black transition hover:bg-white">
-                      Tell Jeff to start
+                    <a href="https://buy.stripe.com/7sY9ALdtD2IkaNZ3ul4ko02" className="inline-flex items-center justify-center rounded-full bg-[#77d86d] px-7 py-4 text-base font-black text-black transition hover:bg-white">
+                      Start the build
                     </a>
                     <a href="https://calendar.app.google/YeqJLsyJHv1SQeXQ6" className="inline-flex items-center justify-center rounded-full bg-white px-7 py-4 text-base font-black text-black transition hover:bg-[#77d86d]">
                       Talk with Jeff first
