@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import ChatWidget from '@/components/ChatWidget';
 
-const hiddenPaths = new Set(['/austin', '/goffs']);
+const hiddenPaths = new Set(['/austin', '/goffs', '/jordi']);
 
 export default function ChatWidgetGate() {
   const pathname = usePathname();
