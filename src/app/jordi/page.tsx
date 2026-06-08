@@ -83,6 +83,24 @@ const phases = [
   },
 ];
 
+const investment = [
+  {
+    label: 'Starter build',
+    price: '$3,500',
+    detail: 'Set up the first useful version around quote tracking, follow-ups, schedule-ready work, callbacks, and Zoho where practical.',
+  },
+  {
+    label: 'Active-season support',
+    price: '$500/month',
+    detail: 'Keep the system tuned during the months Jordi is using it: small fixes, reminder changes, workflow tweaks, and support.',
+  },
+  {
+    label: 'Winter slowdown',
+    price: 'Pauseable',
+    detail: 'If the business slows down and there is not meaningful maintenance to do, support can pause and restart when the season ramps back up.',
+  },
+];
+
 function Eyebrow({ children }: { children: React.ReactNode }) {
   return <p className="text-[0.7rem] font-black uppercase tracking-[0.32em] text-[#77d86d]">{children}</p>;
 }
@@ -229,14 +247,37 @@ export default function JordiOfferPage() {
           </div>
         </section>
 
+        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
+          <div className="overflow-hidden rounded-[2.4rem] border border-white/10 bg-[#0b1b10] shadow-2xl shadow-black">
+            <div className="grid gap-8 border-b border-white/10 p-8 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:p-12">
+              <div>
+                <Eyebrow>Investment</Eyebrow>
+                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Build it once, then keep it useful while the season is active.</h2>
+              </div>
+              <p className="text-lg leading-8 text-white/64">
+                The setup gets the starter system in place. The monthly support is for the months where Jordi wants Stoke AI maintaining, tuning, and improving it so he does not have to become the tech guy.
+              </p>
+            </div>
+            <div className="grid divide-y divide-white/10 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
+              {investment.map((item) => (
+                <div key={item.label} className="p-7">
+                  <p className="text-sm font-black uppercase tracking-[0.24em] text-[#77d86d]">{item.label}</p>
+                  <p className="mt-3 text-4xl font-black tracking-[-0.05em]">{item.price}</p>
+                  <p className="mt-3 leading-7 text-white/58">{item.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
         <section id="decision" className="mx-auto max-w-6xl px-5 pb-24 pt-8 sm:px-8">
           <div className="relative overflow-hidden rounded-[2.6rem] border border-[#77d86d]/35 bg-[#77d86d] p-[1px] shadow-[0_0_90px_rgba(119,216,109,0.2)]">
             <div className="rounded-[2.55rem] bg-[#061009] p-8 sm:p-12">
               <div className="text-center">
                 <Eyebrow>Decision</Eyebrow>
-                <h2 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-7xl">If this solves the right pain, start with the starter build.</h2>
+                <h2 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-7xl">If this is the right first pain to solve, start here.</h2>
                 <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-white/65">
-                  The first version focuses on the highest-value admin drag: quote tracking, follow-up reminders, deposit/schedule visibility, callbacks, and weekly attention summaries. It is intentionally narrow so it becomes useful instead of becoming one more thing to manage.
+                  The first version stays focused on the admin drag Jordi already described: quote tracking, follow-up reminders, deposit/schedule visibility, callbacks, and weekly attention summaries.
                 </p>
                 <GreenLine />
                 <div className="mx-auto mt-9 max-w-2xl rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-7">
