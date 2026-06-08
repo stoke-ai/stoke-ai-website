@@ -60,15 +60,6 @@ const buildIncludes = [
   },
 ];
 
-const notIncluded = [
-  'AI phone receptionist',
-  'Payroll rebuild',
-  'Full website rebuild',
-  'Social media management',
-  'Online payment overhaul',
-  'Custom mobile app',
-];
-
 const phases = [
   {
     step: '01',
@@ -217,31 +208,6 @@ export default function JordiOfferPage() {
         </section>
 
         <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
-          <div className="relative overflow-hidden rounded-[2.4rem] border border-[#77d86d]/25 bg-[#77d86d]/10 p-8 shadow-[0_0_90px_rgba(119,216,109,0.12)] sm:p-10 lg:p-12">
-            <div className="absolute right-0 top-0 h-64 w-64 translate-x-1/4 -translate-y-1/4 rounded-full bg-[#77d86d]/25 blur-3xl" />
-            <div className="relative grid gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:items-center">
-              <div>
-                <Eyebrow>Scope discipline</Eyebrow>
-                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Start where the pain is obvious. Do not make the business more complicated.</h2>
-                <p className="mt-6 text-lg leading-8 text-white/68">
-                  Phone AI, payroll, online payments, and marketing can all be useful later. They are not the first build. The first build should reduce admin drag immediately and prove the system is worth keeping.
-                </p>
-              </div>
-              <div className="rounded-[1.9rem] border border-white/10 bg-black/45 p-6">
-                <p className="text-xs font-black uppercase tracking-[0.25em] text-[#b8ffb0]">Not included in this first build</p>
-                <div className="mt-5 grid gap-3">
-                  {notIncluded.map((item) => (
-                    <div key={item} className="rounded-2xl border border-white/10 bg-white/[0.045] p-4 text-base font-bold leading-7 text-white/76">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
           <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-3xl">
               <Eyebrow>How it rolls out</Eyebrow>
@@ -260,42 +226,6 @@ export default function JordiOfferPage() {
                 <p className="mt-4 leading-7 text-white/60">{phase.detail}</p>
               </div>
             ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-7xl px-5 py-12 sm:px-8 lg:py-20">
-          <div className="overflow-hidden rounded-[2.4rem] border border-white/10 bg-[#0b1b10] shadow-2xl shadow-black">
-            <div className="grid gap-8 border-b border-white/10 p-8 sm:p-10 lg:grid-cols-[0.9fr_1.1fr] lg:p-12">
-              <div>
-                <Eyebrow>Why this price makes sense</Eyebrow>
-                <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">If the work is not worth the time, price it where it is.</h2>
-              </div>
-              <div className="space-y-5 text-lg leading-8 text-white/64">
-                <p>
-                  Jordi already runs his business this way: small jobs still have to be worth the disruption, the drive time, the crew time, and the attention they take from bigger work.
-                </p>
-                <p>
-                  Stoke AI has to treat this the same way. This is not the main $5,000/month operating partnership, but it still needs to be scoped and priced so it can be done carefully, maintained responsibly, and not become unlimited tech support.
-                </p>
-              </div>
-            </div>
-            <div className="grid divide-y divide-white/10 lg:grid-cols-3 lg:divide-x lg:divide-y-0">
-              <div className="p-7">
-                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#77d86d]">Build</p>
-                <p className="mt-3 text-4xl font-black tracking-[-0.05em]">$3,500</p>
-                <p className="mt-3 leading-7 text-white/58">One-time setup for the starter Landscape Ops Assistant.</p>
-              </div>
-              <div className="p-7">
-                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#77d86d]">Support</p>
-                <p className="mt-3 text-4xl font-black tracking-[-0.05em]">$500/month</p>
-                <p className="mt-3 leading-7 text-white/58">Active-season maintenance, tuning, small improvements, and support.</p>
-              </div>
-              <div className="p-7">
-                <p className="text-sm font-black uppercase tracking-[0.24em] text-[#77d86d]">Winter</p>
-                <p className="mt-3 text-4xl font-black tracking-[-0.05em]">Pauseable</p>
-                <p className="mt-3 leading-7 text-white/58">If the business slows down and there is nothing to maintain, monthly support can pause and restart when the season ramps back up.</p>
-              </div>
-            </div>
           </div>
         </section>
 
