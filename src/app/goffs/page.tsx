@@ -302,7 +302,7 @@ export default function GoffsOfferPage() {
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="rounded-[2.2rem] border border-white/10 bg-[#111] p-8 sm:p-10">
               <Eyebrow>Why the quarterly reset matters</Eyebrow>
-              <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Six months from now, the right answer may be different.</h2>
+              <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">90 days is long enough to make progress — and short enough to stay honest.</h2>
               <p className="mt-6 text-lg leading-8 text-white/62">
                 Austin already said the important thing: if the business changes, the plan has to change. After the first 90 days, Jeff meets with Austin and the leadership team again in person to review what improved, what the team is actually using, what still feels clunky, and whether the engagement should continue into the next phase.
               </p>
