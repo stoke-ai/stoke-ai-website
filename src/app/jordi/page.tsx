@@ -3,7 +3,19 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Jordi Hansen | Landscape Ops Assistant',
-  description: 'A private Stoke AI proposal for a practical landscape operations assistant built around quoting, follow-up, scheduling, and callbacks.',
+  description: 'Private proposal: a simple landscaping office assistant for quotes, follow-ups, scheduling, callbacks, and Zoho-centered support.',
+  openGraph: {
+    title: 'Jordi Hansen | Landscape Ops Assistant',
+    description: 'Private Stoke AI proposal for quote tracking, follow-up reminders, schedule-ready work, callbacks, and active-season support.',
+    url: 'https://stoke-ai.com/jordi',
+    siteName: 'Stoke AI',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Jordi Hansen | Landscape Ops Assistant',
+    description: 'Private Stoke AI proposal for quotes, follow-ups, scheduling, callbacks, and active-season support.',
+  },
 };
 
 const painPoints = [
