@@ -3,10 +3,10 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Jordi Hansen | Landscape Ops Assistant',
-  description: 'Private proposal: a simple landscaping office assistant for quotes, follow-ups, scheduling, callbacks, and Zoho-centered support.',
+  description: 'Private proposal: a simple landscaping office assistant for quotes, follow-ups, scheduling, callbacks, Zoho-centered support, and accountant-ready job records.',
   openGraph: {
     title: 'Jordi Hansen | Landscape Ops Assistant',
-    description: 'Private Stoke AI proposal for quote tracking, follow-up reminders, schedule-ready work, callbacks, and active-season support.',
+    description: 'Private Stoke AI proposal for quote tracking, follow-up reminders, schedule-ready work, callbacks, accountant-ready job records, and active-season support.',
     url: 'https://stoke-ai.com/jordi',
     siteName: 'Stoke AI',
     type: 'website',
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary',
     title: 'Jordi Hansen | Landscape Ops Assistant',
-    description: 'Private Stoke AI proposal for quotes, follow-ups, scheduling, callbacks, and active-season support.',
+    description: 'Private Stoke AI proposal for quotes, follow-ups, scheduling, callbacks, accountant-ready job records, and active-season support.',
   },
 };
 
@@ -43,6 +43,10 @@ const painPoints = [
     label: 'Customer history',
     line: 'The customer record should tell the story: quote, deposit, schedule notes, job notes, callback items, and the next thing Jordi needs to know.',
   },
+  {
+    label: 'Money trail',
+    line: 'Job payments, balances, receipts, and expenses should be organized enough that Jordi or his tax person can find what they need later.',
+  },
 ];
 
 const buildIncludes = [
@@ -67,8 +71,12 @@ const buildIncludes = [
     detail: 'Use Zoho as much as practical instead of forcing another disconnected app into the business.',
   },
   {
+    title: 'Bookkeeping-ready job records',
+    detail: 'Track payment status, balances, receipts, and job-related expenses so the money trail is easier for Jordi or his tax person to review later.',
+  },
+  {
     title: 'Weekly attention summary',
-    detail: 'A plain-English summary of quotes needing attention, jobs waiting on deposits, callbacks, and loose ends.',
+    detail: 'A plain-English summary of quotes needing attention, jobs waiting on deposits, callbacks, receipt/expense gaps, and loose ends.',
   },
 ];
 
@@ -81,7 +89,7 @@ const phases = [
   {
     step: '02',
     title: 'Build the first useful version',
-    detail: 'Create the lead/quote board, follow-up statuses, callback tracker, and weekly attention summary around the work already happening.',
+    detail: 'Create the lead/quote board, follow-up statuses, callback tracker, payment/receipt visibility, and weekly attention summary around the work already happening.',
   },
   {
     step: '03',
@@ -99,12 +107,12 @@ const investment = [
   {
     label: 'Starter build',
     price: '$3,500',
-    detail: 'Set up the first useful version around quote tracking, follow-ups, schedule-ready work, callbacks, and Zoho where practical.',
+    detail: 'Set up the first useful version around quote tracking, follow-ups, schedule-ready work, callbacks, job payment visibility, receipt/expense capture, and Zoho where practical.',
   },
   {
     label: 'Active-season support',
     price: '$500/month',
-    detail: 'Keep the system tuned during the months Jordi is using it: small fixes, reminder changes, workflow tweaks, and support.',
+    detail: 'Keep the system tuned during the months Jordi is using it: small fixes, reminder changes, workflow tweaks, normal AI/software usage for the agreed setup, and support.',
   },
   {
     label: 'Winter slowdown',
@@ -147,7 +155,7 @@ export default function JordiOfferPage() {
               A lightweight office assistant for the landscaping work already moving.
             </h1>
             <p className="mt-7 max-w-2xl text-xl font-medium leading-9 text-white/68 sm:text-2xl">
-              The first move is not a fancy chatbot. It is a simple operating system for quotes, follow-ups, deposits, schedule-ready work, callbacks, and the loose ends that currently live in texts, paper, the whiteboard, and memory.
+              The first move is not a fancy chatbot. It is a simple operating system for quotes, follow-ups, deposits, schedule-ready work, callbacks, payments, receipts, and the loose ends that currently live in texts, paper, the whiteboard, and memory.
             </p>
           </div>
 
@@ -180,7 +188,7 @@ export default function JordiOfferPage() {
               <Eyebrow>What I heard</Eyebrow>
               <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">This is not about working harder.</h2>
               <p className="mt-6 text-lg leading-8 text-white/62">
-                Jordi is already running the crew, selling jobs, quoting work, handling customers, and keeping the schedule moving. The opportunity is to make the important items visible before they become stress, missed follow-up, or another note on paper.
+                Jordi is already running the crew, selling jobs, quoting work, handling customers, and keeping the schedule moving. The opportunity is to make the important items visible before they become stress, missed follow-up, a payment question, or another note on paper.
               </p>
             </div>
 
@@ -203,7 +211,7 @@ export default function JordiOfferPage() {
                 <Eyebrow>The first build</Eyebrow>
                 <h2 className="mt-5 text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-6xl">Landscape Ops Assistant — starter system.</h2>
                 <p className="mt-6 text-lg leading-8 text-white/62">
-                  Built to feel like a part-time office assistant without hiring another person: what needs a quote, what needs a follow-up, what is waiting on deposit, what is ready for the crew, and what callback still needs to be closed.
+                  Built to feel like a part-time office assistant without hiring another person: what needs a quote, what needs a follow-up, what is waiting on deposit, what is ready for the crew, what receipts or expenses need to be captured, and what callback still needs to be closed.
                 </p>
               </div>
               <div className="border-t border-white/10 bg-black/28 p-5 sm:p-8 lg:border-l lg:border-t-0">
@@ -216,7 +224,7 @@ export default function JordiOfferPage() {
                     <div className="rounded-full border border-[#77d86d]/30 px-3 py-1 text-xs font-black text-[#d7ffd2]">Simple by design</div>
                   </div>
                   <div className="grid gap-3">
-                    {['Quotes sent but not answered', 'New requests not quoted yet', 'Deposits needed before scheduling', 'Small jobs that can fill crew gaps', 'Warranty/callback items assigned to Ty or Jordi'].map((item) => (
+                    {['Quotes sent but not answered', 'New requests not quoted yet', 'Deposits needed before scheduling', 'Receipts or job expenses missing', 'Small jobs that can fill crew gaps', 'Warranty/callback items assigned to Ty or Jordi'].map((item) => (
                       <div key={item} className="rounded-2xl border border-white/10 bg-black/35 p-4 text-base font-bold leading-7 text-white/78">
                         {item}
                       </div>
@@ -289,7 +297,7 @@ export default function JordiOfferPage() {
                 <Eyebrow>Decision</Eyebrow>
                 <h2 className="mx-auto mt-5 max-w-4xl text-5xl font-black leading-[0.9] tracking-[-0.07em] sm:text-7xl">If this is the right first pain to solve, start here.</h2>
                 <p className="mx-auto mt-7 max-w-3xl text-xl leading-9 text-white/65">
-                  The first version stays focused on the admin drag Jordi already described: quote tracking, follow-up reminders, deposit/schedule visibility, callbacks, and weekly attention summaries.
+                  The first version stays focused on the admin drag Jordi already described: quote tracking, follow-up reminders, deposit/schedule visibility, callbacks, payment/receipt organization, and weekly attention summaries.
                 </p>
                 <GreenLine />
                 <div className="mx-auto mt-9 max-w-2xl rounded-[1.8rem] border border-white/10 bg-white/[0.055] p-7">
