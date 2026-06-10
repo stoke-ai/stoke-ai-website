@@ -169,7 +169,7 @@ export default function Home() {
             href="#contact"
             className="hidden sm:inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-3 px-6 rounded-full transition-all hover:scale-105 hover:shadow-lg hover:shadow-orange-500/25"
           >
-            Talk Through What’s Possible
+            Start a Conversation
           </a>
         </nav>
 
@@ -401,16 +401,16 @@ export default function Home() {
 
           <div className="text-center mt-12">
             <a
-              href="#contact"
+              href="#workspace"
               className="inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-5 px-8 rounded-full text-lg transition-all hover:scale-105 hover:shadow-2xl hover:shadow-orange-500/30"
             >
-              Talk Through What’s Possible
+              See How the Workspace Works
             </a>
           </div>
         </section>
 
         {/* Section 5: Client Workspace Rhythm */}
-        <section className="bg-[#0f0f0f] border-y border-white/5 py-16 md:py-24">
+        <section id="workspace" className="bg-[#0f0f0f] border-y border-white/5 py-16 md:py-24">
           <div className="container mx-auto px-6">
             <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-10 md:gap-14 items-center max-w-7xl mx-auto">
               <div>
@@ -647,7 +647,7 @@ export default function Home() {
                 href="#contact"
                 className="whitespace-nowrap inline-flex items-center justify-center bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-black font-black py-4 px-10 rounded-full text-lg transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-orange-500/25"
               >
-                Talk Through What’s Possible
+                Start With a Workflow Conversation
               </a>
             </div>
           </div>
@@ -823,7 +823,7 @@ export default function Home() {
                       disabled={submitting}
                       className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black py-4 px-8 rounded-xl text-lg transition-all transform hover:scale-[1.02] hover:shadow-lg hover:shadow-orange-500/25"
                     >
-                      {submitting ? 'Sending...' : 'Talk Through What’s Possible →'}
+                      {submitting ? 'Sending...' : 'Request a Practical AI Conversation →'}
                     </button>
                     <p className="text-gray-500 text-xs text-center">
                       No pressure. Just a practical conversation about your business.
@@ -848,7 +848,7 @@ export default function Home() {
               <div>
                 <h4 className="text-white font-semibold mb-4">Quick Links</h4>
                 <ul className="space-y-2">
-                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Talk Through What’s Possible</a></li>
+                  <li><a href="#contact" className="text-gray-400 hover:text-orange-500 text-sm">Start a Conversation</a></li>
                   <li><a href="#how" className="text-gray-400 hover:text-orange-500 text-sm">How It Works</a></li>
                   <li><a href="/about" className="text-gray-400 hover:text-orange-500 text-sm">About Jeff</a></li>
                 </ul>
