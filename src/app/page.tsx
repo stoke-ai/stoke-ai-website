@@ -197,9 +197,27 @@ export default function Home() {
                 >
                   Talk Through What’s Possible
                 </a>
-                <p className="text-sm text-gray-400 max-w-sm">
-                  Built for established local businesses with real operational complexity.
-                </p>
+                <a
+                  href="#results"
+                  className="w-full sm:w-auto whitespace-nowrap inline-flex items-center justify-center border border-white/15 hover:border-orange-400/50 text-white font-bold py-4 sm:py-5 px-7 sm:px-8 rounded-full text-base sm:text-lg transition-all hover:bg-orange-500/5"
+                >
+                  See Real Results
+                </a>
+              </div>
+              <p className="mt-4 text-sm text-gray-400 max-w-md mx-auto lg:mx-0 text-center lg:text-left">
+                Built for established local businesses with office staff and real operational complexity — not solo operations or startups.
+              </p>
+              <div className="mt-8 grid grid-cols-3 gap-3 sm:gap-4 max-w-xl mx-auto lg:mx-0">
+                {[
+                  { stat: '30x', label: 'faster renewal prep' },
+                  { stat: '+18 hrs', label: 'team capacity per week' },
+                  { stat: 'Local', label: 'built in the Magic Valley' },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.035] px-3 py-4 text-center">
+                    <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-orange-300 to-amber-400 bg-clip-text text-transparent">{item.stat}</p>
+                    <p className="mt-1 text-[0.7rem] sm:text-xs font-semibold text-gray-400 leading-tight">{item.label}</p>
+                  </div>
+                ))}
               </div>
             </div>
             <div className="relative hidden lg:block">
@@ -210,7 +228,7 @@ export default function Home() {
         </header>
 
         {/* Section 2: Local Proof */}
-        <section className="bg-[#11100f] border-y border-white/5 py-16 md:py-24">
+        <section id="results" className="bg-[#11100f] border-y border-white/5 py-16 md:py-24">
           <div className="container mx-auto px-6">
             <div className="max-w-3xl mb-10 md:mb-12">
               <h2 className="text-3xl md:text-5xl font-black mb-5">
@@ -449,21 +467,21 @@ export default function Home() {
                   <div className="p-5 md:p-6 space-y-4">
                     <div className="rounded-3xl border border-orange-400/25 bg-orange-500/10 p-5">
                       <p className="text-xs font-bold uppercase tracking-[0.18em] text-orange-200/80">Current build</p>
-                      <p className="mt-2 text-2xl font-black text-white">Renewal follow-up system</p>
+                      <p className="mt-2 text-2xl font-black text-white">Dispatch board cleanup</p>
                       <div className="mt-4 h-2 overflow-hidden rounded-full bg-black/40">
                         <div className="h-full w-[68%] rounded-full bg-gradient-to-r from-orange-400 to-amber-300" />
                       </div>
-                      <p className="mt-3 text-sm text-gray-300">Next: review first draft with team</p>
+                      <p className="mt-3 text-sm text-gray-300">Next: walk through load types with dispatchers</p>
                     </div>
 
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">Waiting on</p>
-                        <p className="mt-2 text-sm font-semibold text-white">Sample email templates</p>
+                        <p className="mt-2 text-sm font-semibold text-white">Current driver list export</p>
                       </div>
                       <div className="rounded-2xl border border-white/10 bg-black/25 p-4">
                         <p className="text-xs font-bold uppercase tracking-[0.16em] text-gray-500">Next up</p>
-                        <p className="mt-2 text-sm font-semibold text-white">Dispatch tracker cleanup</p>
+                        <p className="mt-2 text-sm font-semibold text-white">Quote follow-up tracker</p>
                       </div>
                     </div>
 
@@ -472,7 +490,7 @@ export default function Home() {
                         <p className="text-sm font-black text-white">Build queue</p>
                         <p className="text-xs text-gray-500">4 ideas captured</p>
                       </div>
-                      {['Customer follow-up prompts', 'Weekly operations report', 'New lead intake routing'].map((item) => (
+                      {['Maintenance tracker', 'Weekly ops report', 'New lead intake routing'].map((item) => (
                         <div key={item} className="flex items-center gap-3 border-t border-white/5 py-3 first:border-t-0 first:pt-0 last:pb-0">
                           <span className="h-2 w-2 rounded-full bg-orange-300" />
                           <span className="text-sm text-gray-300">{item}</span>
