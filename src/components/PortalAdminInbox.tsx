@@ -57,7 +57,7 @@ export default function PortalAdminInbox() {
   }
 
   return (
-    <main className="min-h-screen bg-[#08090a] px-5 py-8 text-zinc-50 md:px-8">
+    <section className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-5 text-zinc-50 shadow-2xl shadow-black/20 md:p-6">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-col gap-4 border-b border-white/10 pb-6 md:flex-row md:items-end md:justify-between">
           <div>
@@ -80,7 +80,7 @@ export default function PortalAdminInbox() {
 
         {!loading && messages.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center text-zinc-400">
-            No portal updates yet. When Austin or Jeff sends one, it will appear here.
+            No portal updates yet. When a client sends one, it will appear here.
           </div>
         ) : null}
 
@@ -137,7 +137,7 @@ export default function PortalAdminInbox() {
                       onChange={(event) => setDraft(message.id, 'reply', event.target.value)}
                       rows={4}
                       className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
-                      placeholder="Blaze response Austin will see in the portal…"
+                      placeholder="Blaze response the client will see in the portal…"
                     />
                     <button
                       type="button"
@@ -172,6 +172,6 @@ export default function PortalAdminInbox() {
           })}
         </div>
       </div>
-    </main>
+    </section>
   );
 }

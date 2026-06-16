@@ -1,4 +1,5 @@
 import { getInternalPortalBoard, getPortalClient, stageShell, type PortalBoard, type PortalCard } from './data';
+import { getEditablePortalBoard } from './store';
 
 type TrelloList = {
   id: string;
@@ -59,10 +60,13 @@ async function trelloFetch<T>(path: string): Promise<T> {
 }
 
 export async function getPortalBoard(clientId: string): Promise<PortalBoard | null> {
-  if (!hasTrelloConfig(clientId)) return getInternalPortalBoard(clientId);
+  const fallbackBoard = getInternalPortalBoard(clientId);
+  if (!fallbackBoard) return null;
+
+  if (!hasTrelloConfig(clientId)) return getEditablePortalBoard(fallbackBoard);
 
   const client = getPortalClient(clientId);
-  if (!client?.trelloBoardId) return getInternalPortalBoard(clientId);
+  if (!client?.trelloBoardId) return getEditablePortalBoard(fallbackBoard);
 
   try {
     const [lists, cards] = await Promise.all([
@@ -93,7 +97,7 @@ export async function getPortalBoard(clientId: string): Promise<PortalBoard | nu
       return grouped;
     }, {});
 
-    return {
+    const trelloBoard: PortalBoard = {
       client,
       source: 'trello',
       lastUpdated: new Date().toISOString(),
@@ -107,8 +111,10 @@ export async function getPortalBoard(clientId: string): Promise<PortalBoard | nu
         'Descriptions should stay client-facing because they appear in the portal.',
       ],
     };
+
+    return getEditablePortalBoard(trelloBoard);
   } catch (error) {
     console.error('Portal Trello sync failed; falling back to internal board.', error);
-    return getInternalPortalBoard(clientId);
+    return getEditablePortalBoard(fallbackBoard);
   }
 }

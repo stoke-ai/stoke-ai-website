@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
 import { get, put } from '@vercel/blob';
+import type { PortalBoard, PortalCard, PortalStage } from './data';
 
 export type PortalMessageStatus = 'new' | 'seen' | 'replied' | 'converted' | 'closed';
 export type PortalActivityType = 'client-update' | 'blaze-reply' | 'status-change' | 'progress-note';
@@ -32,9 +33,16 @@ export type PortalActivity = {
   visibleToClient: boolean;
 };
 
+export type PortalStoredBoard = {
+  clientId: string;
+  stages: PortalStage[];
+  updatedAt: string;
+};
+
 type PortalStore = {
   messages: PortalMessage[];
   activity: PortalActivity[];
+  boards: Record<string, PortalStoredBoard>;
 };
 
 const STORE_PATH = process.env.PORTAL_STORE_PATH || path.join(os.tmpdir(), 'stoke-portal-store.json');
@@ -45,7 +53,37 @@ function useBlobStore() {
 }
 
 function emptyStore(): PortalStore {
-  return { messages: [], activity: [] };
+  return { messages: [], activity: [], boards: {} };
+}
+
+function normalizeStore(parsed: Partial<PortalStore>): PortalStore {
+  return {
+    messages: Array.isArray(parsed.messages) ? parsed.messages : [],
+    activity: Array.isArray(parsed.activity) ? parsed.activity : [],
+    boards: parsed.boards && typeof parsed.boards === 'object' && !Array.isArray(parsed.boards) ? parsed.boards : {},
+  };
+}
+
+function normalizeCard(card: Partial<PortalCard>, fallbackClientName: string): PortalCard {
+  return {
+    id: String(card.id || makeId('card')),
+    client: String(card.client || fallbackClientName),
+    title: String(card.title || 'Untitled priority').trim() || 'Untitled priority',
+    status: String(card.status || 'Active').trim() || 'Active',
+    detail: String(card.detail || 'Add the client-facing detail for this priority.').trim() || 'Add the client-facing detail for this priority.',
+    action: card.action?.trim() || undefined,
+    updatedAt: card.updatedAt || now(),
+  };
+}
+
+function normalizeStage(stage: Partial<PortalStage>, fallbackStage: PortalStage, fallbackClientName: string): PortalStage {
+  const cards = Array.isArray(stage.cards) ? stage.cards : [];
+  return {
+    ...fallbackStage,
+    title: stage.title || fallbackStage.title,
+    tone: stage.tone || fallbackStage.tone,
+    cards: cards.map((card) => normalizeCard(card, fallbackClientName)),
+  };
 }
 
 async function streamToText(stream: ReadableStream<Uint8Array>) {
@@ -78,19 +116,13 @@ async function readStore(): Promise<PortalStore> {
 
     const raw = await streamToText(blob.stream);
     const parsed = JSON.parse(raw) as Partial<PortalStore>;
-    return {
-      messages: Array.isArray(parsed.messages) ? parsed.messages : [],
-      activity: Array.isArray(parsed.activity) ? parsed.activity : [],
-    };
+    return normalizeStore(parsed);
   }
 
   try {
     const raw = await fs.readFile(STORE_PATH, 'utf8');
     const parsed = JSON.parse(raw) as Partial<PortalStore>;
-    return {
-      messages: Array.isArray(parsed.messages) ? parsed.messages : [],
-      activity: Array.isArray(parsed.activity) ? parsed.activity : [],
-    };
+    return normalizeStore(parsed);
   } catch (error) {
     const code = (error as NodeJS.ErrnoException).code;
     if (code === 'ENOENT') return emptyStore();
@@ -233,4 +265,62 @@ export async function updatePortalMessage(
 
   await writeStore(store);
   return message;
+}
+
+
+export async function getEditablePortalBoard(fallbackBoard: PortalBoard): Promise<PortalBoard> {
+  const store = await readStore();
+  const saved = store.boards[fallbackBoard.client.id];
+  if (!saved) return fallbackBoard;
+
+  return {
+    ...fallbackBoard,
+    source: 'internal',
+    lastUpdated: saved.updatedAt,
+    stages: fallbackBoard.stages.map((fallbackStage) => {
+      const savedStage = saved.stages.find((stage) => stage.id === fallbackStage.id);
+      return normalizeStage(savedStage || fallbackStage, fallbackStage, fallbackBoard.client.name);
+    }),
+    activity: [
+      `${fallbackBoard.client.name} board is managed from the Stoke AI admin portal.`,
+      'Client-visible cards, priorities, and needed inputs can be edited without code changes.',
+      ...fallbackBoard.activity.slice(0, 2),
+    ],
+  };
+}
+
+export async function saveEditablePortalBoard(input: PortalBoard): Promise<PortalBoard> {
+  const store = await readStore();
+  const timestamp = now();
+  const stages = input.stages.map((stage) => ({
+    ...stage,
+    cards: stage.cards.map((card) => ({
+      ...normalizeCard(card, input.client.name),
+      updatedAt: timestamp,
+    })),
+  }));
+
+  store.boards[input.client.id] = {
+    clientId: input.client.id,
+    stages,
+    updatedAt: timestamp,
+  };
+
+  store.activity.push({
+    id: makeId('act'),
+    clientId: input.client.id,
+    type: 'progress-note',
+    text: 'Stoke AI updated the client-visible portal board.',
+    createdAt: timestamp,
+    visibleToClient: false,
+  });
+
+  await writeStore(store);
+
+  return {
+    ...input,
+    source: 'internal',
+    lastUpdated: timestamp,
+    stages,
+  };
 }

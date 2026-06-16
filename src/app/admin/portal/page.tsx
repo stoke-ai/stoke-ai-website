@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import PortalAdminBoardEditor from '@/components/PortalAdminBoardEditor';
 import PortalAdminInbox from '@/components/PortalAdminInbox';
 import { getPortalSessionClientId } from '@/lib/portal/auth';
+import { portalClients } from '@/lib/portal/data';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +16,7 @@ export default async function PortalAdminPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Stoke AI admin</p>
           <h1 className="mt-3 text-3xl font-black tracking-tight">Portal admin is private.</h1>
           <p className="mt-4 text-sm leading-6 text-zinc-400">
-            Sign into the Stoke-AI portal account first, then come back to the admin inbox.
+            Sign into the Stoke-AI portal account first, then come back to the admin command center.
           </p>
           <Link
             href="/portal"
@@ -27,5 +29,14 @@ export default async function PortalAdminPage() {
     );
   }
 
-  return <PortalAdminInbox />;
+  const clients = portalClients.map((client) => ({ id: client.id, name: client.name, username: client.username }));
+
+  return (
+    <main className="min-h-screen bg-[#08090a] px-4 py-6 text-zinc-50 md:px-8">
+      <div className="mx-auto flex max-w-[1700px] flex-col gap-6">
+        <PortalAdminBoardEditor clients={clients} />
+        <PortalAdminInbox />
+      </div>
+    </main>
+  );
 }
