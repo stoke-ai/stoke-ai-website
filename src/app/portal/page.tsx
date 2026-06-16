@@ -60,8 +60,8 @@ async function Card({
         kind="reply"
         cardId={cardId}
         cardTitle={title}
-        label={action ? 'Send update' : 'Comment'}
-        title={action ? 'Send what Blaze needs' : `Comment on ${title}`}
+        label={action ? 'Send what we need' : 'Add note'}
+        title={action ? 'Send what Jeff / Blaze need' : `Add a note on ${title}`}
         prompt={action || 'Add a note, question, link, screenshot description, or correction for this item.'}
         latestMessage={latestMessage}
         buttonClassName="mt-4 inline-flex rounded-full border border-white/10 bg-white/[0.05] px-3 py-2 text-xs font-semibold text-zinc-100 transition hover:border-orange-400/40 hover:bg-orange-400/10"
@@ -101,7 +101,7 @@ export default async function ClientPortalPage() {
                 See what is moving.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-zinc-400">
-                Current projects, what Stoke AI is working on, what needs your input, and what is coming next.
+                One simple place to see what Jeff is working on, what your team needs to send, and what is coming next.
               </p>
             </div>
 
@@ -136,10 +136,10 @@ export default async function ClientPortalPage() {
   const latestNeedsMessage = needsCard ? await getLatestPortalMessage(board.client.id, needsCard.id) : null;
 
   const columns = [
-    { title: 'In progress', subtitle: 'What Jeff is working on now', cards: activeCards, accent: 'bg-orange-400' },
-    { title: 'Needs you', subtitle: 'Input needed to keep moving', cards: needsCards, accent: 'bg-amber-300' },
-    { title: 'Next', subtitle: 'Queued up after the current work', cards: nextCards, accent: 'bg-sky-300' },
-    { title: 'Done', subtitle: 'Finished or already decided', cards: doneCards, accent: 'bg-emerald-300' },
+    { title: 'Working now', subtitle: 'What Jeff / Blaze are moving forward', cards: activeCards, accent: 'bg-orange-400' },
+    { title: 'Needs your team', subtitle: 'Send these to keep the work moving', cards: needsCards, accent: 'bg-amber-300' },
+    { title: 'Coming next', subtitle: 'Queued up after the current work', cards: nextCards, accent: 'bg-sky-300' },
+    { title: 'Finished / decided', subtitle: 'Completed or already handled', cards: doneCards, accent: 'bg-emerald-300' },
   ];
 
   return (
@@ -172,7 +172,7 @@ export default async function ClientPortalPage() {
               <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Your workspace</p>
               <h1 className="mt-3 text-4xl font-black tracking-tight md:text-6xl">{board.client.name}</h1>
               <p className="mt-5 max-w-3xl text-lg leading-8 text-zinc-300">
-                Your projects, Jeff’s current focus, anything waiting on you, and what is coming next.
+                One simple place for priorities, open questions, examples, screenshots, notes, and the next decision needed.
               </p>
 
               <div className="mt-7 grid gap-3 sm:grid-cols-3">
@@ -212,8 +212,8 @@ export default async function ClientPortalPage() {
                     kind="reply"
                     cardId={needsCard.id}
                     cardTitle={needsCard.title}
-                    label="Send update"
-                    title="Send what Blaze needs"
+                    label="Send what we need"
+                    title="Send what Jeff / Blaze need"
                     prompt={needsCard.action ?? needsCard.detail}
                     latestMessage={latestNeedsMessage}
                     buttonClassName="mt-4 inline-flex rounded-full bg-amber-300 px-4 py-2 text-xs font-black text-black transition hover:bg-amber-200"
@@ -229,14 +229,29 @@ export default async function ClientPortalPage() {
           </div>
         </section>
 
+        <section className="mb-6 grid gap-3 rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-5 md:grid-cols-3">
+          <div>
+            <p className="text-sm font-semibold text-zinc-50">1. Check what is active</p>
+            <p className="mt-1 text-sm leading-6 text-zinc-400">The top cards show what Jeff and Blaze are moving forward right now.</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-zinc-50">2. Send what is needed</p>
+            <p className="mt-1 text-sm leading-6 text-zinc-400">If something says “Needed,” use the button on that card to send the answer, file, or example.</p>
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-zinc-50">3. Add new issues</p>
+            <p className="mt-1 text-sm leading-6 text-zinc-400">Use “Send something new” for anything your team wants Stoke AI to understand or organize.</p>
+          </div>
+        </section>
+
         <section className="mb-4 mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Your projects</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight">Everything in one place.</h2>
           </div>
-          <p className="max-w-xl text-sm leading-6 text-zinc-400">
-            Clients can add items or send updates. Blaze keeps the board organized so nothing gets moved by accident.
-          </p>
+            <p className="max-w-xl text-sm leading-6 text-zinc-400">
+              Your team can send notes, screenshots, examples, and corrections here. Jeff and Blaze will organize the work so the board stays clean.
+            </p>
         </section>
 
         <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
@@ -264,7 +279,7 @@ export default async function ClientPortalPage() {
                       status={card.status}
                       detail={card.detail}
                       action={card.action}
-                      featured={column.title === 'In progress' && index === 0}
+                      featured={column.title === 'Working now' && index === 0}
                     />
                   ))
                 ) : (
@@ -279,16 +294,16 @@ export default async function ClientPortalPage() {
 
         <section className="grid gap-5 py-8 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Add something</p>
-            <h2 className="mt-3 text-2xl font-black tracking-tight">Send Jeff a new issue or bottleneck.</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Send something new</p>
+            <h2 className="mt-3 text-2xl font-black tracking-tight">Send Jeff a question, example, or bottleneck.</h2>
             <p className="mt-3 text-sm leading-6 text-zinc-400">
-              If something is slow, repetitive, hard to track, or living in someone’s head, send it here.
+              Use this for anything that would normally get lost in a text thread: a customer example, screenshot, workflow problem, correction, or idea.
             </p>
             <PortalUpdateForm
               kind="new-item"
-              label="Send new item"
-              title="Add something for Blaze to review"
-              prompt="Share the issue, bottleneck, idea, screenshot description, link, or workflow detail. Blaze will turn it into the right workspace item."
+              label="Send to Jeff / Blaze"
+              title="Send something for Jeff / Blaze to review"
+              prompt="Share the question, issue, bottleneck, example, screenshot description, link, or workflow detail. Jeff and Blaze will put it in the right place."
             />
           </div>
 
