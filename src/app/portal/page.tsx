@@ -136,10 +136,34 @@ export default async function ClientPortalPage() {
   const latestNeedsMessage = needsCard ? await getLatestPortalMessage(board.client.id, needsCard.id) : null;
 
   const columns = [
-    { title: 'Working now', subtitle: 'What Jeff / Blaze are moving forward', cards: activeCards, accent: 'bg-orange-400' },
-    { title: 'Needs your team', subtitle: 'Send these to keep the work moving', cards: needsCards, accent: 'bg-amber-300' },
-    { title: 'Coming next', subtitle: 'Queued up after the current work', cards: nextCards, accent: 'bg-sky-300' },
-    { title: 'Finished / decided', subtitle: 'Completed or already handled', cards: doneCards, accent: 'bg-emerald-300' },
+    {
+      title: 'Working now',
+      subtitle: 'What Jeff / Blaze are moving forward',
+      cards: activeCards,
+      accent: 'bg-orange-400',
+      panel: 'border-orange-400/20 bg-orange-500/[0.045]',
+    },
+    {
+      title: 'Needs your team',
+      subtitle: 'Send these to keep the work moving',
+      cards: needsCards,
+      accent: 'bg-amber-300',
+      panel: 'border-amber-300/20 bg-amber-300/[0.04]',
+    },
+    {
+      title: 'Coming next',
+      subtitle: 'Queued up after the current work',
+      cards: nextCards,
+      accent: 'bg-sky-300',
+      panel: 'border-sky-300/20 bg-sky-300/[0.035]',
+    },
+    {
+      title: 'Finished / decided',
+      subtitle: 'Completed or already handled',
+      cards: doneCards,
+      accent: 'bg-emerald-300',
+      panel: 'border-emerald-300/20 bg-emerald-300/[0.035]',
+    },
   ];
 
   return (
@@ -256,7 +280,7 @@ export default async function ClientPortalPage() {
 
         <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
           {columns.map((column) => (
-            <div key={column.title} className="rounded-[1.5rem] border border-white/10 bg-white/[0.025] p-4">
+            <div key={column.title} className={`rounded-[1.5rem] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${column.panel}`}>
               <div className="mb-4 flex items-start justify-between gap-4">
                 <div>
                   <div className="flex items-center gap-2">

@@ -6,11 +6,31 @@ import type { PortalBoard, PortalCard, PortalClient, PortalStage } from '@/lib/p
 
 type ClientOption = Pick<PortalClient, 'id' | 'name' | 'username'>;
 
-const stageLabels: Record<string, { title: string; subtitle: string }> = {
-  'building-now': { title: 'Working now', subtitle: 'What Jeff / Blaze are moving forward' },
-  'waiting-blocked': { title: 'Needs your team', subtitle: 'Send these to keep the work moving' },
-  'up-next': { title: 'Coming next', subtitle: 'Queued up after the current work' },
-  discovery: { title: 'Finished / decided', subtitle: 'Completed or already handled' },
+const stageLabels: Record<string, { title: string; subtitle: string; accent: string; panel: string }> = {
+  'building-now': {
+    title: 'Working now',
+    subtitle: 'What Jeff / Blaze are moving forward',
+    accent: 'bg-orange-400',
+    panel: 'border-orange-400/20 bg-orange-500/[0.045]',
+  },
+  'waiting-blocked': {
+    title: 'Needs your team',
+    subtitle: 'Send these to keep the work moving',
+    accent: 'bg-amber-300',
+    panel: 'border-amber-300/20 bg-amber-300/[0.04]',
+  },
+  'up-next': {
+    title: 'Coming next',
+    subtitle: 'Queued up after the current work',
+    accent: 'bg-sky-300',
+    panel: 'border-sky-300/20 bg-sky-300/[0.035]',
+  },
+  discovery: {
+    title: 'Finished / decided',
+    subtitle: 'Completed or already handled',
+    accent: 'bg-emerald-300',
+    panel: 'border-emerald-300/20 bg-emerald-300/[0.035]',
+  },
 };
 
 const stageOrder = ['building-now', 'waiting-blocked', 'up-next', 'discovery'];
@@ -188,12 +208,20 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
 
       <div className="mt-6 grid gap-4 xl:grid-cols-4">
         {displayStages.map((stage) => {
-          const labels = stageLabels[stage.id] || { title: stage.title, subtitle: 'Client-visible portal column' };
+          const labels = stageLabels[stage.id] || {
+            title: stage.title,
+            subtitle: 'Client-visible portal column',
+            accent: 'bg-zinc-300',
+            panel: 'border-white/10 bg-black/20',
+          };
           return (
-            <div key={stage.id} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4">
+            <div key={stage.id} className={`rounded-[1.5rem] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${labels.panel}`}>
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-bold text-white">{labels.title}</h2>
+                  <div className="flex items-center gap-2">
+                    <span className={`h-2.5 w-2.5 rounded-full ${labels.accent}`} />
+                    <h2 className="font-bold text-white">{labels.title}</h2>
+                  </div>
                   <p className="mt-1 text-xs leading-5 text-zinc-400">{labels.subtitle}</p>
                 </div>
                 <button type="button" onClick={() => addCard(stage.id)} className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold hover:bg-orange-400 hover:text-black">
