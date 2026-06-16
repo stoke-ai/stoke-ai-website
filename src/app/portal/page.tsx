@@ -140,8 +140,8 @@ export default async function ClientPortalPage() {
       title: 'Working now',
       subtitle: 'What Jeff / Blaze are moving forward',
       cards: activeCards,
-      accent: 'bg-orange-400',
-      panel: 'border-orange-400/20 bg-orange-500/[0.045]',
+      accent: 'bg-emerald-300',
+      panel: 'border-emerald-300/20 bg-emerald-300/[0.04]',
     },
     {
       title: 'Needs your team',
@@ -154,15 +154,15 @@ export default async function ClientPortalPage() {
       title: 'Coming next',
       subtitle: 'Queued up after the current work',
       cards: nextCards,
-      accent: 'bg-sky-300',
-      panel: 'border-sky-300/20 bg-sky-300/[0.035]',
+      accent: 'bg-orange-400',
+      panel: 'border-orange-400/20 bg-orange-500/[0.045]',
     },
     {
       title: 'Finished / decided',
       subtitle: 'Completed or already handled',
       cards: doneCards,
-      accent: 'bg-emerald-300',
-      panel: 'border-emerald-300/20 bg-emerald-300/[0.035]',
+      accent: 'bg-red-300',
+      panel: 'border-red-300/20 bg-red-400/[0.035]',
     },
   ];
 
