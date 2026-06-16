@@ -16,8 +16,8 @@ const stageLabels: Record<string, { title: string; subtitle: string; accent: str
   'waiting-blocked': {
     title: 'Needs your team',
     subtitle: 'Send these to keep the work moving',
-    accent: 'bg-amber-300',
-    panel: 'border-amber-300/20 bg-amber-300/[0.04]',
+    accent: 'bg-violet-300',
+    panel: 'border-violet-300/25 bg-violet-400/[0.045]',
   },
   'up-next': {
     title: 'Coming next',

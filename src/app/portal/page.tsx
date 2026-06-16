@@ -147,8 +147,8 @@ export default async function ClientPortalPage() {
       title: 'Needs your team',
       subtitle: 'Send these to keep the work moving',
       cards: needsCards,
-      accent: 'bg-amber-300',
-      panel: 'border-amber-300/20 bg-amber-300/[0.04]',
+      accent: 'bg-violet-300',
+      panel: 'border-violet-300/25 bg-violet-400/[0.045]',
     },
     {
       title: 'Coming next',
