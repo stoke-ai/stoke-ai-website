@@ -135,37 +135,6 @@ export default async function ClientPortalPage() {
   const needsCard = needsCards[0];
   const latestNeedsMessage = needsCard ? await getLatestPortalMessage(board.client.id, needsCard.id) : null;
 
-  const columns = [
-    {
-      title: 'Working now',
-      subtitle: 'What Jeff / Blaze are moving forward',
-      cards: activeCards,
-      accent: 'bg-emerald-300',
-      panel: 'border-emerald-300/20 bg-emerald-300/[0.04]',
-    },
-    {
-      title: 'Needs your team',
-      subtitle: 'Send these to keep the work moving',
-      cards: needsCards,
-      accent: 'bg-violet-300',
-      panel: 'border-violet-300/25 bg-violet-400/[0.045]',
-    },
-    {
-      title: 'Coming next',
-      subtitle: 'Queued up after the current work',
-      cards: nextCards,
-      accent: 'bg-orange-400',
-      panel: 'border-orange-400/20 bg-orange-500/[0.045]',
-    },
-    {
-      title: 'Finished / decided',
-      subtitle: 'Completed or already handled',
-      cards: doneCards,
-      accent: 'bg-red-300',
-      panel: 'border-red-300/20 bg-red-400/[0.035]',
-    },
-  ];
-
   return (
     <main className="min-h-screen bg-[#08090a] text-zinc-50">
       <div className="fixed inset-0 pointer-events-none opacity-35">
@@ -270,50 +239,77 @@ export default async function ClientPortalPage() {
 
         <section className="mb-4 mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Your projects</p>
-            <h2 className="mt-2 text-3xl font-black tracking-tight">Everything in one place.</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Workspace details</p>
+            <h2 className="mt-2 text-3xl font-black tracking-tight">Only what needs attention.</h2>
           </div>
             <p className="max-w-xl text-sm leading-6 text-zinc-400">
-              Your team can send notes, screenshots, examples, and corrections here. Jeff and Blaze will organize the work so the board stays clean.
+              No project-management board to manage. Use the open items below only when you have something useful to send.
             </p>
         </section>
 
-        <section className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
-          {columns.map((column) => (
-            <div key={column.title} className={`rounded-[1.5rem] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${column.panel}`}>
-              <div className="mb-4 flex items-start justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className={`h-2.5 w-2.5 rounded-full ${column.accent}`} />
-                    <h3 className="font-semibold text-zinc-50">{column.title}</h3>
-                  </div>
-                  <p className="mt-1 text-xs leading-5 text-zinc-400">{column.subtitle}</p>
-                </div>
-                <span className="rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-xs text-zinc-400">{column.cards.length}</span>
+        <section className="space-y-4">
+          <div className="rounded-[1.5rem] border border-violet-300/25 bg-violet-400/[0.045] p-4 md:p-5">
+            <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-zinc-50">Needed from you</h3>
+                <p className="mt-1 text-sm leading-6 text-zinc-400">Only the items where Jeff / Blaze need an answer, file, example, or correction.</p>
               </div>
+              <span className="w-fit rounded-full border border-white/10 bg-black/25 px-3 py-1 text-xs text-zinc-300">
+                {needsCards.length ? `${needsCards.length} open` : 'Nothing needed'}
+              </span>
+            </div>
+            <div className="mt-4 space-y-3">
+              {needsCards.length ? (
+                needsCards.map((card) => (
+                  <Card key={card.id} clientId={board.client.id} cardId={card.id} title={card.title} status={card.status} detail={card.detail} action={card.action} featured />
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-white/10 bg-black/15 p-4 text-sm leading-6 text-zinc-400">
+                  Nothing needed from your team right now.
+                </div>
+              )}
+            </div>
+          </div>
 
-              <div className="space-y-3">
-                {column.cards.length ? (
-                  column.cards.map((card, index) => (
-                    <Card
-                      key={card.id}
-                      clientId={board.client.id}
-                      cardId={card.id}
-                      title={card.title}
-                      status={card.status}
-                      detail={card.detail}
-                      action={card.action}
-                      featured={column.title === 'Working now' && index === 0}
-                    />
+          <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="rounded-[1.5rem] border border-orange-400/20 bg-orange-500/[0.045] p-4 md:p-5">
+              <h3 className="text-lg font-bold text-zinc-50">What happens next</h3>
+              <p className="mt-1 text-sm leading-6 text-zinc-400">Queued after the current focus. This is here for context, not homework.</p>
+              <div className="mt-4 space-y-3">
+                {nextCards.length ? (
+                  nextCards.map((card) => (
+                    <Card key={card.id} clientId={board.client.id} cardId={card.id} title={card.title} status={card.status} detail={card.detail} action={card.action} />
                   ))
                 ) : (
                   <div className="rounded-2xl border border-dashed border-white/10 bg-black/15 p-4 text-sm leading-6 text-zinc-500">
-                    Nothing here right now.
+                    Next priority will show here once the current work is clear.
                   </div>
                 )}
               </div>
             </div>
-          ))}
+
+            <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-4 md:p-5">
+              <h3 className="text-lg font-bold text-zinc-50">Already handled</h3>
+              <p className="mt-1 text-sm leading-6 text-zinc-400">Finished or decided items stay here quietly so the main workspace stays calm.</p>
+              <div className="mt-4 space-y-3">
+                {doneCards.length ? (
+                  doneCards.map((card) => (
+                    <article key={card.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <h4 className="text-sm font-semibold text-zinc-100">{card.title}</h4>
+                        <span className="shrink-0 rounded-full border border-white/10 bg-black/25 px-2.5 py-1 text-[11px] font-medium text-zinc-400">{card.status}</span>
+                      </div>
+                      <p className="mt-2 text-sm leading-6 text-zinc-400">{card.detail}</p>
+                    </article>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-white/10 bg-black/15 p-4 text-sm leading-6 text-zinc-500">
+                    No finished items yet.
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="grid gap-5 py-8 lg:grid-cols-[0.9fr_1.1fr]">
