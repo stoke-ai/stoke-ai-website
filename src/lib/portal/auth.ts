@@ -147,10 +147,29 @@ export async function setPortalAdminSession() {
   });
 }
 
+function clearCookieOptions(path: string) {
+  return {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 0,
+    path,
+  } as const;
+}
+
 export async function clearPortalSession() {
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, '', { maxAge: 0, path: '/' });
-  cookieStore.set(COOKIE_NAME, '', { maxAge: 0, path: '/portal' });
-  cookieStore.set(ADMIN_COOKIE_NAME, '', { maxAge: 0, path: '/' });
-  cookieStore.set(ADMIN_COOKIE_NAME, '', { maxAge: 0, path: '/admin' });
+  cookieStore.set(COOKIE_NAME, '', clearCookieOptions('/'));
+  cookieStore.set(COOKIE_NAME, '', clearCookieOptions('/portal'));
+}
+
+export async function clearPortalAdminSession() {
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_COOKIE_NAME, '', clearCookieOptions('/'));
+  cookieStore.set(ADMIN_COOKIE_NAME, '', clearCookieOptions('/admin'));
+}
+
+export async function clearAllPortalSessions() {
+  await clearPortalSession();
+  await clearPortalAdminSession();
 }

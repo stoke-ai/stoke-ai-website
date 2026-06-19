@@ -37,9 +37,9 @@ export default async function PortalAdminPage() {
           <span>
             Signed in with separate admin access. Client/demo portal accounts cannot unlock this page.
           </span>
-          <form action="/api/portal/logout" method="post">
+          <form action="/api/portal/admin-logout" method="post">
             <button className="rounded-full border border-white/10 px-4 py-2 font-semibold text-zinc-100 transition hover:border-orange-400/40 hover:bg-orange-400/10">
-              Sign out of portal
+              Sign out of admin
             </button>
           </form>
         </div>
