@@ -271,7 +271,7 @@ export default async function ClientPortalPage() {
             </div>
           </div>
 
-          <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="space-y-4">
             <div className="rounded-[1.5rem] border border-orange-400/20 bg-orange-500/[0.045] p-4 md:p-5">
               <h3 className="text-lg font-bold text-zinc-50">What happens next</h3>
               <p className="mt-1 text-sm leading-6 text-zinc-400">Queued after the current focus. This is here for context, not homework.</p>
@@ -312,7 +312,7 @@ export default async function ClientPortalPage() {
           </div>
         </section>
 
-        <section className="grid gap-5 py-8 lg:grid-cols-[0.9fr_1.1fr]">
+        <section className="space-y-5 py-8">
           <div className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Send something new</p>
             <h2 className="mt-3 text-2xl font-black tracking-tight">Send Jeff a question, example, or bottleneck.</h2>
