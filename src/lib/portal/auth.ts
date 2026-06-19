@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { getPortalClientByUsername, portalClients } from './data';
 
 const COOKIE_NAME = 'stoke_portal_session';
+const ADMIN_COOKIE_NAME = 'stoke_portal_admin_session';
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 14;
 
 type PortalCodeMap = Record<string, string>;
@@ -104,19 +105,36 @@ export async function getPortalSessionClientId() {
   return parsePortalToken(cookieStore.get(COOKIE_NAME)?.value);
 }
 
+export async function getPortalAdminSessionClientId() {
+  const cookieStore = await cookies();
+  const adminClientId = parsePortalToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value);
+  if (adminClientId === 'stoke-ai') return adminClientId;
+
+  const clientId = parsePortalToken(cookieStore.get(COOKIE_NAME)?.value);
+  return clientId === 'stoke-ai' ? clientId : null;
+}
+
 export async function setPortalSession(clientId: string) {
   const cookieStore = await cookies();
-  cookieStore.set(COOKIE_NAME, createPortalToken(clientId), {
+  const cookieOptions = {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     maxAge: MAX_AGE_SECONDS,
     path: '/',
-  });
+  } as const;
+
+  cookieStore.set(COOKIE_NAME, createPortalToken(clientId), cookieOptions);
+
+  if (clientId === 'stoke-ai') {
+    cookieStore.set(ADMIN_COOKIE_NAME, createPortalToken(clientId), cookieOptions);
+  }
 }
 
 export async function clearPortalSession() {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, '', { maxAge: 0, path: '/' });
   cookieStore.set(COOKIE_NAME, '', { maxAge: 0, path: '/portal' });
+  cookieStore.set(ADMIN_COOKIE_NAME, '', { maxAge: 0, path: '/' });
+  cookieStore.set(ADMIN_COOKIE_NAME, '', { maxAge: 0, path: '/admin' });
 }

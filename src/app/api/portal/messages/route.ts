@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getPortalSessionClientId } from '@/lib/portal/auth';
+import { getPortalAdminSessionClientId } from '@/lib/portal/auth';
 import { listPortalMessages, updatePortalMessage, type PortalMessageStatus } from '@/lib/portal/store';
 
 const validStatuses = new Set<PortalMessageStatus>(['new', 'seen', 'replied', 'converted', 'closed']);
 
 async function requireAdminSession() {
-  const clientId = await getPortalSessionClientId();
+  const clientId = await getPortalAdminSessionClientId();
   return clientId === 'stoke-ai';
 }
 

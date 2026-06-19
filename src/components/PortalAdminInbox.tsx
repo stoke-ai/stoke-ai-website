@@ -25,12 +25,22 @@ export default function PortalAdminInbox() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
   const [drafts, setDrafts] = useState<Record<string, { reply: string; progress: string }>>({});
+  const [error, setError] = useState('');
 
   async function loadMessages() {
-    const response = await fetch('/api/portal/messages', { cache: 'no-store' });
-    const data = await response.json();
-    setMessages(data.messages || []);
-    setLoading(false);
+    try {
+      const response = await fetch('/api/portal/messages', { cache: 'no-store' });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Could not load portal messages.');
+      }
+      setMessages(data.messages || []);
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load portal messages.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -39,14 +49,24 @@ export default function PortalAdminInbox() {
 
   async function updateMessage(id: string, updates: { status?: PortalMessageStatus; blazeReply?: string; progressNote?: string }) {
     setSavingId(id);
-    await fetch('/api/portal/messages', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id, ...updates }),
-    });
-    setDrafts((current) => ({ ...current, [id]: { reply: '', progress: '' } }));
-    await loadMessages();
-    setSavingId(null);
+    setError('');
+    try {
+      const response = await fetch('/api/portal/messages', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || 'Could not update portal message.');
+      }
+      setDrafts((current) => ({ ...current, [id]: { reply: '', progress: '' } }));
+      await loadMessages();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not update portal message.');
+    } finally {
+      setSavingId(null);
+    }
   }
 
   function setDraft(id: string, key: 'reply' | 'progress', value: string) {
@@ -78,7 +98,13 @@ export default function PortalAdminInbox() {
 
         {loading ? <p className="text-zinc-400">Loading portal messages…</p> : null}
 
-        {!loading && messages.length === 0 ? (
+        {error ? (
+          <div className="mb-4 rounded-2xl border border-red-400/20 bg-red-400/[0.08] p-4 text-sm leading-6 text-red-100">
+            {error} If you recently opened a client portal in this same browser, sign back into the Stoke-AI admin account and refresh this page.
+          </div>
+        ) : null}
+
+        {!loading && !error && messages.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-10 text-center text-zinc-400">
             No portal updates yet. When a client sends one, it will appear here.
           </div>

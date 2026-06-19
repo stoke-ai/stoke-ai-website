@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getPortalSessionClientId } from '@/lib/portal/auth';
+import { getPortalAdminSessionClientId } from '@/lib/portal/auth';
 import { getPortalBoard } from '@/lib/portal/trello';
 import { saveEditablePortalBoard } from '@/lib/portal/store';
 import type { PortalBoard, PortalCard, PortalStage } from '@/lib/portal/data';
 
 async function requireAdminSession() {
-  const clientId = await getPortalSessionClientId();
+  const clientId = await getPortalAdminSessionClientId();
   return clientId === 'stoke-ai';
 }
 

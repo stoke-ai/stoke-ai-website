@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import PortalAdminBoardEditor from '@/components/PortalAdminBoardEditor';
 import PortalAdminInbox from '@/components/PortalAdminInbox';
-import { getPortalSessionClientId } from '@/lib/portal/auth';
+import { getPortalAdminSessionClientId } from '@/lib/portal/auth';
 import { portalClients } from '@/lib/portal/data';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PortalAdminPage() {
-  const clientId = await getPortalSessionClientId();
+  const clientId = await getPortalAdminSessionClientId();
 
   if (clientId !== 'stoke-ai') {
     return (
