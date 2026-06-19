@@ -72,6 +72,20 @@ export function verifyPortalLogin(username: string, password: string) {
   return verifyPortalCode(client.id, password) ? client.id : null;
 }
 
+export function verifyPortalAdminLogin(username: string, password: string) {
+  const expectedUsername = process.env.PORTAL_ADMIN_USERNAME;
+  const expectedPassword = process.env.PORTAL_ADMIN_PASSWORD;
+
+  if (!expectedUsername || !expectedPassword) {
+    if (process.env.NODE_ENV !== 'production') {
+      return safeCompare(username, 'admin') && safeCompare(password, 'admin-preview');
+    }
+    return false;
+  }
+
+  return safeCompare(username, expectedUsername) && safeCompare(password, expectedPassword);
+}
+
 export function createPortalToken(clientId: string) {
   const issuedAt = Date.now().toString();
   const payload = `${clientId}.${issuedAt}`;
@@ -108,27 +122,29 @@ export async function getPortalSessionClientId() {
 export async function getPortalAdminSessionClientId() {
   const cookieStore = await cookies();
   const adminClientId = parsePortalToken(cookieStore.get(ADMIN_COOKIE_NAME)?.value);
-  if (adminClientId === 'stoke-ai') return adminClientId;
-
-  const clientId = parsePortalToken(cookieStore.get(COOKIE_NAME)?.value);
-  return clientId === 'stoke-ai' ? clientId : null;
+  return adminClientId === 'stoke-ai' ? adminClientId : null;
 }
 
 export async function setPortalSession(clientId: string) {
   const cookieStore = await cookies();
-  const cookieOptions = {
+  cookieStore.set(COOKIE_NAME, createPortalToken(clientId), {
     httpOnly: true,
     sameSite: 'lax',
     secure: process.env.NODE_ENV === 'production',
     maxAge: MAX_AGE_SECONDS,
     path: '/',
-  } as const;
+  });
+}
 
-  cookieStore.set(COOKIE_NAME, createPortalToken(clientId), cookieOptions);
-
-  if (clientId === 'stoke-ai') {
-    cookieStore.set(ADMIN_COOKIE_NAME, createPortalToken(clientId), cookieOptions);
-  }
+export async function setPortalAdminSession() {
+  const cookieStore = await cookies();
+  cookieStore.set(ADMIN_COOKIE_NAME, createPortalToken('stoke-ai'), {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: MAX_AGE_SECONDS,
+    path: '/',
+  });
 }
 
 export async function clearPortalSession() {

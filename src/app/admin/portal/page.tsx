@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import PortalAdminBoardEditor from '@/components/PortalAdminBoardEditor';
 import PortalAdminInbox from '@/components/PortalAdminInbox';
+import PortalAdminLoginForm from '@/components/PortalAdminLoginForm';
 import { getPortalAdminSessionClientId } from '@/lib/portal/auth';
 import { portalClients } from '@/lib/portal/data';
 
@@ -16,13 +17,11 @@ export default async function PortalAdminPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Stoke AI admin</p>
           <h1 className="mt-3 text-3xl font-black tracking-tight">Portal admin is private.</h1>
           <p className="mt-4 text-sm leading-6 text-zinc-400">
-            Sign into the Stoke-AI portal account first, then come back to the admin command center.
+            Use the separate admin login for the command center. Client/demo portal accounts no longer unlock admin tools.
           </p>
-          <Link
-            href="/portal"
-            className="mt-6 inline-flex rounded-full bg-orange-400 px-5 py-3 text-sm font-black text-black transition hover:bg-orange-300"
-          >
-            Sign in to portal
+          <PortalAdminLoginForm />
+          <Link href="/portal" className="mt-5 inline-flex text-sm font-semibold text-orange-200 underline-offset-4 hover:underline">
+            Go to client portal instead
           </Link>
         </div>
       </main>
@@ -36,7 +35,7 @@ export default async function PortalAdminPage() {
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <div className="flex flex-col gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300 sm:flex-row sm:items-center sm:justify-between">
           <span>
-            Signed in with Stoke-AI admin access. Use this button before testing a client account in the same browser.
+            Signed in with separate admin access. Client/demo portal accounts cannot unlock this page.
           </span>
           <form action="/api/portal/logout" method="post">
             <button className="rounded-full border border-white/10 px-4 py-2 font-semibold text-zinc-100 transition hover:border-orange-400/40 hover:bg-orange-400/10">
