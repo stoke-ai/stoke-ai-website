@@ -30,6 +30,7 @@ function normalizeStageName(name: string) {
   if (value.includes('building') || value.includes('doing') || value.includes('progress')) return 'building-now';
   if (value.includes('next') || value.includes('todo') || value.includes('backlog')) return 'up-next';
   if (value.includes('waiting') || value.includes('blocked') || value.includes('hold')) return 'waiting-blocked';
+  if (value.includes('done') || value.includes('shipped') || value.includes('finished') || value.includes('complete') || value.includes('won')) return 'shipped';
 
   return null;
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getPortalAdminSessionClientId } from '@/lib/portal/auth';
+import { stagePortalClientNotification } from '@/lib/portal/notifications';
 import { getPortalBoard } from '@/lib/portal/trello';
 import { saveEditablePortalBoard } from '@/lib/portal/store';
 import type { PortalBoard, PortalCard, PortalStage } from '@/lib/portal/data';
@@ -59,7 +60,7 @@ export async function PUT(request: Request, context: RouteContext) {
   const fallback = await getPortalBoard(clientId);
   if (!fallback) return NextResponse.json({ error: 'Client board not found.' }, { status: 404 });
 
-  const body = (await request.json().catch(() => null)) as { stages?: Partial<PortalStage>[] } | null;
+  const body = (await request.json().catch(() => null)) as { stages?: Partial<PortalStage>[]; notifyClient?: boolean } | null;
   if (!body) return NextResponse.json({ error: 'Board payload is required.' }, { status: 400 });
 
   const board = await saveEditablePortalBoard({
@@ -67,5 +68,16 @@ export async function PUT(request: Request, context: RouteContext) {
     stages: cleanStages(body.stages, fallback),
   });
 
-  return NextResponse.json({ board });
+  const needsClientCards = board.stages.find((stage) => stage.id === 'waiting-blocked')?.cards || [];
+  const notification = body.notifyClient
+    ? await stagePortalClientNotification({
+        clientId: board.client.id,
+        type: needsClientCards.length > 0 ? 'action-required' : 'board-update',
+        actionRequired: needsClientCards.length > 0,
+        cardId: needsClientCards[0]?.id,
+        cardTitle: needsClientCards[0]?.title,
+      })
+    : null;
+
+  return NextResponse.json({ board, notification });
 }

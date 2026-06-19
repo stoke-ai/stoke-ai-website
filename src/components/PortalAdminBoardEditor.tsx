@@ -57,6 +57,7 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
   const [draftStages, setDraftStages] = useState<PortalStage[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [notifyClientOnSave, setNotifyClientOnSave] = useState(false);
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
 
@@ -147,13 +148,14 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
       const response = await fetch(`/api/portal/boards/${board.client.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ stages: draftStages }),
+        body: JSON.stringify({ stages: draftStages, notifyClient: notifyClientOnSave }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Could not save board.');
       setBoard(data.board);
       setDraftStages(cloneStages(data.board.stages));
-      setStatus('Saved. The client portal now shows these priorities.');
+      setStatus(data.notification ? 'Saved. A client portal notification was staged, but delivery is paused.' : 'Saved. The client portal now shows these priorities.');
+      setNotifyClientOnSave(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save board.');
     } finally {
@@ -161,14 +163,24 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
     }
   }
 
+  const activeStage = draftStages.find((stage) => stage.id === 'building-now');
+  const needsStage = draftStages.find((stage) => stage.id === 'waiting-blocked');
+  const nextStage = draftStages.find((stage) => stage.id === 'up-next');
+  const quietStage = draftStages.find((stage) => stage.id === 'discovery');
+  const simpleSections = [
+    { stage: activeStage, eyebrow: 'Current focus', title: 'Main thing we are working on', note: 'Usually keep this to one clear item.' },
+    { stage: needsStage, eyebrow: 'Needed from client', title: 'What we need from them', note: 'Only show what they actually need to send or decide.' },
+    { stage: nextStage, eyebrow: 'Later', title: 'What comes after that', note: 'Keep this short so it does not feel like a task dump.' },
+  ].filter((section) => section.stage) as Array<{ stage: PortalStage; eyebrow: string; title: string; note: string }>;
+
   return (
     <section className="rounded-[2rem] border border-white/10 bg-white/[0.035] p-5 shadow-2xl shadow-black/20 md:p-6">
       <div className="flex flex-col gap-4 border-b border-white/10 pb-5 lg:flex-row lg:items-end lg:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Client portal command center</p>
-          <h1 className="mt-2 text-3xl font-black tracking-tight md:text-4xl">Organize the client-visible priorities.</h1>
+          <h1 className="mt-2 text-3xl font-black tracking-tight md:text-4xl">Simple client portal editor.</h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-400">
-            This is the Stoke AI side of the portal. Clients send files/context; Jeff and Blaze decide what is working now, what needs the team, and what comes next.
+            Keep the client view calm: one current focus, a short checklist, and a small “what happens next” section. Archive anything that is not useful for the client right now.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -191,6 +203,15 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
               Preview portal
             </Link>
           ) : null}
+          <label className="flex max-w-xs items-center gap-2 rounded-2xl border border-white/10 bg-black/25 px-3 py-2 text-xs leading-5 text-zinc-300">
+            <input
+              type="checkbox"
+              checked={notifyClientOnSave}
+              onChange={(event) => setNotifyClientOnSave(event.target.checked)}
+              className="h-4 w-4 accent-orange-400"
+            />
+            Stage client notification for this save. Delivery is paused; no email/SMS sends yet.
+          </label>
           <button
             type="button"
             onClick={saveBoard}
@@ -206,102 +227,97 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
       {status ? <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.08] p-4 text-sm text-emerald-100">{status}</div> : null}
       {loading ? <p className="mt-5 text-sm text-zinc-400">Loading board…</p> : null}
 
-      <div className="mt-6 space-y-4">
-        {displayStages.map((stage) => {
-          const labels = stageLabels[stage.id] || {
-            title: stage.title,
-            subtitle: 'Client-visible portal column',
-            accent: 'bg-zinc-300',
-            panel: 'border-white/10 bg-black/20',
-          };
-          return (
-            <div key={stage.id} className={`rounded-[1.5rem] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${labels.panel}`}>
-              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className={`h-2.5 w-2.5 rounded-full ${labels.accent}`} />
-                    <h2 className="font-bold text-white">{labels.title}</h2>
-                  </div>
-                  <p className="mt-1 text-xs leading-5 text-zinc-400">{labels.subtitle}</p>
-                </div>
-                <button type="button" onClick={() => addCard(stage.id)} className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold hover:bg-orange-400 hover:text-black">
-                  + Add
-                </button>
+      <div className="mt-6 space-y-5">
+        {simpleSections.map(({ stage, eyebrow, title, note }) => (
+          <div key={stage.id} className="rounded-[1.5rem] border border-white/10 bg-black/20 p-4 md:p-5">
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-orange-200">{eyebrow}</p>
+                <h2 className="mt-1 text-xl font-black tracking-tight text-white">{title}</h2>
+                <p className="mt-1 text-sm leading-6 text-zinc-400">{note}</p>
               </div>
-
-              <div className="space-y-3">
-                {stage.cards.map((card, index) => (
-                  <article key={card.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-                    <div className="grid gap-3 lg:grid-cols-[1fr_160px]">
-                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                        Title
-                        <input
-                          value={card.title}
-                          onChange={(event) => updateCard(stage.id, card.id, { title: event.target.value })}
-                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold text-white outline-none focus:border-orange-400/50"
-                        />
-                      </label>
-                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                        Status
-                        <input
-                          value={card.status}
-                          onChange={(event) => updateCard(stage.id, card.id, { status: event.target.value })}
-                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm text-white outline-none focus:border-orange-400/50"
-                        />
-                      </label>
-                    </div>
-
-                    <div className="mt-3 grid gap-3 lg:grid-cols-2">
-                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                        Short note
-                        <textarea
-                          value={card.detail}
-                          onChange={(event) => updateCard(stage.id, card.id, { detail: event.target.value })}
-                          rows={3}
-                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
-                        />
-                      </label>
-                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-                        {stage.id === 'waiting-blocked' ? 'What we need' : 'Action note'}
-                        <textarea
-                          value={card.action || ''}
-                          onChange={(event) => updateCard(stage.id, card.id, { action: event.target.value })}
-                          rows={3}
-                          placeholder={stage.id === 'waiting-blocked' ? 'What the client/team should send.' : 'Optional. Leave blank if no action is needed.'}
-                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
-                        />
-                      </label>
-                    </div>
-
-                    <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
-                      <button type="button" disabled={index === 0} onClick={() => moveCard(stage.id, card.id, stage.id, 'up')} className="rounded-full border border-white/10 px-3 py-1.5 text-xs disabled:opacity-40">
-                        ↑ Up
-                      </button>
-                      <button type="button" disabled={index === stage.cards.length - 1} onClick={() => moveCard(stage.id, card.id, stage.id, 'down')} className="rounded-full border border-white/10 px-3 py-1.5 text-xs disabled:opacity-40">
-                        ↓ Down
-                      </button>
-                      <select
-                        value={stage.id}
-                        onChange={(event) => moveCard(stage.id, card.id, event.target.value)}
-                        className="rounded-full border border-white/10 bg-black/40 px-3 py-1.5 text-xs text-white outline-none"
-                      >
-                        {displayStages.map((targetStage) => (
-                          <option key={targetStage.id} value={targetStage.id} className="bg-zinc-950">
-                            Move to {stageLabels[targetStage.id]?.title || targetStage.title}
-                          </option>
-                        ))}
-                      </select>
-                      <button type="button" onClick={() => removeCard(stage.id, card.id)} className="rounded-full border border-red-300/20 px-3 py-1.5 text-xs text-red-100 hover:bg-red-400/10">
-                        Archive
-                      </button>
-                    </div>
-                  </article>
-                ))}
-                {stage.cards.length === 0 ? <p className="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-zinc-500">Nothing here right now.</p> : null}
-              </div>
+              <button type="button" onClick={() => addCard(stage.id)} className="w-fit rounded-full bg-white/10 px-3 py-1.5 text-xs font-bold hover:bg-orange-400 hover:text-black">
+                + Add item
+              </button>
             </div>
-          );
-        })}
+
+            <div className="space-y-3">
+              {stage.cards.map((card, index) => {
+                const isNeedsSection = stage.id === 'waiting-blocked';
+                return (
+                <article key={card.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
+                  <div className="grid gap-3 md:grid-cols-[1.2fr_0.45fr]">
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                      Title
+                      <input
+                        value={card.title}
+                        onChange={(event) => updateCard(stage.id, card.id, { title: event.target.value })}
+                        className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold normal-case tracking-normal text-white outline-none focus:border-orange-400/50"
+                      />
+                    </label>
+                    <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                      Status
+                      <input
+                        value={card.status}
+                        onChange={(event) => updateCard(stage.id, card.id, { status: event.target.value })}
+                        className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm normal-case tracking-normal text-white outline-none focus:border-orange-400/50"
+                      />
+                    </label>
+                  </div>
+
+                  {isNeedsSection ? (
+                    <>
+                      <label className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">What we need</label>
+                      <textarea
+                        value={card.action || card.detail || ''}
+                        onChange={(event) => updateCard(stage.id, card.id, { action: event.target.value })}
+                        rows={2}
+                        placeholder="Example: Send the current employee materials folder."
+                        className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      <label className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Short note</label>
+                      <textarea
+                        value={card.detail}
+                        onChange={(event) => updateCard(stage.id, card.id, { detail: event.target.value })}
+                        rows={2}
+                        className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
+                      />
+                    </>
+                  )}
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button type="button" disabled={index === 0} onClick={() => moveCard(stage.id, card.id, stage.id, 'up')} className="rounded-full border border-white/10 px-3 py-1.5 text-xs disabled:opacity-40">
+                      ↑ Up
+                    </button>
+                    <button type="button" disabled={index === stage.cards.length - 1} onClick={() => moveCard(stage.id, card.id, stage.id, 'down')} className="rounded-full border border-white/10 px-3 py-1.5 text-xs disabled:opacity-40">
+                      ↓ Down
+                    </button>
+                    {simpleSections
+                      .filter((section) => section.stage.id !== stage.id)
+                      .map((section) => (
+                        <button key={section.stage.id} type="button" onClick={() => moveCard(stage.id, card.id, section.stage.id)} className="rounded-full border border-white/10 px-3 py-1.5 text-xs hover:bg-white/10">
+                          Move to {section.eyebrow}
+                        </button>
+                      ))}
+                    {quietStage ? (
+                      <button type="button" onClick={() => moveCard(stage.id, card.id, quietStage.id)} className="rounded-full border border-white/10 px-3 py-1.5 text-xs text-zinc-300 hover:bg-white/10">
+                        Move to archive
+                      </button>
+                    ) : null}
+                    <button type="button" onClick={() => removeCard(stage.id, card.id)} className="rounded-full border border-red-300/20 px-3 py-1.5 text-xs text-red-100 hover:bg-red-400/10">
+                      Delete
+                    </button>
+                  </div>
+                </article>
+                );
+              })}
+              {stage.cards.length === 0 ? <p className="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-zinc-500">Nothing in this section.</p> : null}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

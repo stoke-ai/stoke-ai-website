@@ -12,6 +12,7 @@ type PortalUpdateFormProps = {
   buttonClassName?: string;
   latestMessage?: {
     message: string;
+    senderName?: string;
     status: 'new' | 'seen' | 'replied' | 'converted' | 'closed';
     createdAt: string;
     blazeReply?: string;
@@ -21,6 +22,7 @@ type PortalUpdateFormProps = {
 
 type SavedSubmission = {
   message: string;
+  senderName?: string;
   sentAt: string;
   status?: 'new' | 'seen' | 'replied' | 'converted' | 'closed';
   blazeReply?: string;
@@ -59,6 +61,7 @@ export default function PortalUpdateForm({
 }: PortalUpdateFormProps) {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
+  const [senderName, setSenderName] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [error, setError] = useState('');
   const [savedSubmission, setSavedSubmission] = useState<SavedSubmission | null>(null);
@@ -72,6 +75,7 @@ export default function PortalUpdateForm({
     if (latestMessage) {
       setSavedSubmission({
         message: latestMessage.message,
+        senderName: latestMessage.senderName,
         sentAt: latestMessage.createdAt,
         status: latestMessage.status,
         blazeReply: latestMessage.blazeReply,
@@ -96,7 +100,7 @@ export default function PortalUpdateForm({
     const response = await fetch('/api/portal/update', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ kind, cardId, cardTitle, message }),
+      body: JSON.stringify({ kind, cardId, cardTitle, senderName, message }),
     });
 
     if (!response.ok) {
@@ -109,6 +113,7 @@ export default function PortalUpdateForm({
     const data = await response.json().catch(() => null);
     const receipt = {
       message,
+      senderName,
       sentAt: data?.message?.createdAt || new Date().toISOString(),
       status: data?.message?.status || 'new',
       blazeReply: data?.message?.blazeReply,
@@ -135,6 +140,9 @@ export default function PortalUpdateForm({
               Received {formatSentAt(savedSubmission.sentAt)}. This update is saved in the shared portal inbox.
             </p>
             <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-400">“{savedSubmission.message}”</p>
+            {savedSubmission.senderName ? (
+              <p className="mt-1 text-xs leading-5 text-zinc-500">Sent by {savedSubmission.senderName}</p>
+            ) : null}
             {savedSubmission.blazeReply ? (
               <p className="mt-3 rounded-xl border border-emerald-300/20 bg-black/20 p-3 text-xs leading-5 text-emerald-50">
                 <span className="font-semibold">Blaze replied:</span> {savedSubmission.blazeReply}
@@ -210,6 +218,14 @@ export default function PortalUpdateForm({
               </div>
             ) : (
               <form onSubmit={submit} className="mt-5 space-y-4">
+                <input
+                  value={senderName}
+                  onChange={(event) => setSenderName(event.target.value)}
+                  required
+                  minLength={2}
+                  placeholder="Your name"
+                  className="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-base text-white outline-none transition placeholder:text-zinc-600 focus:border-orange-400/60"
+                />
                 <textarea
                   value={message}
                   onChange={(event) => setMessage(event.target.value)}

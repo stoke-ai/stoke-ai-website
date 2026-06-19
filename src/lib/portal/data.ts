@@ -20,9 +20,18 @@ export type PortalClient = {
   username: string;
   name: string;
   contactEmail: string;
+  notificationContacts?: PortalNotificationContact[];
   headline: string;
   summary: string;
   trelloBoardId?: string;
+};
+
+export type PortalNotificationContact = {
+  name: string;
+  email?: string;
+  role?: string;
+  receiveActionRequired?: boolean;
+  receiveProgressUpdates?: boolean;
 };
 
 export type PortalBoard = {
@@ -35,23 +44,17 @@ export type PortalBoard = {
 
 export const portalClients: PortalClient[] = [
   {
-    id: 'austin-kevin',
-    username: 'austin-kevin',
-    name: 'Austin & Kevin',
-    contactEmail: 'portal@stoke-ai.com',
-    headline: 'Austin & Kevin workspace',
-    summary:
-      'A simple place to see the first Stoke AI priorities, what is being organized now, what is waiting on your input, and what comes next.',
-    trelloBoardId: process.env.TRELLO_AUSTIN_KEVIN_BOARD_ID,
-  },
-  {
     id: 'goff-welding',
     username: 'goff',
     name: 'Goff Welding',
     contactEmail: 'portal@stoke-ai.com',
+    notificationContacts: [
+      { name: 'Austin', role: 'Goff portal contact', receiveActionRequired: true, receiveProgressUpdates: true },
+      { name: 'Cecilia', role: 'Goff employee materials contact', receiveActionRequired: true, receiveProgressUpdates: true },
+    ],
     headline: 'Goff Welding workspace',
     summary:
-      'A simple private workspace for the first Stoke AI priorities: requests, estimates, follow-ups, scheduling, team questions, and what Jeff needs next.',
+      'A simple private workspace for the first Goff employee portal priority: gathering current materials, organizing the first employee resource hub, and keeping the longer-term AI roadmap visible without distracting from the first build.',
     trelloBoardId: process.env.TRELLO_GOFF_BOARD_ID,
   },
   {
@@ -59,9 +62,9 @@ export const portalClients: PortalClient[] = [
     username: 'rachel',
     name: 'Rachel Hansen Agency',
     contactEmail: 'rachel@example.com',
-    headline: 'Insurance renewal operating system',
+    headline: 'Janice photo queue and renewal workflow',
     summary:
-      'Live production work for renewal comparison, profile cards, queue cleanup, and the next automation layer.',
+      'A simple place for Rachel and the team to see where Janice stands: what is usable now, what Blaze is building next, and what real examples or feedback are needed from the agency.',
     trelloBoardId: process.env.TRELLO_RACHEL_BOARD_ID,
   },
   {
@@ -105,189 +108,192 @@ export const stageShell: Omit<PortalStage, 'cards'>[] = [
     title: 'Waiting / Blocked',
     tone: 'border-zinc-500/30 bg-zinc-500/10',
   },
+  {
+    // Recently shipped surfaces on the client portal as a "Wins worth seeing"
+    // strip — only renders when this stage has cards. Move items here from
+    // building-now / up-next via the admin board editor when complete.
+    id: 'shipped',
+    title: 'Recently shipped',
+    tone: 'border-emerald-500/35 bg-emerald-500/10',
+  },
 ];
 
 const internalCards: Record<string, Record<string, PortalCard[]>> = {
-  'austin-kevin': {
-    discovery: [
-      {
-        id: 'ak-workspace-opened',
-        client: 'Austin & Kevin',
-        title: 'Client workspace opened',
-        status: 'Ready',
-        detail: 'This portal is the shared place for Stoke AI priorities, build ideas, decisions needed, and progress updates.',
-        updatedAt: '2026-06-04',
-      },
-      {
-        id: 'ak-operating-map',
-        client: 'Austin & Kevin',
-        title: 'Initial operating map',
-        status: 'Starting point',
-        detail: 'Capture the main workflows, handoffs, follow-ups, reports, and bottlenecks worth reviewing first.',
-        action: 'Add the first 3-5 business bottlenecks you want Stoke AI to understand.',
-      },
-    ],
-    'building-now': [
-      {
-        id: 'ak-build-queue',
-        client: 'Austin & Kevin',
-        title: 'First build queue setup',
-        status: 'In progress',
-        detail: 'Organize ideas into a practical queue so the first AI/system build is chosen intentionally instead of from scattered conversations.',
-      },
-      {
-        id: 'ak-decision-rhythm',
-        client: 'Austin & Kevin',
-        title: 'Decision and request rhythm',
-        status: 'In progress',
-        detail: 'Create a simple pattern for what Stoke AI needs, what is waiting on the client, and where progress is visible.',
-      },
-    ],
-    'up-next': [
-      {
-        id: 'ak-first-priority',
-        client: 'Austin & Kevin',
-        title: 'Choose the first systems priority',
-        status: 'Next conversation',
-        detail: 'Review the bottleneck list and select one high-leverage workflow to improve first.',
-      },
-      {
-        id: 'ak-90-day-focus',
-        client: 'Austin & Kevin',
-        title: 'Draft the first 90-day focus',
-        status: 'Planned',
-        detail: 'Turn the first priorities into a clear near-term roadmap: current build, next build, decisions needed, and completed wins.',
-      },
-    ],
-    'waiting-blocked': [
-      {
-        id: 'ak-client-input',
-        client: 'Austin & Kevin',
-        title: 'First client inputs',
-        status: 'Waiting on input',
-        detail: 'Stoke AI needs a short list of the first workflows or recurring tasks that feel most annoying, slow, or hard to track.',
-        action: 'Send examples, screenshots, forms, spreadsheets, or a quick explanation of the workflow.',
-      },
-    ],
-  },
   'goff-welding': {
-    discovery: [
-      {
-        id: 'gw-workspace-opened',
-        client: 'Goff Welding',
-        title: 'Private workspace opened',
-        status: 'Ready',
-        detail: 'This is the shared place for Stoke AI work: what Jeff is building, what the Goff team needs to send, and what is coming next.',
-      },
-      {
-        id: 'gw-current-process-map',
-        client: 'Goff Welding',
-        title: 'Current request-to-job process',
-        status: 'Starting point',
-        detail: 'Map how a customer request turns into an estimate, approval, scheduled work, job notes, invoice, and follow-up.',
-        action: 'Send a few real examples: recent request texts, quote notes, photos, job sheets, or anything the team currently uses to track work.',
-      },
-    ],
+    discovery: [],
     'building-now': [
       {
-        id: 'gw-first-priority-board',
+        id: 'gw-employee-portal-first-version',
         client: 'Goff Welding',
-        title: 'First priority board',
-        status: 'In progress',
-        detail: 'Create a simple working board so active requests, estimates, follow-ups, and scheduling items stop living only in texts or memory.',
-      },
-      {
-        id: 'gw-team-input-rhythm',
-        client: 'Goff Welding',
-        title: 'Team input rhythm',
-        status: 'In progress',
-        detail: 'Define what the team should send into the workspace and what Jeff/Blaze will organize behind the scenes.',
+        title: 'First employee portal version',
+        status: 'Starting',
+        detail: 'Jeff and Blaze are setting up the first simple employee hub for Goff: one organized place for company links, onboarding, training, safety resources, policies, and common employee questions. The first phase is to centralize the existing materials before adding heavier automation.'
       },
     ],
     'up-next': [
       {
-        id: 'gw-estimate-followup-flow',
+        id: 'gw-organize-materials',
         client: 'Goff Welding',
-        title: 'Estimate and follow-up workflow',
-        status: 'Next build',
-        detail: 'Turn estimate requests, open quotes, customer follow-ups, and scheduling handoffs into one repeatable workflow.',
+        title: 'Organize the materials',
+        status: 'Next',
+        detail: 'After Goff shares a dedicated folder, Stoke AI will sort the current employee materials into a clear first portal structure employees can use without digging through scattered files or company Drive folders.',
       },
       {
-        id: 'gw-90-day-focus',
+        id: 'gw-first-review',
         client: 'Goff Welding',
-        title: 'First 90-day systems focus',
-        status: 'Planned',
-        detail: 'Choose the first high-value operating system Stoke AI should improve before adding more automation.',
+        title: 'Review the first draft together',
+        status: 'Next',
+        detail: 'Once the first version is organized, Goff can review what feels right, what is missing, and what should stay private or manager-only.',
+      },
+      {
+        id: 'gw-ai-assistant-communication',
+        client: 'Goff Welding',
+        title: 'AI assistant and team communication options',
+        status: 'On the horizon',
+        detail: 'Austin and Jeff discussed exploring how Telegram or a similar simple communication layer could let the team interact with an AI assistant, ask practical questions, and keep project updates from getting buried in email.',
+      },
+      {
+        id: 'gw-operations-workflow-modules',
+        client: 'Goff Welding',
+        title: 'Operational workflow modules',
+        status: 'On the horizon',
+        detail: 'After the resource hub is stable, Stoke AI can look at custom tools that replace manual processes, disconnected files, or rigid legacy software with simpler workflow modules built around how Goff actually operates.',
+      },
+      {
+        id: 'gw-recurring-ai-training',
+        client: 'Goff Welding',
+        title: 'Recurring AI training and process improvement',
+        status: 'Future phase',
+        detail: 'The longer-term plan includes a regular rhythm for AI training, reviewing what is working, and identifying the next practical automation opportunity after the employee portal foundation is in place.',
       },
     ],
     'waiting-blocked': [
       {
-        id: 'gw-first-team-inputs',
+        id: 'gw-share-current-folder',
         client: 'Goff Welding',
-        title: 'First team examples',
-        status: 'Waiting on input',
-        detail: 'Stoke AI needs real examples before designing the first workflow around how the team actually works.',
-        action: 'Send 3-5 examples of jobs, quotes, customer requests, photos, spreadsheets, or texts that show where things get hard to track.',
+        title: 'Share the current employee materials',
+        status: 'Needed',
+        detail: 'Please create a separate folder in Google Drive called something like “Share with Stoke AI” or “Goff Employee Portal - Stoke AI,” put only the portal-related employee materials in it, and share that one folder link. This gives Jeff and Blaze access to what is needed without opening the main company Drive folders.',
+        action: 'Create the separate shared folder, add employee-facing links, onboarding docs, policies, safety resources, training material, role info, and FAQs, then paste that folder link here.',
+      },
+      {
+        id: 'gw-introduce-point-person',
+        client: 'Goff Welding',
+        title: 'Introduce the best point person',
+        status: 'Needed',
+        detail: 'Please introduce the person who knows the current onboarding/training process best so Jeff can ask practical questions without pulling Cecilia into every detail.',
+        action: 'Introduce the onboarding/admin point person or small office group.',
+      },
+      {
+        id: 'gw-access-basics',
+        client: 'Goff Welding',
+        title: 'Confirm access basics',
+        status: 'Needed soon',
+        detail: 'Before launch, we need a simple answer on who should see the portal: all employees, managers only, or separate employee/management sections.',
       },
     ],
   },
   'rachel-hansen': {
     discovery: [
       {
-        id: 'rh-renewal-process',
+        id: 'rh-photo-status-portal',
         client: 'Rachel Hansen Agency',
-        title: 'Renewal workflow operating map',
-        status: 'In use',
-        detail: 'The renewal workflow is being organized around what staff need to review, edit, and send — not just what automation can generate.',
+        title: 'Rachel status portal for Janice work',
+        status: 'Built',
+        detail: 'This portal gives Rachel one simple place to see what is available now, what Blaze is building next, and what the agency should send when something needs correction.',
       },
       {
-        id: 'rh-photo-queue-intake',
+        id: 'rh-photo-queue-v12-live',
         client: 'Rachel Hansen Agency',
-        title: 'Photo queue intake rules',
-        status: 'Defined',
-        detail: 'New photo tickets should start with the Field Rep when more research is needed. The creator enters what they know, then Field Rep owns Guidewire, Land ID, and Google Earth research before field work.',
+        title: 'Photo queue v1.2 is live in Telegram',
+        status: 'Usable now',
+        detail: 'Janice can create photo, drone, and Flyreel tickets in the Hansen Photo Tasks group, assign them to Owen or another field person, track research, show the open queue, and move work through review checkpoints.',
+      },
+      {
+        id: 'rh-field-research-rule-decided',
+        client: 'Rachel Hansen Agency',
+        title: 'Field research rule is decided',
+        status: 'Decided',
+        detail: 'New tickets start with rough intake, then the Field Rep owns parcel, owner, Land ID / Google Earth research, latitude/longitude, access notes, and the phone-friendly field packet before driving out.',
       },
     ],
     'building-now': [
       {
-        id: 'rh-staff-review-packet',
+        id: 'rh-packet-generation-next-layer',
         client: 'Rachel Hansen Agency',
-        title: 'Staff-friendly renewal packet',
-        status: 'In progress',
-        detail: 'Make renewal outputs easier for Janice/Rachel/staff to review, correct, and turn into a client-ready PDF before sending.',
-      },
-      {
-        id: 'rh-queue-visibility',
-        client: 'Rachel Hansen Agency',
-        title: 'Queue visibility and next action',
-        status: 'In progress',
-        detail: 'Clarify which renewals, photo items, and research steps are active, waiting, or ready for staff review.',
+        title: 'Finish the photo packet output loop',
+        status: 'Active build priority',
+        detail: 'Blaze is building the finished output layer: gather returned photos against the ticket, generate the branded underwriting PDF, and keep raw originals organized with useful file names instead of making staff copy everything by hand.',
       },
     ],
     'up-next': [
       {
-        id: 'rh-editable-notes',
+        id: 'rh-telegram-photo-attachment-saving',
         client: 'Rachel Hansen Agency',
-        title: 'Editable staff notes before client delivery',
-        status: 'Next sprint',
-        detail: 'Let staff adjust wording, notes, and missing details before a renewal/comparison packet becomes customer-facing.',
+        title: 'Save photos and videos from Telegram tickets',
+        status: 'Next',
+        detail: 'Janice needs to capture the actual images/video sent back on each ticket, keep them tied to the right PH number, and preserve enough context so photos do not get mixed between clients or buildings.',
       },
       {
-        id: 'rh-recurring-exceptions',
+        id: 'rh-branded-pdf-packet',
         client: 'Rachel Hansen Agency',
-        title: 'Recurring exception rules',
-        status: 'Planned',
-        detail: 'Turn repeated staff cleanup decisions into reusable rules so fewer items require manual rework over time.',
+        title: 'Generate the branded underwriting PDF',
+        status: 'Next',
+        detail: 'Build the PDF Rachel described: landscape pages, large photos, agency branding, policy/client/location/building details, parcel/owner/lat-long, and property information repeated where underwriting needs it.',
+      },
+      {
+        id: 'rh-raw-photo-filing',
+        client: 'Rachel Hansen Agency',
+        title: 'File raw originals with useful names',
+        status: 'Next',
+        detail: 'Save each original photo/video separately with a structured name so the team can reuse one image later without digging through a chatbot, spreadsheet, or exported PDF.',
+      },
+      {
+        id: 'rh-onedrive-guidewire-filing',
+        client: 'Rachel Hansen Agency',
+        title: 'OneDrive / client-file filing automation',
+        status: 'After packet loop',
+        detail: 'Once the packet loop is reliable, connect the output to the agency filing path so finished PDFs and raw photos land where staff already expect them.',
+      },
+      {
+        id: 'rh-landid-research-provider',
+        client: 'Rachel Hansen Agency',
+        title: 'Land ID / property lookup helper',
+        status: 'Future phase',
+        detail: 'Add a lookup layer for parcel, owner, lat/long, and map links after the manual research loop proves the exact fields Rachel wants to rely on.',
+      },
+      {
+        id: 'rh-renewal-comparison-hooks',
+        client: 'Rachel Hansen Agency',
+        title: 'Renewal comparison hooks',
+        status: 'Future phase',
+        detail: 'Use Janice renewal data to pre-fill policy, insured, location, building, and address details when a photo task comes from a renewal comparison.',
       },
     ],
     'waiting-blocked': [
       {
-        id: 'rh-staff-feedback',
+        id: 'rh-run-one-real-photo-task',
         client: 'Rachel Hansen Agency',
-        title: 'Staff feedback on confusing spots',
-        status: 'Waiting on input',
-        detail: 'Stoke AI needs examples of anything that is confusing, missing, or awkward in the current renewal/photo workflow.',
-        action: 'Send screenshots, policy examples, or quick notes when a renewal, queue item, or photo ticket is hard to understand or needs a correction.',
+        title: 'Run one real photo task through Janice',
+        status: 'Needed',
+        detail: 'The fastest way to improve the queue is to use one real photo/drone/Flyreel item in Hansen Photo Tasks and let Janice show where the process is clear or awkward.',
+        action: 'In Hansen Photo Tasks, create one real ticket with the client/policy if available, address, what needs photographed, and who should handle it. Example: Need photos for client [name] address [address] needs [shots] assign to Owen.',
+      },
+      {
+        id: 'rh-send-confusing-example',
+        client: 'Rachel Hansen Agency',
+        title: 'Send examples when something is confusing',
+        status: 'Needed as discovered',
+        detail: 'If a ticket, renewal item, photo packet, or field instruction is confusing, Blaze needs the real example so the fix is based on agency work instead of guesses.',
+        action: 'Send a screenshot, policy number, PH ticket number, or short note describing what felt confusing, missing, or wrong.',
+      },
+      {
+        id: 'rh-share-preferred-packet-sample',
+        client: 'Rachel Hansen Agency',
+        title: 'Share a preferred packet example if available',
+        status: 'Helpful, not blocking',
+        detail: 'The current sample showed what is missing. A packet Rachel likes would help Blaze match the preferred PDF style faster, but the build can continue from the known landscape/large-photo/info-block direction.',
+        action: 'If Rachel has a ChatGPT-made or manually edited packet she likes, send it as the style target for the PDF output.',
       },
     ],
   },
@@ -324,67 +330,111 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
   'stoke-ai': {
     discovery: [
       {
-        id: 'stoke-homepage-flow',
+        id: 'stoke-portal-admin-simplified',
         client: 'Stoke-AI',
-        title: 'Homepage trust flow cleanup',
-        status: 'Complete',
-        detail: 'The homepage now leads with proof, local trust, and a simpler explanation of how Stoke AI works.',
+        title: 'Portal admin simplified',
+        status: 'Finished',
+        detail: 'The admin side was simplified into Current focus, Needed from client, and Later so Jeff can update client work without a confusing Kanban board.',
       },
       {
-        id: 'stoke-offer-shape',
+        id: 'stoke-logout-fixed',
         client: 'Stoke-AI',
-        title: 'Premium client relationship shape',
-        status: 'Defined',
-        detail: 'Stoke AI is positioned as an ongoing operating partner, not a one-off automation shop.',
+        title: 'Client login/logout loop fixed',
+        status: 'Finished',
+        detail: 'The portal sign-out flow now clears the real session cookie and returns the client to the sign-in screen.',
       },
     ],
     'building-now': [
       {
-        id: 'stoke-client-portal',
+        id: 'stoke-goff-employee-portal',
         client: 'Stoke-AI',
-        title: 'Client portal prototype',
-        status: 'In progress',
-        detail: 'Make the client workspace simple enough to understand without an explanation.',
+        title: 'Goff employee portal first version',
+        status: 'Working now',
+        detail: 'Jeff and Blaze are setting up the first private employee hub for Goff Welding: company links, onboarding, training, safety resources, and common employee questions.',
       },
       {
-        id: 'stoke-test-account',
+        id: 'stoke-rachel-renewal-workflow',
         client: 'Stoke-AI',
-        title: 'Internal test account',
-        status: 'Ready to review',
-        detail: 'Let Jeff sign in and experience the portal exactly like a client would.',
+        title: 'Rachel renewal workflow cleanup',
+        status: 'Active',
+        detail: 'Janice/Rachel’s renewal and photo queue workflow is being tightened so staff can see what is active, what needs review, and what is ready to send.',
+      },
+      {
+        id: 'stoke-client-portal-operating-layer',
+        client: 'Stoke-AI',
+        title: 'Client portal operating layer',
+        status: 'Active',
+        detail: 'The portal is being shaped into a simple front door where clients can see priorities, send missing information, and keep work out of scattered texts and emails.',
       },
     ],
     'up-next': [
       {
-        id: 'stoke-account-model',
+        id: 'stoke-goff-first-review',
         client: 'Stoke-AI',
-        title: 'Real team account model',
+        title: 'Review Goff’s first portal draft',
+        status: 'Next',
+        detail: 'After Goff shares the current employee materials, Stoke AI will organize the first draft and review what should be public, private, or manager-only.',
+      },
+      {
+        id: 'stoke-schedule-google-meet',
+        client: 'Stoke-AI',
+        title: 'Let clients schedule a walkthrough',
+        status: 'Add now',
+        detail: 'Add a simple way for a client to book a Google Meet with Jeff when a live conversation is easier than sending notes back and forth.',
+      },
+      {
+        id: 'stoke-loom-screen-recordings',
+        client: 'Stoke-AI',
+        title: 'Loom-style screen recording option',
+        status: 'Discussed',
+        detail: 'Give clients an easy way to record their screen and explain what they like, dislike, or need changed without booking a meeting.',
+      },
+      {
+        id: 'stoke-voice-memo-updates',
+        client: 'Stoke-AI',
+        title: 'Voice memo updates',
+        status: 'Future phase',
+        detail: 'Let clients talk through concerns, compliments, or corrections in their own words, then have Blaze transcribe and organize the update.',
+      },
+      {
+        id: 'stoke-handy-dispatch-handoff',
+        client: 'Stoke-AI',
+        title: 'Handy dispatch handoff path',
+        status: 'Next',
+        detail: 'Prepare the next deployment/handoff steps for the Handy Truck Lines dispatching app so Bryce can review it in the right environment.',
+      },
+      {
+        id: 'stoke-client-account-model',
+        client: 'Stoke-AI',
+        title: 'Real client account model',
         status: 'Next decision',
-        detail: 'Choose how client logins, team members, and access should work for the first live version.',
-      },
-      {
-        id: 'stoke-austin-kevin',
-        client: 'Stoke-AI',
-        title: 'Austin & Kevin workspace',
-        status: 'Next client setup',
-        detail: 'Prepare their real workspace once their business name, first priorities, and access needs are confirmed.',
-      },
-      {
-        id: 'stoke-sales-rhythm',
-        client: 'Stoke-AI',
-        title: 'Prospect follow-up rhythm',
-        status: 'Planned',
-        detail: 'Create a simple place to track prospects, follow-ups, and next best actions.',
+        detail: 'Decide how client logins, team members, and access should work once the portal moves from Jeff testing into real client/team use.',
       },
     ],
     'waiting-blocked': [
       {
-        id: 'stoke-client-details',
+        id: 'stoke-goff-current-materials',
         client: 'Stoke-AI',
-        title: 'Real client workspace details',
-        status: 'Waiting on client info',
-        detail: 'Before a real client gets access, the portal needs their business name, users, and first priorities.',
-        action: 'Confirm the client name, who needs access, and the first 3-5 priorities to show in their workspace.',
+        title: 'Goff current employee materials',
+        status: 'Needed',
+        detail: 'Goff needs to share the current employee-facing materials so the first portal version is built from their real documents instead of guesses.',
+        action: 'Send the current folder or copies of employee links, onboarding docs, safety resources, training material, role info, policies, and FAQs.',
+      },
+      {
+        id: 'stoke-goff-point-person',
+        client: 'Stoke-AI',
+        title: 'Goff onboarding point person',
+        status: 'Needed',
+        detail: 'A practical office/admin contact will help answer process questions without pulling Cecilia into every small detail.',
+        action: 'Introduce the person or small office group that knows the current onboarding and training process best.',
+      },
+      {
+        id: 'stoke-rachel-examples',
+        client: 'Stoke-AI',
+        title: 'Rachel confusing renewal examples',
+        status: 'Needed when available',
+        detail: 'Rachel’s workflow improves fastest when staff send real examples of confusing renewal packets, photo queue items, or fields that need correction.',
+        action: 'Send screenshots, policy examples, or short notes when a renewal/photo item is confusing, missing information, or needs a correction.',
       },
     ],
   },

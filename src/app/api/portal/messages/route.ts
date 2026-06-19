@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getPortalAdminSessionClientId } from '@/lib/portal/auth';
+import { stagePortalClientNotification } from '@/lib/portal/notifications';
 import { listPortalMessages, updatePortalMessage, type PortalMessageStatus } from '@/lib/portal/store';
 
 const validStatuses = new Set<PortalMessageStatus>(['new', 'seen', 'replied', 'converted', 'closed']);
@@ -50,5 +51,25 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ error: 'Message not found.' }, { status: 404 });
   }
 
-  return NextResponse.json({ message });
+  const notification = body.blazeReply?.trim()
+    ? await stagePortalClientNotification({
+        clientId: message.clientId,
+        type: 'client-reply',
+        actionRequired: false,
+        messageId: message.id,
+        cardId: message.cardId,
+        cardTitle: message.cardTitle,
+      })
+    : body.progressNote?.trim()
+      ? await stagePortalClientNotification({
+          clientId: message.clientId,
+          type: 'progress-note',
+          actionRequired: false,
+          messageId: message.id,
+          cardId: message.cardId,
+          cardTitle: message.cardTitle,
+        })
+      : null;
+
+  return NextResponse.json({ message, notification });
 }

@@ -40,7 +40,7 @@ export default function BookPage() {
     business: '',
     email: '',
     phone: '',
-    meetingPreference: 'Web conference call',
+    meetingPreference: 'Google Meet',
     workflows: '',
     tools: '',
   });
@@ -152,13 +152,13 @@ export default function BookPage() {
         <section className="grid lg:grid-cols-[1fr_420px] gap-10 items-start">
           <div>
             <div className="inline-block mb-5 px-4 py-2 bg-orange-500/10 border border-orange-500/20 rounded-full text-orange-400 text-sm font-medium">
-              Free · 90 minutes · Web conference call
+              Free · 90 minutes · Google Meet
             </div>
             <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6">
               Book a <span className="bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">Free 90-Minute AI Audit</span>
             </h1>
             <div className="space-y-4 text-lg text-gray-300 leading-relaxed max-w-2xl">
-              <p>Book a free 90-minute web conference with Jeff to talk through where custom AI systems could save time, reduce manual work, or create more operating leverage in your business.</p>
+              <p>Book a free 90-minute Google Meet with Jeff to talk through where custom AI systems could save time, reduce manual work, or create more operating leverage in your business.</p>
               <p>This is a practical strategy conversation — not a sales demo. Jeff will learn how your team works, look for bottlenecks, and help identify whether an AI-powered workflow, assistant, or automation system makes sense for you.</p>
               <p className="text-orange-200">Please have one or two workflows in mind that you’d love to stop doing manually.</p>
             </div>
@@ -230,7 +230,7 @@ export default function BookPage() {
               <div className="py-8 text-center space-y-4">
                 <div className="mx-auto w-14 h-14 rounded-full bg-orange-500 text-black flex items-center justify-center text-2xl font-black">✓</div>
                 <h2 className="text-2xl font-bold">You’re booked.</h2>
-                <p className="text-gray-300">Jeff has your workflow notes. You’ll receive a web conference confirmation shortly.</p>
+                <p className="text-gray-300">Jeff has your workflow notes. You’ll receive a Google Meet confirmation shortly.</p>
               </div>
             ) : !configured ? (
               <div className="space-y-4">

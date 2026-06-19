@@ -27,7 +27,7 @@ function parsePortalAccessCodes(): PortalCodeMap {
       'austin-kevin': 'austin-preview',
       'goff-welding': 'goff-preview',
       'rachel-hansen': 'rachel-preview',
-      'handy-truck-lines': 'htl-preview',
+      'handy-truck-lines': 'handy-preview',
       'stoke-ai': 'stoke-preview',
     };
   }
