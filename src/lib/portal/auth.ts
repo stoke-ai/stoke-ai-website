@@ -160,13 +160,11 @@ function clearCookieOptions(path: string) {
 export async function clearPortalSession() {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, '', clearCookieOptions('/'));
-  cookieStore.set(COOKIE_NAME, '', clearCookieOptions('/portal'));
 }
 
 export async function clearPortalAdminSession() {
   const cookieStore = await cookies();
   cookieStore.set(ADMIN_COOKIE_NAME, '', clearCookieOptions('/'));
-  cookieStore.set(ADMIN_COOKIE_NAME, '', clearCookieOptions('/admin'));
 }
 
 export async function clearAllPortalSessions() {
