@@ -206,7 +206,7 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
       {status ? <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.08] p-4 text-sm text-emerald-100">{status}</div> : null}
       {loading ? <p className="mt-5 text-sm text-zinc-400">Loading board…</p> : null}
 
-      <div className="mt-6 grid gap-4 xl:grid-cols-4">
+      <div className="mt-6 space-y-4">
         {displayStages.map((stage) => {
           const labels = stageLabels[stage.id] || {
             title: stage.title,
@@ -216,7 +216,7 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
           };
           return (
             <div key={stage.id} className={`rounded-[1.5rem] border p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] ${labels.panel}`}>
-              <div className="mb-4 flex items-start justify-between gap-3">
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <span className={`h-2.5 w-2.5 rounded-full ${labels.accent}`} />
@@ -229,41 +229,51 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
                 </button>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {stage.cards.map((card, index) => (
-                  <article key={card.id} className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
-                    <label className="text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Title</label>
-                    <input
-                      value={card.title}
-                      onChange={(event) => updateCard(stage.id, card.id, { title: event.target.value })}
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold text-white outline-none focus:border-orange-400/50"
-                    />
+                  <article key={card.id} className="rounded-2xl border border-white/10 bg-black/20 p-4">
+                    <div className="grid gap-3 lg:grid-cols-[1fr_160px]">
+                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                        Title
+                        <input
+                          value={card.title}
+                          onChange={(event) => updateCard(stage.id, card.id, { title: event.target.value })}
+                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm font-semibold text-white outline-none focus:border-orange-400/50"
+                        />
+                      </label>
+                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                        Status
+                        <input
+                          value={card.status}
+                          onChange={(event) => updateCard(stage.id, card.id, { status: event.target.value })}
+                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm text-white outline-none focus:border-orange-400/50"
+                        />
+                      </label>
+                    </div>
 
-                    <label className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Status pill</label>
-                    <input
-                      value={card.status}
-                      onChange={(event) => updateCard(stage.id, card.id, { status: event.target.value })}
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm text-white outline-none focus:border-orange-400/50"
-                    />
+                    <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                        Short note
+                        <textarea
+                          value={card.detail}
+                          onChange={(event) => updateCard(stage.id, card.id, { detail: event.target.value })}
+                          rows={3}
+                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
+                        />
+                      </label>
+                      <label className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                        {stage.id === 'waiting-blocked' ? 'What we need' : 'Action note'}
+                        <textarea
+                          value={card.action || ''}
+                          onChange={(event) => updateCard(stage.id, card.id, { action: event.target.value })}
+                          rows={3}
+                          placeholder={stage.id === 'waiting-blocked' ? 'What the client/team should send.' : 'Optional. Leave blank if no action is needed.'}
+                          className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
+                        />
+                      </label>
+                    </div>
 
-                    <label className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Client-facing detail</label>
-                    <textarea
-                      value={card.detail}
-                      onChange={(event) => updateCard(stage.id, card.id, { detail: event.target.value })}
-                      rows={4}
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
-                    />
-
-                    <label className="mt-3 block text-[11px] font-semibold uppercase tracking-[0.16em] text-zinc-500">Needed from client</label>
-                    <textarea
-                      value={card.action || ''}
-                      onChange={(event) => updateCard(stage.id, card.id, { action: event.target.value })}
-                      rows={3}
-                      placeholder="Leave blank unless the client/team needs to send something."
-                      className="mt-1 w-full rounded-xl border border-white/10 bg-black/35 px-3 py-2 text-sm leading-6 text-white outline-none focus:border-orange-400/50"
-                    />
-
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2 border-t border-white/10 pt-3">
                       <button type="button" disabled={index === 0} onClick={() => moveCard(stage.id, card.id, stage.id, 'up')} className="rounded-full border border-white/10 px-3 py-1.5 text-xs disabled:opacity-40">
                         ↑ Up
                       </button>
@@ -287,7 +297,7 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
                     </div>
                   </article>
                 ))}
-                {stage.cards.length === 0 ? <p className="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-zinc-500">No cards in this column.</p> : null}
+                {stage.cards.length === 0 ? <p className="rounded-2xl border border-dashed border-white/10 p-4 text-sm text-zinc-500">Nothing here right now.</p> : null}
               </div>
             </div>
           );
