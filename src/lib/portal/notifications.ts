@@ -67,8 +67,8 @@ function defaultPreview(type: PortalNotificationType, actionRequired: boolean) {
   }
 
   return actionRequired
-    ? 'Jeff/Blaze needs one item from your team to keep the work moving. Open your private workspace to review and respond.'
-    : 'Jeff/Blaze posted an update in your private Stoke AI workspace. Open the portal to review it.';
+    ? 'Stoke AI needs one item from your team to keep the work moving. Open your private workspace to review and respond.'
+    : 'Stoke AI posted an update in your private workspace. Open the portal to review it.';
 }
 
 function actionLabel(type: PortalNotificationType, actionRequired: boolean) {
