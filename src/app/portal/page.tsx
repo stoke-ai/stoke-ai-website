@@ -31,6 +31,8 @@ function statusForClient(defaultStatus: string, latestMessage: LatestPortalMessa
 
 function buttonLabelForAction(action?: string) {
   const value = action?.toLowerCase() ?? '';
+  if (value.includes('ready for review')) return 'Mark ready for review';
+  if (value.includes('confirm cecilia') || value.includes('3:00')) return 'Confirm meeting';
   if (value.includes('contact') || value.includes('introduce') || value.includes('person')) return 'Send contact';
   if (value.includes('screenshot') || value.includes('example')) return 'Send example';
   if (value.includes('folder') || value.includes('doc') || value.includes('file') || value.includes('link')) return 'Send materials';

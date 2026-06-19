@@ -202,7 +202,7 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         title: 'Add current employee materials to the shared folder',
         status: 'Needed from Goff',
         detail: 'The folder exists, but Austin said it is empty for now. Goff can add the current employee-facing materials whenever ready: company links, schedule examples, onboarding docs, policies/handbook, safety resources, training material, role descriptions/KRAs, contact/org chart info, FAQs, and anything employees repeatedly need.',
-        action: 'Drop current materials into the shared folder. It does not need to be perfectly organized; please flag anything old, duplicate, sensitive, or manager/admin-only.',
+        action: 'Add the current materials in the shared Google Drive, then use this to mark the folder ready for review. It does not need to be perfectly organized; please flag anything old, duplicate, sensitive, or manager/admin-only.',
       },
       {
         id: 'gw-circle-account',
@@ -215,10 +215,10 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
       {
         id: 'gw-confirm-working-contact',
         client: 'Goff Welding',
-        title: 'Confirm the practical working contact',
-        status: 'Partly answered',
-        detail: 'Austin provided Cecilia Reyes as the current contact. If Cecilia is the right person, Stoke AI can work through her carefully; if there is an onboarding/admin helper or small office group that knows the materials better, introducing them would keep the build moving without overloading Cecilia.',
-        action: 'Confirm whether Cecilia should be the day-to-day materials contact, or introduce the onboarding/admin person or small office group that knows the current employee process best.',
+        title: 'Confirm Cecilia for the Monday 3:00 call',
+        status: 'Needed before Monday',
+        detail: 'Austin sent a Monday 3:00 meeting time. The next step is to make sure Cecilia is included if she is the right person for employee materials, onboarding details, current links/docs, and what employees ask repeatedly.',
+        action: 'Confirm Cecilia will join the Monday 3:00 call, or let us know who should attend instead. Agenda: current employee materials, shared Drive status, what should be employee-visible, what should stay manager/admin-only, Circle setup if approved, and the first portal sections to build.',
       },
       {
         id: 'gw-manager-only-boundary',
