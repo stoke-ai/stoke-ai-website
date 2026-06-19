@@ -122,7 +122,7 @@ function notificationHtml(input: {
             </tr>
             <tr>
               <td style="border-top:1px solid #e4e4e7; padding:18px 28px; background:#fafafa;">
-                <p style="margin:0; color:#71717a; font-size:12px; line-height:1.5;">Sent by Blaze at Stoke AI for ${escapeHtml(input.clientName)}. If this went to the wrong person, reply to this email and Jeff/Blaze will update the portal contacts.</p>
+                <p style="margin:0; color:#71717a; font-size:12px; line-height:1.5;">You’re receiving this because you’re listed as a portal contact. If that should change, just reply and we’ll update it.</p>
               </td>
             </tr>
           </table>
@@ -146,7 +146,7 @@ function notificationText(input: {
     input.cardTitle ? `Related item: ${input.cardTitle}` : '',
     `${actionLabel(input.type, input.actionRequired)}: ${input.portalUrl}`,
     '',
-    `Sent by Blaze at Stoke AI for ${input.clientName}. The portal stays the source of truth so details, files, and next actions stay organized.`,
+    `You’re receiving this because you’re listed as a portal contact. If that should change, reply and we’ll update it.`,
   ]
     .filter(Boolean)
     .join('\n');
