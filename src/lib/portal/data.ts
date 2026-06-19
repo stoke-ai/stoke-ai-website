@@ -127,7 +127,7 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         client: 'Goff Welding',
         title: 'First employee portal / training hub',
         status: 'Active first priority',
-        detail: 'Jeff and Blaze are keeping the first paid Goff outcome focused on a professional employee portal/resource hub for all employees: Start Here, company links, onboarding, training, safety resources, policies, schedules, contacts/org chart, role expectations, and a way for employees to ask for help. Austin created the dedicated Drive folder; it is empty for now while Goff adds the current docs, links, and onboarding material. Austin said the first few months can be successful if that material becomes one clear employee-facing hub before heavier automation.'
+        detail: 'The first version is a professional employee portal/resource hub for all employees: Start Here, company links, onboarding, training, safety resources, policies, schedules, contacts/org chart, role expectations, and a way for employees to ask for help. Austin created the dedicated Drive folder; it is empty for now while Goff adds the current docs, links, and onboarding material. The goal is to turn that material into one clear employee-facing hub before adding heavier automation.'
       },
       {
         id: 'gw-drive-folder-received',
@@ -203,6 +203,14 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         status: 'Needed from Goff',
         detail: 'The folder exists, but Austin said it is empty for now. Goff can add the current employee-facing materials whenever ready: company links, schedule examples, onboarding docs, policies/handbook, safety resources, training material, role descriptions/KRAs, contact/org chart info, FAQs, and anything employees repeatedly need.',
         action: 'Drop current materials into the shared folder. It does not need to be perfectly organized; please flag anything old, duplicate, sensitive, or manager/admin-only.',
+      },
+      {
+        id: 'gw-circle-account',
+        client: 'Goff Welding',
+        title: 'Set up the Circle workspace',
+        status: 'Needed if Circle is the platform',
+        detail: 'If Goff wants the first employee portal built in Circle, the cleanest setup is for Goff to own the Circle account/workspace and invite Jeff/Stoke AI as admins or builders. That keeps the portal, billing, and employee access under Goff’s control.',
+        action: 'Confirm Circle is the platform, purchase or start the Circle workspace under Goff, and invite Jeff/Stoke AI with admin/build access.',
       },
       {
         id: 'gw-confirm-working-contact',
