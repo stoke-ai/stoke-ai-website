@@ -33,7 +33,17 @@ export default async function PortalAdminPage() {
 
   return (
     <main className="min-h-screen bg-[#08090a] px-4 py-6 text-zinc-50 md:px-8">
-      <div className="mx-auto flex max-w-[1700px] flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6">
+        <div className="flex flex-col gap-3 rounded-3xl border border-white/10 bg-white/[0.03] p-4 text-sm text-zinc-300 sm:flex-row sm:items-center sm:justify-between">
+          <span>
+            Signed in with Stoke-AI admin access. Use this button before testing a client account in the same browser.
+          </span>
+          <form action="/api/portal/logout" method="post">
+            <button className="rounded-full border border-white/10 px-4 py-2 font-semibold text-zinc-100 transition hover:border-orange-400/40 hover:bg-orange-400/10">
+              Sign out of portal
+            </button>
+          </form>
+        </div>
         <PortalAdminBoardEditor clients={clients} />
         <PortalAdminInbox />
       </div>

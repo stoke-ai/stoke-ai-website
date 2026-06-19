@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import { clearPortalSession } from '@/lib/portal/auth';
 
-export async function POST(request: Request) {
+async function logout(request: Request) {
   await clearPortalSession();
   return NextResponse.redirect(new URL('/portal', request.url));
+}
+
+export async function POST(request: Request) {
+  return logout(request);
+}
+
+export async function GET(request: Request) {
+  return logout(request);
 }
