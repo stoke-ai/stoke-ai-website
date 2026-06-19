@@ -85,6 +85,9 @@ export const portalClients: PortalClient[] = [
     username: 'jeff',
     name: 'Stoke-AI',
     contactEmail: 'automate@stoke-ai.com',
+    notificationContacts: [
+      { name: 'Jeff Stoker', email: 'automate@stoke-ai.com', role: 'Internal portal test contact', receiveActionRequired: true, receiveProgressUpdates: true },
+    ],
     headline: 'Stoke-AI internal workspace',
     summary: 'A working sample of how client priorities, active builds, decisions needed, and completed wins can look inside the Stoke AI portal.',
     trelloBoardId: process.env.TRELLO_STOKE_BOARD_ID,
