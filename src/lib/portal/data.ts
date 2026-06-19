@@ -61,7 +61,10 @@ export const portalClients: PortalClient[] = [
     id: 'rachel-hansen',
     username: 'rachel',
     name: 'Rachel Hansen Agency',
-    contactEmail: 'rachel@example.com',
+    contactEmail: 'rhansen@idfbins.com',
+    notificationContacts: [
+      { name: 'Rachel Hansen', email: 'rhansen@idfbins.com', role: 'Rachel portal contact', receiveActionRequired: true, receiveProgressUpdates: true },
+    ],
     headline: 'Janice photo queue and renewal workflow',
     summary:
       'A simple place for Rachel and the team to see where Janice stands: what is usable now, what Blaze is building next, and what real examples or feedback are needed from the agency.',
@@ -71,7 +74,8 @@ export const portalClients: PortalClient[] = [
     id: 'handy-truck-lines',
     username: 'handytruck',
     name: 'Handy Truck Lines',
-    contactEmail: 'bryce@example.com',
+    contactEmail: '',
+    notificationContacts: [],
     headline: 'Dispatching operating system',
     summary: 'Active dispatch software build focused on workflow visibility, load tracking, and handoff reliability.',
     trelloBoardId: process.env.TRELLO_HTL_BOARD_ID,
