@@ -8,7 +8,7 @@ import type { PortalBoard, PortalCard, PortalStage } from './data';
 export type PortalMessageStatus = 'new' | 'seen' | 'replied' | 'converted' | 'closed';
 export type PortalActivityType = 'client-update' | 'blaze-reply' | 'status-change' | 'progress-note';
 export type PortalNotificationType = 'client-reply' | 'progress-note' | 'action-required' | 'board-update';
-export type PortalNotificationStatus = 'paused' | 'ready' | 'sent' | 'failed';
+export type PortalNotificationStatus = 'paused' | 'ready' | 'sent' | 'failed' | 'missing-recipient';
 
 export type PortalMessage = {
   id: string;

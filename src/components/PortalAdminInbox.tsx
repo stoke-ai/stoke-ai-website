@@ -85,7 +85,7 @@ export default function PortalAdminInbox() {
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-orange-200">Stoke AI admin</p>
             <h1 className="mt-2 text-3xl font-black tracking-tight">Recent portal messages</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">
-              Latest client notes. Open one only when you need to reply or add a progress note. Client notification events are staged portal-wide, but delivery is paused until Jeff turns it on.
+              Latest client notes. Use “Send reply” to close the loop; that creates a client notification record and sends email only when portal email delivery is enabled. Progress notes stay quiet by default.
             </p>
           </div>
           <button

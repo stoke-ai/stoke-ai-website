@@ -60,16 +60,7 @@ export async function PATCH(request: Request) {
         cardId: message.cardId,
         cardTitle: message.cardTitle,
       })
-    : body.progressNote?.trim()
-      ? await stagePortalClientNotification({
-          clientId: message.clientId,
-          type: 'progress-note',
-          actionRequired: false,
-          messageId: message.id,
-          cardId: message.cardId,
-          cardTitle: message.cardTitle,
-        })
-      : null;
+    : null;
 
   return NextResponse.json({ message, notification });
 }

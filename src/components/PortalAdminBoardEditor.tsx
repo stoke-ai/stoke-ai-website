@@ -154,7 +154,18 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
       if (!response.ok) throw new Error(data.error || 'Could not save board.');
       setBoard(data.board);
       setDraftStages(cloneStages(data.board.stages));
-      setStatus(data.notification ? 'Saved. A client portal notification was staged, but delivery is paused.' : 'Saved. The client portal now shows these priorities.');
+      if (data.notification) {
+        const statusByNotification = {
+          sent: 'Saved. Client email notification was sent.',
+          paused: 'Saved. Client notification was recorded, but delivery is paused.',
+          failed: 'Saved. Client notification was recorded, but email delivery failed. Check the notification outbox/status.',
+          'missing-recipient': 'Saved. Client notification was recorded, but no recipient email is configured.',
+          ready: 'Saved. Client notification is ready for delivery.',
+        } as const;
+        setStatus(statusByNotification[data.notification.status as keyof typeof statusByNotification] || 'Saved. Client notification was recorded.');
+      } else {
+        setStatus('Saved. The client portal now shows these priorities.');
+      }
       setNotifyClientOnSave(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not save board.');
@@ -210,7 +221,7 @@ export default function PortalAdminBoardEditor({ clients }: { clients: ClientOpt
               onChange={(event) => setNotifyClientOnSave(event.target.checked)}
               className="h-4 w-4 accent-orange-400"
             />
-            Stage client notification for this save. Delivery is paused; no email/SMS sends yet.
+            Save and notify client for this update. Delivery stays paused unless the production email flag is enabled.
           </label>
           <button
             type="button"
