@@ -134,14 +134,14 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         client: 'Goff Welding',
         title: 'First employee portal / training hub',
         status: 'Active first priority',
-        detail: 'The first version is a professional employee portal/resource hub for all employees: Start Here, company links, onboarding, training, safety resources, policies, schedules, contacts/org chart, role expectations, and a way for employees to ask for help. Austin created the dedicated Drive folder; it is empty for now while Goff adds the current docs, links, and onboarding material. The goal is to turn that material into one clear employee-facing hub before adding heavier automation.'
+        detail: 'The first version is a professional employee portal/resource hub for all employees: Start Here, company links, onboarding, training, safety resources, policies, schedules, contacts/org chart, role expectations, and a way for employees to ask for help. Goff has started adding materials to the dedicated Drive folder. The current work is to inventory those files, separate employee-facing from manager/admin-only material, and then choose the right front-door platform after the content and permission needs are clear.'
       },
       {
         id: 'gw-drive-folder-received',
         client: 'Goff Welding',
         title: 'Curated Drive folder received',
         status: 'Waiting for materials',
-        detail: 'Austin created the dedicated Google Drive folder for portal materials and said it is empty for now while Goff works on filling it. This is the right pattern because it keeps Stoke AI focused on portal-related employee materials instead of broad company Drive access.',
+        detail: 'Austin created the dedicated Google Drive folder for portal materials and Goff has started dropping files into it. This is the right pattern because it keeps Stoke AI focused on portal-related employee materials instead of broad company Drive access.',
       },
       {
         id: 'gw-access-scope-all-employees',
@@ -172,6 +172,13 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         title: 'Review the first portal map together',
         status: 'Next after inventory',
         detail: 'After the first material inventory, Goff can review what employees should see first, what should stay manager/admin-only, what is missing, and which sections should be included in the first useful version.',
+      },
+      {
+        id: 'gw-platform-decision-after-inventory',
+        client: 'Goff Welding',
+        title: 'Platform decision after Drive inventory',
+        status: 'Hold until inventory',
+        detail: 'Circle is no longer the default active task. Based on the files already appearing in Drive, Goff likely needs a controlled document/resource portal with clear employee-facing vs manager/admin-only boundaries. Re-evaluate Circle later only as a simple employee-facing front door if it fits after the inventory is complete.',
       },
       {
         id: 'gw-ai-assistant-knowledge-base',
@@ -208,16 +215,8 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         client: 'Goff Welding',
         title: 'Add current employee materials to the shared folder',
         status: 'Needed from Goff',
-        detail: 'The folder exists, but Austin said it is empty for now. Goff can add the current employee-facing materials whenever ready: company links, schedule examples, onboarding docs, policies/handbook, safety resources, training material, role descriptions/KRAs, contact/org chart info, FAQs, and anything employees repeatedly need.',
-        action: 'Add the current materials in the shared Google Drive, then use this to mark the folder ready for review. It does not need to be perfectly organized; please flag anything old, duplicate, sensitive, or manager/admin-only.',
-      },
-      {
-        id: 'gw-circle-account',
-        client: 'Goff Welding',
-        title: 'Set up the Circle workspace',
-        status: 'Needed if Circle is the platform',
-        detail: 'If Goff wants the first employee portal built in Circle, the cleanest setup is for Goff to own the Circle account/workspace and invite Jeff/Stoke AI as admins or builders. That keeps the portal, billing, and employee access under Goff’s control.',
-        action: 'Confirm Circle is the platform, purchase or start the Circle workspace under Goff, and invite Jeff/Stoke AI with admin/build access.',
+        detail: 'Goff has started adding materials to the shared folder. Blaze is watching the folder and will inventory current employee-facing materials as they appear: company links, schedule examples, onboarding docs, policies/handbook, safety resources, training material, role descriptions/KRAs, contact/org chart info, FAQs, and anything employees repeatedly need.',
+        action: 'Continue adding current materials to the shared Google Drive. It does not need to be perfectly organized; please flag anything old, duplicate, sensitive, or manager/admin-only.',
       },
       {
         id: 'gw-confirm-working-contact',
@@ -225,7 +224,7 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         title: 'Confirm Cecilia for the Monday 3:00 call',
         status: 'Needed before Monday',
         detail: 'Austin sent a Monday 3:00 meeting time. The next step is to make sure Cecilia is included if she is the right person for employee materials, onboarding details, current links/docs, and what employees ask repeatedly.',
-        action: 'Confirm Cecilia will join the Monday 3:00 call, or let us know who should attend instead. Agenda: current employee materials, shared Drive status, what should be employee-visible, what should stay manager/admin-only, Circle setup if approved, and the first portal sections to build.',
+        action: 'Confirm Cecilia will join the Monday 3:00 call, or let us know who should attend instead. Agenda: current employee materials, shared Drive status, what should be employee-visible, what should stay manager/admin-only, and the first portal sections to build.',
       },
       {
         id: 'gw-manager-only-boundary',
