@@ -784,30 +784,6 @@ function howItWorks(){
   </section>
 
   <section class="panel">
-    <h3>Two roles, plain English</h3>
-    <div class="grid two">
-      <div class="howto-role">
-        <h4>Austin — Hiring Manager</h4>
-        <p>Owns the big calls. Spends most of his time on:</p>
-        <ul>
-          <li><strong>Dashboard</strong> — sees what needs his decision today</li>
-          <li><strong>Manager review</strong> — approves, passes, or asks for a second interview</li>
-          <li><strong>Offer workflow</strong> — confirms pay, schedule, approvers; signs off on offers</li>
-        </ul>
-      </div>
-      <div class="howto-role">
-        <h4>Quinton — Recruiter</h4>
-        <p>Owns the day-to-day. Spends most of his time on:</p>
-        <ul>
-          <li><strong>Candidates</strong> — works the active pipeline</li>
-          <li><strong>Add candidate</strong> — Indeed CSV import, paste imports, walk-ins</li>
-          <li><strong>Candidate detail</strong> — moves people through stages, generates email drafts</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="panel">
     <h3>Where applicants come in</h3>
     <ol class="howto-list">
       <li><strong>Careers page apply form</strong> — auto-creates a candidate record and pings Quinton on Telegram (when configured).</li>
