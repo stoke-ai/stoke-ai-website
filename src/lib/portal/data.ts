@@ -58,6 +58,19 @@ export const portalClients: PortalClient[] = [
     trelloBoardId: process.env.TRELLO_GOFF_BOARD_ID,
   },
   {
+    // Separate org/auth identity for the Goff Recruiting admin tool. Lives
+    // alongside the Goff client portal but uses its own login so Austin and
+    // Quinton don't share credentials with the client-portal session, and so
+    // the recruiting dashboard can be gated independently in middleware.ts.
+    id: 'goff-admin',
+    username: 'goffadmin',
+    name: 'Goff Recruiting Admin',
+    contactEmail: '',
+    notificationContacts: [],
+    headline: 'Goff Welding recruiting platform — admin',
+    summary: 'Internal admin access for the Goff Recruiting Platform (dashboard, candidates, manager review, offer workflow).',
+  },
+  {
     id: 'rachel-hansen',
     username: 'rachel',
     name: 'Rachel Hansen Agency',
@@ -130,11 +143,20 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
     discovery: [],
     'building-now': [
       {
+        id: 'gw-employee-recruiting-current-focus',
+        client: 'Goff Welding',
+        title: 'Employee recruiting',
+        status: 'Current focus',
+        detail: 'Current focus is employee recruiting while we wait for the current documents and materials for the employee portal / training hub. Once those docs are in the shared folder, Blaze will inventory them and return to the portal/training hub build.',
+      },
+    ],
+    'up-next': [
+      {
         id: 'gw-employee-portal-first-version',
         client: 'Goff Welding',
-        title: 'First employee portal / training hub',
-        status: 'Active first priority',
-        detail: 'The first version is a professional employee portal/resource hub for all employees: Start Here, company links, onboarding, training, safety resources, policies, schedules, contacts/org chart, role expectations, and a way for employees to ask for help. Goff has started adding materials to the dedicated Drive folder. The current work is to inventory those files, separate employee-facing from manager/admin-only material, and then choose the right front-door platform after the content and permission needs are clear.'
+        title: 'Employee portal / training hub',
+        status: 'Waiting on documents',
+        detail: 'The employee portal/training hub remains the main next build once Goff sends the current employee-facing documents and materials. The first version will organize Start Here, company links, onboarding, training, safety resources, policies, schedules, contacts/org chart, role expectations, and a way for employees to ask for help.',
       },
       {
         id: 'gw-drive-folder-received',
@@ -150,8 +172,6 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         status: 'Direction received',
         detail: 'Austin answered that once the portal is live, all employees should have access. The first build should therefore be mobile-friendly and employee-facing, while still separating anything that belongs in a manager/admin-only area.',
       },
-    ],
-    'up-next': [
       {
         id: 'gw-materials-inventory',
         client: 'Goff Welding',
@@ -195,13 +215,6 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         detail: 'Goff may later want a clearer schedule/crew communication flow than the current Google Sheet approach, potentially with notifications or acknowledgement, but that should not distract from the employee portal foundation.',
       },
       {
-        id: 'gw-recurring-ai-training',
-        client: 'Goff Welding',
-        title: 'Austin AI coaching / personal ops lane',
-        status: 'Parking lot',
-        detail: 'Austin and Jeff discussed recurring AI training/coaching around Austin’s own workflows, ChatGPT/project clutter, email/file organization, and a possible personal assistant. Keep this captured as a monthly working-session lane, separate from the employee portal build unless Jeff scopes it as the next priority.',
-      },
-      {
         id: 'gw-later-automation-modules',
         client: 'Goff Welding',
         title: 'AR/AP, procurement, SAP replacement, and customer-facing automation',
@@ -215,24 +228,24 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
         client: 'Goff Welding',
         title: 'Add current employee materials to the shared folder',
         status: 'Needed from Goff',
-        detail: 'Goff has started adding materials to the shared folder. Blaze is watching the folder and will inventory current employee-facing materials as they appear: company links, schedule examples, onboarding docs, policies/handbook, safety resources, training material, role descriptions/KRAs, contact/org chart info, FAQs, and anything employees repeatedly need.',
-        action: 'Continue adding current materials to the shared Google Drive. It does not need to be perfectly organized; please flag anything old, duplicate, sensitive, or manager/admin-only.',
-      },
-      {
-        id: 'gw-confirm-working-contact',
-        client: 'Goff Welding',
-        title: 'Confirm Cecilia for the Monday 3:00 call',
-        status: 'Needed before Monday',
-        detail: 'Austin sent a Monday 3:00 meeting time. The next step is to make sure Cecilia is included if she is the right person for employee materials, onboarding details, current links/docs, and what employees ask repeatedly.',
-        action: 'Confirm Cecilia will join the Monday 3:00 call, or let us know who should attend instead. Agenda: current employee materials, shared Drive status, what should be employee-visible, what should stay manager/admin-only, and the first portal sections to build.',
+        detail: 'Goff has started adding materials to the shared folder. Blaze is watching the folder and will inventory current employee-facing materials as they appear.',
+        action: 'Continue adding current materials to the shared Google Drive.',
       },
       {
         id: 'gw-manager-only-boundary',
         client: 'Goff Welding',
         title: 'Flag anything that should not be employee-visible',
         status: 'Needed during materials review',
-        detail: 'Austin confirmed the finished portal should be for all employees. As files are added, Goff should flag anything that belongs only to managers, office/admin, leadership, or archive/reference so Blaze does not accidentally treat it as employee-facing.',
+        detail: 'Austin confirmed the finished portal should be for all employees. As files are added, Goff should flag anything that belongs only to managers, office/admin, leadership, or archive/reference.',
         action: 'Mark sensitive or manager/admin-only materials clearly in the folder or in a portal note.',
+      },
+      {
+        id: 'gw-dns-ownership',
+        client: 'Goff Welding',
+        title: 'DNS – who handles your domain / DNS settings today?',
+        status: 'Needed for recruiting path',
+        detail: 'We need to know whether Goff manages DNS in-house or through an external provider so we can plan any future subdomain work.',
+        action: 'Let us know who currently handles your domain / DNS.',
       },
     ],
   },

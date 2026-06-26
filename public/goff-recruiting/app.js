@@ -40,6 +40,48 @@ const STAGES = WORKFLOW_STAGES.map(s => s.id);
 const STAGE = Object.fromEntries(WORKFLOW_STAGES.map(s => [s.id, s]));
 const NEXT = Object.fromEntries(WORKFLOW_STAGES.filter(s => s.next).map(s => [s.id, s.next]));
 
+const HIRING_LEAD_NAME = 'Austin';
+
+// Funnel buckets condense the 35-stage workflow into the 6 visual stages a
+// hiring manager actually thinks in. Used on the dashboard pipeline.
+const FUNNEL_BUCKETS = [
+  { id: 'applied', label: 'Applied', stages: ['Application received', 'Review candidate / choose path', 'Needs more experience info', 'Location / relocation check'] },
+  { id: 'screen', label: 'Screen', stages: ['Phone screen invitation', 'Review phone screen'] },
+  { id: 'test', label: 'Test / Interview', stages: ['Weld test invitation', 'Distance weld test invitation', 'Weld test confirmation', 'Review weld test', 'Schedule interview', 'Interview confirmation', 'Interview completed'] },
+  { id: 'decision', label: 'Decision', stages: ['Reference check authorization', 'Crystal Knows invite', 'Call references', 'Review references + Crystal', 'Manager review packet', 'Second interview request', 'Second interview scheduled'] },
+  { id: 'offer', label: 'Offer', stages: ['Background check invite', 'Review background check results', 'Offer letter info request', 'Offer letter draft', 'Offer sent / follow-up'] },
+  { id: 'hired', label: 'Hired', stages: ['Offer accepted - clearance hold', 'BBSI documents invite', 'Schedule first day', 'Transition to onboarding workflow'] },
+];
+
+function bucketForStage(stage){ for(const b of FUNNEL_BUCKETS){ if(b.stages.includes(stage)) return b; } return null; }
+function isWelderPath(c){ return c.path === 'Welder path'; }
+function nowISO(){ return new Date().toISOString(); }
+function daysAgoISO(d){ return new Date(Date.now() - d*86400000).toISOString(); }
+function stageAgeDays(c){ if(!c.stageUpdatedAt) return 0; const ms = Date.now() - new Date(c.stageUpdatedAt).getTime(); return Math.max(0, Math.floor(ms/86400000)); }
+function stageAgeText(c){ const d = stageAgeDays(c); if(d===0) return 'Today'; if(d===1) return '1 day'; return `${d} days`; }
+function agingLevel(c){ const d = stageAgeDays(c); if(d>=5) return 'stale'; if(d>=3) return 'aging'; return 'fresh'; }
+
+// "Disposition" stages mean the candidate is parked or rejected — don't surface
+// them on the active pipeline and don't compute aging for them.
+function isActive(c){ const m = STAGE[c.stage]; return m && m.group !== 'Disposition'; }
+function needsHiringManager(c){ return isActive(c) && (c.owner === 'Hiring Manager' || c.stage === 'Manager review packet' || c.stage === 'Offer letter info request'); }
+
+// Decision routing — what buttons appear on a "Your decisions" card for each
+// Hiring-Manager-owned stage. The primary button is the affirm/move-forward
+// path; secondary buttons cover the other real decisions Austin would make.
+function decisionActionsForStage(stage){
+  if(stage === 'Manager review packet') return [
+    { label: 'Approve — start offer', action: "setStage('Offer letter info request')", primary: true },
+    { label: 'Second interview', action: "setStage('Second interview request')" },
+    { label: 'Pass', action: "setStage('Not selected')" },
+  ];
+  if(stage === 'Offer letter info request') return [
+    { label: 'Build offer letter', action: "view='offer';render()", primary: true },
+    { label: 'Pass', action: "setStage('Not selected')" },
+  ];
+  return [];
+}
+
 const DRIVE_TEMPLATES = [
   'Weld Test Invitation','AI Phone Screening Invitation','Background Check Email Template','BBSI Check In','Candidate Under Review','Crystal Knows Email Invitation','Distance Weld Test Invitation','Entry-Level Position Not Currently Available','General Rejection Letter','Good Potential, But Needs More Experience','Interview Confirmation Template','Interview Schedule Template','Location Inquiry','Offer Letter 24 Hour Follow Up','Offer Letter Email Request Template','Position Filled / Keep on File','Recruiting Workflow Checklist','Reference Check Authorization Form','Reference Check Hiring Criteria','Rejection After Interview or Weld Test','Relocation for the Wrong Reasons','Request for More Relevant Experience Information','Second Interview Schedule Request Template','Second Interview Schedule Template','Weld Test Confirmation'
 ];
@@ -76,21 +118,59 @@ const TEMPLATE_TEXT = {
  'Onboarding Handoff Summary':`ONBOARDING HANDOFF SUMMARY\n\nCandidate: {{first}} {{last}}\nRole: {{role}}\n\nRecruiting complete. Move to new-hire onboarding workflow and make sure employee-facing materials are ready.`
 };
 
+// Job copy fields. Pay ranges, schedules, and perks are placeholders — Austin
+// can edit these in code (or eventually in a settings UI) once he gives Stoke
+// the real numbers. The careers page renders all of these fields verbatim, so
+// keep them short and applicant-facing.
 const jobs = [
- {id:'welder', title:'Sanitary Stainless Steel Welder / Fabricator', type:'Full-time', path:'Welder path', summary:'For skilled fabricators who can work safely, solve problems, and take pride in high-stakes food/dairy industrial projects.', roleFit:'Craftsmanship, stainless experience, blueprint reading, safe work habits, ability to pass weld test, pride in quality.'},
- {id:'fitter', title:'Sanitary Stainless Steel Fitter', type:'Full-time', path:'Welder path', summary:'Fit-up, layout, teamwork, and stainless fabrication experience. Weld test comes early.', roleFit:'Layout, fit-up, accuracy, teamwork, field awareness, willingness to follow Goff standards.'},
- {id:'helper', title:'Shop Helper / Entry Level', type:'Full-time / Part-time', path:'Other path', summary:'Entry path for reliable, teachable candidates with strong work ethic and safety mindset.', roleFit:'Reliability, teachability, safety, willingness to start with fundamentals and build skill.'},
- {id:'foreman', title:'Foreman / Project Lead', type:'Full-time', path:'T1+ path', summary:'Leadership, accountability, customer/project communication, second interview and manager review required.', roleFit:'Job ownership, crew productivity, communication, problem solving, quality control, safety leadership.'},
- {id:'inventory', title:'Inventory Control Specialist', type:'Full-time', path:'Other path', summary:'Accuracy, warehouse/material control, job-flow support, and reliable process follow-through.', roleFit:'Accuracy guardian, material gatekeeper, organized warehouse steward, strong follow-through.'},
- {id:'procurement', title:'Procurement Manager', type:'Full-time', path:'Other path', summary:'Purchasing, vendor relations, material flow, cost control, and operational support.', roleFit:'Material strategist, cost controller, vendor communication, job-flow enabler.'}
+ {id:'welder', title:'Sanitary Stainless Steel Welder / Fabricator', type:'Full-time', path:'Welder path',
+  summary:'Build high-stakes food and dairy stainless work the way it should be done — clean welds, tight tolerances, safe shop. Sanitary experience preferred; we will test on day one.',
+  payRange:'$25–$32/hr DOE', schedule:'Mon–Fri, 6:00 AM–2:30 PM (some Saturdays as needed)', location:'On-site • Paul, ID (no remote)',
+  perks:['Weekly pay', 'Health benefits after 60 days', 'Sponsored training', 'Stable year-round shop work'],
+  certifications:'Welding cert or strong sanitary stainless portfolio. AWS or equivalent a plus.',
+  roleFit:'Craftsmanship, stainless experience, blueprint reading, safe work habits, ability to pass weld test, pride in quality.'},
+ {id:'fitter', title:'Sanitary Stainless Steel Fitter', type:'Full-time', path:'Welder path',
+  summary:'Fit-up, layout, and teamwork on sanitary stainless projects. We test fit-up early so you know fast whether this is your shop.',
+  payRange:'$22–$28/hr DOE', schedule:'Mon–Fri, 6:00 AM–2:30 PM', location:'On-site • Paul, ID',
+  perks:['Weekly pay', 'Health benefits after 60 days', 'Sponsored training'],
+  certifications:'Layout/fit-up experience on stainless or structural. Blueprint reading required.',
+  roleFit:'Layout, fit-up, accuracy, teamwork, field awareness, willingness to follow Goff standards.'},
+ {id:'helper', title:'Shop Helper / Entry Level', type:'Full-time / Part-time', path:'Other path',
+  summary:'Entry path for reliable, teachable people with a strong work ethic and safety mindset. We hire for attitude and build the skill on the floor.',
+  payRange:'$17–$20/hr', schedule:'Mon–Fri, 6:00 AM–2:30 PM', location:'On-site • Paul, ID',
+  perks:['Weekly pay', 'Health benefits after 60 days', 'On-the-job training paid by us'],
+  certifications:'None required. Reliability and willingness to learn matter most.',
+  roleFit:'Reliability, teachability, safety, willingness to start with fundamentals and build skill.'},
+ {id:'foreman', title:'Foreman / Project Lead', type:'Full-time', path:'Other path',
+  summary:'Run crews, own jobs end-to-end, and keep customers in the loop. Second interview and manager review required because this seat carries weight.',
+  payRange:'$30–$40/hr DOE + project bonuses', schedule:'Mon–Fri, day shift; occasional travel for installs', location:'On-site • Paul, ID + project sites',
+  perks:['Weekly pay', 'Health benefits after 60 days', 'Project bonus potential', 'Sponsored leadership training'],
+  certifications:'Prior crew leadership in fabrication or industrial trades. Stainless background preferred.',
+  roleFit:'Job ownership, crew productivity, communication, problem solving, quality control, safety leadership.'},
+ {id:'inventory', title:'Inventory Control Specialist', type:'Full-time', path:'Other path',
+  summary:'Be the person who keeps materials moving and the shop honest. Accuracy and clean handoffs save us money — and your work is visible every day.',
+  payRange:'$20–$26/hr DOE', schedule:'Mon–Fri, day shift', location:'On-site • Paul, ID',
+  perks:['Weekly pay', 'Health benefits after 60 days', 'Stable role, no weekends'],
+  certifications:'Warehouse / inventory experience. Comfortable with spreadsheets and barcode systems.',
+  roleFit:'Accuracy guardian, material gatekeeper, organized warehouse steward, strong follow-through.'},
+ {id:'procurement', title:'Procurement Manager', type:'Full-time', path:'Other path',
+  summary:'Own vendor relationships, material cost, and the flow of metal into the shop. The job pays its salary when you negotiate well and prevent shortages.',
+  payRange:'$60K–$80K DOE', schedule:'Mon–Fri, day shift', location:'On-site • Paul, ID',
+  perks:['Health benefits after 60 days', 'Sponsored training', 'Performance bonus potential'],
+  certifications:'Procurement or buyer experience in fabrication, manufacturing, or industrial trades.',
+  roleFit:'Material strategist, cost controller, vendor communication, job-flow enabler.'}
 ];
 
 let seed = [
- {id:1, first:'Tyler', last:'Rasmussen', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Weld test invitation', owner:'Candidate', due:'Today', priority:'Hot', email:'tyler@example.com', phone:'208-555-0198', location:'Twin Falls, ID', summary:'Good tenure, relevant stainless fabrication experience, local and responsive. Needs weld test scheduled and confirmed.', concerns:'Validate craftsmanship, fit-up quality, pace, and safety habits in weld test.', evidence:{phone:'Not needed yet', weld:'Needs scheduling', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Imported from Indeed shortlist','Quinton marked strong potential','System recommends weld test invite']},
- {id:2, first:'Maria', last:'Lopez', role:jobs[4].title, source:'Website', path:'Other path', stage:'Schedule interview', owner:'Candidate', due:'Tomorrow', priority:'Normal', email:'maria@example.com', phone:'208-555-0151', location:'Burley, ID', summary:'Applied for shop role but appears better aligned with inventory control. Stable work history and strong organization notes.', concerns:'Confirm role fit with hiring manager and whether she understands inventory/warehouse expectations.', evidence:{phone:'Complete', weld:'N/A', interview:'Needs scheduling', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Website application received','Role-mismatch flagged as positive','Needs interview slots']},
- {id:3, first:'Caleb', last:'Miller', role:jobs[3].title, source:'Indeed', path:'T1+ path', stage:'Manager review packet', owner:'Hiring Manager', due:'1 day overdue', priority:'Hot', email:'caleb@example.com', phone:'208-555-0132', location:'Pocatello, ID', summary:'Foreman candidate with leadership background. First interview complete; decision needed on second interview or offer path.', concerns:'Commute/relocation motivation needs clarity before offer.', evidence:{phone:'Complete', weld:'N/A', interview:'Complete', references:'Waiting', crystal:'Sent', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Indeed applicant moved into Goff recruiting','Phone screen and interview complete','Manager packet generated']},
- {id:4, first:'Evan', last:'Brooks', role:'Entry-level Welder', source:'Walk-in', path:'Other path', stage:'Needs more experience', owner:'Quinton', due:'Next week', priority:'Low', email:'evan@example.com', phone:'208-555-0119', location:'Jerome, ID', summary:'Strong attitude, not enough experience for immediate opening. Good future callback.', concerns:'Needs more welding experience before an active opening.', evidence:{phone:'Complete', weld:'Not started', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Walk-in candidate','Reviewed as future potential','Keep-warm / more-experience draft recommended']},
- {id:5, first:'Jordan', last:'Kim', role:'Designer', source:'Website', path:'Other path', stage:'Location / relocation check', owner:'Candidate', due:'2 days', priority:'Normal', email:'jordan@example.com', phone:'208-555-0144', location:'Boise, ID', summary:'Designer candidate from website. Needs location clarity before spending manager time.', concerns:'Boise location; confirm relocation/commute intent.', evidence:{phone:'Not started', weld:'N/A', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Website application','Location inquiry recommended']}
+ {id:1, first:'Tyler', last:'Rasmussen', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Weld test invitation', owner:'Candidate', due:'Today', priority:'Hot', email:'tyler@example.com', phone:'208-555-0198', location:'Twin Falls, ID', stageUpdatedAt:daysAgoISO(4), summary:'Good tenure, relevant stainless fabrication experience, local and responsive. Needs weld test scheduled and confirmed.', concerns:'Validate craftsmanship, fit-up quality, pace, and safety habits in weld test.', evidence:{phone:'Not needed yet', weld:'Needs scheduling', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Imported from Indeed shortlist','Quinton marked strong potential','System recommends weld test invite']},
+ {id:2, first:'Maria', last:'Lopez', role:jobs[4].title, source:'Website', path:'Other path', stage:'Schedule interview', owner:'Candidate', due:'Tomorrow', priority:'Normal', email:'maria@example.com', phone:'208-555-0151', location:'Burley, ID', stageUpdatedAt:daysAgoISO(1), summary:'Applied for shop role but appears better aligned with inventory control. Stable work history and strong organization notes.', concerns:'Confirm role fit with hiring manager and whether she understands inventory/warehouse expectations.', evidence:{phone:'Complete', weld:'N/A', interview:'Needs scheduling', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Website application received','Role-mismatch flagged as positive','Needs interview slots']},
+ {id:3, first:'Caleb', last:'Miller', role:jobs[3].title, source:'Indeed', path:'Other path', stage:'Manager review packet', owner:'Hiring Manager', due:'1 day overdue', priority:'Hot', email:'caleb@example.com', phone:'208-555-0132', location:'Pocatello, ID', stageUpdatedAt:daysAgoISO(2), summary:'Foreman candidate with leadership background. First interview complete; decision needed on second interview or offer path.', concerns:'Commute/relocation motivation needs clarity before offer.', evidence:{phone:'Complete', weld:'N/A', interview:'Complete', references:'Waiting', crystal:'Sent', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Indeed applicant moved into Goff recruiting','Phone screen and interview complete','Manager packet generated']},
+ {id:4, first:'Evan', last:'Brooks', role:'Entry-level Welder', source:'Walk-in', path:'Other path', stage:'Needs more experience', owner:'Quinton', due:'Next week', priority:'Low', email:'evan@example.com', phone:'208-555-0119', location:'Jerome, ID', stageUpdatedAt:daysAgoISO(8), summary:'Strong attitude, not enough experience for immediate opening. Good future callback.', concerns:'Needs more welding experience before an active opening.', evidence:{phone:'Complete', weld:'Not started', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Walk-in candidate','Reviewed as future potential','Keep-warm / more-experience draft recommended']},
+ {id:5, first:'Jordan', last:'Kim', role:'Designer', source:'Website', path:'Other path', stage:'Location / relocation check', owner:'Candidate', due:'2 days', priority:'Normal', email:'jordan@example.com', phone:'208-555-0144', location:'Boise, ID', stageUpdatedAt:daysAgoISO(2), summary:'Designer candidate from website. Needs location clarity before spending manager time.', concerns:'Boise location; confirm relocation/commute intent.', evidence:{phone:'Not started', weld:'N/A', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Website application','Location inquiry recommended']},
+ {id:6, first:'Hannah', last:'Reyes', role:jobs[1].title, source:'Website', path:'Welder path', stage:'Application received', owner:'Quinton', due:'Today', priority:'Normal', email:'hannah@example.com', phone:'208-555-0163', location:'Burley, ID', stageUpdatedAt:daysAgoISO(0), summary:'New website application — fitter background, says she has stainless experience and a weld test ready portfolio.', concerns:'Verify stainless and fit-up experience before scheduling weld test.', evidence:{phone:'Not started', weld:'Not started', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Submitted from Goff careers page','Queued for Quinton review']},
+ {id:7, first:'James', last:'Whitley', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Phone screen invitation', owner:'Candidate', due:'2 days', priority:'Normal', email:'james@example.com', phone:'208-555-0177', location:'Idaho Falls, ID', stageUpdatedAt:daysAgoISO(1), summary:'5 years stainless and sanitary pipe — invited to phone screen, waiting on time confirmation.', concerns:'Sanitary pipe background good signal; verify pace and food/dairy familiarity in screen.', evidence:{phone:'Invited', weld:'Not started', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Indeed applicant added','Phone screen invitation sent']},
+ {id:8, first:'Brandon', last:'Park', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Offer sent / follow-up', owner:'Candidate', due:'24 hours', priority:'Hot', email:'brandon@example.com', phone:'208-555-0182', location:'Twin Falls, ID', stageUpdatedAt:daysAgoISO(1), summary:'Strong weld test, smooth interview, references clean. Offer sent yesterday at $28/hr, awaiting candidate response.', concerns:'Follow up before 48-hour mark so the offer does not go cold.', evidence:{phone:'Complete', weld:'Complete', interview:'Complete', references:'Complete', crystal:'Complete', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{date:daysAgoISO(1).slice(0,10), pay:'$28.00/hr', startDate:daysAgoISO(-14).slice(0,10), schedule:'6:00 AM–2:30 PM', supervisor:'Quinton Goff', employmentType:'Full-Time', minHours:'40', approvers:'', coreMember1:'Austin Goff', coreMember2:'Quinton Goff', validityDays:'30', notes:'Standard offer per SOP.'}, timeline:['Indeed applicant moved into Goff recruiting','Weld test passed','Interview complete','Offer sent']},
+ {id:9, first:'Ricky', last:'Lambert', role:jobs[0].title, source:'Referral', path:'Welder path', stage:'Schedule first day', owner:'Admin', due:'Today', priority:'Normal', email:'ricky@example.com', phone:'208-555-0145', location:'Paul, ID', stageUpdatedAt:daysAgoISO(0), summary:'Accepted offer, drug screen + background cleared. Scheduling first day with BBSI onboarding handoff to follow.', concerns:'None — ready for first day coordination and onboarding handoff.', evidence:{phone:'Complete', weld:'Complete', interview:'Complete', references:'Complete', crystal:'Complete', background:'Complete'}, clearance:{drug:'Passed', background:'Cleared', startDate:'Confirmed'}, offer:{date:daysAgoISO(7).slice(0,10), pay:'$26.50/hr', startDate:daysAgoISO(-7).slice(0,10), schedule:'6:00 AM–2:30 PM', supervisor:'Quinton Goff', employmentType:'Full-Time', minHours:'40', approvers:'', coreMember1:'Austin Goff', coreMember2:'Quinton Goff', validityDays:'30', notes:''}, timeline:['Referral candidate','Offer accepted','Clearance complete','Scheduling first day']}
 ];
 
 function normalizeCandidate(x){
@@ -98,6 +178,7 @@ function normalizeCandidate(x){
   x.clearance ||= {drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'};
   x.offer = Object.assign({date:new Date().toISOString().slice(0,10), pay:'', startDate:'', schedule:'', supervisor:'', employmentType:'Full-Time', minHours:'40', approvers:'', coreMember1:'', coreMember2:'', validityDays:'30', notes:''}, x.offer || {});
   if(!STAGE[x.stage]) x.stage='Application received';
+  x.stageUpdatedAt ||= nowISO();
   return x;
 }
 
@@ -107,6 +188,10 @@ let view = 'dashboard';
 let selectedStage = 'Interview completed';
 function save(){ localStorage.setItem('goffCandidatesV2', JSON.stringify(candidates)); }
 function c(){ return candidates.find(x=>x.id===selectedId) || candidates[0]; }
+async function signOut(){
+  try { await fetch('/api/portal/logout', { method:'POST' }); } catch(_){}
+  window.location.href = '/goff-recruiting/login';
+}
 function stageMeta(stage){ return STAGE[stage] || WORKFLOW_STAGES[0]; }
 function jobFor(role){ return jobs.find(j => role && role.toLowerCase().includes(j.title.toLowerCase().split(' ')[0])) || jobs.find(j => role && j.title===role) || jobs[0]; }
 function roleFit(x){ return jobFor(x.role).roleFit; }
@@ -117,17 +202,92 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidate','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('templates','Templates')}${nav('integrations','Integrations')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidate','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Integrations')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
-function page(){ return ({dashboard,intake,career,thanks,candidate,manager,offer,templates,integrations}[view] || dashboard)(); }
+function page(){ return ({dashboard,intake,career,thanks,candidate,manager,offer,workflow,templates,integrations}[view] || dashboard)(); }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
-  const need = candidates.filter(x=>x.due==='Today'||String(x.due).includes('overdue')||String(x.due).includes('24')).length;
-  return `${head('Recruiting dashboard','Start with the Action queue. The workflow map below is only there to show how candidates move from application to interview, offer, clearance hold, BBSI handoff, and onboarding.',`<button class="btn primary" onclick="view='career';render()">Open careers page</button>`)}
-  <div class="grid metrics">${metric('Active candidates', candidates.length)}${metric('Need action', need)}${metric('Manager decisions', candidates.filter(x=>x.stage==='Manager review packet').length)}${metric('Offer / clearance', candidates.filter(x=>['Offer letter info request','Offer letter draft','Offer sent / follow-up','Offer accepted - clearance hold'].includes(x.stage)).length)}</div>
-  <div class="grid two" style="margin-top:16px"><section class="panel"><h3>Action queue</h3><p class="muted">This is the main working area: the candidates who need a decision, follow-up, interview, offer step, or clearance action.</p><div class="queue">${candidates.map(card).join('')}</div></section><section class="panel"><h3>What changed from the Drive review</h3><div class="steps"><div class="step"><b>Pipeline now follows Goff’s checklist.</b><br><small>Application → screen/weld test → interview → references/Crystal → manager → offer → BBSI → onboarding.</small></div><div class="step"><b>Templates are stage-based.</b><br><small>Each stage picks the matching installed Goff candidate template where one exists.</small></div><div class="step"><b>BBSI is guarded.</b><br><small>Offer accepted is a hold stage; onboarding requires drug screen, background, and start date clearance.</small></div><div class="step"><b>Offer SOP is now a workflow.</b><br><small>Offer request, approval, PDF/DocHub/signature routing, and follow-up are visible in the system.</small></div></div></section></div><section class="panel workflow-map" style="margin-top:16px"><div class="section-head"><div><h3>Hiring workflow map</h3><p class="muted">Reference only: this shows Goff’s hiring process from application to BBSI handoff. It is useful when you need to understand what a candidate’s current stage means, which email/template applies, and what must happen before the next stage.</p></div><button class="btn" onclick="view='templates';render()">View templates</button></div><div class="notice"><strong>Plain English:</strong> the Action queue tells you who needs attention. This map explains the process those candidates move through.</div><div class="pipeline">${WORKFLOW_STAGES.filter(s=>!['Disposition'].includes(s.group)).map(s=>stageTile(s)).join('')}</div>${stageDetailPanel()}</section>`;
+  const austinDecisions = candidates.filter(needsHiringManager);
+  const stale = candidates.filter(x => isActive(x) && agingLevel(x)==='stale' && !needsHiringManager(x));
+  const aging = candidates.filter(x => isActive(x) && agingLevel(x)==='aging' && !needsHiringManager(x));
+  const quintonsQueue = candidates.filter(x => isActive(x) && !needsHiringManager(x) && !stale.includes(x) && !aging.includes(x));
+
+  const welderCandidates = candidates.filter(x => isActive(x) && isWelderPath(x));
+  const otherCandidates = candidates.filter(x => isActive(x) && !isWelderPath(x));
+
+  const todaySummary = buildTodaySummary(austinDecisions, stale.length, aging.length);
+
+  return `${head(`Morning, ${HIRING_LEAD_NAME}.`, todaySummary, `<button class="btn primary" onclick="window.open('/goff-careers/','_blank','noopener')">Open careers page</button>`)}
+  ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Your decisions</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on you.' : `${austinDecisions.length} candidates are waiting on you.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Your decisions</div><h3>Nothing needs you right now.</h3><p class="muted">Quinton is moving the queue. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
+
+  <section class="panel funnels"><div class="section-head"><div><div class="eyebrow">Pipeline by path</div><h3>From applied to hired.</h3></div><button class="btn" onclick="view='workflow';render()">View full workflow</button></div>${funnelHTML('Welder path — fabricators &amp; fitters', welderCandidates)}${funnelHTML('Other roles — foreman, inventory, procurement, helper', otherCandidates)}</section>
+
+  ${(stale.length || aging.length) ? `<section class="panel aging"><div class="section-head"><div><div class="eyebrow eyebrow-aging">Check before they go cold</div><h3>${stale.length ? `${stale.length} stale${aging.length ? `, ${aging.length} aging` : ''}.` : `${aging.length} aging.`}</h3></div></div><div class="aging-list">${stale.map(c => agingRow(c,'stale')).join('')}${aging.map(c => agingRow(c,'aging')).join('')}</div></section>` : ''}
+
+  <section class="panel"><div class="section-head"><div><div class="eyebrow">Quinton's queue</div><h3>${quintonsQueue.length === 1 ? '1 candidate moving normally.' : `${quintonsQueue.length} candidates moving normally.`}</h3></div></div>${quintonsQueue.length ? `<div class="queue">${quintonsQueue.map(card).join('')}</div>` : `<p class="muted">Nothing else in motion. Add a candidate from the Intake screen.</p>`}</section>`;
+}
+
+function buildTodaySummary(austinDecisions, staleCount, agingCount){
+  const parts = [];
+  if(austinDecisions.length === 0) parts.push('Nothing on you today.');
+  else if(austinDecisions.length === 1) parts.push('1 thing needs you today.');
+  else parts.push(`${austinDecisions.length} things need you today.`);
+  if(staleCount) parts.push(`${staleCount} candidate${staleCount===1?'':'s'} aging past 5 days — check before they go cold.`);
+  else if(agingCount) parts.push(`${agingCount} candidate${agingCount===1?'':'s'} drifting — keep an eye on them.`);
+  else parts.push('Pipeline is clean — Quinton is moving it.');
+  return parts.join(' ');
+}
+
+function decisionCard(x){
+  const actions = decisionActionsForStage(x.stage);
+  const ageText = stageAgeText(x);
+  return `<article class="decision-card">
+    <div class="decision-card-head">
+      <div class="decision-card-id"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)} · from ${esc(x.source)} · Waiting ${esc(ageText)} on you</small></div>
+      <span class="tag red">${esc(x.stage)}</span>
+    </div>
+    <p class="decision-card-summary">${esc(x.summary)}</p>
+    ${x.concerns ? `<div class="decision-card-concern"><strong>Concern:</strong> ${esc(x.concerns)}</div>` : ''}
+    <div class="decision-card-actions">
+      ${actions.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="selectedId=${x.id};${a.action}">${esc(a.label)}</button>`).join('')}
+      <button class="btn ghost" onclick="selectedId=${x.id};view='candidate';render()">Open candidate →</button>
+    </div>
+  </article>`;
+}
+
+function funnelHTML(label, list){
+  const counts = FUNNEL_BUCKETS.map(b => list.filter(c => bucketForStage(c.stage)?.id === b.id));
+  const total = counts.reduce((s, arr) => s + arr.length, 0);
+  return `<div class="funnel-group">
+    <div class="funnel-label"><span>${label}</span><em>${total} active</em></div>
+    <div class="funnel">
+      ${FUNNEL_BUCKETS.map((b,i) => `<div class="funnel-stage ${counts[i].length?'has-count':''}" onclick="selectedStage='${esc(b.stages[0])}';view='workflow';render()">
+        <div class="funnel-stage-count">${counts[i].length}</div>
+        <div class="funnel-stage-label">${esc(b.label)}</div>
+        <div class="funnel-chips">${counts[i].slice(0,3).map(c => `<span class="funnel-chip" onclick="event.stopPropagation();selectedId=${c.id};view='candidate';render()" title="${esc(c.first+' '+c.last)}">${esc(c.first)}</span>`).join('')}${counts[i].length > 3 ? `<span class="funnel-chip more">+${counts[i].length - 3}</span>` : ''}</div>
+      </div>${i < FUNNEL_BUCKETS.length-1 ? '<div class="funnel-arrow" aria-hidden="true">›</div>' : ''}`).join('')}
+    </div>
+  </div>`;
+}
+
+function agingRow(x, level){
+  const meta = stageMeta(x.stage);
+  return `<div class="aging-row ${level}" onclick="selectedId=${x.id};view='candidate';render()">
+    <div class="aging-row-id"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)} · ${esc(x.path)}</small></div>
+    <div class="aging-row-stage">${esc(x.stage)}<small>Next: ${esc(meta.next || 'human decision')}</small></div>
+    <div class="aging-row-meta"><span class="aging-pill ${level}">${esc(stageAgeText(x))} in stage</span><small>Waiting on ${esc(x.owner)}</small></div>
+  </div>`;
+}
+
+function workflow(){
+  return `${head('Hiring workflow','Reference: every stage in Goff’s hiring process from application to BBSI handoff. Useful when you need to see what a stage means, the template it triggers, and what must happen before the next step.',`<button class="btn" onclick="view='templates';render()">View templates</button>`)}
+  <div class="notice"><strong>How to read this:</strong> Quinton owns most stages; the candidate owns the ones where we are waiting on them; ${HIRING_LEAD_NAME} owns Manager review and Offer letter info. Click any stage to see who is currently in it.</div>
+  <section class="panel workflow-map">
+    <div class="pipeline">${WORKFLOW_STAGES.filter(s => !['Disposition'].includes(s.group)).map(stageTile).join('')}</div>
+    ${stageDetailPanel()}
+  </section>`;
 }
 function card(x){ return `<div class="candidate" onclick="selectedId=${x.id};view='candidate';render()"><div><strong>${x.first} ${x.last}</strong><small>${x.role} • ${x.source}</small><div class="tags"><span class="tag ${tag(x.priority)}">${x.priority}</span><span class="tag dark">${x.stage}</span><span class="tag ${tag(x.due)}">${x.due}</span><span class="tag">Waiting: ${x.owner}</span></div></div><span class="pill ${x.priority==='Hot'?'hot':String(x.due).includes('Today')?'today':'wait'}">Open</span></div>`; }
 function stageTile(s){ const count=candidates.filter(x=>x.stage===s.id).length; return `<button class="pipe-step ${count?'has-candidate':''} ${selectedStage===s.id?'selected':''}" onclick="selectedStage='${esc(s.id)}';render()"><small>${s.group}</small><b>${s.id}</b><span>${s.template}</span><em>${count} candidate${count===1?'':'s'}</em></button>`; }
@@ -145,24 +305,319 @@ function parseIndeedCSV(text){ if(!text || !text.trim()){ document.getElementByI
 function handleCSVFile(evt){ const file=evt.target.files?.[0]; if(!file) return; const reader=new FileReader(); reader.onload=()=>{ document.getElementById('csvPasteBox').value=reader.result; parseIndeedCSV(reader.result); }; reader.readAsText(file); }
 function commitIndeedImport(){ const imported=window.pendingIndeedImport||[]; if(!imported.length){ document.getElementById('importResult').innerHTML='No pending CSV import.'; return; } candidates=[...imported,...candidates]; selectedId=imported[0].id; save(); document.getElementById('importResult').innerHTML=`<strong>Imported ${imported.length} Indeed candidate${imported.length===1?'':'s'} into the Goff queue.</strong><br><button class="btn primary" onclick="view='candidate';render()">Open first imported candidate</button>`; window.pendingIndeedImport=[]; }
 function downloadIndeedSampleCSV(){ const sample='Name,Email,Phone,Job Title,Location,Indeed Status,Resume,Notes\n"Jason Harper",jason.harper@example.com,208-555-0188,"Sanitary Stainless Steel Welder / Fabricator","Idaho Falls, ID","Interested","5 years stainless and sanitary pipe","Available for weld test next week"\n"Megan Cole",megan.cole@example.com,208-555-0199,"Inventory Control Specialist","Burley, ID","New","Warehouse inventory and purchasing support","Strong attention to detail"\n'; downloadFile('goff-indeed-import-sample.csv', sample, 'text/csv'); }
-function career(){ return `<main class="public-careers"><section class="career-hero public-hero"><div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div><div class="eyebrow" style="color:#fff">Now hiring</div><h2>Build your career with the region’s premier industrial welding team.</h2><p>Safety, ownership, craftsmanship, and growth — apply directly with Goff Welding.</p></section><section class="public-body"><div class="grid two"><div><h2>Open positions</h2>${jobs.map(j=>`<div class="job-card"><strong>${j.title}</strong><p>${j.summary}</p><div class="tags"><span class="tag blue">${j.type}</span></div><button class="btn brand" onclick="prefillApply('${j.id}')">Apply for this role</button></div>`).join('')}</div><section class="panel"><h3>Apply now</h3><p>Submit your information and the hiring team will review your application.</p><div class="form"><input id="appName" placeholder="Full name"><input id="appEmail" placeholder="Email"><input id="appPhone" placeholder="Phone"><select id="appRole">${jobs.map(j=>`<option>${j.title}</option>`).join('')}</select><textarea id="appNotes" placeholder="Experience, certifications, availability, location, anything Goff should know"></textarea><button class="btn primary" onclick="submitApplication()">Submit application</button></div></section></div></section></main>`; }
-function prefillApply(id){ let j=jobs.find(x=>x.id===id); document.getElementById('appRole').value=j.title; document.getElementById('appName').focus(); }
-function submitApplication(){ let name=document.getElementById('appName').value||'New Applicant'; let [first,...rest]=name.split(' '); let item=normalizeCandidate({id:Date.now(),first,last:rest.join(' ')||'Applicant',email:document.getElementById('appEmail').value||'unknown@example.com',phone:document.getElementById('appPhone').value||'',role:document.getElementById('appRole').value,source:'Goff website',path:'Website routed',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:document.getElementById('appNotes').value||'Website application submitted. Needs Quinton review.',concerns:'Needs screening.',timeline:['Submitted from Goff careers page','Auto-created recruiting record','Queued for Quinton']}); candidates.unshift(item); selectedId=item.id; save(); view='thanks'; render(); }
-function thanks(){ return `<main class="public-careers"><section class="career-hero public-hero"><div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div><h2>Thank you for applying.</h2><p>Your application has been received. The hiring team will review your information and follow up if your experience matches the current opening.</p></section><section class="public-body"><div class="panel"><h3>Application received</h3><p>You may close this page. If additional information is needed, Goff Welding will contact you using the email or phone number provided.</p><button class="btn primary" onclick="view='career';render()">Back to open positions</button></div></section></main>`; }
+function jobCardHTML(j){
+  return `<article class="job-card" id="job-${j.id}">
+    <header class="job-card-head">
+      <div class="min-w-0"><strong>${esc(j.title)}</strong><div class="job-card-tags"><span class="tag blue">${esc(j.type)}</span><span class="tag">${esc(j.path)}</span></div></div>
+      <button class="btn brand" onclick="prefillApply('${j.id}')">Apply for this role</button>
+    </header>
+    <p class="job-card-summary">${esc(j.summary)}</p>
+    <div class="job-card-grid">
+      <div class="job-card-field"><span>Pay</span><strong>${esc(j.payRange)}</strong></div>
+      <div class="job-card-field"><span>Schedule</span><strong>${esc(j.schedule)}</strong></div>
+      <div class="job-card-field"><span>Where</span><strong>${esc(j.location)}</strong></div>
+      <div class="job-card-field"><span>Certifications</span><strong>${esc(j.certifications)}</strong></div>
+    </div>
+    <div class="job-card-perks"><span>What you get</span><ul>${(j.perks||[]).map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
+  </article>`;
+}
+
+function career(){
+  return `<main class="public-careers">
+    <section class="career-hero public-hero">
+      <div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div>
+      <div class="eyebrow" style="color:#fff">Now hiring</div>
+      <h2>Built right. Paid right. On time.</h2>
+      <p>Goff Welding is a sanitary stainless fabrication shop in Paul, Idaho. We build food, dairy, and industrial work where weld quality is non-negotiable. If you take pride in your trade, we want to test on day one.</p>
+      <div class="hero-actions">
+        <a class="btn brand" href="#apply">Apply now</a>
+        <button class="btn ghost-light" onclick="document.getElementById('jobs-list')?.scrollIntoView({behavior:'smooth'})">See open positions</button>
+      </div>
+    </section>
+    <section class="public-body">
+      <div class="grid two careers-grid">
+        <div id="jobs-list">
+          <div class="careers-section-head"><h2>Open positions</h2><span class="muted">${jobs.length} role${jobs.length===1?'':'s'} hiring</span></div>
+          ${jobs.map(jobCardHTML).join('')}
+        </div>
+        <aside class="apply-panel panel" id="apply">
+          <h3>Apply now</h3>
+          <p class="muted">Submit your information and Quinton from our hiring team will review your application. We follow up by email or phone.</p>
+          <div class="form">
+            <label class="field-label">Full name<input id="appName" placeholder="First and last" required></label>
+            <label class="field-label">Email<input id="appEmail" type="email" placeholder="you@example.com" required></label>
+            <label class="field-label">Phone<input id="appPhone" type="tel" placeholder="208-555-0100"></label>
+            <label class="field-label">Role<select id="appRole">${jobs.map(j=>`<option>${esc(j.title)}</option>`).join('')}</select></label>
+            <label class="field-label">Soonest you could start<select id="appAvailability"><option>Within 2 weeks</option><option>Within 30 days</option><option>30–60 days</option><option>Just exploring for now</option></select></label>
+            <label class="field-label">Experience, certifications, and anything Goff should know<textarea id="appNotes" rows="6" placeholder="Years of stainless experience, weld test you have passed, certifications, location, schedule needs."></textarea></label>
+            <button class="btn primary" onclick="submitApplication()">Submit application</button>
+            <p class="apply-fineprint">Your information goes straight to Quinton. We do not share it with third parties.</p>
+          </div>
+        </aside>
+      </div>
+    </section>
+    <footer class="public-footer">
+      <div class="public-footer-grid">
+        <div><strong>Goff Welding, LLC</strong><br><span>531 W 100 S #22<br>Paul, Idaho 83347</span></div>
+        <div><strong>Get in touch</strong><br><span>(208) 647-2488<br>info@goffwelding.com</span></div>
+        <div><strong>Open positions</strong><br><span>${jobs.length} role${jobs.length===1?'':'s'} hiring</span></div>
+      </div>
+    </footer>
+  </main>`;
+}
+function prefillApply(id){ const j=jobs.find(x=>x.id===id); if(!j) return; const sel=document.getElementById('appRole'); if(sel) sel.value=j.title; document.getElementById('apply')?.scrollIntoView({behavior:'smooth'}); document.getElementById('appName')?.focus(); }
+async function submitApplication(){
+  const name=document.getElementById('appName').value||'New Applicant';
+  const email=document.getElementById('appEmail').value||'unknown@example.com';
+  const phone=document.getElementById('appPhone').value||'';
+  const role=document.getElementById('appRole').value;
+  const availability=document.getElementById('appAvailability')?.value||'';
+  const notes=document.getElementById('appNotes').value||'';
+  const [first,...rest]=name.split(' ');
+  const last=rest.join(' ')||'Applicant';
+  const combinedNotes = availability ? `Availability: ${availability}\n\n${notes}` : notes;
+
+  // Best-effort server delivery. The localStorage record is always created so
+  // the prototype keeps working if the endpoint is unreachable (offline demo,
+  // misconfigured env). The timeline entry tells the recruiter whether the
+  // server saw it or not.
+  let serverDelivered=false;
+  try {
+    const r=await fetch('/api/goff-recruiting/applications', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({first,last,email,phone,role,notes:combinedNotes,source:'Goff website'})
+    });
+    serverDelivered=r.ok;
+  } catch(_) { serverDelivered=false; }
+
+  const item=normalizeCandidate({
+    id:Date.now(),
+    first, last, email, phone, role,
+    source:'Goff website',
+    path:role.toLowerCase().includes('welder')||role.toLowerCase().includes('fitter')?'Welder path':'Other path',
+    stage:'Application received',
+    owner:'Quinton',
+    due:'Today',
+    priority:'Normal',
+    location:'',
+    summary:combinedNotes||'Website application submitted. Needs Quinton review.',
+    concerns:'Needs screening.',
+    timeline:['Submitted from Goff careers page', serverDelivered ? 'Routed to Goff intake — Quinton notified.' : 'Local copy saved — server route unavailable.', 'Queued for Quinton'],
+  });
+  candidates.unshift(item);
+  selectedId=item.id;
+  save();
+  view='thanks';
+  render();
+}
+function thanks(){
+  return `<main class="public-careers">
+    <section class="career-hero public-hero">
+      <div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div>
+      <h2>Thanks — Quinton has it.</h2>
+      <p>Your application is in front of our hiring team. If your experience fits a current opening, expect a call or email within a few business days. Most welder and fitter roles start with a paid weld test.</p>
+    </section>
+    <section class="public-body">
+      <div class="panel">
+        <h3>What happens next</h3>
+        <ol class="thanks-steps">
+          <li><strong>Quinton reviews your application.</strong> If it is a fit, you will get a phone screen invite by email or text.</li>
+          <li><strong>Welder / fitter roles:</strong> weld test on-site or distance test if you are out of area. Bring your standard rig setup.</li>
+          <li><strong>Interview with the hiring team.</strong> Talk about the work, the schedule, and answer any questions.</li>
+          <li><strong>References + offer.</strong> We make a decision quickly so you are not left hanging.</li>
+        </ol>
+        <p class="muted">Questions in the meantime? Email <a href="mailto:info@goffwelding.com">info@goffwelding.com</a> or call (208) 647-2488.</p>
+        <button class="btn" onclick="window.open('/goff-careers/','_blank','noopener')">Back to open positions</button>
+      </div>
+    </section>
+  </main>`;
+}
 function field(k,v){ return `<div class="field"><span>${k}</span><strong>${v || '—'}</strong></div>`; }
 function evidenceTable(x){ const e=x.evidence||{}; return `<div class="mini-grid">${field('Phone screen', e.phone)}${field('Weld test', e.weld)}${field('Interview', e.interview)}${field('References', e.references)}${field('Crystal Knows', e.crystal)}${field('Background', e.background)}</div>`; }
 function clearanceReady(x){ return x.clearance?.drug==='Passed' && ['Cleared','N/A'].includes(x.clearance?.background) && x.clearance?.startDate==='Confirmed'; }
 function clearancePanel(x){ const ready=clearanceReady(x); return `<div class="notice ${ready?'success':'warning'}"><strong>${ready?'Clearance complete':'BBSI guardrail active'}</strong><br>Offer Accepted is a hold stage. Do not move to BBSI onboarding until drug screen, background, and start date are complete.</div><div class="mini-grid">${field('Drug screen',x.clearance.drug)}${field('Background',x.clearance.background)}${field('Start date',x.clearance.startDate)}</div><div class="actions tight"><button class="btn" onclick="setClearance('drug','Scheduled')">Drug scheduled</button><button class="btn" onclick="setClearance('drug','Passed')">Drug passed</button><button class="btn" onclick="setClearance('background','Cleared')">Background cleared</button><button class="btn" onclick="setClearance('background','N/A')">Background N/A</button><button class="btn" onclick="setClearance('startDate','Confirmed')">Start confirmed</button></div>`; }
-function candidate(){ let x=c(); const meta=stageMeta(x.stage); return `${head(`${x.first} ${x.last}`,'Review candidate details, update stage, create email drafts, build offer packet, and enforce clearance rules.',`<button class="btn primary" onclick="advance()">Move to next stage</button>`)}<div class="grid two"><section class="panel"><h3>Candidate profile</h3>${field('Role',x.role)}${field('Source',x.source)}${field('Path',x.path)}${field('Current stage',x.stage)}${field('Stage group',meta.group)}${field('Owner / waiting on',x.owner)}${field('Due',x.due)}${field('Email',x.email)}${field('Phone',x.phone||'—')}<div class="notice"><strong>Summary:</strong><br>${esc(x.summary)}</div><div class="notice warning"><strong>Concern to resolve:</strong><br>${esc(x.concerns)}</div></section><section class="panel"><h3>Next action</h3><div class="notice success"><strong>${meta.next ? 'Recommended next stage: '+meta.next : 'No automatic next stage'}</strong><br>Template: ${meta.template}</div><div class="actions"><button class="action" onclick="showDraft(c().stage)"><strong>Generate email</strong><small>Use the installed template for this stage</small></button><button class="action" onclick="advance()"><strong>Move forward</strong><small>Run stage guardrail first</small></button><button class="action" onclick="view='offer';render()"><strong>Offer workflow</strong><small>Build offer request / SOP packet</small></button><button class="action" onclick="setStage('Manager review packet')"><strong>Manager packet</strong><small>Decision-ready review screen</small></button></div><h3 style="margin-top:18px">Stage</h3><select onchange="setStage(this.value)" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:12px">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${s}</option>`).join('')}</select></section></div><div class="grid two" style="margin-top:16px"><section class="panel"><h3>Stronger candidate review</h3>${field('Role expectations', roleFit(x))}<h3>Evidence checklist</h3>${evidenceTable(x)}<h3>Manager-ready decision</h3><div class="scorecard"><div><b>Fit signal</b><span>${x.priority==='Hot'?'Strong':'Needs review'}</span></div><div><b>Risk</b><span>${x.concerns}</span></div><div><b>Recommended action</b><span>${meta.next || 'Human decision'}</span></div></div></section><section class="panel"><h3>Clearance guardrails</h3>${clearancePanel(x)}<h3 style="margin-top:18px">Email draft preview</h3><p class="muted">Template selected from the current stage. In production this creates a Gmail draft for review.</p><div class="draft">${merge(x.stage,x)}</div></section></div><section class="panel" style="margin-top:16px"><h3>Timeline</h3>${x.timeline.map(t=>`<div class="step"><b>${esc(t)}</b><br><small>Logged in candidate history</small></div>`).join('')}</section>`; }
-function setStage(s){ let x=c(); if(s==='BBSI documents invite' && !clearanceReady(x)){ x.timeline.push('Blocked BBSI handoff: pre-employment clearance incomplete'); save(); showGuardrail(); return; } x.stage=s; const meta=stageMeta(s); x.owner=meta.owner; x.due=meta.due; x.timeline.push('Stage changed to '+s); save(); render(); }
+function candidate(){
+  const x=c();
+  const meta=stageMeta(x.stage);
+  const ageLevel=agingLevel(x);
+  const ageText=stageAgeText(x);
+  const showClearance = ['Offer accepted - clearance hold','BBSI documents invite','Offer sent / follow-up','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
+  const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
+  const customDecisions = decisionActionsForStage(x.stage);
+  return `${head(`${esc(x.first)} ${esc(x.last)}`, `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)}`,`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  <section class="panel candidate-hero">
+    <div class="candidate-hero-row">
+      <div class="candidate-hero-stage">
+        <div class="eyebrow">Current stage</div>
+        <h3>${esc(x.stage)}</h3>
+        <p class="muted">${meta.group} group · ${meta.next ? `next: <strong>${esc(meta.next)}</strong>` : 'no automatic next stage'}</p>
+      </div>
+      <div class="candidate-hero-meta">
+        <div class="hero-stat"><span>In stage</span><strong class="age-${ageLevel}">${esc(ageText)}</strong></div>
+        <div class="hero-stat"><span>Waiting on</span><strong>${esc(x.owner)}</strong></div>
+        <div class="hero-stat"><span>Priority</span><strong>${esc(x.priority)}</strong></div>
+      </div>
+    </div>
+    <div class="candidate-hero-actions">
+      ${customDecisions.length ? customDecisions.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('') : `<button class="btn primary" onclick="advance()">Move to next stage</button>`}
+      <button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>
+      ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
+    </div>
+  </section>
+  <div class="grid two" style="margin-top:16px">
+    <section class="panel">
+      <h3>What needs to happen</h3>
+      <div class="notice success"><strong>${meta.next ? 'Recommended next stage' : 'No automatic next stage'}</strong>${meta.next ? `<br>${esc(meta.next)}` : ''}<br><span class="muted">Template: ${esc(meta.template)}</span></div>
+      <h3 style="margin-top:18px">Change stage</h3>
+      <select onchange="setStage(this.value)" class="stage-select">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select>
+      <h3 style="margin-top:18px">Evidence checklist</h3>
+      ${evidenceTable(x)}
+    </section>
+    <section class="panel">
+      <h3>Candidate profile</h3>
+      <div class="profile-grid">
+        ${field('Email', `<a href="mailto:${esc(x.email)}">${esc(x.email)}</a>`)}
+        ${field('Phone', x.phone ? `<a href="tel:${esc(x.phone)}">${esc(x.phone)}</a>` : '—')}
+        ${field('Location', x.location || '—')}
+        ${field('Source', x.source)}
+      </div>
+      <div class="notice"><strong>Summary:</strong><br>${esc(x.summary)}</div>
+      ${x.concerns ? `<div class="notice warning"><strong>Concern to resolve:</strong><br>${esc(x.concerns)}</div>` : ''}
+      <h3 style="margin-top:18px">Role expectations</h3>
+      <p class="muted">${esc(roleFit(x))}</p>
+    </section>
+  </div>
+  ${showClearance ? `<section class="panel" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>` : ''}
+  <section class="panel" style="margin-top:16px">
+    <details class="email-draft-details">
+      <summary><h3 style="display:inline">Preview email draft for this stage</h3></summary>
+      <p class="muted" style="margin-top:8px">Template for "${esc(x.stage)}". In production this creates a Gmail draft for review before sending.</p>
+      <div class="draft">${esc(merge(x.stage,x))}</div>
+    </details>
+  </section>
+  <section class="panel" style="margin-top:16px">
+    <h3>Timeline</h3>
+    <div class="timeline">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
+  </section>`;
+}
+function setStage(s){ let x=c(); if(s==='BBSI documents invite' && !clearanceReady(x)){ x.timeline.push('Blocked BBSI handoff: pre-employment clearance incomplete'); save(); showGuardrail(); return; } if(x.stage !== s) x.stageUpdatedAt = nowISO(); x.stage=s; const meta=stageMeta(s); x.owner=meta.owner; x.due=meta.due; x.timeline.push('Stage changed to '+s); save(); render(); }
 function advance(){ let x=c(); const next = NEXT[x.stage] || 'Manager review packet'; setStage(next); }
 function setClearance(k,v){ let x=c(); x.clearance[k]=v; x.timeline.push(`Clearance updated: ${k} = ${v}`); save(); render(); }
 function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; const body=TEMPLATE_TEXT[key] || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',x.concerns).replaceAll('{{roleFit}}',roleFit(x)); }
 function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. For now, this creates a human-reviewed draft in the platform for copy/paste or manual sending.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn brand" onclick="markDraft()">Mark email draft created</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
 function showGuardrail(){ document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>BBSI handoff blocked</h3><p>Goff’s BBSI ATS SOP says <strong>Offer Accepted = not cleared</strong> and <strong>Onboarding = fully cleared</strong>. Complete drug screen, background, and start date before BBSI onboarding.</p><div class="modal-actions"><button class="btn brand" onclick="document.getElementById('modal').className='modal';render()">Review clearance checklist</button></div></div>`; }
-function manager(){ let x=candidates.find(a=>a.stage==='Manager review packet') || c(); selectedId=x.id; return `${head('Manager review packet','A decision-ready packet built from candidate data, role expectations, evidence status, risks, and next-step recommendation.')}<div class="grid two"><section class="panel"><h3>${x.first} ${x.last} — ${x.role}</h3><div class="tags"><span class="tag red">Decision needed</span><span class="tag blue">${x.source}</span><span class="tag dark">${x.path}</span></div><h3>Role expectations</h3><p>${roleFit(x)}</p><h3>Summary</h3><p>${x.summary}</p><h3>Concern to resolve</h3><p>${x.concerns}</p><div class="notice warning"><strong>Recommended decision:</strong> ${stageMeta(x.stage).next || 'Human decision needed before offer.'}</div></section><section class="panel"><h3>Decision buttons</h3><div class="actions"><button class="action" onclick="setStage('Second interview request')"><strong>Second interview</strong><small>Use Goff second-interview template</small></button><button class="action" onclick="setStage('Offer letter info request')"><strong>Offer path</strong><small>Request verified offer details</small></button><button class="action" onclick="setStage('Needs more experience')"><strong>Needs more experience</strong><small>Generate warm rejection draft</small></button><button class="action" onclick="setStage('Not selected')"><strong>Not selected</strong><small>Human-approved rejection draft</small></button></div><h3 style="margin-top:18px">Evidence checklist</h3>${evidenceTable(x)}</section></div>`; }
-function offer(){ let x=c(); return `${head('Offer letter workflow','Built from Goff’s actual offer-letter template and SOP. Save verified details, preview the letter, then download a Word-compatible document or print to PDF.',`<button class="btn primary" onclick="previewOfferLetter()">Preview offer letter</button>`)}<div class="grid two"><section class="panel"><h3>Offer details</h3><div class="form"><input id="offerDate" placeholder="Offer letter date" value="${esc(x.offer.date)}"><input id="offerStart" placeholder="Expected start date" value="${esc(x.offer.startDate)}"><input id="offerSupervisor" placeholder="Supervisor / reports directly to" value="${esc(x.offer.supervisor)}"><select id="offerEmploymentType"><option ${x.offer.employmentType==='Full-Time'?'selected':''}>Full-Time</option><option ${x.offer.employmentType==='Part-Time'?'selected':''}>Part-Time</option><option ${x.offer.employmentType==='Temporary'?'selected':''}>Temporary</option></select><input id="offerPay" placeholder="Starting pay, e.g. $28.00" value="${esc(x.offer.pay)}"><input id="offerMinHours" placeholder="Minimum required hours per week" value="${esc(x.offer.minHours)}"><input id="offerSchedule" placeholder="Regular scheduled work hours, e.g. 7:00 AM–3:30 PM" value="${esc(x.offer.schedule)}"><input id="offerCore1" placeholder="Core Member 1" value="${esc(x.offer.coreMember1 || x.offer.approvers)}"><input id="offerCore2" placeholder="Core Member 2" value="${esc(x.offer.coreMember2)}"><input id="offerValidity" placeholder="Offer valid for days" value="${esc(x.offer.validityDays)}"><textarea id="offerNotes" placeholder="Conditions / internal notes">${esc(x.offer.notes)}</textarea><button class="btn brand" onclick="saveOffer()">Save offer details</button></div></section><section class="panel"><h3>Generated document actions</h3><div class="actions"><button class="action" onclick="previewOfferLetter()"><strong>Preview actual letter</strong><small>Uses Goff letter text and saved fields</small></button><button class="action" onclick="downloadOfferLetterDoc()"><strong>Download .doc</strong><small>Word-compatible offer letter</small></button><button class="action" onclick="printOfferLetter()"><strong>Print / Save PDF</strong><small>Opens the browser print flow</small></button><button class="action" onclick="setStage('Offer sent / follow-up')"><strong>Mark offer sent</strong><small>Move to follow-up stage</small></button></div><h3 style="margin-top:18px">Offer SOP checklist</h3><div class="steps"><div class="step"><b>1. Verify request</b><br><small>Candidate, position, pay, schedule, start date, supervisor, and core members.</small></div><div class="step"><b>2. Confirm hours</b><br><small>SOP says regular hours should fall between 6:00 AM and 6:00 PM.</small></div><div class="step"><b>3. Generate letter</b><br><small>Download Word-compatible .doc or print/save PDF.</small></div><div class="step"><b>4. Route signatures</b><br><small>Upload generated PDF/DOC to DocHub and assign candidate/core-member fields.</small></div></div></section></div><section class="panel" style="margin-top:16px"><h3>Pre-employment clearance guardrail</h3>${clearancePanel(x)}</section>`; }
+function manager(){
+  const queue = candidates.filter(a => a.stage === 'Manager review packet' || a.stage === 'Offer letter info request');
+  if(!queue.length){
+    return `${head('Manager review','No candidates need a hiring-manager decision right now. New review packets show up here as soon as Quinton finishes the interview + reference loop.')}
+    <section class="panel decisions-empty">
+      <div class="eyebrow eyebrow-decisions">Manager review</div>
+      <h3>Queue is empty.</h3>
+      <p class="muted">When Quinton flags a candidate ready for Austin, they will appear here with a decision-ready packet.</p>
+      <button class="btn" onclick="view='dashboard';render()">Back to dashboard</button>
+    </section>`;
+  }
+  // Default selection: whoever Austin clicked OR the first in queue.
+  let active = queue.find(a => a.id === selectedId) || queue[0];
+  selectedId = active.id;
+  const ageText = stageAgeText(active);
+  const customDecisions = decisionActionsForStage(active.stage);
+  return `${head('Manager review',`${queue.length} candidate${queue.length===1?'':'s'} waiting for a hiring-manager decision.`,`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  <div class="grid manager-grid">
+    <aside class="panel manager-queue">
+      <div class="eyebrow eyebrow-decisions">Review queue</div>
+      <h3>${queue.length} packet${queue.length===1?'':'s'} ready</h3>
+      <div class="manager-queue-list">${queue.map(p => `<button class="manager-queue-item ${p.id===active.id?'selected':''}" onclick="selectedId=${p.id};render()">
+        <strong>${esc(p.first)} ${esc(p.last)}</strong>
+        <small>${esc(p.role)} · ${esc(p.path)}</small>
+        <div class="manager-queue-meta"><span class="tag red">${esc(p.stage)}</span><span class="aging-pill ${agingLevel(p)}">${esc(stageAgeText(p))} waiting</span></div>
+      </button>`).join('')}</div>
+    </aside>
+    <section class="panel manager-packet">
+      <div class="manager-packet-head">
+        <div>
+          <div class="eyebrow">Review packet</div>
+          <h3>${esc(active.first)} ${esc(active.last)} — ${esc(active.role)}</h3>
+          <p class="muted">${esc(active.source)} · ${esc(active.path)} · Waiting ${esc(ageText)} on you</p>
+        </div>
+      </div>
+      <h4>Role expectations</h4>
+      <p>${esc(roleFit(active))}</p>
+      <h4>Summary</h4>
+      <p>${esc(active.summary)}</p>
+      ${active.concerns ? `<div class="notice warning"><strong>Concern to resolve:</strong> ${esc(active.concerns)}</div>` : ''}
+      <h4>Evidence checklist</h4>
+      ${evidenceTable(active)}
+      <h4 style="margin-top:18px">Decision</h4>
+      <div class="manager-decision-actions">
+        ${(customDecisions.length ? customDecisions : [
+          { label:'Approve — start offer', action:"setStage('Offer letter info request')", primary:true },
+          { label:'Second interview', action:"setStage('Second interview request')" },
+          { label:'Needs more experience', action:"setStage('Needs more experience')" },
+          { label:'Pass', action:"setStage('Not selected')" },
+        ]).map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('')}
+        <button class="btn ghost" onclick="view='candidate';render()">Open full candidate →</button>
+      </div>
+    </section>
+  </div>`;
+}
+function offer(){
+  const x=c();
+  const missing=offerMissing(x);
+  const o=x.offer||{};
+  return `${head('Offer letter workflow',`Building the offer for ${esc(x.first)} ${esc(x.last)} (${esc(x.role)}). Save verified details, preview the letter, then download or print.`,`<button class="btn ghost" onclick="view='candidate';render()">← Back to candidate</button>`)}
+  ${missing.length ? `<div class="notice warning"><strong>${missing.length} field${missing.length===1?'':'s'} missing before this offer can be sent:</strong> ${missing.map(esc).join(' · ')}</div>` : `<div class="notice success"><strong>All required fields are present.</strong> You can preview and send.</div>`}
+  <div class="grid two" style="margin-top:16px">
+    <section class="panel">
+      <div class="section-head"><h3>Offer details</h3><span class="muted">Verified by Hiring Manager + Core Members</span></div>
+      <div class="form offer-form">
+        <fieldset class="offer-fieldset">
+          <legend>Position</legend>
+          <label class="field-label">Offer letter date <span class="req">required</span><input id="offerDate" type="date" value="${esc(o.date)}"></label>
+          <label class="field-label">Expected start date <span class="req">required</span><input id="offerStart" type="date" value="${esc(o.startDate)}"></label>
+          <label class="field-label">Supervisor / reports to <span class="req">required</span><input id="offerSupervisor" placeholder="e.g. Quinton Goff" value="${esc(o.supervisor)}"></label>
+          <label class="field-label">Employment type<select id="offerEmploymentType"><option ${o.employmentType==='Full-Time'?'selected':''}>Full-Time</option><option ${o.employmentType==='Part-Time'?'selected':''}>Part-Time</option><option ${o.employmentType==='Temporary'?'selected':''}>Temporary</option></select></label>
+        </fieldset>
+        <fieldset class="offer-fieldset">
+          <legend>Compensation &amp; hours</legend>
+          <label class="field-label">Starting pay <span class="req">required</span><input id="offerPay" placeholder="e.g. $28.00" value="${esc(o.pay)}"></label>
+          <label class="field-label">Minimum hours per week <span class="req">required</span><input id="offerMinHours" placeholder="40" value="${esc(o.minHours)}"></label>
+          <label class="field-label">Regular scheduled hours <span class="req">required</span><input id="offerSchedule" placeholder="e.g. 6:00 AM–2:30 PM" value="${esc(o.schedule)}"></label>
+          <p class="muted small">SOP: regular hours should fall between 6:00 AM and 6:00 PM.</p>
+        </fieldset>
+        <fieldset class="offer-fieldset">
+          <legend>Approvers</legend>
+          <label class="field-label">Core Member 1 <span class="req">required</span><input id="offerCore1" placeholder="e.g. Austin Goff" value="${esc(o.coreMember1 || o.approvers)}"></label>
+          <label class="field-label">Core Member 2 <span class="req">required</span><input id="offerCore2" placeholder="e.g. Quinton Goff" value="${esc(o.coreMember2)}"></label>
+          <label class="field-label">Offer valid for (days)<input id="offerValidity" placeholder="30" value="${esc(o.validityDays)}"></label>
+          <label class="field-label">Conditions / internal notes<textarea id="offerNotes" rows="3" placeholder="Anything to record before sending">${esc(o.notes)}</textarea></label>
+        </fieldset>
+        <button class="btn brand" onclick="saveOffer()">Save offer details</button>
+      </div>
+    </section>
+    <section class="panel">
+      <h3>Generate &amp; send</h3>
+      <div class="offer-actions">
+        <button class="btn primary big" onclick="previewOfferLetter()">Preview actual letter →</button>
+        <div class="offer-actions-row">
+          <button class="btn" onclick="downloadOfferLetterDoc()">Download .doc</button>
+          <button class="btn" onclick="printOfferLetter()">Print / Save PDF</button>
+        </div>
+        <button class="btn brand" onclick="setStage('Offer sent / follow-up')">Mark offer sent → move to follow-up</button>
+      </div>
+      <h4 style="margin-top:22px">Offer SOP checklist</h4>
+      <div class="steps">
+        <div class="step"><b>1. Verify request</b><br><small>Candidate, position, pay, schedule, start date, supervisor, and core members.</small></div>
+        <div class="step"><b>2. Confirm hours</b><br><small>SOP says regular hours should fall between 6:00 AM and 6:00 PM.</small></div>
+        <div class="step"><b>3. Generate letter</b><br><small>Download Word-compatible .doc or print/save PDF.</small></div>
+        <div class="step"><b>4. Route signatures</b><br><small>Upload generated PDF/DOC to DocHub and assign candidate/core-member fields.</small></div>
+      </div>
+    </section>
+  </div>
+  <section class="panel" style="margin-top:16px"><h3>Pre-employment clearance guardrail</h3>${clearancePanel(x)}</section>`;
+}
 function saveOffer(){ let x=c(); x.offer={date:document.getElementById('offerDate').value,pay:document.getElementById('offerPay').value,startDate:document.getElementById('offerStart').value,schedule:document.getElementById('offerSchedule').value,supervisor:document.getElementById('offerSupervisor').value,employmentType:document.getElementById('offerEmploymentType').value,minHours:document.getElementById('offerMinHours').value,coreMember1:document.getElementById('offerCore1').value,coreMember2:document.getElementById('offerCore2').value,approvers:[document.getElementById('offerCore1').value,document.getElementById('offerCore2').value].filter(Boolean).join(', '),validityDays:document.getElementById('offerValidity').value||'30',notes:document.getElementById('offerNotes').value}; x.timeline.push('Offer details saved for generated offer letter'); save(); render(); }
 function offerMissing(x){ const o=x.offer||{}; return [['date','Offer date'],['startDate','Expected start date'],['supervisor','Supervisor'],['pay','Starting pay'],['minHours','Minimum hours'],['schedule','Scheduled work hours'],['coreMember1','Core Member 1'],['coreMember2','Core Member 2']].filter(([k])=>!String(o[k]||'').trim()).map(([,label])=>label); }
 function offerLetterHTML(x, print=false){ const o=x.offer||{}; const candidate=`${x.first} ${x.last}`; const missing=offerMissing(x); return `<!doctype html><html><head><meta charset="utf-8"><title>Goff Offer Letter - ${esc(candidate)}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#111;line-height:1.45;margin:0;background:${print?'#fff':'#eee'}}.page{max-width:820px;margin:${print?'0':'28px auto'};background:#fff;padding:56px 64px;box-shadow:${print?'none':'0 18px 44px rgba(0,0,0,.16)'}}.letterhead{display:flex;justify-content:space-between;border-bottom:4px solid #c40012;padding-bottom:16px;margin-bottom:28px}.brand{font-weight:900;font-size:24px}.addr{text-align:right;font-size:12px;line-height:1.35}.section-title{font-weight:900;margin-top:18px}.siggrid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:34px}.line{border-top:1px solid #111;padding-top:6px;min-height:28px}.missing{background:#fff7e8;border-left:5px solid #a15c00;padding:12px;margin:0 0 18px}.muted{color:#555;font-size:12px}.toolbar{max-width:820px;margin:20px auto 0;display:flex;gap:10px}.btn{border:0;background:#c40012;color:#fff;padding:10px 14px;font-weight:800;border-radius:4px}@media print{.toolbar,.missing{display:none}.page{box-shadow:none;margin:0;padding:36px}}</style></head><body>${print?'':`<div class="toolbar"><button class="btn" onclick="window.print()">Print / Save PDF</button></div>`}<main class="page">${missing.length?`<div class="missing"><strong>Missing before sending:</strong> ${missing.map(esc).join(', ')}</div>`:''}<div class="letterhead"><div><div class="brand">Goff Welding, LLC</div><div class="muted">OFFER LETTER</div></div><div class="addr">531 W 100 S #22<br>Paul, Idaho 83347<br>Phone (208) 647-2488<br>info@goffwelding.com</div></div><p><strong>Date:</strong> ${esc(o.date||'__________')}</p><p>Dear ${esc(candidate)},</p><p>Congratulations! Goff Welding LLC is pleased to extend this offer of employment for the position of <strong>${esc(x.role||'__________')}</strong> with an anticipated start date of <strong>${esc(o.startDate||'__________')}</strong>.</p><p>This offer is contingent upon the successful completion of a background check, drug screening, and verification of your eligibility to work in the United States. Please review this summary of terms and conditions for your anticipated employment with us.</p><p class="section-title">Position</p><p>You will report directly to <strong>${esc(o.supervisor||'__________')}</strong>. This is a <strong>${esc(o.employmentType||'__________')}</strong> position.</p><p class="section-title">Compensation & Hours</p><p>You will be compensated at a rate of <strong>${esc(o.pay||'__________')}</strong> per hour, with payroll issued on a weekly basis each Friday.</p><p>This is a <strong>${esc(o.employmentType||'__________')}</strong> job that will require you to work a minimum of <strong>${esc(o.minHours||'____')}</strong> hours per week. Your typical schedule will fall between the hours of <strong>${esc(o.schedule||'__________')}</strong>, subject to workload.</p><p class="section-title">Benefits</p><p>You will become eligible for company sponsored insurance benefits after 60 days of employment, in accordance with plan terms.</p><p class="section-title">Training Investment</p><p>As part of our commitment to employee development, Goff Welding LLC may sponsor training programs. If you voluntarily resign within one (1) year of completing any company sponsored training, you agree to reimburse the company for the actual cost of such training.</p><p class="section-title">Employment Relationship</p><p>Your employment with Goff Welding LLC is at will, meaning that either you or the company may terminate the employment relationship at any time, with or without cause or notice.</p><p class="section-title">Offer Validity</p><p>This offer is valid for <strong>${esc(o.validityDays||'30')}</strong> calendar days from the date of this letter. If we do not receive your signed acceptance within this timeframe, the offer may be withdrawn.</p><p>We look forward to having you join the Goff Welding LLC team and believe you will find this opportunity both challenging and rewarding!</p><p>Sincerely,</p><div class="siggrid"><div><div class="line">${esc(o.coreMember1||'Core Member 1')}</div></div><div><div class="line">${esc(o.coreMember2||'Core Member 2')}</div></div></div><p style="margin-top:36px">I, <strong>${esc(candidate)}</strong>, have read and understand the provisions of this offer of employment and accept the above conditional job offer.</p><div class="siggrid"><div><div class="line">Candidate Signature</div></div><div><div class="line">Date</div></div><div><div class="line">Candidate Printed Name</div></div></div></main></body></html>`; }
@@ -172,7 +627,81 @@ function safeFileName(s){ return String(s||'candidate').toLowerCase().replace(/[
 function downloadOfferLetterDoc(){ const x=c(); const html=offerLetterHTML(x,true); downloadFile(`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`, html, 'application/msword'); x.timeline.push('Generated offer letter document download'); save(); }
 function printOfferLetter(){ const w=window.open('', '_blank'); w.document.write(offerLetterHTML(c(), true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
 function showOfferPacket(){ previewOfferLetter(); }
-function templates(){ const used = new Set(WORKFLOW_STAGES.map(s=>s.template)); const covered = DRIVE_TEMPLATES.filter(t => TEMPLATE_TEXT[t] || used.has(t)); const notMapped = DRIVE_TEMPLATES.filter(t => !used.has(t) && !TEMPLATE_TEXT[t]); return `${head('Installed templates','Double-check of Goff Drive candidate templates against the platform.')}<div class="grid metrics">${metric('Drive templates found',DRIVE_TEMPLATES.length)}${metric('Mapped in platform',covered.length)}${metric('Stage-driven templates',new Set(WORKFLOW_STAGES.map(s=>s.template)).size)}${metric('Need future mapping',notMapped.length)}</div><div class="grid two"><section class="panel"><h3>Mapped / usable now</h3><div class="template-list">${DRIVE_TEMPLATES.map(t=>`<div class="template-row"><b>${t}</b><span class="tag ${covered.includes(t)?'green':'amber'}">${covered.includes(t)?'Installed':'Needs review'}</span></div>`).join('')}</div></section><section class="panel"><h3>What this powers</h3><div class="steps"><div class="step"><b>Generate email</b><br><small>Uses candidate stage → template mapping.</small></div><div class="step"><b>Manager packets</b><br><small>Internal packet created from role fit, evidence, concerns, and next action.</small></div><div class="step"><b>Offer workflow</b><br><small>Offer Letter SOP is represented as a checklist and generated packet.</small></div><div class="step"><b>Guardrails</b><br><small>BBSI/onboarding movement is blocked until clearance is complete.</small></div></div></section></div>`; }
-function integrations(){ return `${head('Integrations','Manage candidate sources and downstream onboarding handoffs.')}<div class="grid two"><section class="panel"><h3>Candidate source strategy</h3><div class="steps"><div class="step"><b>Website becomes a Goff-branded front door.</b><br><small>Employment page links to Goff apply page instead of BBSI first.</small></div><div class="step"><b>Indeed remains a source initially.</b><br><small>Quinton moves promising applicants in, or imports from CSV/email/paste.</small></div><div class="step"><b>Goff recruiting runs the recruiting workflow.</b><br><small>Follow-up, weld test, phone screen, manager packet, offer path.</small></div><div class="step"><b>BBSI starts after offer acceptance + clearance.</b><br><small>Payroll/legal onboarding, not candidate relationship management.</small></div></div></section><section class="panel"><h3>API reality</h3><table class="table"><tr><th>Path</th><th>Use</th><th>Current use</th></tr><tr><td>Manual shortlist</td><td>Move good Indeed applicants into Goff recruiting</td><td>Use first</td></tr><tr><td>Paste/email parser</td><td>Import from Indeed emails or copied candidate text</td><td>Built in prototype</td></tr><tr><td>CSV import</td><td>Bulk import Indeed exports into Goff recruiting</td><td>Built now</td></tr><tr><td>Indeed APIs</td><td>Partner ATS sync / Candidate Sync / Disposition Sync</td><td>V2 after commitment</td></tr><tr><td>BBSI</td><td>Formal onboarding paperwork</td><td>Handoff only</td></tr></table></section></div><section class="panel" style="margin-top:16px"><h3>Careers page routing</h3><p>Goff’s Employment page can link to a Goff-branded apply page first, keeping the candidate experience inside Goff’s process. BBSI remains the post-offer onboarding handoff.</p></section>`; }
+function previewTemplate(name){
+  const body = TEMPLATE_TEXT[name];
+  if(!body){
+    document.getElementById('modal').className='modal open';
+    document.getElementById('modal').innerHTML = `<div class="modal-card"><h3>${esc(name)}</h3><p>This template is in the Goff Drive library but is not wired into the platform yet. We can add it once you confirm the wording.</p><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button></div></div>`;
+    return;
+  }
+  // Render with the currently-selected candidate so the merge fields are visible.
+  const x = c();
+  const stagesUsing = WORKFLOW_STAGES.filter(s => s.template === name).map(s => s.id);
+  document.getElementById('modal').className='modal open';
+  document.getElementById('modal').innerHTML = `<div class="modal-card"><h3>${esc(name)}</h3>${stagesUsing.length ? `<p>Sent automatically at stage${stagesUsing.length===1?'':'s'}: <strong>${stagesUsing.map(esc).join(', ')}</strong>.</p>` : '<p>This template is mapped but not yet tied to any workflow stage.</p>'}<textarea>${esc(merge(stagesUsing[0] || x.stage, x))}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button></div></div>`;
+}
+
+function templates(){
+  const used = new Set(WORKFLOW_STAGES.map(s => s.template));
+  const installed = DRIVE_TEMPLATES.filter(t => TEMPLATE_TEXT[t] || used.has(t));
+  const notMapped = DRIVE_TEMPLATES.filter(t => !used.has(t) && !TEMPLATE_TEXT[t]);
+  return `${head('Installed templates','Every Drive template that drives this platform, with a preview using the currently-selected candidate.')}
+  <div class="grid metrics">
+    ${metric('Drive templates', DRIVE_TEMPLATES.length)}
+    ${metric('Wired up', installed.length)}
+    ${metric('Stage-driven', new Set(WORKFLOW_STAGES.map(s => s.template)).size)}
+    ${metric('Needs mapping', notMapped.length)}
+  </div>
+  <section class="panel">
+    <h3>Click any template to preview the actual text</h3>
+    <p class="muted">Preview merges in the currently-selected candidate so you can see what would go out.</p>
+    <div class="template-list">${DRIVE_TEMPLATES.map(t => {
+      const isInstalled = installed.includes(t);
+      return `<button class="template-row clickable" onclick="previewTemplate('${esc(t).replace(/'/g,"\\'")}')"><b>${esc(t)}</b><span class="tag ${isInstalled ? 'green' : 'amber'}">${isInstalled ? 'Installed' : 'Needs review'}</span></button>`;
+    }).join('')}</div>
+  </section>
+  <section class="panel" style="margin-top:16px">
+    <h3>How templates feed the platform</h3>
+    <div class="steps">
+      <div class="step"><b>Generate email</b><br><small>Each stage knows which template to use. Click "Generate email draft" on any candidate.</small></div>
+      <div class="step"><b>Manager packets</b><br><small>Internal packet built from role fit, evidence, concerns, and next action.</small></div>
+      <div class="step"><b>Offer workflow</b><br><small>Offer Letter SOP is represented as a checklist and generated packet.</small></div>
+      <div class="step"><b>Guardrails</b><br><small>BBSI/onboarding movement is blocked until clearance is complete.</small></div>
+    </div>
+  </section>`;
+}
+
+function integrations(){
+  // Live posture comes from env at build time; for now show what is wired.
+  const apiWired = true; // /api/goff-recruiting/applications is live
+  const telegramWired = false; // requires env vars in production
+  const integrationCard = (name, status, description, action) => `<div class="integration-card ${status}">
+    <div class="integration-card-head"><strong>${esc(name)}</strong><span class="status-pill ${status}">${status === 'live' ? 'Live' : status === 'pending' ? 'Needs config' : 'Planned'}</span></div>
+    <p>${esc(description)}</p>
+    ${action ? `<div class="muted small">${esc(action)}</div>` : ''}
+  </div>`;
+  return `${head('Integrations','Where applications come in and where they go after offer-accept.',`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  <section class="panel">
+    <h3>Active integrations</h3>
+    <div class="integration-grid">
+      ${integrationCard('Goff Careers page', 'live', 'Public apply form at /goff-recruiting (apply view). Every submission flows into the recruiting queue.', 'No setup needed — this is built in.')}
+      ${integrationCard('Application intake API', apiWired ? 'live' : 'pending', 'Career-page submissions POST to /api/goff-recruiting/applications and persist server-side.', apiWired ? 'Wired up. Vercel Blob persistence.' : 'Set BLOB_READ_WRITE_TOKEN to enable persistence.')}
+      ${integrationCard('Telegram intake alerts', telegramWired ? 'live' : 'pending', 'Quinton receives a Telegram ping the moment an application lands.', 'Set GOFF_RECRUITING_TELEGRAM_BOT_TOKEN, _CHAT_ID, and optional _THREAD_ID in Vercel env.')}
+      ${integrationCard('Indeed CSV import', 'live', 'Bulk import Indeed exports through the Add candidate screen.', 'No setup needed.')}
+      ${integrationCard('Email / single paste import', 'live', 'Paste an Indeed email or applicant text and we parse it.', 'No setup needed.')}
+      ${integrationCard('Indeed Partner ATS sync', 'planned', 'Direct Candidate Sync / Disposition Sync API. After Goff commits, we apply for partnership and wire it.', 'Phase 2 — requires Indeed approval and OAuth setup.')}
+      ${integrationCard('BBSI handoff', 'planned', 'Post-clearance: payroll, I-9, onboarding paperwork. We hand off after offer-accept + clearance complete.', 'Today this is a manual handoff inside BBSI portal.')}
+    </div>
+  </section>
+  <section class="panel" style="margin-top:16px">
+    <h3>Candidate source strategy</h3>
+    <div class="steps">
+      <div class="step"><b>Website is the front door.</b><br><small>The Goff Employment page links to the Goff-branded apply form first, not BBSI.</small></div>
+      <div class="step"><b>Indeed stays a source.</b><br><small>Quinton moves promising applicants in, or imports from CSV / email / paste.</small></div>
+      <div class="step"><b>Goff recruiting runs the workflow.</b><br><small>Follow-up, weld test, phone screen, manager packet, offer path.</small></div>
+      <div class="step"><b>BBSI starts after offer acceptance + clearance.</b><br><small>Payroll/legal onboarding only, not candidate relationship management.</small></div>
+    </div>
+  </section>`;
+}
 
 render();

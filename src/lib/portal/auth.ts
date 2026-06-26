@@ -29,6 +29,7 @@ function parsePortalAccessCodes(): PortalCodeMap {
       'rachel-hansen': 'rachel-preview',
       'handy-truck-lines': 'handy-preview',
       'stoke-ai': 'stoke-preview',
+      'goff-admin': 'goff-admin-preview',
     };
   }
 
