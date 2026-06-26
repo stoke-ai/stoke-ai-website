@@ -126,3 +126,12 @@ img,svg,canvas,iframe{max-width:100%}
 .section-head .btn{flex:0 0 auto}
 .workflow-map .notice{margin-top:8px;margin-bottom:18px;background:#fafafa}
 @media(max-width:760px){.section-head{display:block}.section-head .btn{margin-top:12px;width:100%}}
+
+.pipe-step{appearance:none;text-align:left;font:inherit;color:inherit;cursor:pointer;width:100%;transition:border-color .16s,box-shadow .16s,transform .16s,background .16s}
+.pipe-step:hover{border-left-color:var(--brand);box-shadow:var(--shadow-raised);transform:translateY(-1px)}
+.pipe-step.selected{border-color:rgba(192,24,43,.42);border-left-color:var(--brand);background:linear-gradient(180deg,#fff,#fff0f2);box-shadow:0 0 0 3px rgba(192,24,43,.08)}
+.pipe-step em{display:inline-flex;margin-top:10px;font-style:normal;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#555;background:#f0f0f0;border-radius:999px;padding:5px 9px}
+.pipe-step.has-candidate em{background:rgba(192,24,43,.12);color:var(--brand)}
+.stage-detail{margin-top:20px;border-top:1px solid var(--line);padding-top:20px}
+.section-head.compact{align-items:center;margin-bottom:12px}
+.queue.compact .candidate{padding:14px 16px}
