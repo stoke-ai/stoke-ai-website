@@ -330,6 +330,45 @@ img,svg,canvas,iframe{max-width:100%}
   .public-footer{padding:28px 24px}
 }
 
+/* ─── How-it-works guide ─────────────────────────────────────────── */
+.howto-list{padding-left:22px;color:#333;line-height:1.7;margin:8px 0 0}
+.howto-list li{margin-bottom:8px}
+.howto-list code{background:#f4f4f4;border:1px solid #e6e6e6;border-radius:3px;padding:1px 6px;font-size:13px;color:var(--brand)}
+.howto-role h4{margin:0 0 8px;font-family:'Playfair Display',serif;font-weight:700;font-size:20px;color:#0a0a0a}
+.howto-role p{margin:0 0 8px;color:#444}
+.howto-role ul{padding-left:22px;color:#333;line-height:1.65;margin:0}
+.howto-role ul li{margin-bottom:4px}
+.howto-flow{padding-left:24px;color:#333;line-height:1.75;margin:8px 0 0;counter-reset:howto-step}
+.howto-flow li{margin-bottom:10px}
+.howto-zones{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:8px}
+.howto-zone{background:#fafafa;border:1px solid #eee;border-left:4px solid var(--brand);border-radius:var(--radius);padding:18px 20px}
+.howto-zone h4{margin:0 0 8px;font-family:'Playfair Display',serif;font-weight:700;font-size:18px;color:#0a0a0a}
+.howto-zone p{margin:0;color:#444;line-height:1.55;font-size:14px}
+.howto-zone em{font-style:normal;font-weight:700;color:var(--brand)}
+.howto-table{width:100%;border-collapse:collapse;font-size:14px;margin-top:8px}
+.howto-table th{text-align:left;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#888;border-bottom:2px solid #111;padding:12px}
+.howto-table td{border-bottom:1px solid #eee;padding:13px 12px;color:#444;vertical-align:top;line-height:1.5}
+.howto-table tr:hover td{background:#fafafa}
+.howto-quickref{background:#fff7f8;border-left:4px solid var(--brand)}
+
+@media(max-width:760px){
+  .howto-zones{grid-template-columns:1fr}
+  .howto-table{display:block;overflow-x:auto;max-width:100%}
+}
+
+@media print{
+  body{background:#fff}
+  .sidebar,.sidebar-signout,.topbar .btn,.btn{display:none !important}
+  .content{padding:24px 32px;background:#fff}
+  .panel{break-inside:avoid;page-break-inside:avoid;box-shadow:none;border:1px solid #d5d5d5;margin-bottom:14px;padding:18px 22px}
+  .topbar h2{font-size:34px}
+  .topbar p{font-size:13px}
+  .howto-zones{grid-template-columns:1fr 1fr;gap:10px}
+  .howto-zone{padding:12px 14px}
+  .howto-zone h4{font-size:15px}
+  .howto-zone p{font-size:12px}
+}
+
 /* ─── Candidates list (filters) ──────────────────────────────────── */
 .filters{display:flex;flex-direction:column;gap:14px}
 .filter-search{padding:13px 16px;border:1.5px solid #d5d5d5;border-radius:3px;background:#fff;font-size:15px}

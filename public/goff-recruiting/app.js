@@ -269,11 +269,11 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Integrations')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Integrations')}${nav('how-it-works','How it works')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
-function page(){ return ({dashboard,intake,career,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations}[view] || dashboard)(); }
+function page(){ return ({dashboard,intake,career,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)(); }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
   const austinDecisions = candidates.filter(needsHiringManager);
@@ -768,6 +768,141 @@ function integrations(){
       <div class="step"><b>Goff recruiting runs the workflow.</b><br><small>Follow-up, weld test, phone screen, manager packet, offer path.</small></div>
       <div class="step"><b>BBSI starts after offer acceptance + clearance.</b><br><small>Payroll/legal onboarding only, not candidate relationship management.</small></div>
     </div>
+  </section>`;
+}
+
+function howItWorks(){
+  return `${head('How Goff Recruiting works', 'A quick tour of how Austin, Quinton, and applicants move through the system. Use this as the one-pager to share with anyone new.', `<button class="btn" onclick="window.print()">Print this guide</button>`)}
+
+  <section class="panel">
+    <h3>What this is</h3>
+    <p>Goff Recruiting replaces the Google Workspace + Indeed + BBSI shuffle. Every applicant lives in one queue, from first application through onboarding handoff. There are two front doors:</p>
+    <ul class="howto-list">
+      <li><strong>Public careers page</strong> — currently at <code>goff.stoke-ai.com</code>, will move to <code>careers.goffwelding.com</code> when DNS is in hand. This is where applicants apply.</li>
+      <li><strong>Admin dashboard</strong> — what you are looking at now. This is where Austin and Quinton run the hiring queue.</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h3>Two roles, plain English</h3>
+    <div class="grid two">
+      <div class="howto-role">
+        <h4>Austin — Hiring Manager</h4>
+        <p>Owns the big calls. Spends most of his time on:</p>
+        <ul>
+          <li><strong>Dashboard</strong> — sees what needs his decision today</li>
+          <li><strong>Manager review</strong> — approves, passes, or asks for a second interview</li>
+          <li><strong>Offer workflow</strong> — confirms pay, schedule, approvers; signs off on offers</li>
+        </ul>
+      </div>
+      <div class="howto-role">
+        <h4>Quinton — Recruiter</h4>
+        <p>Owns the day-to-day. Spends most of his time on:</p>
+        <ul>
+          <li><strong>Candidates</strong> — works the active pipeline</li>
+          <li><strong>Add candidate</strong> — Indeed CSV import, paste imports, walk-ins</li>
+          <li><strong>Candidate detail</strong> — moves people through stages, generates email drafts</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Where applicants come in</h3>
+    <ol class="howto-list">
+      <li><strong>Careers page apply form</strong> — auto-creates a candidate record and pings Quinton on Telegram (when configured).</li>
+      <li><strong>Indeed CSV import</strong> — paste or upload an Indeed export at <em>Add candidate</em>.</li>
+      <li><strong>Paste single applicant</strong> — paste an Indeed email or candidate text and the parser pulls name, email, phone, role.</li>
+      <li><strong>Quick add</strong> — for walk-ins, referrals, and phone calls.</li>
+    </ol>
+  </section>
+
+  <section class="panel">
+    <h3>How a candidate moves through the system</h3>
+    <ol class="howto-flow">
+      <li><strong>Application received</strong> — Quinton triages and picks a path (Welder or Other).</li>
+      <li><strong>Welder path</strong> — weld test invite → confirm → score. <strong>Other path</strong> — phone screen → review.</li>
+      <li><strong>Interview</strong> — schedule, confirm, complete, capture notes.</li>
+      <li><strong>References + Crystal Knows</strong> — authorization → send → call → review.</li>
+      <li><strong>Manager review packet</strong> — Austin decides: approve to offer, second interview, or pass.</li>
+      <li><strong>Background check</strong> — pre-offer step.</li>
+      <li><strong>Offer</strong> — info request → draft → sent → 24-hour follow-up.</li>
+      <li><strong>Offer accepted &mdash; clearance hold</strong> — drug screen + background + start date confirmed before BBSI.</li>
+      <li><strong>BBSI documents invite</strong> — payroll / legal onboarding kicks off.</li>
+      <li><strong>Schedule first day → Transition to onboarding workflow</strong> — done.</li>
+    </ol>
+  </section>
+
+  <section class="panel">
+    <h3>What the dashboard shows you</h3>
+    <div class="howto-zones">
+      <div class="howto-zone">
+        <h4>Your decisions</h4>
+        <p>Candidates currently waiting on a hiring-manager call. One-tap action buttons (<em>Approve</em>, <em>Second interview</em>, <em>Pass</em>) so Austin can decide in seconds.</p>
+      </div>
+      <div class="howto-zone">
+        <h4>Pipeline by path</h4>
+        <p>Welder funnel and Other funnel side by side. Each shows count per stage with the candidate's first name as a clickable chip. Click a chip to jump straight to that person.</p>
+      </div>
+      <div class="howto-zone">
+        <h4>Check before they go cold</h4>
+        <p>Candidates aging past 3 days (amber) or 5 days (red) in their current stage. If Quinton goes on vacation, the dashboard catches the drift automatically.</p>
+      </div>
+      <div class="howto-zone">
+        <h4>Quinton's queue</h4>
+        <p>Everything else moving normally. De-emphasized so the important stuff stays loud.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>Guardrails the platform enforces</h3>
+    <ul class="howto-list">
+      <li><strong>BBSI hold</strong> — you cannot move to BBSI documents invite until drug screen, background, AND start date are all complete. The system blocks the move and explains why.</li>
+      <li><strong>Offer missing fields</strong> — a yellow banner lists what is missing before you can send the offer. No half-filled offer letters going out.</li>
+      <li><strong>Email templates by stage</strong> — every stage has the matching template installed. Click <em>Generate email draft</em> on any candidate and you get the right template merged with their info.</li>
+      <li><strong>Aging surfaces stuck candidates</strong> — anyone in a stage longer than 3 days shows up in the dashboard automatically.</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h3>Each view in the sidebar</h3>
+    <table class="howto-table">
+      <thead><tr><th>View</th><th>What it does</th><th>Best for</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Dashboard</strong></td><td>Today's snapshot — decisions, pipeline, aging, Quinton's queue</td><td>Morning check-in</td></tr>
+        <tr><td><strong>Candidates</strong></td><td>Searchable list of everyone with filter chips (path, status, waiting on)</td><td>Finding a specific candidate</td></tr>
+        <tr><td><strong>Add candidate</strong></td><td>Quick-add, paste import, Indeed CSV import</td><td>Bringing new applicants in</td></tr>
+        <tr><td><strong>Manager review</strong></td><td>Queue + packet panel for hiring-manager decisions</td><td>Austin's batched decision time</td></tr>
+        <tr><td><strong>Offer workflow</strong></td><td>Build, preview, download, and send offer letters using Goff's SOP</td><td>Offer prep</td></tr>
+        <tr><td><strong>Full workflow</strong></td><td>Reference: all 35 stages of Goff's hiring process</td><td>Quinton checking what a stage means</td></tr>
+        <tr><td><strong>Templates</strong></td><td>Every email template — click to preview with current candidate merged in</td><td>Stale-template audit</td></tr>
+        <tr><td><strong>Integrations</strong></td><td>Status of intake channels and downstream handoffs</td><td>Setup + planned features</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="panel">
+    <h3>What is coming next</h3>
+    <ul class="howto-list">
+      <li>Server-side persistence so the queue syncs across Austin's phone and Quinton's laptop.</li>
+      <li>Resume upload on the careers page apply form.</li>
+      <li>Indeed Partner ATS sync — direct API, no CSV.</li>
+      <li>Magic-link emails so Austin can approve an offer from his phone without logging in.</li>
+      <li>Move the careers page to <code>careers.goffwelding.com</code> once Austin shares his DNS provider.</li>
+      <li>Lock the admin behind a password (one-flag env var when you are ready).</li>
+    </ul>
+  </section>
+
+  <section class="panel howto-quickref">
+    <h3>Quick reference card</h3>
+    <ul class="howto-list">
+      <li><strong>Daily:</strong> Dashboard → handle "Your decisions" + "Check before they go cold."</li>
+      <li><strong>When a new application comes in:</strong> Add candidate or watch for the Telegram ping. Triage in candidate detail.</li>
+      <li><strong>When Austin needs to approve:</strong> Manager review screen.</li>
+      <li><strong>When the offer is ready:</strong> Offer workflow → preview → download .doc → DocHub for signatures.</li>
+      <li><strong>If you forget a stage:</strong> Full workflow shows every stage and what comes next.</li>
+    </ul>
   </section>`;
 }
 
