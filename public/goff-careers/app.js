@@ -63,7 +63,7 @@ function jobCardHTML(j){
 function career(){
   return `<main class="public-careers">
     <section class="career-hero public-hero">
-      <div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div>
+      <div class="public-brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="public-brand-logo"><span class="public-brand-tag">Careers</span></div>
       <div class="eyebrow" style="color:#fff">Now hiring</div>
       <h2>Built right. Paid right. On time.</h2>
       <p>Goff Welding is a sanitary stainless fabrication shop in Paul, Idaho. We build food, dairy, and industrial work where weld quality is non-negotiable. If you take pride in your trade, we want to test on day one.</p>
@@ -156,7 +156,7 @@ async function submitApplication(){
 function thanks(){
   return `<main class="public-careers">
     <section class="career-hero public-hero">
-      <div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div>
+      <div class="public-brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="public-brand-logo"><span class="public-brand-tag">Careers</span></div>
       <h2>Thanks — your application is in.</h2>
       <p>Your application is in front of our hiring team. If your experience fits a current opening, expect a call or email within a few business days. Most welder and fitter roles start with a paid weld test.</p>
     </section>

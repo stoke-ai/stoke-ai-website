@@ -53,7 +53,9 @@ img,svg,canvas,iframe{max-width:100%}
 .public-careers{min-height:100vh;background:var(--cloud)}
 .public-hero{background:linear-gradient(90deg,rgba(10,10,10,.92),rgba(10,10,10,.75)),radial-gradient(circle at 70% 20%,rgba(192,24,43,.32),transparent 34%),#0a0a0a;color:#fff;padding:0 48px 78px;position:relative;overflow:hidden}
 .public-hero:before{content:"";display:block;height:6px;background:var(--brand);margin:0 -48px 58px}
-.public-brand{max-width:1180px;margin:0 auto 54px;display:flex;align-items:center;gap:14px}
+.public-brand{max-width:1180px;margin:0 auto 54px;display:flex;align-items:center;gap:18px}
+.public-brand-logo{width:auto;height:64px;max-width:220px;display:block;filter:drop-shadow(0 2px 8px rgba(0,0,0,.45))}
+.public-brand-tag{display:inline-flex;align-items:center;color:#b8b8b8;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;border-left:1px solid rgba(255,255,255,.18);padding-left:18px;height:48px}
 .mark{width:54px;height:54px;border-radius:3px;background:var(--brand);display:grid;place-items:center;font-family:'Playfair Display',serif;font-weight:800;font-size:18px;color:#fff;box-shadow:0 2px 6px rgba(192,24,43,.3)}
 .public-brand strong{font-family:'Playfair Display',serif;font-size:22px}
 .public-brand strong:after{content:".";color:var(--brand)}
