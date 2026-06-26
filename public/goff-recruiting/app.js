@@ -369,7 +369,7 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Integrations')}${nav('how-it-works','How it works')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
@@ -860,7 +860,7 @@ function integrations(){
     <p>${esc(description)}</p>
     ${action ? `<div class="muted small">${esc(action)}</div>` : ''}
   </div>`;
-  return `${head('Integrations','Where applications come in and where they go after offer-accept.',`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  return `${head('Setup &amp; status','What is wired up, what needs config, and what is planned. Each card shows the current state plus what it would take to flip it on or build it.',`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
   <section class="panel">
     <h3>Active integrations</h3>
     <div class="integration-grid">
@@ -872,15 +872,7 @@ function integrations(){
       ${integrationCard('Indeed Partner ATS sync', 'planned', 'Direct Candidate Sync / Disposition Sync API. After Goff commits, we apply for partnership and wire it.', 'Phase 2 — requires Indeed approval and OAuth setup.')}
       ${integrationCard('BBSI handoff', 'planned', 'Post-clearance: payroll, I-9, onboarding paperwork. We hand off after offer-accept + clearance complete.', 'Today this is a manual handoff inside BBSI portal.')}
     </div>
-  </section>
-  <section class="panel" style="margin-top:16px">
-    <h3>Candidate source strategy</h3>
-    <div class="steps">
-      <div class="step"><b>Website is the front door.</b><br><small>The Goff Employment page links to the Goff-branded apply form first, not BBSI.</small></div>
-      <div class="step"><b>Indeed stays a source.</b><br><small>Promising applicants get moved in manually or imported from CSV / email / paste.</small></div>
-      <div class="step"><b>Goff recruiting runs the workflow.</b><br><small>Follow-up, weld test, phone screen, manager packet, offer path.</small></div>
-      <div class="step"><b>BBSI starts after offer acceptance + clearance.</b><br><small>Payroll/legal onboarding only, not candidate relationship management.</small></div>
-    </div>
+    <p class="muted small" style="margin-top:18px">For the strategic view of how these channels fit together, see <strong>How it works → Where applicants come in</strong>.</p>
   </section>`;
 }
 
@@ -898,12 +890,21 @@ function howItWorks(){
 
   <section class="panel">
     <h3>Where applicants come in</h3>
+    <p class="muted">Goff has multiple intake channels feeding one queue. Each route below ends in the same place: a candidate record in this system, owned by the recruiting team.</p>
     <ol class="howto-list">
       <li><strong>Careers page apply form</strong> — auto-creates a candidate record and pings the hiring team on Telegram (when configured).</li>
       <li><strong>Indeed CSV import</strong> — paste or upload an Indeed export at <em>Add candidate</em>.</li>
       <li><strong>Paste single applicant</strong> — paste an Indeed email or candidate text and the parser pulls name, email, phone, role.</li>
       <li><strong>Quick add</strong> — for walk-ins, referrals, and phone calls.</li>
     </ol>
+    <h4 class="howto-subhead">How the channels fit together</h4>
+    <div class="steps">
+      <div class="step"><b>Website is the front door.</b><br><small>The Goff Employment page links to the Goff-branded apply form first, not BBSI.</small></div>
+      <div class="step"><b>Indeed stays a source.</b><br><small>Promising applicants get moved in manually or imported from CSV / email / paste.</small></div>
+      <div class="step"><b>Goff Recruiting runs the workflow.</b><br><small>Follow-up, weld test, phone screen, manager packet, offer path.</small></div>
+      <div class="step"><b>BBSI starts after offer acceptance + clearance.</b><br><small>Payroll/legal onboarding only, not candidate relationship management.</small></div>
+    </div>
+    <p class="muted small" style="margin-top:12px">For the live setup status of each channel — and what is wired up vs planned — see <strong>Setup &amp; status</strong> in the sidebar.</p>
   </section>
 
   <section class="panel">
@@ -970,7 +971,7 @@ function howItWorks(){
         <tr><td><strong>Offer workflow</strong></td><td>Build, preview, download, and send offer letters using Goff's SOP</td><td>Offer prep</td></tr>
         <tr><td><strong>Full workflow</strong></td><td>Reference: all 35 stages of Goff's hiring process</td><td>Looking up what a stage means or what triggers next</td></tr>
         <tr><td><strong>Templates</strong></td><td>Every email template — click to preview with current candidate merged in</td><td>Stale-template audit</td></tr>
-        <tr><td><strong>Integrations</strong></td><td>Status of intake channels and downstream handoffs</td><td>Setup + planned features</td></tr>
+        <tr><td><strong>Setup &amp; status</strong></td><td>Live status of every intake channel and downstream handoff — what is wired, what needs config, what is planned</td><td>Wiring env vars and checking what is connected</td></tr>
       </tbody>
     </table>
   </section>
