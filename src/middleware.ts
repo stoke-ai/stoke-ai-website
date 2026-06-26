@@ -80,7 +80,12 @@ export async function middleware(request: NextRequest) {
 
   // Gate /goff-recruiting/* on the main domain: require a portal session
   // whose clientId === 'goff-admin'. Login page is exempt.
-  if (pathname.startsWith('/goff-recruiting') && !isPublicAdminPath(pathname)) {
+  //
+  // The gate is OFF by default so the demo works without any env setup.
+  // To lock it down later, set GOFF_RECRUITING_REQUIRE_AUTH=true in Vercel
+  // along with PORTAL_SESSION_SECRET + PORTAL_ACCESS_CODES.
+  const authRequired = process.env.GOFF_RECRUITING_REQUIRE_AUTH === 'true';
+  if (authRequired && pathname.startsWith('/goff-recruiting') && !isPublicAdminPath(pathname)) {
     const token = request.cookies.get(PORTAL_COOKIE)?.value;
     const clientId = await clientIdFromCookie(token);
     if (clientId !== GOFF_ADMIN_CLIENT_ID) {
