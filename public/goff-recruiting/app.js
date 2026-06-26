@@ -40,7 +40,7 @@ const STAGES = WORKFLOW_STAGES.map(s => s.id);
 const STAGE = Object.fromEntries(WORKFLOW_STAGES.map(s => [s.id, s]));
 const NEXT = Object.fromEntries(WORKFLOW_STAGES.filter(s => s.next).map(s => [s.id, s.next]));
 
-const HIRING_LEAD_NAME = 'Austin';
+// (Greeting is role-neutral by default; swap to a name later if Goff prefers.)
 
 // Funnel buckets condense the 35-stage workflow into the 6 visual stages a
 // hiring manager actually thinks in. Used on the dashboard pipeline.
@@ -68,7 +68,7 @@ function needsHiringManager(c){ return isActive(c) && (c.owner === 'Hiring Manag
 
 // Decision routing — what buttons appear on a "Your decisions" card for each
 // Hiring-Manager-owned stage. The primary button is the affirm/move-forward
-// path; secondary buttons cover the other real decisions Austin would make.
+// path; secondary buttons cover the other real decisions a hiring lead would make.
 function decisionActionsForStage(stage){
   if(stage === 'Manager review packet') return [
     { label: 'Approve — start offer', action: "setStage('Offer letter info request')", primary: true },
@@ -118,7 +118,7 @@ const TEMPLATE_TEXT = {
  'Onboarding Handoff Summary':`ONBOARDING HANDOFF SUMMARY\n\nCandidate: {{first}} {{last}}\nRole: {{role}}\n\nRecruiting complete. Move to new-hire onboarding workflow and make sure employee-facing materials are ready.`
 };
 
-// Job copy fields. Pay ranges, schedules, and perks are placeholders — Austin
+// Job copy fields. Pay ranges, schedules, and perks are placeholders — Goff
 // can edit these in code (or eventually in a settings UI) once he gives Stoke
 // the real numbers. The careers page renders all of these fields verbatim, so
 // keep them short and applicant-facing.
@@ -286,24 +286,24 @@ function dashboard(){
 
   const todaySummary = buildTodaySummary(austinDecisions, stale.length, aging.length);
 
-  return `${head(`Morning, ${HIRING_LEAD_NAME}.`, todaySummary, `<button class="btn primary" onclick="window.open('/goff-careers/','_blank','noopener')">Open careers page</button>`)}
-  ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Your decisions</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on you.' : `${austinDecisions.length} candidates are waiting on you.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Your decisions</div><h3>Nothing needs you right now.</h3><p class="muted">Quinton is moving the queue. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
+  return `${head(`Today's hiring snapshot.`, todaySummary, `<button class="btn primary" onclick="window.open('/goff-careers/','_blank','noopener')">Open careers page</button>`)}
+  ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on a hiring-lead call.' : `${austinDecisions.length} candidates are waiting on a hiring-lead call.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>No decisions waiting right now.</h3><p class="muted">The recruiting queue is moving. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
 
   <section class="panel funnels"><div class="section-head"><div><div class="eyebrow">Pipeline by path</div><h3>From applied to hired.</h3></div><button class="btn" onclick="view='workflow';render()">View full workflow</button></div>${funnelHTML('Welder path — fabricators &amp; fitters', welderCandidates)}${funnelHTML('Other roles — foreman, inventory, procurement, helper', otherCandidates)}</section>
 
   ${(stale.length || aging.length) ? `<section class="panel aging"><div class="section-head"><div><div class="eyebrow eyebrow-aging">Check before they go cold</div><h3>${stale.length ? `${stale.length} stale${aging.length ? `, ${aging.length} aging` : ''}.` : `${aging.length} aging.`}</h3></div></div><div class="aging-list">${stale.map(c => agingRow(c,'stale')).join('')}${aging.map(c => agingRow(c,'aging')).join('')}</div></section>` : ''}
 
-  <section class="panel"><div class="section-head"><div><div class="eyebrow">Quinton's queue</div><h3>${quintonsQueue.length === 1 ? '1 candidate moving normally.' : `${quintonsQueue.length} candidates moving normally.`}</h3></div></div>${quintonsQueue.length ? `<div class="queue">${quintonsQueue.map(card).join('')}</div>` : `<p class="muted">Nothing else in motion. Add a candidate from the Intake screen.</p>`}</section>`;
+  <section class="panel"><div class="section-head"><div><div class="eyebrow">In motion</div><h3>${quintonsQueue.length === 1 ? '1 candidate moving normally.' : `${quintonsQueue.length} candidates moving normally.`}</h3></div></div>${quintonsQueue.length ? `<div class="queue">${quintonsQueue.map(card).join('')}</div>` : `<p class="muted">Nothing else in motion. Add a candidate from the Intake screen.</p>`}</section>`;
 }
 
-function buildTodaySummary(austinDecisions, staleCount, agingCount){
+function buildTodaySummary(pendingDecisions, staleCount, agingCount){
   const parts = [];
-  if(austinDecisions.length === 0) parts.push('Nothing on you today.');
-  else if(austinDecisions.length === 1) parts.push('1 thing needs you today.');
-  else parts.push(`${austinDecisions.length} things need you today.`);
+  if(pendingDecisions.length === 0) parts.push('No hiring-lead decisions pending today.');
+  else if(pendingDecisions.length === 1) parts.push('1 candidate is waiting on a hiring-lead call.');
+  else parts.push(`${pendingDecisions.length} candidates are waiting on a hiring-lead call.`);
   if(staleCount) parts.push(`${staleCount} candidate${staleCount===1?'':'s'} aging past 5 days — check before they go cold.`);
   else if(agingCount) parts.push(`${agingCount} candidate${agingCount===1?'':'s'} drifting — keep an eye on them.`);
-  else parts.push('Pipeline is clean — Quinton is moving it.');
+  else parts.push('Pipeline is clean — moving normally.');
   return parts.join(' ');
 }
 
@@ -350,7 +350,7 @@ function agingRow(x, level){
 
 function workflow(){
   return `${head('Hiring workflow','Reference: every stage in Goff’s hiring process from application to BBSI handoff. Useful when you need to see what a stage means, the template it triggers, and what must happen before the next step.',`<button class="btn" onclick="view='templates';render()">View templates</button>`)}
-  <div class="notice"><strong>How to read this:</strong> Quinton owns most stages; the candidate owns the ones where we are waiting on them; ${HIRING_LEAD_NAME} owns Manager review and Offer letter info. Click any stage to see who is currently in it.</div>
+  <div class="notice"><strong>How to read this:</strong> The recruiter owns most stages; the candidate owns the ones where we are waiting on them; the hiring lead owns Manager review and Offer letter info. Click any stage to see who is currently in it.</div>
   <section class="panel workflow-map">
     <div class="pipeline">${WORKFLOW_STAGES.filter(s => !['Disposition'].includes(s.group)).map(stageTile).join('')}</div>
     ${stageDetailPanel()}
@@ -360,7 +360,7 @@ function card(x){ return `<div class="candidate" onclick="selectedId=${x.id};vie
 function stageTile(s){ const count=candidates.filter(x=>x.stage===s.id).length; return `<button class="pipe-step ${count?'has-candidate':''} ${selectedStage===s.id?'selected':''}" onclick="selectedStage='${esc(s.id)}';render()"><small>${s.group}</small><b>${s.id}</b><span>${s.template}</span><em>${count} candidate${count===1?'':'s'}</em></button>`; }
 function stageDetailPanel(){ const stage=selectedStage || WORKFLOW_STAGES[0].id; const meta=stageMeta(stage); const list=candidates.filter(x=>x.stage===stage); return `<div class="stage-detail"><div class="section-head compact"><div><h3>${esc(stage)}</h3><p class="muted">${list.length ? `${list.length} candidate${list.length===1?'':'s'} currently in this status.` : 'No candidates are currently in this status.'} Next step: ${esc(meta.next || 'human decision / complete')}</p></div><span class="tag dark">${esc(meta.template)}</span></div>${list.length ? `<div class="queue compact">${list.map(card).join('')}</div>` : `<div class="notice"><strong>Empty stage.</strong><br>When someone reaches ${esc(stage)}, they will appear here.</div>`}</div>`; }
 
-function intake(){ return `${head('Add candidate','Add applicants from the website, Indeed, referrals, walk-ins, email, CSV, or copied text.',`<button class="btn brand" onclick="downloadIndeedSampleCSV()">Download sample Indeed CSV</button>`)}<div class="grid three"><section class="panel"><h3>1. Quick add</h3><p>For walk-ins, referrals, phone calls, and one-off Indeed candidates Quinton wants to work.</p><div class="form"><input id="qaName" placeholder="Candidate name"><input id="qaEmail" placeholder="Email"><select id="qaRole">${jobs.map(j=>`<option>${j.title}</option>`).join('')}</select><select id="qaSource"><option>Website</option><option>Indeed</option><option>Referral</option><option>Walk-in</option><option>BBSI export</option></select><button class="btn primary" onclick="quickAdd()">Add to Goff queue</button></div></section><section class="panel"><h3>2. Indeed CSV import</h3><p>Upload an Indeed candidate CSV/export. The importer accepts flexible headers like name, first name, last name, email, phone, job title, location, status, resume, and notes.</p><div class="form"><input id="csvFile" type="file" accept=".csv,text/csv" onchange="handleCSVFile(event)"><textarea id="csvPasteBox" class="importbox" placeholder="Or paste Indeed CSV rows here..."></textarea><button class="btn brand" onclick="parseIndeedCSV(document.getElementById('csvPasteBox').value)">Preview CSV import</button></div></section><section class="panel"><h3>3. Paste single applicant</h3><p>For copied Indeed candidate text or email notifications.</p><textarea id="pasteBox" class="importbox" placeholder="Paste one applicant text here..."></textarea><button class="btn brand" onclick="parseImport()">Parse one candidate</button><div class="notice success"><strong>Routing:</strong> Goff recruiting owns the queue. BBSI starts after offer acceptance and clearance.</div></section></div><section class="panel" style="margin-top:16px"><h3>Import preview / result</h3><div id="importResult" class="notice">No import run yet.</div></section>`; }
+function intake(){ return `${head('Add candidate','Add applicants from the website, Indeed, referrals, walk-ins, email, CSV, or copied text.',`<button class="btn brand" onclick="downloadIndeedSampleCSV()">Download sample Indeed CSV</button>`)}<div class="grid three"><section class="panel"><h3>1. Quick add</h3><p>For walk-ins, referrals, phone calls, and one-off Indeed candidates the recruiter wants to work.</p><div class="form"><input id="qaName" placeholder="Candidate name"><input id="qaEmail" placeholder="Email"><select id="qaRole">${jobs.map(j=>`<option>${j.title}</option>`).join('')}</select><select id="qaSource"><option>Website</option><option>Indeed</option><option>Referral</option><option>Walk-in</option><option>BBSI export</option></select><button class="btn primary" onclick="quickAdd()">Add to Goff queue</button></div></section><section class="panel"><h3>2. Indeed CSV import</h3><p>Upload an Indeed candidate CSV/export. The importer accepts flexible headers like name, first name, last name, email, phone, job title, location, status, resume, and notes.</p><div class="form"><input id="csvFile" type="file" accept=".csv,text/csv" onchange="handleCSVFile(event)"><textarea id="csvPasteBox" class="importbox" placeholder="Or paste Indeed CSV rows here..."></textarea><button class="btn brand" onclick="parseIndeedCSV(document.getElementById('csvPasteBox').value)">Preview CSV import</button></div></section><section class="panel"><h3>3. Paste single applicant</h3><p>For copied Indeed candidate text or email notifications.</p><textarea id="pasteBox" class="importbox" placeholder="Paste one applicant text here..."></textarea><button class="btn brand" onclick="parseImport()">Parse one candidate</button><div class="notice success"><strong>Routing:</strong> Goff recruiting owns the queue. BBSI starts after offer acceptance and clearance.</div></section></div><section class="panel" style="margin-top:16px"><h3>Import preview / result</h3><div id="importResult" class="notice">No import run yet.</div></section>`; }
 function quickAdd(){ let [first,...rest]=(document.getElementById('qaName').value||'New Candidate').split(' '); let role=document.getElementById('qaRole').value; let item=normalizeCandidate({id:Date.now(),first,last:rest.join(' ')||'Applicant',email:document.getElementById('qaEmail').value||'unknown@example.com',phone:'',role,source:document.getElementById('qaSource').value,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:'New candidate added through quick-add intake. Needs first review and path selection.',concerns:'Unknown until screened.',timeline:['Added through Goff recruiting quick-add']}); candidates.unshift(item); selectedId=item.id; save(); view='candidate'; render(); }
 function demoImport(){ view='intake'; render(); document.getElementById('pasteBox').value='Name: Jason Harper\nEmail: jason.harper@example.com\nPhone: 208-555-0188\nSource: Indeed\nRole: Sanitary Stainless Steel Welder/Fabricator\nNotes: 5 years stainless, currently in Idaho Falls, available for weld test next week.'; parseImport(); }
 function parseImport(){ let t=document.getElementById('pasteBox').value||''; let email=(t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[''])[0]; let phone=(t.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)||[''])[0]; let name=(t.match(/Name:\s*([^\n,]+)/i)||t.match(/^([^,\n]+)/)||['','Imported Candidate'])[1].trim(); let source=(t.match(/Source:\s*([^\n,]+)/i)||['','Indeed'])[1].trim(); let role=(t.match(/Role:\s*([^\n]+)/i)||t.match(/Job(?: Title)?:\s*([^\n]+)/i)||['',jobs[0].title])[1].trim(); let notes=(t.match(/Notes?:\s*([^]+)/i)||['','Imported applicant. System recommends Quinton review and choose first action.'])[1].trim(); let [first,...rest]=name.split(' '); let item=normalizeCandidate({id:Date.now(),first:first||'Imported',last:rest.join(' ')||'Candidate',email:email||'unknown@example.com',phone,role,source,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:notes.slice(0,260),concerns:'Imported data needs verification.',timeline:['Parsed from paste/import center','Queued for Quinton review']}); candidates.unshift(item); selectedId=item.id; save(); document.getElementById('importResult').innerHTML=`<strong>Imported:</strong> ${item.first} ${item.last} • ${item.role} • ${item.source}<br><button class="btn primary" onclick="view='candidate';render()">Open candidate</button>`; }
@@ -409,7 +409,7 @@ function career(){
         </div>
         <aside class="apply-panel panel" id="apply">
           <h3>Apply now</h3>
-          <p class="muted">Submit your information and Quinton from our hiring team will review your application. We follow up by email or phone.</p>
+          <p class="muted">Submit your information and the Goff hiring team will review your application. We follow up by email or phone.</p>
           <div class="form">
             <label class="field-label">Full name<input id="appName" placeholder="First and last" required></label>
             <label class="field-label">Email<input id="appEmail" type="email" placeholder="you@example.com" required></label>
@@ -418,7 +418,7 @@ function career(){
             <label class="field-label">Soonest you could start<select id="appAvailability"><option>Within 2 weeks</option><option>Within 30 days</option><option>30–60 days</option><option>Just exploring for now</option></select></label>
             <label class="field-label">Experience, certifications, and anything Goff should know<textarea id="appNotes" rows="6" placeholder="Years of stainless experience, weld test you have passed, certifications, location, schedule needs."></textarea></label>
             <button class="btn primary" onclick="submitApplication()">Submit application</button>
-            <p class="apply-fineprint">Your information goes straight to Quinton. We do not share it with third parties.</p>
+            <p class="apply-fineprint">Your information goes straight to the Goff hiring team. We do not share it with third parties.</p>
           </div>
         </aside>
       </div>
@@ -468,7 +468,7 @@ async function submitApplication(){
     due:'Today',
     priority:'Normal',
     location:'',
-    summary:combinedNotes||'Website application submitted. Needs Quinton review.',
+    summary:combinedNotes||'Website application submitted. Needs hiring-team review.',
     concerns:'Needs screening.',
     timeline:['Submitted from Goff careers page', serverDelivered ? 'Routed to Goff intake — Quinton notified.' : 'Local copy saved — server route unavailable.', 'Queued for Quinton'],
   });
@@ -482,14 +482,14 @@ function thanks(){
   return `<main class="public-careers">
     <section class="career-hero public-hero">
       <div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div>
-      <h2>Thanks — Quinton has it.</h2>
+      <h2>Thanks — your application is in.</h2>
       <p>Your application is in front of our hiring team. If your experience fits a current opening, expect a call or email within a few business days. Most welder and fitter roles start with a paid weld test.</p>
     </section>
     <section class="public-body">
       <div class="panel">
         <h3>What happens next</h3>
         <ol class="thanks-steps">
-          <li><strong>Quinton reviews your application.</strong> If it is a fit, you will get a phone screen invite by email or text.</li>
+          <li><strong>The Goff hiring team reviews your application.</strong> If it is a fit, you will get a phone screen invite by email or text.</li>
           <li><strong>Welder / fitter roles:</strong> weld test on-site or distance test if you are out of area. Bring your standard rig setup.</li>
           <li><strong>Interview with the hiring team.</strong> Talk about the work, the schedule, and answer any questions.</li>
           <li><strong>References + offer.</strong> We make a decision quickly so you are not left hanging.</li>
@@ -578,15 +578,15 @@ function showGuardrail(){ document.getElementById('modal').className='modal open
 function manager(){
   const queue = candidates.filter(a => a.stage === 'Manager review packet' || a.stage === 'Offer letter info request');
   if(!queue.length){
-    return `${head('Manager review','No candidates need a hiring-manager decision right now. New review packets show up here as soon as Quinton finishes the interview + reference loop.')}
+    return `${head('Manager review','No candidates need a hiring-manager decision right now. New review packets show up here as soon as the recruiter finishes the interview + reference loop.')}
     <section class="panel decisions-empty">
       <div class="eyebrow eyebrow-decisions">Manager review</div>
       <h3>Queue is empty.</h3>
-      <p class="muted">When Quinton flags a candidate ready for Austin, they will appear here with a decision-ready packet.</p>
+      <p class="muted">When a candidate is flagged ready for a hiring-lead call, they will appear here with a decision-ready packet.</p>
       <button class="btn" onclick="view='dashboard';render()">Back to dashboard</button>
     </section>`;
   }
-  // Default selection: whoever Austin clicked OR the first in queue.
+  // Default selection: whoever was clicked OR the first in queue.
   let active = queue.find(a => a.id === selectedId) || queue[0];
   selectedId = active.id;
   const ageText = stageAgeText(active);
@@ -644,7 +644,7 @@ function offer(){
           <legend>Position</legend>
           <label class="field-label">Offer letter date <span class="req">required</span><input id="offerDate" type="date" value="${esc(o.date)}"></label>
           <label class="field-label">Expected start date <span class="req">required</span><input id="offerStart" type="date" value="${esc(o.startDate)}"></label>
-          <label class="field-label">Supervisor / reports to <span class="req">required</span><input id="offerSupervisor" placeholder="e.g. Quinton Goff" value="${esc(o.supervisor)}"></label>
+          <label class="field-label">Supervisor / reports to <span class="req">required</span><input id="offerSupervisor" placeholder="Supervisor name" value="${esc(o.supervisor)}"></label>
           <label class="field-label">Employment type<select id="offerEmploymentType"><option ${o.employmentType==='Full-Time'?'selected':''}>Full-Time</option><option ${o.employmentType==='Part-Time'?'selected':''}>Part-Time</option><option ${o.employmentType==='Temporary'?'selected':''}>Temporary</option></select></label>
         </fieldset>
         <fieldset class="offer-fieldset">
@@ -753,7 +753,7 @@ function integrations(){
     <div class="integration-grid">
       ${integrationCard('Goff Careers page', 'live', 'Public apply form at /goff-recruiting (apply view). Every submission flows into the recruiting queue.', 'No setup needed — this is built in.')}
       ${integrationCard('Application intake API', apiWired ? 'live' : 'pending', 'Career-page submissions POST to /api/goff-recruiting/applications and persist server-side.', apiWired ? 'Wired up. Vercel Blob persistence.' : 'Set BLOB_READ_WRITE_TOKEN to enable persistence.')}
-      ${integrationCard('Telegram intake alerts', telegramWired ? 'live' : 'pending', 'Quinton receives a Telegram ping the moment an application lands.', 'Set GOFF_RECRUITING_TELEGRAM_BOT_TOKEN, _CHAT_ID, and optional _THREAD_ID in Vercel env.')}
+      ${integrationCard('Telegram intake alerts', telegramWired ? 'live' : 'pending', 'The hiring team receives a Telegram ping the moment an application lands.', 'Set GOFF_RECRUITING_TELEGRAM_BOT_TOKEN, _CHAT_ID, and optional _THREAD_ID in Vercel env.')}
       ${integrationCard('Indeed CSV import', 'live', 'Bulk import Indeed exports through the Add candidate screen.', 'No setup needed.')}
       ${integrationCard('Email / single paste import', 'live', 'Paste an Indeed email or applicant text and we parse it.', 'No setup needed.')}
       ${integrationCard('Indeed Partner ATS sync', 'planned', 'Direct Candidate Sync / Disposition Sync API. After Goff commits, we apply for partnership and wire it.', 'Phase 2 — requires Indeed approval and OAuth setup.')}
@@ -764,7 +764,7 @@ function integrations(){
     <h3>Candidate source strategy</h3>
     <div class="steps">
       <div class="step"><b>Website is the front door.</b><br><small>The Goff Employment page links to the Goff-branded apply form first, not BBSI.</small></div>
-      <div class="step"><b>Indeed stays a source.</b><br><small>Quinton moves promising applicants in, or imports from CSV / email / paste.</small></div>
+      <div class="step"><b>Indeed stays a source.</b><br><small>Promising applicants get moved in manually or imported from CSV / email / paste.</small></div>
       <div class="step"><b>Goff recruiting runs the workflow.</b><br><small>Follow-up, weld test, phone screen, manager packet, offer path.</small></div>
       <div class="step"><b>BBSI starts after offer acceptance + clearance.</b><br><small>Payroll/legal onboarding only, not candidate relationship management.</small></div>
     </div>
@@ -772,21 +772,21 @@ function integrations(){
 }
 
 function howItWorks(){
-  return `${head('How Goff Recruiting works', 'A quick tour of how Austin, Quinton, and applicants move through the system. Use this as the one-pager to share with anyone new.', `<button class="btn" onclick="window.print()">Print this guide</button>`)}
+  return `${head('How Goff Recruiting works', 'A quick tour of the platform plus the features being brainstormed for the next phase. Use this as the one-pager to share or read on a phone.', `<button class="btn" onclick="window.print()">Print this guide</button>`)}
 
   <section class="panel">
     <h3>What this is</h3>
     <p>Goff Recruiting replaces the Google Workspace + Indeed + BBSI shuffle. Every applicant lives in one queue, from first application through onboarding handoff. There are two front doors:</p>
     <ul class="howto-list">
       <li><strong>Public careers page</strong> — currently at <code>goff.stoke-ai.com</code>, will move to <code>careers.goffwelding.com</code> when DNS is in hand. This is where applicants apply.</li>
-      <li><strong>Admin dashboard</strong> — what you are looking at now. This is where Austin and Quinton run the hiring queue.</li>
+      <li><strong>Admin dashboard</strong> — what you are looking at now. This is where the Goff hiring team runs the queue day to day.</li>
     </ul>
   </section>
 
   <section class="panel">
     <h3>Where applicants come in</h3>
     <ol class="howto-list">
-      <li><strong>Careers page apply form</strong> — auto-creates a candidate record and pings Quinton on Telegram (when configured).</li>
+      <li><strong>Careers page apply form</strong> — auto-creates a candidate record and pings the hiring team on Telegram (when configured).</li>
       <li><strong>Indeed CSV import</strong> — paste or upload an Indeed export at <em>Add candidate</em>.</li>
       <li><strong>Paste single applicant</strong> — paste an Indeed email or candidate text and the parser pulls name, email, phone, role.</li>
       <li><strong>Quick add</strong> — for walk-ins, referrals, and phone calls.</li>
@@ -796,11 +796,11 @@ function howItWorks(){
   <section class="panel">
     <h3>How a candidate moves through the system</h3>
     <ol class="howto-flow">
-      <li><strong>Application received</strong> — Quinton triages and picks a path (Welder or Other).</li>
+      <li><strong>Application received</strong> — the candidate is triaged and a path (Welder or Other) is picked.</li>
       <li><strong>Welder path</strong> — weld test invite → confirm → score. <strong>Other path</strong> — phone screen → review.</li>
       <li><strong>Interview</strong> — schedule, confirm, complete, capture notes.</li>
       <li><strong>References + Crystal Knows</strong> — authorization → send → call → review.</li>
-      <li><strong>Manager review packet</strong> — Austin decides: approve to offer, second interview, or pass.</li>
+      <li><strong>Manager review packet</strong> — the hiring lead decides: approve to offer, second interview, or pass.</li>
       <li><strong>Background check</strong> — pre-offer step.</li>
       <li><strong>Offer</strong> — info request → draft → sent → 24-hour follow-up.</li>
       <li><strong>Offer accepted &mdash; clearance hold</strong> — drug screen + background + start date confirmed before BBSI.</li>
@@ -813,8 +813,8 @@ function howItWorks(){
     <h3>What the dashboard shows you</h3>
     <div class="howto-zones">
       <div class="howto-zone">
-        <h4>Your decisions</h4>
-        <p>Candidates currently waiting on a hiring-manager call. One-tap action buttons (<em>Approve</em>, <em>Second interview</em>, <em>Pass</em>) so Austin can decide in seconds.</p>
+        <h4>Decisions needed</h4>
+        <p>Candidates currently waiting on a hiring-lead call. One-tap action buttons (<em>Approve</em>, <em>Second interview</em>, <em>Pass</em>) so decisions can be made in seconds.</p>
       </div>
       <div class="howto-zone">
         <h4>Pipeline by path</h4>
@@ -822,10 +822,10 @@ function howItWorks(){
       </div>
       <div class="howto-zone">
         <h4>Check before they go cold</h4>
-        <p>Candidates aging past 3 days (amber) or 5 days (red) in their current stage. If Quinton goes on vacation, the dashboard catches the drift automatically.</p>
+        <p>Candidates aging past 3 days (amber) or 5 days (red) in their current stage. If anyone steps away, the dashboard catches the drift automatically.</p>
       </div>
       <div class="howto-zone">
-        <h4>Quinton's queue</h4>
+        <h4>In motion</h4>
         <p>Everything else moving normally. De-emphasized so the important stuff stays loud.</p>
       </div>
     </div>
@@ -846,12 +846,12 @@ function howItWorks(){
     <table class="howto-table">
       <thead><tr><th>View</th><th>What it does</th><th>Best for</th></tr></thead>
       <tbody>
-        <tr><td><strong>Dashboard</strong></td><td>Today's snapshot — decisions, pipeline, aging, Quinton's queue</td><td>Morning check-in</td></tr>
+        <tr><td><strong>Dashboard</strong></td><td>Today's snapshot — decisions needed, pipeline, aging, in motion</td><td>Morning check-in</td></tr>
         <tr><td><strong>Candidates</strong></td><td>Searchable list of everyone with filter chips (path, status, waiting on)</td><td>Finding a specific candidate</td></tr>
         <tr><td><strong>Add candidate</strong></td><td>Quick-add, paste import, Indeed CSV import</td><td>Bringing new applicants in</td></tr>
-        <tr><td><strong>Manager review</strong></td><td>Queue + packet panel for hiring-manager decisions</td><td>Austin's batched decision time</td></tr>
+        <tr><td><strong>Manager review</strong></td><td>Queue + packet panel for hiring-lead decisions</td><td>Batched decision time</td></tr>
         <tr><td><strong>Offer workflow</strong></td><td>Build, preview, download, and send offer letters using Goff's SOP</td><td>Offer prep</td></tr>
-        <tr><td><strong>Full workflow</strong></td><td>Reference: all 35 stages of Goff's hiring process</td><td>Quinton checking what a stage means</td></tr>
+        <tr><td><strong>Full workflow</strong></td><td>Reference: all 35 stages of Goff's hiring process</td><td>Looking up what a stage means or what triggers next</td></tr>
         <tr><td><strong>Templates</strong></td><td>Every email template — click to preview with current candidate merged in</td><td>Stale-template audit</td></tr>
         <tr><td><strong>Integrations</strong></td><td>Status of intake channels and downstream handoffs</td><td>Setup + planned features</td></tr>
       </tbody>
@@ -860,9 +860,9 @@ function howItWorks(){
 
   <section class="panel">
     <h3>What is coming next</h3>
-    <p>These are the features we are brainstorming and prioritizing with Austin. Not built yet — but each one solves a real intake or quality problem Goff will hit as the system gets used. Order will depend on what matters most after Goff starts running real candidates through it.</p>
+    <p>These are features we are brainstorming with Goff. None of them are built yet. Order will get nailed down once Goff starts running real candidates through the system and figures out which problems hurt the most.</p>
 
-    <h4 class="howto-subhead">Big ideas we are working through with Austin</h4>
+    <h4 class="howto-subhead">Intake and quality</h4>
 
     <div class="howto-idea">
       <h5>One simple intake form for everyone</h5>
@@ -871,31 +871,89 @@ function howItWorks(){
 
     <div class="howto-idea">
       <h5>Duplicate detection</h5>
-      <p>When the same person applies via Indeed, then walks in two weeks later, then a friend refers them — that should be one candidate, not three. The system will check email and phone on every new application. If there is a match, Quinton sees a banner: <em>"Possible duplicate of [name] who applied 12 days ago for [role]."</em> Click to merge or keep separate. Stops the queue from cluttering with the same person showing up multiple times.</p>
-    </div>
-
-    <div class="howto-idea">
-      <h5>By-source report</h5>
-      <p>Once Goff has 50+ applications running through the system, a single page will show which sources produce hires — not just applications. Indeed produces volume. Walk-ins often produce quality. Referrals usually produce both. Knowing the ratio tells Austin where to spend the Indeed budget, when to ask employees for referrals, and whether Facebook posts are worth the effort. A <em>"How did you hear about Goff?"</em> question gets added to the apply form now so the data captures cleanly from day one.</p>
-    </div>
-
-    <div class="howto-idea">
-      <h5>SMS to candidates</h5>
-      <p>Most welders do not check email. Texts get answered within an hour. Goff Recruiting will support sending pre-built SMS templates ("weld test invite," "interview confirm," "follow-up") directly from candidate cards, with replies showing up in the candidate timeline. Three setup options depending on what works for Goff: Quinton texting from his phone with a one-click "logged" button; a shared work number (OpenPhone, Dialpad, or similar) that Cecilia and Quinton both use; or a dedicated number integrated directly into the platform. Goff picks based on volume and preference.</p>
+      <p>When the same person applies via Indeed, then walks in two weeks later, then a friend refers them — that should be one candidate, not three. The system will check email and phone on every new application. If there is a match, a banner appears: <em>"Possible duplicate of [name] who applied 12 days ago for [role]."</em> Click to merge or keep separate. Stops the queue from cluttering with the same person showing up multiple times.</p>
     </div>
 
     <div class="howto-idea">
       <h5>Talent pool — re-engage past applicants</h5>
-      <p>Past good applicants who did not get hired — anyone marked <em>"Keep on file"</em> — are gold. When a new welder opening pops up six months from now, Quinton should not start with Indeed. He should start with the talent pool. A dedicated view will list everyone marked Keep on file, filterable by the role they originally applied for, with a one-click <em>"Re-engage for [new opening]"</em> action that sends each one the right template. The system tracks who has been recontacted so nobody gets pestered twice.</p>
+      <p>Past good applicants who did not get hired — anyone marked <em>"Keep on file"</em> — are gold. When a new welder opening pops up six months from now, the first move should not be a fresh Indeed sponsored post. It should be the talent pool. A dedicated view will list everyone marked Keep on file, filterable by the role they originally applied for, with a one-click <em>"Re-engage for [new opening]"</em> action that sends each one the right template. The system tracks who has been recontacted so nobody gets pestered twice.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>By-source report</h5>
+      <p>Once Goff has 50+ applications running through the system, a single page will show which sources produce hires — not just applications. Indeed produces volume. Walk-ins often produce quality. Referrals usually produce both. Knowing the ratio shows the hiring team where to spend the Indeed budget, when to ask employees for referrals, and whether Facebook posts are worth the effort. A <em>"How did you hear about Goff?"</em> question gets added to the apply form now so the data captures cleanly from day one.</p>
+    </div>
+
+    <h4 class="howto-subhead">Keeping everyone in the loop</h4>
+
+    <div class="howto-idea">
+      <h5>Instant applicant communications</h5>
+      <p>The moment a candidate submits an application, they get an automatic confirmation: <em>"Thanks, [name]. We have your application. Most candidates hear back within 2 business days."</em> Pre-event reminders fire automatically too — 24 hours before an interview, 24 hours before a weld test, the day before a first day. Candidates who sit in a stage for a long time (because we are busy) get a polite <em>"still reviewing, hang tight"</em> auto-touch so they do not assume Goff ghosted them and take another offer.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Hiring-team alerts that only fire when you are needed</h5>
+      <p>The system only notifies a human when a decision is required. New manager review packet ready, offer accepted, offer declined, candidate replied to an outbound message. Routine stuff stays silent. A short morning digest summarizes what is on the team's plate today: <em>"1 candidate needs a hiring-lead call. 2 candidates drifting past 3 days. Pipeline otherwise clean."</em> A weekly summary recaps hires, offers out, and pipeline health. Less noise, more signal.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Magic-link approvals</h5>
+      <p>Approve a candidate or sign off an offer from a tap on a phone, no login required. The notification text includes a signed link that opens straight to the review packet. Approve, second-interview, or pass — done in 15 seconds from the truck.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>SMS to candidates</h5>
+      <p>Most welders do not check email. Texts get answered within an hour. Goff Recruiting will support sending pre-built SMS templates ("weld test invite," "interview confirm," "follow-up") directly from candidate cards, with replies showing up in the candidate timeline. Three setup options depending on what works for Goff: send from a personal phone with a one-click "logged" button on the candidate card; a shared work number (OpenPhone, Dialpad, or similar) that everyone on the recruiting side can use; or a dedicated number integrated directly into the platform. Goff picks based on volume and preference.</p>
+    </div>
+
+    <h4 class="howto-subhead">Letting the system do more of the work</h4>
+
+    <div class="howto-idea">
+      <h5>Auto-drafted communications at every stage</h5>
+      <p>When a candidate advances a stage, the matching email or SMS is already drafted with their info pre-filled. Review and send, or queue for later. No retyping the same template fifty times. AI-personalized versions reference the candidate's actual experience for higher response rates.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>AI-assisted screening at intake</h5>
+      <p>At volume, AI ranks incoming applications by fit (stainless experience, location, role match, availability) so the hiring team can focus on the strongest candidates first. The bottom of the stack gets a polite auto-decline; the middle queues for human review with a one-line summary. Turns "drowning in Indeed apps" into "decide on the top five today."</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>AI handles common candidate questions</h5>
+      <p>Over SMS or email, the AI can answer routine candidate questions — <em>when is the weld test, where do I go, what should I bring, what is the pay</em> — automatically. It only escalates to a human when the question needs judgment. Frees up hours a week and gives candidates instant replies instead of waiting until the next business day.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Voice-note debriefs that file themselves</h5>
+      <p>After a phone screen or interview, record a 90-second voice note. The AI transcribes, fills in the candidate's summary, concerns, and suggested next stage. Cuts the "I will write up my notes later" backlog that always becomes "I forgot what we talked about."</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Calendar integration</h5>
+      <p>Interviews, weld tests, and first days auto-add to the right calendar and send the candidate a meeting invite. No double-booking. No "wait, when was that?" Reminders fire from the calendar layer so the candidate AND the team get pinged the day before.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Stage timers and auto-archive</h5>
+      <p>Every stage has an expected timing. If a candidate sits past it, the system nudges the right person to act. If a candidate goes silent for 30+ days, they get a polite final message and auto-move to <em>Keep on file</em>. Active queue stays clean without anyone having to remember to prune it.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Auto-trigger clearance and BBSI when an offer is accepted</h5>
+      <p>The moment a candidate accepts, the drug screen scheduling email auto-drafts, the background check auto-drafts, and the first-day prep checklist generates. The clearance hold automatically unblocks once all three items are confirmed. Removes the "did anyone remember to schedule X?" gap between offer-accept and first day.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Pipeline health alerts</h5>
+      <p>Anomaly detection notices when hires slow down or applications dip below normal. Flags before it becomes a crisis: <em>"You usually hire one welder a month. Past two months: zero. Pipeline looks thin — boost Indeed budget or re-engage talent pool?"</em></p>
     </div>
 
     <h4 class="howto-subhead">Other planned upgrades</h4>
     <ul class="howto-list">
       <li><strong>Resume file upload</strong> on the apply form (PDF, JPG, HEIC) so applicants can attach their actual resume.</li>
-      <li><strong>Server-side sync</strong> so the queue is identical on Austin's phone and Quinton's laptop.</li>
+      <li><strong>Server-side sync</strong> so the queue is identical across every device.</li>
       <li><strong>Indeed Partner ATS sync</strong> — direct API, no CSV step.</li>
-      <li><strong>Magic-link approvals</strong> so Austin can approve an offer from his phone without signing in.</li>
-      <li><strong>Custom domain</strong> — move the careers page to <code>careers.goffwelding.com</code> once Austin shares his DNS provider.</li>
+      <li><strong>Custom domain</strong> — move the careers page to <code>careers.goffwelding.com</code> once Goff's DNS provider is confirmed.</li>
       <li><strong>Admin password lock</strong> — flip on when Goff is ready.</li>
     </ul>
   </section>
@@ -903,10 +961,10 @@ function howItWorks(){
   <section class="panel howto-quickref">
     <h3>Quick reference card</h3>
     <ul class="howto-list">
-      <li><strong>Daily:</strong> Dashboard → handle "Your decisions" + "Check before they go cold."</li>
+      <li><strong>Daily:</strong> Dashboard → handle "Decisions needed" + "Check before they go cold."</li>
       <li><strong>When a new application comes in:</strong> Add candidate or watch for the Telegram ping. Triage in candidate detail.</li>
-      <li><strong>When Austin needs to approve:</strong> Manager review screen.</li>
-      <li><strong>When the offer is ready:</strong> Offer workflow → preview → download .doc → DocHub for signatures.</li>
+      <li><strong>When a hiring-lead decision is needed:</strong> Manager review screen.</li>
+      <li><strong>When an offer is ready:</strong> Offer workflow → preview → download .doc → DocHub for signatures.</li>
       <li><strong>If you forget a stage:</strong> Full workflow shows every stage and what comes next.</li>
     </ul>
   </section>`;

@@ -2,7 +2,7 @@
 // Self-contained SPA. NO admin/recruiting code lives here so that anyone who
 // hits this URL or views source only sees applicant-facing content. The form
 // POSTs to /api/goff-recruiting/applications (server-side persistence +
-// Quinton's Telegram alert).
+// the hiring team's Telegram alert).
 
 const jobs = [
   {id:'welder', title:'Sanitary Stainless Steel Welder / Fabricator', type:'Full-time', path:'Welder path',
@@ -80,7 +80,7 @@ function career(){
         </div>
         <aside class="apply-panel panel" id="apply">
           <h3>Apply now</h3>
-          <p class="muted">Submit your information and Quinton from our hiring team will review your application. We follow up by email or phone.</p>
+          <p class="muted">Submit your information and the Goff hiring team will review your application. We follow up by email or phone.</p>
           <div class="form">
             <label class="field-label">Full name<input id="appName" placeholder="First and last" required></label>
             <label class="field-label">Email<input id="appEmail" type="email" placeholder="you@example.com" required></label>
@@ -89,7 +89,7 @@ function career(){
             <label class="field-label">Soonest you could start<select id="appAvailability"><option>Within 2 weeks</option><option>Within 30 days</option><option>30–60 days</option><option>Just exploring for now</option></select></label>
             <label class="field-label">Experience, certifications, and anything Goff should know<textarea id="appNotes" rows="6" placeholder="Years of stainless experience, weld test you have passed, certifications, location, schedule needs."></textarea></label>
             <button class="btn primary" id="submitBtn" onclick="submitApplication()">Submit application</button>
-            <p class="apply-fineprint">Your information goes straight to Quinton. We do not share it with third parties.</p>
+            <p class="apply-fineprint">Your information goes straight to the Goff hiring team. We do not share it with third parties.</p>
           </div>
         </aside>
       </div>
@@ -157,14 +157,14 @@ function thanks(){
   return `<main class="public-careers">
     <section class="career-hero public-hero">
       <div class="public-brand"><div class="mark">GW</div><div><strong>Goff Welding</strong><span>Careers</span></div></div>
-      <h2>Thanks — Quinton has it.</h2>
+      <h2>Thanks — your application is in.</h2>
       <p>Your application is in front of our hiring team. If your experience fits a current opening, expect a call or email within a few business days. Most welder and fitter roles start with a paid weld test.</p>
     </section>
     <section class="public-body">
       <div class="panel">
         <h3>What happens next</h3>
         <ol class="thanks-steps">
-          <li><strong>Quinton reviews your application.</strong> If it is a fit, you will get a phone screen invite by email or text.</li>
+          <li><strong>The Goff hiring team reviews your application.</strong> If it is a fit, you will get a phone screen invite by email or text.</li>
           <li><strong>Welder / fitter roles:</strong> weld test on-site or distance test if you are out of area. Bring your standard rig setup.</li>
           <li><strong>Interview with the hiring team.</strong> Talk about the work, the schedule, and answer any questions.</li>
           <li><strong>References + offer.</strong> We make a decision quickly so you are not left hanging.</li>
