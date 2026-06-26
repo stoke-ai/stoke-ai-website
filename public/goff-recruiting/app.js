@@ -192,6 +192,73 @@ async function signOut(){
   try { await fetch('/api/portal/logout', { method:'POST' }); } catch(_){}
   window.location.href = '/goff-recruiting/login';
 }
+
+// Candidate list filters. Defaults to "active only" because the hiring lead
+// almost always wants the live pipeline, not parked / rejected candidates.
+let candidateFilters = { search:'', path:'all', group:'active', owner:'all' };
+function setCandidateFilter(key, value){ candidateFilters[key] = value; render(); }
+function updateCandidateSearch(value){
+  candidateFilters.search = value;
+  const target = document.getElementById('candidates-results');
+  if(target) target.innerHTML = renderCandidatesList(applyCandidateFilters(candidates));
+}
+function applyCandidateFilters(list){
+  const f = candidateFilters;
+  return list.filter(x => {
+    if(f.group === 'active' && !isActive(x)) return false;
+    if(f.group === 'disposition' && isActive(x)) return false;
+    if(f.path === 'welder' && !isWelderPath(x)) return false;
+    if(f.path === 'other' && isWelderPath(x)) return false;
+    if(f.owner !== 'all' && x.owner !== f.owner) return false;
+    if(f.search){
+      const s = f.search.toLowerCase();
+      const hay = `${x.first} ${x.last} ${x.role} ${x.location || ''} ${x.email || ''} ${x.stage}`.toLowerCase();
+      if(!hay.includes(s)) return false;
+    }
+    return true;
+  });
+}
+function chipBtn(filterKey, value, label){
+  const active = candidateFilters[filterKey] === value;
+  return `<button class="filter-chip ${active ? 'active' : ''}" onclick="setCandidateFilter('${filterKey}','${esc(value)}')">${esc(label)}</button>`;
+}
+function renderCandidatesList(list){
+  if(!list.length) return `<p class="muted" style="padding:16px 0">No candidates match these filters. Try clearing the search box or switching the Status chip to <strong>All</strong>.</p>`;
+  return `<div class="queue">${list.map(card).join('')}</div>`;
+}
+function candidateList(){
+  const filtered = applyCandidateFilters(candidates);
+  const totalActive = candidates.filter(isActive).length;
+  return `${head('Candidates', `${filtered.length} shown · ${totalActive} active in pipeline · ${candidates.length} all-time`, `<button class="btn primary" onclick="view='intake';render()">Add candidate</button>`)}
+  <section class="panel">
+    <div class="filters">
+      <input type="search" placeholder="Search name, role, location, stage" value="${esc(candidateFilters.search)}" oninput="updateCandidateSearch(this.value)" class="filter-search" autocomplete="off">
+      <div class="filter-group">
+        <span class="filter-label">Path</span>
+        ${chipBtn('path','all','All')}
+        ${chipBtn('path','welder','Welder')}
+        ${chipBtn('path','other','Other')}
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Status</span>
+        ${chipBtn('group','active','Active')}
+        ${chipBtn('group','disposition','Parked / rejected')}
+        ${chipBtn('group','all','All')}
+      </div>
+      <div class="filter-group">
+        <span class="filter-label">Waiting on</span>
+        ${chipBtn('owner','all','All')}
+        ${chipBtn('owner','Quinton','Quinton')}
+        ${chipBtn('owner','Candidate','Candidate')}
+        ${chipBtn('owner','Hiring Manager','Hiring Manager')}
+        ${chipBtn('owner','Admin','Admin')}
+      </div>
+    </div>
+  </section>
+  <section class="panel">
+    <div id="candidates-results">${renderCandidatesList(filtered)}</div>
+  </section>`;
+}
 function stageMeta(stage){ return STAGE[stage] || WORKFLOW_STAGES[0]; }
 function jobFor(role){ return jobs.find(j => role && role.toLowerCase().includes(j.title.toLowerCase().split(' ')[0])) || jobs.find(j => role && j.title===role) || jobs[0]; }
 function roleFit(x){ return jobFor(x.role).roleFit; }
@@ -202,11 +269,11 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidate','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Integrations')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><div class="mark">GW</div><div><h1>Goff Recruiting</h1><p>Recruiting Platform</p></div></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Integrations')}</nav><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
-function page(){ return ({dashboard,intake,career,thanks,candidate,manager,offer,workflow,templates,integrations}[view] || dashboard)(); }
+function page(){ return ({dashboard,intake,career,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations}[view] || dashboard)(); }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
   const austinDecisions = candidates.filter(needsHiringManager);

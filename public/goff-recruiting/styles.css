@@ -330,6 +330,21 @@ img,svg,canvas,iframe{max-width:100%}
   .public-footer{padding:28px 24px}
 }
 
+/* ─── Candidates list (filters) ──────────────────────────────────── */
+.filters{display:flex;flex-direction:column;gap:14px}
+.filter-search{padding:13px 16px;border:1.5px solid #d5d5d5;border-radius:3px;background:#fff;font-size:15px}
+.filter-search:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(192,24,43,.09)}
+.filter-group{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.filter-label{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#666;margin-right:6px;min-width:96px}
+.filter-chip{appearance:none;background:#fff;border:1.5px solid #d5d5d5;color:#444;padding:7px 14px;border-radius:999px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:border-color .14s,background .14s,color .14s}
+.filter-chip:hover{border-color:var(--brand);color:var(--brand)}
+.filter-chip.active{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 6px rgba(192,24,43,.25)}
+
+@media(max-width:760px){
+  .filter-group{align-items:flex-start;flex-direction:column;gap:8px}
+  .filter-label{min-width:0}
+}
+
 /* ─── Templates list ──────────────────────────────────────────────── */
 .template-row.clickable{appearance:none;width:100%;cursor:pointer;font:inherit;color:inherit;transition:border-color .16s,box-shadow .16s,background .16s}
 .template-row.clickable:hover{border-color:var(--brand);background:#fff7f8}
