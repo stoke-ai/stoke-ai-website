@@ -890,90 +890,50 @@ function howItWorks(){
 
   <section class="panel">
     <h3>Where applicants come in</h3>
-    <p class="muted">Goff has multiple intake channels feeding one queue. Each route below ends in the same place: a candidate record in this system, owned by the recruiting team.</p>
-    <ol class="howto-list">
-      <li><strong>Careers page apply form</strong> — auto-creates a candidate record and pings the hiring team on Telegram (when configured).</li>
-      <li><strong>Indeed CSV import</strong> — paste or upload an Indeed export at <em>Add candidate</em>.</li>
-      <li><strong>Paste single applicant</strong> — paste an Indeed email or candidate text and the parser pulls name, email, phone, role.</li>
-      <li><strong>Quick add</strong> — for walk-ins, referrals, and phone calls.</li>
-    </ol>
-    <h4 class="howto-subhead">How the channels fit together</h4>
-    <div class="steps">
-      <div class="step"><b>Website is the front door.</b><br><small>The Goff Employment page links to the Goff-branded apply form first, not BBSI.</small></div>
-      <div class="step"><b>Indeed stays a source.</b><br><small>Promising applicants get moved in manually or imported from CSV / email / paste.</small></div>
-      <div class="step"><b>Goff Recruiting runs the workflow.</b><br><small>Follow-up, weld test, phone screen, manager packet, offer path.</small></div>
-      <div class="step"><b>BBSI starts after offer acceptance + clearance.</b><br><small>Payroll/legal onboarding only, not candidate relationship management.</small></div>
-    </div>
-    <p class="muted small" style="margin-top:12px">For the live setup status of each channel — and what is wired up vs planned — see <strong>Setup &amp; status</strong> in the sidebar.</p>
+    <p>Goff has multiple intake channels feeding one queue:</p>
+    <ul class="howto-list">
+      <li><strong>Careers page</strong> — apply form on <code>careers.goffwelding.com</code>.</li>
+      <li><strong>Indeed</strong> — bulk CSV import or paste a single applicant.</li>
+      <li><strong>Walk-ins, phone calls, referrals</strong> — quick-add by anyone on the team.</li>
+    </ul>
+    <p class="muted">Goff Recruiting runs the whole queue from first hello through offer accepted. BBSI takes over for payroll and paperwork only after clearance is complete.</p>
   </section>
 
   <section class="panel">
     <h3>How a candidate moves through the system</h3>
     <ol class="howto-flow">
-      <li><strong>Application received</strong> — the candidate is triaged and a path (Welder or Other) is picked.</li>
-      <li><strong>Welder path</strong> — weld test invite → confirm → score. <strong>Other path</strong> — phone screen → review.</li>
-      <li><strong>Interview</strong> — schedule, confirm, complete, capture notes.</li>
-      <li><strong>References + Crystal Knows</strong> — authorization → send → call → review.</li>
-      <li><strong>Manager review packet</strong> — the hiring lead decides: approve to offer, second interview, or pass.</li>
-      <li><strong>Background check</strong> — pre-offer step.</li>
-      <li><strong>Offer</strong> — info request → draft → sent → 24-hour follow-up.</li>
-      <li><strong>Offer accepted &mdash; clearance hold</strong> — drug screen + background + start date confirmed before BBSI.</li>
-      <li><strong>BBSI documents invite</strong> — payroll / legal onboarding kicks off.</li>
-      <li><strong>Schedule first day → Transition to onboarding workflow</strong> — done.</li>
+      <li><strong>Application comes in</strong> — the team reviews and picks the path (Welder or Other).</li>
+      <li><strong>Skills check</strong> — Welder path: weld test. Other path: phone screen.</li>
+      <li><strong>Interview + references</strong> — interview, references, Crystal Knows.</li>
+      <li><strong>Hiring decision</strong> — the hiring lead approves, asks for a second interview, or passes.</li>
+      <li><strong>Offer &amp; onboarding</strong> — offer sent, candidate accepts, clearance items checked, BBSI takes over for paperwork.</li>
     </ol>
   </section>
 
   <section class="panel">
-    <h3>What the dashboard shows you</h3>
+    <h3>What you see day-to-day</h3>
     <div class="howto-zones">
       <div class="howto-zone">
         <h4>Decisions needed</h4>
-        <p>Candidates currently waiting on a hiring-lead call. One-tap action buttons (<em>Approve</em>, <em>Second interview</em>, <em>Pass</em>) so decisions can be made in seconds.</p>
+        <p>Candidates waiting on a hiring-lead call. One-tap buttons to approve, second-interview, or pass.</p>
       </div>
       <div class="howto-zone">
         <h4>Recent activity</h4>
-        <p>What changed lately — last six candidates that moved stages or had a note added, with a one-line summary and time-ago stamp. Click any row to jump straight to that candidate.</p>
+        <p>The last six candidates that changed — stage moves and notes — with a time-ago stamp. Click to open.</p>
       </div>
       <div class="howto-zone">
         <h4>Pipeline by path</h4>
-        <p>Welder funnel and Other funnel side by side. Each shows count per stage with the candidate's first name as a clickable chip. Click a chip to jump straight to that person.</p>
+        <p>Welder funnel and Other funnel side by side. Click anyone's first-name chip to jump straight to them.</p>
       </div>
       <div class="howto-zone">
         <h4>Check before they go cold</h4>
-        <p>Candidates aging past 3 days (amber) or 5 days (red) in their current stage. If anyone steps away, the dashboard catches the drift automatically.</p>
+        <p>Candidates sitting in a stage too long. Amber after 3 days, red after 5. Surfaces drift automatically.</p>
       </div>
       <div class="howto-zone">
         <h4>In motion</h4>
-        <p>Everything else moving normally. De-emphasized so the important stuff stays loud.</p>
+        <p>Everything moving normally — de-emphasized so the important stuff stays loud.</p>
       </div>
     </div>
-  </section>
-
-  <section class="panel">
-    <h3>Guardrails the platform enforces</h3>
-    <ul class="howto-list">
-      <li><strong>BBSI hold</strong> — you cannot move to BBSI documents invite until drug screen, background, AND start date are all complete. The system blocks the move and explains why.</li>
-      <li><strong>Offer missing fields</strong> — a yellow banner lists what is missing before you can send the offer. No half-filled offer letters going out.</li>
-      <li><strong>Email templates by stage</strong> — every stage has the matching template installed. Click <em>Generate email draft</em> on any candidate and you get the right template merged with their info.</li>
-      <li><strong>Aging surfaces stuck candidates</strong> — anyone in a stage longer than 3 days shows up in the dashboard automatically.</li>
-    </ul>
-  </section>
-
-  <section class="panel">
-    <h3>Each view in the sidebar</h3>
-    <table class="howto-table">
-      <thead><tr><th>View</th><th>What it does</th><th>Best for</th></tr></thead>
-      <tbody>
-        <tr><td><strong>Dashboard</strong></td><td>Today's snapshot — decisions needed, pipeline, aging, in motion</td><td>Morning check-in</td></tr>
-        <tr><td><strong>Candidates</strong></td><td>Searchable list of everyone with filter chips (path, status, waiting on)</td><td>Finding a specific candidate</td></tr>
-        <tr><td><strong>Add candidate</strong></td><td>Quick-add, paste import, Indeed CSV import</td><td>Bringing new applicants in</td></tr>
-        <tr><td><strong>Manager review</strong></td><td>Queue + packet panel for hiring-lead decisions</td><td>Batched decision time</td></tr>
-        <tr><td><strong>Offer workflow</strong></td><td>Build, preview, download, and send offer letters using Goff's SOP</td><td>Offer prep</td></tr>
-        <tr><td><strong>Full workflow</strong></td><td>Reference: all 35 stages of Goff's hiring process</td><td>Looking up what a stage means or what triggers next</td></tr>
-        <tr><td><strong>Templates</strong></td><td>Every email template — click to preview with current candidate merged in</td><td>Stale-template audit</td></tr>
-        <tr><td><strong>Setup &amp; status</strong></td><td>Live status of every intake channel and downstream handoff — what is wired, what needs config, what is planned</td><td>Wiring env vars and checking what is connected</td></tr>
-      </tbody>
-    </table>
   </section>
 
   <section class="panel">
@@ -985,6 +945,16 @@ function howItWorks(){
     <div class="howto-idea">
       <h5>One simple intake form for everyone</h5>
       <p>Walk-in at the door. Phone caller. Goff employee at a computer. Indeed applicant. They all use the same apply form on <code>careers.goffwelding.com</code>. It works on a phone, a tablet at the front desk, or a laptop. For walk-ins with a paper resume, snap a photo — the AI reads it, pre-fills the form (name, contact, role, experience, certifications), and files the original resume to the candidate record. No more sticky notes at the front desk and nothing lost to memory.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Resume file upload</h5>
+      <p>Applicants can attach their actual resume to the apply form (PDF, JPG, HEIC for phone photos). The file lives on the candidate record so the team can review it without digging through email.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Indeed direct sync (no CSV step)</h5>
+      <p>Skip the CSV export-import dance. Approved Indeed applicants flow straight into Goff Recruiting through their partner API. Requires a one-time Indeed approval to wire up; after that, intake is hands-off.</p>
     </div>
 
     <div class="howto-idea">
@@ -1025,8 +995,8 @@ function howItWorks(){
     </div>
 
     <div class="howto-idea">
-      <h5>Magic-link approvals</h5>
-      <p>Approve a candidate or sign off an offer from a tap on a phone, no login required. The notification text includes a signed link that opens straight to the review packet. Approve, second-interview, or pass — done in 15 seconds from the truck.</p>
+      <h5>One-tap approvals from your phone</h5>
+      <p>Approve a candidate or sign off an offer from a tap on a text message, no login required. The notification includes a secure link straight to the review packet. Approve, second-interview, or pass — done in 15 seconds from the truck.</p>
     </div>
 
     <div class="howto-idea">
@@ -1087,61 +1057,14 @@ function howItWorks(){
     </div>
 
     <div class="howto-idea">
-      <h5>Drag-and-drop kanban view</h5>
-      <p>Optional view that swaps the dashboard funnel for a full kanban board — columns for each stage, drag candidate cards between columns. Same data, different visualization. Some teams prefer the drag motion to clicking through stages; others find the funnel cleaner. Both can coexist.</p>
-    </div>
-
-    <div class="howto-idea">
       <h5>Compare candidates side by side</h5>
-      <p>Pick two or three candidates and the system lays them out in columns — profile, evidence, concerns, pay expectations — so the hiring lead can make a head-to-head call without flipping between cards. Especially useful when two welders both pass weld test and the call is "which one?"</p>
-    </div>
-
-    <div class="howto-idea">
-      <h5>Calendar view of upcoming events</h5>
-      <p>A simple <em>"This week"</em> calendar showing every weld test, interview, and first day scheduled in the system. Lets anyone scanning the dashboard see <em>"Tuesday morning has a weld test, Thursday afternoon has an interview — block time."</em> Can also push to Google Calendar.</p>
-    </div>
-
-    <div class="howto-idea">
-      <h5>AI rewrite for templates</h5>
-      <p>The installed templates are intentionally generic. Click <em>Rewrite for this candidate</em> and the AI personalizes the message — references the candidate's actual experience, mentions the specific shop they came from, calibrates tone to the role. Higher response rates because the message does not read like a copy-paste.</p>
-    </div>
-
-    <div class="howto-idea">
-      <h5>Settings page</h5>
-      <p>One place to adjust the small things: aging thresholds (today they are 3 / 5 days), default owners for each stage, intake notification preferences, brand colors. Lets Goff tune the platform without code changes.</p>
-    </div>
-
-    <div class="howto-idea">
-      <h5>Quick filter presets on the Candidates list</h5>
-      <p>One-click chips for the most common views: <em>"Hot today," "Drifting," "Welders only," "Hired this month," "Talent pool."</em> Skips the path/status/owner click sequence. Custom presets the team uses can be saved.</p>
+      <p>Pick two or three candidates and the system lays them out in columns — profile, evidence, concerns, pay expectations — so the hiring lead can make a head-to-head call without flipping between cards. Useful when two welders both pass weld test and the call is "which one?"</p>
     </div>
 
     <div class="howto-idea">
       <h5>Bilingual content (Spanish)</h5>
-      <p>Apply form, candidate-facing emails, and the public careers page available in Spanish. Significant chunk of skilled welders in the region are bilingual or Spanish-first; bilingual outreach widens the funnel and signals that Goff is a welcoming shop. Internal admin stays English.</p>
+      <p>Apply form, candidate-facing emails, and the public careers page available in Spanish. A meaningful chunk of skilled welders in the region are bilingual or Spanish-first; bilingual outreach widens the funnel and signals that Goff is a welcoming shop. Internal admin stays English.</p>
     </div>
-
-    <h4 class="howto-subhead">Other planned upgrades</h4>
-    <ul class="howto-list">
-      <li><strong>Resume file upload</strong> on the apply form (PDF, JPG, HEIC) so applicants can attach their actual resume.</li>
-      <li><strong>Server-side sync</strong> so the queue is identical across every device.</li>
-      <li><strong>Indeed Partner ATS sync</strong> — direct API, no CSV step.</li>
-      <li><strong>Custom domain</strong> — move the careers page to <code>careers.goffwelding.com</code> once Goff's DNS provider is confirmed.</li>
-      <li><strong>Admin password lock</strong> — flip on when Goff is ready.</li>
-    </ul>
-  </section>
-
-  <section class="panel howto-quickref">
-    <h3>Quick reference card</h3>
-    <ul class="howto-list">
-      <li><strong>Daily:</strong> Dashboard → handle "Decisions needed" + "Check before they go cold." Glance at "Recent activity" to see what changed since yesterday.</li>
-      <li><strong>When a new application comes in:</strong> Add candidate or watch for the Telegram ping. Triage in candidate detail.</li>
-      <li><strong>After a phone call or in-person chat:</strong> Open the candidate, add a recruiter note. Pin (★) the standouts so they float to the top of every list.</li>
-      <li><strong>To text or email a candidate:</strong> Tap the email or phone in the candidate profile — it opens your mail app or dialer pre-addressed. The ⧉ button next to it copies the value to clipboard for paste anywhere.</li>
-      <li><strong>When a hiring-lead decision is needed:</strong> Manager review screen.</li>
-      <li><strong>When an offer is ready:</strong> Offer workflow → preview → download .doc → DocHub for signatures.</li>
-      <li><strong>If you forget a stage:</strong> Full workflow shows every stage and what comes next.</li>
-    </ul>
   </section>`;
 }
 
