@@ -179,6 +179,8 @@ function normalizeCandidate(x){
   x.offer = Object.assign({date:new Date().toISOString().slice(0,10), pay:'', startDate:'', schedule:'', supervisor:'', employmentType:'Full-Time', minHours:'40', approvers:'', coreMember1:'', coreMember2:'', validityDays:'30', notes:''}, x.offer || {});
   if(!STAGE[x.stage]) x.stage='Application received';
   x.stageUpdatedAt ||= nowISO();
+  x.notes = Array.isArray(x.notes) ? x.notes : [];
+  x.pinned = x.pinned === true;
   return x;
 }
 
@@ -193,10 +195,101 @@ async function signOut(){
   window.location.href = '/goff-recruiting/login';
 }
 
+// Short relative-time formatter for activity feeds and note timestamps.
+function formatRelativeShort(iso){
+  if (!iso) return '';
+  const ms = Date.now() - new Date(iso).getTime();
+  const min = Math.floor(ms / 60000);
+  if (min < 1) return 'now';
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h ago`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}d ago`;
+  return `${Math.floor(day / 30)}mo ago`;
+}
+
+// Clipboard helper with a small toast confirmation. Browsers without
+// navigator.clipboard fall back silently.
+function copyToClipboard(text){
+  try { navigator.clipboard.writeText(text); } catch(_){}
+  showToast(`Copied: ${text}`);
+}
+function showToast(msg){
+  const old = document.getElementById('app-toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.id = 'app-toast';
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 1800);
+}
+
+// Recruiter note + star/pin actions, scoped to the currently-selected
+// candidate.
+function addNote(){
+  const x = c();
+  const input = document.getElementById('noteInput');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+  x.notes = x.notes || [];
+  x.notes.push({ id: Date.now(), author: 'Recruiter', text, createdAt: nowISO() });
+  x.timeline.push(`Note: ${text.slice(0, 80)}${text.length > 80 ? '…' : ''}`);
+  save();
+  render();
+}
+function togglePin(id){
+  const x = candidates.find(item => item.id === id) || c();
+  x.pinned = !x.pinned;
+  x.timeline.push(x.pinned ? 'Pinned ★' : 'Unpinned');
+  save();
+  render();
+}
+
+// Activity feed — most-recently-changed active candidates.
+function latestActivityTime(x){
+  let max = x.stageUpdatedAt;
+  if (x.notes && x.notes.length){
+    for (const n of x.notes){
+      if (!max || new Date(n.createdAt) > new Date(max)) max = n.createdAt;
+    }
+  }
+  return max;
+}
+function latestAction(x){
+  if (x.notes && x.notes.length){
+    const lastNote = x.notes[x.notes.length - 1];
+    if (!x.stageUpdatedAt || new Date(lastNote.createdAt) >= new Date(x.stageUpdatedAt)){
+      return `Note: ${lastNote.text.slice(0, 72)}${lastNote.text.length > 72 ? '…' : ''}`;
+    }
+  }
+  const last = x.timeline && x.timeline.length ? x.timeline[x.timeline.length - 1] : null;
+  return last || `Moved to ${x.stage}`;
+}
+function recentActivityPanel(){
+  const ranked = candidates
+    .filter(isActive)
+    .map(x => ({ x, ts: latestActivityTime(x), action: latestAction(x) }))
+    .filter(r => r.ts)
+    .sort((a, b) => new Date(b.ts) - new Date(a.ts))
+    .slice(0, 6);
+  if (!ranked.length) return '';
+  return `<section class="panel"><div class="section-head"><div><div class="eyebrow">Recent activity</div><h3>What changed lately.</h3></div></div>
+    <div class="activity-list">${ranked.map(r => `<button class="activity-row" onclick="selectedId=${r.x.id};view='candidate';render()">
+      <div class="activity-row-id"><strong>${r.x.pinned ? '★ ' : ''}${esc(r.x.first)} ${esc(r.x.last)}</strong><small>${esc(r.x.stage)}</small></div>
+      <div class="activity-row-action">${esc(r.action)}</div>
+      <div class="activity-row-time">${esc(formatRelativeShort(r.ts))}</div>
+    </button>`).join('')}</div>
+  </section>`;
+}
+
 // Candidate list filters. Defaults to "active only" because the hiring lead
 // almost always wants the live pipeline, not parked / rejected candidates.
-let candidateFilters = { search:'', path:'all', group:'active', owner:'all' };
+let candidateFilters = { search:'', path:'all', group:'active', owner:'all', pinned:false };
 function setCandidateFilter(key, value){ candidateFilters[key] = value; render(); }
+function toggleCandidateFilter(key){ candidateFilters[key] = !candidateFilters[key]; render(); }
 function updateCandidateSearch(value){
   candidateFilters.search = value;
   const target = document.getElementById('candidates-results');
@@ -204,12 +297,13 @@ function updateCandidateSearch(value){
 }
 function applyCandidateFilters(list){
   const f = candidateFilters;
-  return list.filter(x => {
+  const filtered = list.filter(x => {
     if(f.group === 'active' && !isActive(x)) return false;
     if(f.group === 'disposition' && isActive(x)) return false;
     if(f.path === 'welder' && !isWelderPath(x)) return false;
     if(f.path === 'other' && isWelderPath(x)) return false;
     if(f.owner !== 'all' && x.owner !== f.owner) return false;
+    if(f.pinned && !x.pinned) return false;
     if(f.search){
       const s = f.search.toLowerCase();
       const hay = `${x.first} ${x.last} ${x.role} ${x.location || ''} ${x.email || ''} ${x.stage}`.toLowerCase();
@@ -217,6 +311,8 @@ function applyCandidateFilters(list){
     }
     return true;
   });
+  // Pinned candidates always float to the top of any list view.
+  return filtered.slice().sort((a, b) => Number(b.pinned) - Number(a.pinned));
 }
 function chipBtn(filterKey, value, label){
   const active = candidateFilters[filterKey] === value;
@@ -253,6 +349,10 @@ function candidateList(){
         ${chipBtn('owner','Hiring Manager','Hiring Manager')}
         ${chipBtn('owner','Admin','Admin')}
       </div>
+      <div class="filter-group">
+        <span class="filter-label">Spotlight</span>
+        <button class="filter-chip ${candidateFilters.pinned ? 'active' : ''}" onclick="toggleCandidateFilter('pinned')">★ Pinned only</button>
+      </div>
     </div>
   </section>
   <section class="panel">
@@ -288,6 +388,8 @@ function dashboard(){
 
   return `${head(`Today's hiring snapshot.`, todaySummary, `<button class="btn primary" onclick="window.open('/goff-careers/','_blank','noopener')">Open careers page</button>`)}
   ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on a hiring-lead call.' : `${austinDecisions.length} candidates are waiting on a hiring-lead call.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>No decisions waiting right now.</h3><p class="muted">The recruiting queue is moving. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
+
+  ${recentActivityPanel()}
 
   <section class="panel funnels"><div class="section-head"><div><div class="eyebrow">Pipeline by path</div><h3>From applied to hired.</h3></div><button class="btn" onclick="view='workflow';render()">View full workflow</button></div>${funnelHTML('Welder path — fabricators &amp; fitters', welderCandidates)}${funnelHTML('Other roles — foreman, inventory, procurement, helper', otherCandidates)}</section>
 
@@ -356,7 +458,7 @@ function workflow(){
     ${stageDetailPanel()}
   </section>`;
 }
-function card(x){ return `<div class="candidate" onclick="selectedId=${x.id};view='candidate';render()"><div><strong>${x.first} ${x.last}</strong><small>${x.role} • ${x.source}</small><div class="tags"><span class="tag ${tag(x.priority)}">${x.priority}</span><span class="tag dark">${x.stage}</span><span class="tag ${tag(x.due)}">${x.due}</span><span class="tag">Waiting: ${x.owner}</span></div></div><span class="pill ${x.priority==='Hot'?'hot':String(x.due).includes('Today')?'today':'wait'}">Open</span></div>`; }
+function card(x){ return `<div class="candidate${x.pinned?' pinned':''}" onclick="selectedId=${x.id};view='candidate';render()"><div><strong>${x.pinned?'★ ':''}${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)} • ${esc(x.source)}</small><div class="tags"><span class="tag ${tag(x.priority)}">${esc(x.priority)}</span><span class="tag dark">${esc(x.stage)}</span><span class="tag ${tag(x.due)}">${esc(x.due)}</span><span class="tag">Waiting: ${esc(x.owner)}</span></div></div><span class="pill ${x.priority==='Hot'?'hot':String(x.due).includes('Today')?'today':'wait'}">Open</span></div>`; }
 function stageTile(s){ const count=candidates.filter(x=>x.stage===s.id).length; return `<button class="pipe-step ${count?'has-candidate':''} ${selectedStage===s.id?'selected':''}" onclick="selectedStage='${esc(s.id)}';render()"><small>${s.group}</small><b>${s.id}</b><span>${s.template}</span><em>${count} candidate${count===1?'':'s'}</em></button>`; }
 function stageDetailPanel(){ const stage=selectedStage || WORKFLOW_STAGES[0].id; const meta=stageMeta(stage); const list=candidates.filter(x=>x.stage===stage); return `<div class="stage-detail"><div class="section-head compact"><div><h3>${esc(stage)}</h3><p class="muted">${list.length ? `${list.length} candidate${list.length===1?'':'s'} currently in this status.` : 'No candidates are currently in this status.'} Next step: ${esc(meta.next || 'human decision / complete')}</p></div><span class="tag dark">${esc(meta.template)}</span></div>${list.length ? `<div class="queue compact">${list.map(card).join('')}</div>` : `<div class="notice"><strong>Empty stage.</strong><br>When someone reaches ${esc(stage)}, they will appear here.</div>`}</div>`; }
 
@@ -512,7 +614,7 @@ function candidate(){
   const showClearance = ['Offer accepted - clearance hold','BBSI documents invite','Offer sent / follow-up','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
   const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
   const customDecisions = decisionActionsForStage(x.stage);
-  return `${head(`${esc(x.first)} ${esc(x.last)}`, `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)}`,`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  return `${head(`${x.pinned ? '★ ' : ''}${esc(x.first)} ${esc(x.last)}`, `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)}`,`<div class="head-actions"><button class="btn pin-toggle ${x.pinned ? 'pinned' : ''}" onclick="togglePin(${x.id})" title="${x.pinned ? 'Unpin' : 'Pin this candidate'}">${x.pinned ? '★ Pinned' : '☆ Pin'}</button><button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button></div>`)}
   <section class="panel candidate-hero">
     <div class="candidate-hero-row">
       <div class="candidate-hero-stage">
@@ -544,8 +646,8 @@ function candidate(){
     <section class="panel">
       <h3>Candidate profile</h3>
       <div class="profile-grid">
-        ${field('Email', `<a href="mailto:${esc(x.email)}">${esc(x.email)}</a>`)}
-        ${field('Phone', x.phone ? `<a href="tel:${esc(x.phone)}">${esc(x.phone)}</a>` : '—')}
+        ${field('Email', `<a href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — ' + x.role)}">${esc(x.email)}</a> <button class="copy-icon" title="Copy email" onclick="event.stopPropagation();copyToClipboard('${esc(x.email)}')">⧉</button>`)}
+        ${field('Phone', x.phone ? `<a href="tel:${esc(x.phone)}">${esc(x.phone)}</a> <button class="copy-icon" title="Copy phone" onclick="event.stopPropagation();copyToClipboard('${esc(x.phone)}')">⧉</button>` : '—')}
         ${field('Location', x.location || '—')}
         ${field('Source', x.source)}
       </div>
@@ -555,6 +657,17 @@ function candidate(){
       <p class="muted">${esc(roleFit(x))}</p>
     </section>
   </div>
+  <section class="panel" style="margin-top:16px">
+    <div class="section-head"><div><div class="eyebrow">Recruiter notes</div><h3>${(x.notes && x.notes.length) ? `${x.notes.length} note${x.notes.length === 1 ? '' : 's'} on file.` : 'No notes yet.'}</h3></div></div>
+    <div class="note-composer">
+      <textarea id="noteInput" rows="3" placeholder="Add a note — what was discussed, next step, anything to remember. Press &quot;Save note&quot; when done."></textarea>
+      <div class="note-composer-actions">
+        <button class="btn brand" onclick="addNote()">Save note</button>
+        <span class="muted small">Notes show up in the timeline below and on the dashboard activity feed.</span>
+      </div>
+    </div>
+    ${(x.notes && x.notes.length) ? `<div class="notes-list">${x.notes.slice().reverse().map(n => `<div class="note-row"><div class="note-row-meta"><strong>${esc(n.author || 'Recruiter')}</strong> · ${esc(formatRelativeShort(n.createdAt))}</div><p>${esc(n.text)}</p></div>`).join('')}</div>` : ''}
+  </section>
   ${showClearance ? `<section class="panel" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>` : ''}
   <section class="panel" style="margin-top:16px">
     <details class="email-draft-details">
@@ -817,6 +930,10 @@ function howItWorks(){
         <p>Candidates currently waiting on a hiring-lead call. One-tap action buttons (<em>Approve</em>, <em>Second interview</em>, <em>Pass</em>) so decisions can be made in seconds.</p>
       </div>
       <div class="howto-zone">
+        <h4>Recent activity</h4>
+        <p>What changed lately — last six candidates that moved stages or had a note added, with a one-line summary and time-ago stamp. Click any row to jump straight to that candidate.</p>
+      </div>
+      <div class="howto-zone">
         <h4>Pipeline by path</h4>
         <p>Welder funnel and Other funnel side by side. Each shows count per stage with the candidate's first name as a clickable chip. Click a chip to jump straight to that person.</p>
       </div>
@@ -859,8 +976,8 @@ function howItWorks(){
   </section>
 
   <section class="panel">
-    <h3>What is coming next</h3>
-    <p>These are features we are brainstorming with Goff. None of them are built yet. Order will get nailed down once Goff starts running real candidates through the system and figures out which problems hurt the most.</p>
+    <h3>Features we can potentially add</h3>
+    <p>These are features we are brainstorming with Goff. None of them are built yet. Order will get nailed down once Goff starts running real candidates through the system and figures out which problems hurt the most. Some are huge wins; others are nice-to-have polish. The list is meant to be scanned and reacted to — yes, no, maybe later.</p>
 
     <h4 class="howto-subhead">Intake and quality</h4>
 
@@ -884,6 +1001,16 @@ function howItWorks(){
       <p>Once Goff has 50+ applications running through the system, a single page will show which sources produce hires — not just applications. Indeed produces volume. Walk-ins often produce quality. Referrals usually produce both. Knowing the ratio shows the hiring team where to spend the Indeed budget, when to ask employees for referrals, and whether Facebook posts are worth the effort. A <em>"How did you hear about Goff?"</em> question gets added to the apply form now so the data captures cleanly from day one.</p>
     </div>
 
+    <div class="howto-idea">
+      <h5>Tags on candidates</h5>
+      <p>Free-form labels per candidate — <em>"local referral," "bilingual," "has CDL," "Brandon's cousin," "passed weld test cold."</em> Tags show up as colored badges on the candidate card and become a filter chip on the Candidates list. Lets the team quickly group people by anything that matters to Goff specifically without having to bend the formal stage system.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Print candidate one-pager</h5>
+      <p>One-click print button on the candidate detail page. Generates a clean PDF-ready layout (profile, role, evidence checklist, notes, timeline) without the sidebar or app chrome. Useful for taking to an interview, handing off to a supervisor, or storing in a paper file.</p>
+    </div>
+
     <h4 class="howto-subhead">Keeping everyone in the loop</h4>
 
     <div class="howto-idea">
@@ -904,6 +1031,16 @@ function howItWorks(){
     <div class="howto-idea">
       <h5>SMS to candidates</h5>
       <p>Most welders do not check email. Texts get answered within an hour. Goff Recruiting will support sending pre-built SMS templates ("weld test invite," "interview confirm," "follow-up") directly from candidate cards, with replies showing up in the candidate timeline. Three setup options depending on what works for Goff: send from a personal phone with a one-click "logged" button on the candidate card; a shared work number (OpenPhone, Dialpad, or similar) that everyone on the recruiting side can use; or a dedicated number integrated directly into the platform. Goff picks based on volume and preference.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Email and SMS conversation threads</h5>
+      <p>Every email or text exchanged with a candidate shows up as a threaded conversation on the candidate's profile — like an inbox tied to the candidate. No more scrolling through Quinton's personal email to remember what Tyler said three days ago. Replies auto-update the timeline and surface in the activity feed.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Bulk actions on the Candidates list</h5>
+      <p>Select multiple candidates at once and apply a single action: send the same template, advance them to the same stage, mark a batch <em>Not selected</em>, archive cold leads. Cuts the click-through cost when handling a wave of Indeed applications all at once.</p>
     </div>
 
     <h4 class="howto-subhead">Letting the system do more of the work</h4>
@@ -948,6 +1085,41 @@ function howItWorks(){
       <p>Anomaly detection notices when hires slow down or applications dip below normal. Flags before it becomes a crisis: <em>"You usually hire one welder a month. Past two months: zero. Pipeline looks thin — boost Indeed budget or re-engage talent pool?"</em></p>
     </div>
 
+    <div class="howto-idea">
+      <h5>Drag-and-drop kanban view</h5>
+      <p>Optional view that swaps the dashboard funnel for a full kanban board — columns for each stage, drag candidate cards between columns. Same data, different visualization. Some teams prefer the drag motion to clicking through stages; others find the funnel cleaner. Both can coexist.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Compare candidates side by side</h5>
+      <p>Pick two or three candidates and the system lays them out in columns — profile, evidence, concerns, pay expectations — so the hiring lead can make a head-to-head call without flipping between cards. Especially useful when two welders both pass weld test and the call is "which one?"</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Calendar view of upcoming events</h5>
+      <p>A simple <em>"This week"</em> calendar showing every weld test, interview, and first day scheduled in the system. Lets anyone scanning the dashboard see <em>"Tuesday morning has a weld test, Thursday afternoon has an interview — block time."</em> Can also push to Google Calendar.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>AI rewrite for templates</h5>
+      <p>The installed templates are intentionally generic. Click <em>Rewrite for this candidate</em> and the AI personalizes the message — references the candidate's actual experience, mentions the specific shop they came from, calibrates tone to the role. Higher response rates because the message does not read like a copy-paste.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Settings page</h5>
+      <p>One place to adjust the small things: aging thresholds (today they are 3 / 5 days), default owners for each stage, intake notification preferences, brand colors. Lets Goff tune the platform without code changes.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Quick filter presets on the Candidates list</h5>
+      <p>One-click chips for the most common views: <em>"Hot today," "Drifting," "Welders only," "Hired this month," "Talent pool."</em> Skips the path/status/owner click sequence. Custom presets the team uses can be saved.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Bilingual content (Spanish)</h5>
+      <p>Apply form, candidate-facing emails, and the public careers page available in Spanish. Significant chunk of skilled welders in the region are bilingual or Spanish-first; bilingual outreach widens the funnel and signals that Goff is a welcoming shop. Internal admin stays English.</p>
+    </div>
+
     <h4 class="howto-subhead">Other planned upgrades</h4>
     <ul class="howto-list">
       <li><strong>Resume file upload</strong> on the apply form (PDF, JPG, HEIC) so applicants can attach their actual resume.</li>
@@ -961,8 +1133,10 @@ function howItWorks(){
   <section class="panel howto-quickref">
     <h3>Quick reference card</h3>
     <ul class="howto-list">
-      <li><strong>Daily:</strong> Dashboard → handle "Decisions needed" + "Check before they go cold."</li>
+      <li><strong>Daily:</strong> Dashboard → handle "Decisions needed" + "Check before they go cold." Glance at "Recent activity" to see what changed since yesterday.</li>
       <li><strong>When a new application comes in:</strong> Add candidate or watch for the Telegram ping. Triage in candidate detail.</li>
+      <li><strong>After a phone call or in-person chat:</strong> Open the candidate, add a recruiter note. Pin (★) the standouts so they float to the top of every list.</li>
+      <li><strong>To text or email a candidate:</strong> Tap the email or phone in the candidate profile — it opens your mail app or dialer pre-addressed. The ⧉ button next to it copies the value to clipboard for paste anywhere.</li>
       <li><strong>When a hiring-lead decision is needed:</strong> Manager review screen.</li>
       <li><strong>When an offer is ready:</strong> Offer workflow → preview → download .doc → DocHub for signatures.</li>
       <li><strong>If you forget a stage:</strong> Full workflow shows every stage and what comes next.</li>
