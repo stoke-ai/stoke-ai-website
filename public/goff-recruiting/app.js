@@ -860,13 +860,43 @@ function howItWorks(){
 
   <section class="panel">
     <h3>What is coming next</h3>
+    <p>These are the features we are brainstorming and prioritizing with Austin. Not built yet — but each one solves a real intake or quality problem Goff will hit as the system gets used. Order will depend on what matters most after Goff starts running real candidates through it.</p>
+
+    <h4 class="howto-subhead">Big ideas we are working through with Austin</h4>
+
+    <div class="howto-idea">
+      <h5>One simple intake form for everyone</h5>
+      <p>Walk-in at the door. Phone caller. Goff employee at a computer. Indeed applicant. They all use the same apply form on <code>careers.goffwelding.com</code>. It works on a phone, a tablet at the front desk, or a laptop. For walk-ins with a paper resume, snap a photo — the AI reads it, pre-fills the form (name, contact, role, experience, certifications), and files the original resume to the candidate record. No more sticky notes at the front desk and nothing lost to memory.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Duplicate detection</h5>
+      <p>When the same person applies via Indeed, then walks in two weeks later, then a friend refers them — that should be one candidate, not three. The system will check email and phone on every new application. If there is a match, Quinton sees a banner: <em>"Possible duplicate of [name] who applied 12 days ago for [role]."</em> Click to merge or keep separate. Stops the queue from cluttering with the same person showing up multiple times.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>By-source report</h5>
+      <p>Once Goff has 50+ applications running through the system, a single page will show which sources produce hires — not just applications. Indeed produces volume. Walk-ins often produce quality. Referrals usually produce both. Knowing the ratio tells Austin where to spend the Indeed budget, when to ask employees for referrals, and whether Facebook posts are worth the effort. A <em>"How did you hear about Goff?"</em> question gets added to the apply form now so the data captures cleanly from day one.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>SMS to candidates</h5>
+      <p>Most welders do not check email. Texts get answered within an hour. Goff Recruiting will support sending pre-built SMS templates ("weld test invite," "interview confirm," "follow-up") directly from candidate cards, with replies showing up in the candidate timeline. Three setup options depending on what works for Goff: Quinton texting from his phone with a one-click "logged" button; a shared work number (OpenPhone, Dialpad, or similar) that Cecilia and Quinton both use; or a dedicated number integrated directly into the platform. Goff picks based on volume and preference.</p>
+    </div>
+
+    <div class="howto-idea">
+      <h5>Talent pool — re-engage past applicants</h5>
+      <p>Past good applicants who did not get hired — anyone marked <em>"Keep on file"</em> — are gold. When a new welder opening pops up six months from now, Quinton should not start with Indeed. He should start with the talent pool. A dedicated view will list everyone marked Keep on file, filterable by the role they originally applied for, with a one-click <em>"Re-engage for [new opening]"</em> action that sends each one the right template. The system tracks who has been recontacted so nobody gets pestered twice.</p>
+    </div>
+
+    <h4 class="howto-subhead">Other planned upgrades</h4>
     <ul class="howto-list">
-      <li>Server-side persistence so the queue syncs across Austin's phone and Quinton's laptop.</li>
-      <li>Resume upload on the careers page apply form.</li>
-      <li>Indeed Partner ATS sync — direct API, no CSV.</li>
-      <li>Magic-link emails so Austin can approve an offer from his phone without logging in.</li>
-      <li>Move the careers page to <code>careers.goffwelding.com</code> once Austin shares his DNS provider.</li>
-      <li>Lock the admin behind a password (one-flag env var when you are ready).</li>
+      <li><strong>Resume file upload</strong> on the apply form (PDF, JPG, HEIC) so applicants can attach their actual resume.</li>
+      <li><strong>Server-side sync</strong> so the queue is identical on Austin's phone and Quinton's laptop.</li>
+      <li><strong>Indeed Partner ATS sync</strong> — direct API, no CSV step.</li>
+      <li><strong>Magic-link approvals</strong> so Austin can approve an offer from his phone without signing in.</li>
+      <li><strong>Custom domain</strong> — move the careers page to <code>careers.goffwelding.com</code> once Austin shares his DNS provider.</li>
+      <li><strong>Admin password lock</strong> — flip on when Goff is ready.</li>
     </ul>
   </section>
 
