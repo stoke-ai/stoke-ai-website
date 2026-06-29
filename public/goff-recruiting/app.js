@@ -122,6 +122,40 @@ const TEMPLATE_TEXT = {
 // can edit these in code (or eventually in a settings UI) once he gives Stoke
 // the real numbers. The careers page renders all of these fields verbatim, so
 // keep them short and applicant-facing.
+
+const CAREERS_URL = 'https://stoke-ai.com/goff-careers/';
+const INTAKE_SOURCES = [
+  { id:'Website', label:'Website / direct careers page', chip:'green', rule:'Applicant submits the Goff careers form directly.' },
+  { id:'Indeed', label:'Indeed applicant', chip:'blue', rule:'Send the Goff application link, then work them from Goff once they apply.' },
+  { id:'Walk-in', label:'Walk-in / front desk', chip:'amber', rule:'Have them scan the QR or text themselves the Goff application link before they leave.' },
+  { id:'Phone', label:'Phone call', chip:'violet', rule:'Text or email the application link while they are on the phone.' },
+  { id:'Referral', label:'Referral', chip:'green', rule:'Send the same link so referral candidates enter the same queue.' },
+  { id:'Social / email', label:'Social / email lead', chip:'blue', rule:'Reply with the application link instead of collecting scattered details in messages.' },
+  { id:'Manual fallback', label:'Manual fallback', chip:'dark', rule:'Quick-add only when the candidate cannot complete the application path.' },
+];
+const APPLICATION_LINK_TEMPLATES = {
+  'Indeed': {
+    title:'Indeed applicant follow-up',
+    text:`Hi {{name}}, thanks for your interest in Goff Welding. To keep everyone in the same hiring process, please complete our short Goff application here:\n\n{{link}}\n\nOnce that is submitted, our hiring team can review your information and follow up on the next step.`
+  },
+  'Walk-in': {
+    title:'Walk-in / QR script',
+    text:`Thanks for stopping by Goff Welding. Before you leave, please scan this QR code or open this link and complete the application so your information goes straight into our hiring queue:\n\n{{link}}\n\nIf you are applying for a welder or fitter role, include your experience and availability for a weld test.`
+  },
+  'Phone': {
+    title:'Phone call text',
+    text:`Thanks for calling Goff Welding. Here is the application link we use for all applicants so the hiring team has the right information in one place:\n\n{{link}}\n\nPlease fill it out today and we will review it from there.`
+  },
+  'Referral': {
+    title:'Referral candidate message',
+    text:`You were referred to Goff Welding. Please complete our short application here so we can get you into the same hiring process as everyone else:\n\n{{link}}\n\nAdd the person who referred you in the notes if helpful.`
+  },
+  'Social / email': {
+    title:'Social/email reply',
+    text:`Thanks for reaching out about Goff Welding. The fastest way to get in front of the hiring team is to complete the application here:\n\n{{link}}\n\nOnce it is in, we can review your background and follow up if there is a fit.`
+  }
+};
+
 const jobs = [
  {id:'welder', title:'Sanitary Stainless Steel Welder / Fabricator', type:'Full-time', path:'Welder path',
   summary:'Build high-stakes food and dairy stainless work the way it should be done — clean welds, tight tolerances, safe shop. Sanitary experience preferred; we will test on day one.',
@@ -306,7 +340,7 @@ function applyCandidateFilters(list){
     if(f.pinned && !x.pinned) return false;
     if(f.search){
       const s = f.search.toLowerCase();
-      const hay = `${x.first} ${x.last} ${x.role} ${x.location || ''} ${x.email || ''} ${x.stage}`.toLowerCase();
+      const hay = `${x.first} ${x.last} ${x.role} ${x.location || ''} ${x.email || ''} ${x.source || ''} ${x.stage}`.toLowerCase();
       if(!hay.includes(s)) return false;
     }
     return true;
@@ -386,7 +420,7 @@ function dashboard(){
 
   const todaySummary = buildTodaySummary(austinDecisions, stale.length, aging.length);
 
-  return `${head(`Today's hiring snapshot.`, todaySummary, `<button class="btn primary" onclick="window.open('/goff-careers/','_blank','noopener')">Open careers page</button>`)}
+  return `${head(`Today's hiring snapshot.`, todaySummary, `<button class="btn" onclick="view='intake';render()">Intake links</button><button class="btn primary" onclick="window.open('/goff-careers/','_blank','noopener')">Open careers page</button>`)}
   ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on a hiring-lead call.' : `${austinDecisions.length} candidates are waiting on a hiring-lead call.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>No decisions waiting right now.</h3><p class="muted">The recruiting queue is moving. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
 
   ${recentActivityPanel()}
@@ -462,8 +496,30 @@ function card(x){ return `<div class="candidate${x.pinned?' pinned':''}" onclick
 function stageTile(s){ const count=candidates.filter(x=>x.stage===s.id).length; return `<button class="pipe-step ${count?'has-candidate':''} ${selectedStage===s.id?'selected':''}" onclick="selectedStage='${esc(s.id)}';render()"><small>${s.group}</small><b>${s.id}</b><span>${s.template}</span><em>${count} candidate${count===1?'':'s'}</em></button>`; }
 function stageDetailPanel(){ const stage=selectedStage || WORKFLOW_STAGES[0].id; const meta=stageMeta(stage); const list=candidates.filter(x=>x.stage===stage); return `<div class="stage-detail"><div class="section-head compact"><div><h3>${esc(stage)}</h3><p class="muted">${list.length ? `${list.length} candidate${list.length===1?'':'s'} currently in this status.` : 'No candidates are currently in this status.'} Next step: ${esc(meta.next || 'human decision / complete')}</p></div><span class="tag dark">${esc(meta.template)}</span></div>${list.length ? `<div class="queue compact">${list.map(card).join('')}</div>` : `<div class="notice"><strong>Empty stage.</strong><br>When someone reaches ${esc(stage)}, they will appear here.</div>`}</div>`; }
 
-function intake(){ return `${head('Add candidate','Add applicants from the website, Indeed, referrals, walk-ins, email, CSV, or copied text.',`<button class="btn brand" onclick="downloadIndeedSampleCSV()">Download sample Indeed CSV</button>`)}<div class="grid three"><section class="panel"><h3>1. Quick add</h3><p>For walk-ins, referrals, phone calls, and one-off Indeed candidates the recruiter wants to work.</p><div class="form"><input id="qaName" placeholder="Candidate name"><input id="qaEmail" placeholder="Email"><select id="qaRole">${jobs.map(j=>`<option>${j.title}</option>`).join('')}</select><select id="qaSource"><option>Website</option><option>Indeed</option><option>Referral</option><option>Walk-in</option><option>BBSI export</option></select><button class="btn primary" onclick="quickAdd()">Add to Goff queue</button></div></section><section class="panel"><h3>2. Indeed CSV import</h3><p>Upload an Indeed candidate CSV/export. The importer accepts flexible headers like name, first name, last name, email, phone, job title, location, status, resume, and notes.</p><div class="form"><input id="csvFile" type="file" accept=".csv,text/csv" onchange="handleCSVFile(event)"><textarea id="csvPasteBox" class="importbox" placeholder="Or paste Indeed CSV rows here..."></textarea><button class="btn brand" onclick="parseIndeedCSV(document.getElementById('csvPasteBox').value)">Preview CSV import</button></div></section><section class="panel"><h3>3. Paste single applicant</h3><p>For copied Indeed candidate text or email notifications.</p><textarea id="pasteBox" class="importbox" placeholder="Paste one applicant text here..."></textarea><button class="btn brand" onclick="parseImport()">Parse one candidate</button><div class="notice success"><strong>Routing:</strong> Goff recruiting owns the queue. BBSI starts after offer acceptance and clearance.</div></section></div><section class="panel" style="margin-top:16px"><h3>Import preview / result</h3><div id="importResult" class="notice">No import run yet.</div></section>`; }
-function quickAdd(){ let [first,...rest]=(document.getElementById('qaName').value||'New Candidate').split(' '); let role=document.getElementById('qaRole').value; let item=normalizeCandidate({id:Date.now(),first,last:rest.join(' ')||'Applicant',email:document.getElementById('qaEmail').value||'unknown@example.com',phone:'',role,source:document.getElementById('qaSource').value,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:'New candidate added through quick-add intake. Needs first review and path selection.',concerns:'Unknown until screened.',timeline:['Added through Goff recruiting quick-add']}); candidates.unshift(item); selectedId=item.id; save(); view='candidate'; render(); }
+function intake(){
+  const counts = Object.fromEntries(INTAKE_SOURCES.map(src => [src.id, candidates.filter(c => String(c.source||'').toLowerCase().includes(src.id.toLowerCase().split(' ')[0])).length]));
+  return `${head('Recruiting intake flow','Austin’s rule: every applicant source should funnel into one Goff application path first. Quick-add/import remains as a fallback when someone cannot apply through the link.',`<button class="btn brand" onclick="showApplicationLinkDraft('Indeed')">Send application link</button>`)}
+  <section class="panel intake-front-door">
+    <div class="section-head"><div><div class="eyebrow">Universal front door</div><h3>One application path for every source.</h3><p class="muted">Use the Goff careers/application link for Indeed, walk-ins, phone calls, referrals, social messages, and email leads. That keeps Quinton from managing applicants across five different places.</p></div><button class="btn primary" onclick="copyToClipboard(CAREERS_URL)">Copy application link</button></div>
+    <div class="intake-source-grid">${INTAKE_SOURCES.map(src => `<article><span class="tag ${src.chip}">${esc(src.id)}</span><strong>${esc(src.label)}</strong><p>${esc(src.rule)}</p><small>${counts[src.id]||0} in current queue</small></article>`).join('')}</div>
+  </section>
+  <div class="grid two" style="margin-top:16px">
+    <section class="panel"><h3>Send application link</h3><p class="muted">Choose the source and copy the ready-to-send message. This is the v1 replacement for chasing Indeed/API sync first.</p><div class="intake-template-list">${Object.keys(APPLICATION_LINK_TEMPLATES).map(k => `<button class="template-row clickable" onclick="showApplicationLinkDraft('${esc(k).replace(/'/g,"\\'")}')"><b>${esc(APPLICATION_LINK_TEMPLATES[k].title)}</b><span class="tag ${tag(k)}">${esc(k)}</span></button>`).join('')}</div><div class="notice success"><strong>Shop/front-desk version:</strong><br>Print or display the QR to the careers link. Walk-ins scan it before they leave so the application is complete and legible.</div></section>
+    <section class="panel"><h3>Manual fallback quick add</h3><p>Use this only when the applicant cannot fill out the link or the recruiter needs to preserve a lead immediately.</p><div class="form"><input id="qaName" placeholder="Candidate name"><input id="qaEmail" placeholder="Email"><input id="qaPhone" placeholder="Phone"><select id="qaRole">${jobs.map(j=>`<option>${j.title}</option>`).join('')}</select><select id="qaSource">${INTAKE_SOURCES.map(src=>`<option>${esc(src.id)}</option>`).join('')}</select><button class="btn primary" onclick="quickAdd()">Add fallback lead to Goff queue</button></div></section>
+  </div>
+  <div class="grid two" style="margin-top:16px">
+    <section class="panel"><h3>Indeed CSV import</h3><p>Use CSV only for candidates Goff actually wants to work. Do not recreate Indeed inside Goff — shortlist first, then import.</p><div class="form"><input id="csvFile" type="file" accept=".csv,text/csv" onchange="handleCSVFile(event)"><textarea id="csvPasteBox" class="importbox" placeholder="Or paste Indeed CSV rows here..."></textarea><div class="actions tight"><button class="btn brand" onclick="parseIndeedCSV(document.getElementById('csvPasteBox').value)">Preview CSV import</button><button class="btn" onclick="downloadIndeedSampleCSV()">Download sample CSV</button></div></div></section>
+    <section class="panel"><h3>Paste single applicant</h3><p>For copied Indeed candidate text, email notifications, or recruiter notes. Source is still tracked.</p><textarea id="pasteBox" class="importbox" placeholder="Name: Jason Harper\nEmail: jason@example.com\nPhone: 208-555-0188\nSource: Indeed\nRole: Sanitary Stainless Steel Welder / Fabricator\nNotes: 5 years stainless..."></textarea><button class="btn brand" onclick="parseImport()">Parse one candidate</button><div class="notice"><strong>BBSI boundary:</strong> Goff recruiting owns intake through offer/clearance. BBSI starts after offer acceptance and clearance guardrails.</div></section>
+  </div>
+  <section class="panel" style="margin-top:16px"><h3>Import preview / result</h3><div id="importResult" class="notice">Choose a link template, quick-add a fallback lead, paste one applicant, or preview a CSV import.</div></section>`;
+}
+function quickAdd(){ let [first,...rest]=(document.getElementById('qaName').value||'New Candidate').split(' '); let role=document.getElementById('qaRole').value; let source=document.getElementById('qaSource').value; let item=normalizeCandidate({id:Date.now(),first,last:rest.join(' ')||'Applicant',email:document.getElementById('qaEmail').value||'unknown@example.com',phone:document.getElementById('qaPhone')?.value||'',role,source,path:role.toLowerCase().includes('welder')||role.toLowerCase().includes('fitter')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:`Fallback intake lead from ${source}. Prefer sending the application link so the candidate can complete the full Goff application path.`,concerns:'Fallback entry: verify contact info, role fit, availability, and whether the candidate completed the official application link.',timeline:[`Added through ${source} fallback quick-add`,'Needs official application link or recruiter review']}); candidates.unshift(item); selectedId=item.id; save(); view='candidate'; render(); }
+function showApplicationLinkDraft(source='Indeed'){
+  const tpl = APPLICATION_LINK_TEMPLATES[source] || APPLICATION_LINK_TEMPLATES['Indeed'];
+  const text = tpl.text.replaceAll('{{name}}','there').replaceAll('{{link}}',CAREERS_URL);
+  document.getElementById('modal').className='modal open';
+  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>${esc(tpl.title)}</h3><p>Copy this into Indeed, text, email, or a front-desk script. It keeps every applicant moving into the same Goff application queue.</p><textarea>${esc(text)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(CAREERS_URL)">Copy link only</button><button class="btn brand" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy message</button></div></div>`;
+}
 function demoImport(){ view='intake'; render(); document.getElementById('pasteBox').value='Name: Jason Harper\nEmail: jason.harper@example.com\nPhone: 208-555-0188\nSource: Indeed\nRole: Sanitary Stainless Steel Welder/Fabricator\nNotes: 5 years stainless, currently in Idaho Falls, available for weld test next week.'; parseImport(); }
 function parseImport(){ let t=document.getElementById('pasteBox').value||''; let email=(t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[''])[0]; let phone=(t.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)||[''])[0]; let name=(t.match(/Name:\s*([^\n,]+)/i)||t.match(/^([^,\n]+)/)||['','Imported Candidate'])[1].trim(); let source=(t.match(/Source:\s*([^\n,]+)/i)||['','Indeed'])[1].trim(); let role=(t.match(/Role:\s*([^\n]+)/i)||t.match(/Job(?: Title)?:\s*([^\n]+)/i)||['',jobs[0].title])[1].trim(); let notes=(t.match(/Notes?:\s*([^]+)/i)||['','Imported applicant. System recommends Quinton review and choose first action.'])[1].trim(); let [first,...rest]=name.split(' '); let item=normalizeCandidate({id:Date.now(),first:first||'Imported',last:rest.join(' ')||'Candidate',email:email||'unknown@example.com',phone,role,source,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:notes.slice(0,260),concerns:'Imported data needs verification.',timeline:['Parsed from paste/import center','Queued for Quinton review']}); candidates.unshift(item); selectedId=item.id; save(); document.getElementById('importResult').innerHTML=`<strong>Imported:</strong> ${item.first} ${item.last} • ${item.role} • ${item.source}<br><button class="btn primary" onclick="view='candidate';render()">Open candidate</button>`; }
 function parseCSV(text){ const rows=[]; let row=[], cell='', inQuotes=false; for(let i=0;i<text.length;i++){ const ch=text[i], next=text[i+1]; if(ch==='"' && inQuotes && next==='"'){ cell+='"'; i++; } else if(ch==='"'){ inQuotes=!inQuotes; } else if(ch===',' && !inQuotes){ row.push(cell); cell=''; } else if((ch==='\n'||ch==='\r') && !inQuotes){ if(ch==='\r' && next==='\n') i++; row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); row=[]; cell=''; } else cell+=ch; } row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); return rows; }
