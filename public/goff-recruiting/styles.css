@@ -449,3 +449,16 @@ img,svg,canvas,iframe{max-width:100%}
 .status-pill.live{background:rgba(31,138,76,.16);color:var(--green)}
 .status-pill.pending{background:rgba(217,144,22,.16);color:#7a4f0a}
 .status-pill.planned{background:#eee;color:#666}
+
+
+/* Employee portal handoff */
+.employee-handoff{border-top:4px solid var(--green);background:linear-gradient(180deg,#fff,#f8fffa)}
+.handoff-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0 4px}
+.handoff-grid div{border:1px solid #e4e4e4;border-radius:var(--radius);padding:14px;background:#fff}
+.handoff-grid span{display:block;color:#888;font-size:10px;text-transform:uppercase;letter-spacing:.16em;font-weight:900}
+.handoff-grid strong{display:block;color:#111;margin:3px 0;font-size:15px;overflow-wrap:anywhere}
+.handoff-grid small{display:block;color:#666;font-size:12px;line-height:1.35}
+.handoff-grid code{font-size:11px;background:#f0f0f0;border-radius:3px;padding:1px 4px}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:grayscale(.35)}
+.btn:disabled:hover{transform:none;box-shadow:var(--shadow-card);border-color:#d5d5d5;color:var(--text)}
+@media(max-width:760px){.handoff-grid{grid-template-columns:1fr}}

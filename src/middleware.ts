@@ -5,6 +5,11 @@ const GOFF_HOSTS = new Set([
   'goff-stoke-ai.vercel.app',
 ]);
 
+const GOFF_EMPLOYEE_HOSTS = new Set([
+  'employees.goffwelding.com',
+  'employee.goffwelding.com',
+]);
+
 const PORTAL_COOKIE = 'stoke_portal_session';
 const GOFF_ADMIN_CLIENT_ID = 'goff-admin';
 const MAX_SESSION_AGE_SECONDS = 60 * 60 * 24 * 14;
@@ -76,6 +81,31 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/goff-recruiting')) {
       return NextResponse.rewrite(new URL('/goff-careers/index.html', request.url));
     }
+  }
+
+  // Employee vanity host (employees.goffwelding.com) → employee onboarding
+  // and resource portal. V1 is a private-link prototype; do not expose the
+  // recruiting admin surface here.
+  if (GOFF_EMPLOYEE_HOSTS.has(host)) {
+    if (pathname === '/' || pathname === '/start' || pathname === '/index.html') {
+      return NextResponse.rewrite(new URL('/goff-employee/index.html', request.url));
+    }
+    if (pathname.startsWith('/goff-employee')) {
+      return NextResponse.next();
+    }
+    if (pathname.startsWith('/goff-recruiting')) {
+      return NextResponse.rewrite(new URL('/goff-employee/index.html', request.url));
+    }
+  }
+
+  // Clean static route for the Goff employee portal prototype on the main
+  // Stoke domain. The employee vanity host rewrite above handles production
+  // domain access.
+  if (pathname === '/goff-employee' || pathname === '/goff-employee/') {
+    return NextResponse.rewrite(new URL('/goff-employee/index.html', request.url));
+  }
+  if (pathname === '/goff-recruiting' || pathname === '/goff-recruiting/') {
+    return NextResponse.rewrite(new URL('/goff-recruiting/index.html', request.url));
   }
 
   // Gate /goff-recruiting/* on the main domain: require a portal session
