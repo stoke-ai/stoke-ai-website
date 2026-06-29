@@ -12,6 +12,7 @@ const PROFILE = {
 
 const pages = [
   ['start','Start here'],
+  ['ops','Admin control'],
   ['training','Training path'],
   ['before','Before day one'],
   ['bbsi','BBSI / myBBSI'],
@@ -138,6 +139,42 @@ const checkinItems = [
   { title:'Employee questions captured', detail:'Write down unanswered questions and assign follow-up.' },
 ];
 
+const onboardingQueue = [
+  { name:'Ricky Lambert', role:'Sanitary Stainless Steel Welder / Fabricator', supervisor:'Quinton Goff', stage:'Training path', status:'In progress', start:'Jul 8', progress:62, blocked:'BBSI completion needs confirmation', next:'Confirm myBBSI complete, then schedule manager handoff' },
+  { name:'TBD helper hire', role:'Shop / field helper', supervisor:'TBD', stage:'Clearance hold', status:'Waiting', start:'Pending', progress:18, blocked:'Drug screen/background/start date not confirmed', next:'Do not send employee portal until clearance is confirmed' },
+  { name:'Recent hire placeholder', role:'Driver / vehicle user', supervisor:'TBD', stage:'30-day check-in', status:'Due soon', start:'Started', progress:84, blocked:'Truck check-in routing needs owner', next:'Run 30-day check-in and confirm vehicle/form training' },
+];
+
+const adminMetrics = [
+  { label:'In onboarding', value:'3', detail:'1 active training, 1 clearance hold, 1 check-in due' },
+  { label:'Blocked items', value:'4', detail:'BBSI completion, form routing, safety signoff, truck owner' },
+  { label:'Next 7 days', value:'5', detail:'Welcome text, BBSI verify, safety, manager handoff, check-in' },
+  { label:'Needs Goff decision', value:'6', detail:'Approvers, visibility, signoffs, recipients, timing' },
+];
+
+const ownerActions = [
+  { owner:'Admin / HR', count:4, items:['Confirm BBSI invite sent/completed','Resend expired myBBSI invite if needed','Generate day-before welcome reminder','Record 30-day check-in result'] },
+  { owner:'Supervisor', count:4, items:['Confirm first-day contact','Complete safety / hands-on signoff','Review first assignment and expectations','Answer open employee questions'] },
+  { owner:'Employee', count:5, items:['Complete BBSI/myBBSI','Review ExakTime page','Review safety basics','Learn company forms','Complete 30-day check-in questions'] },
+  { owner:'Stoke AI / portal setup', count:5, items:['Final route for each company form','Add approved PDFs/links only','Define notification recipients','Store progress per employee','Keep BBSI boundary clear'] },
+];
+
+const blockers = [
+  { title:'BBSI completion signal', owner:'Admin / BBSI', impact:'Cannot reliably mark day-one ready until Goff knows what complete looks like.' },
+  { title:'Company form routing', owner:'Austin / Goff', impact:'Damage, time off, truck, purchase, and Spark forms need recipients and next actions.' },
+  { title:'Safety signoff rule', owner:'Supervisor', impact:'Need to know what is portal acknowledgement vs hands-on signoff.' },
+  { title:'Employee-visible links', owner:'Austin / Goff', impact:'Contact sheets and schedule links need visibility approval before publishing broadly.' },
+];
+
+const adminTimeline = [
+  ['Clearance confirmed','Drug/background/start date verified before portal access opens.'],
+  ['Welcome link sent','Employee gets one start-here link and day-before reminder.'],
+  ['BBSI verified','Admin confirms BBSI/myBBSI is complete or resend/help is needed.'],
+  ['Training path reviewed','Employee reviews ExakTime, safety, forms, tools, and expectations.'],
+  ['Supervisor handoff','Supervisor confirms first assignment, role expectations, and open questions.'],
+  ['30-day check-in','Goff revisits forms, timekeeping, safety questions, tools, and expectations.'],
+];
+
 const adminQuestions = [
   ['BBSI boundary','Which exact steps are BBSI-owned vs Goff-owned?'],
   ['Invite ownership','Who sends/resends BBSI invites and who confirms completion?'],
@@ -187,15 +224,19 @@ function header(){
 
 function tabs(){ return `<nav class="tabs">${pages.map(([id,label])=>`<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`).join('')}</nav>`; }
 function flow(){ return `<section class="panel"><p class="eyebrow">Recruiting → employee transition</p><h2>How someone gets here</h2><div class="flow expanded-flow">${workflow.map((s,i)=>`<div class="flow-step ${i<3?'done':''}"><span>${i+1}</span><em>${esc(s.status)}</em><b>${esc(s.label)}</b><small>${esc(s.detail)}</small></div>`).join('')}</div><p class="note"><strong>Rule:</strong> Offer Accepted is not hired. The full employee portal opens after clearance/start date are confirmed. BBSI remains formal payroll/compliance; Goff owns the training, forms, visibility, and employee experience around it.</p></section>`; }
-function startSection(){ return `${flow()}<section class="grid two"><article class="panel"><p class="eyebrow">What this is now</p><h2>Training path, not a file library</h2><p>The portal now teaches the repeatable parts of onboarding: BBSI boundary, ExakTime, safety, forms, tools, manager handoff, and 30-day follow-up.</p><ul><li>Employee sees a sequenced path.</li><li>Company forms explain when/how/what next.</li><li>Admin has review questions for the Goff/BBSI walkthrough.</li><li>Original PDFs can attach later only after approval.</li></ul></article><article class="panel"><p class="eyebrow">Training progress</p><h2>${pct()}% complete</h2><div class="bar"><i style="width:${pct()}%"></i></div><p>V1 demo stores progress locally. Production should store progress per employee and expose it to admin/supervisor.</p><button onclick="nav('training')">Open training path</button></article></section><section class="panel"><p class="eyebrow">Fast access</p><h2>Key modules</h2><div class="cards">${[['bbsi','BBSI / myBBSI'],['exaktime','ExakTime'],['safety','Safety'],['forms','Company forms'],['handoff','Manager handoff'],['checkin','30-day check-in']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open module</small></button>`).join('')}</div></section>`; }
+function startSection(){ return `${flow()}<section class="grid two"><article class="panel"><p class="eyebrow">What this is now</p><h2>Training path, not a file library</h2><p>The portal now teaches the repeatable parts of onboarding: BBSI boundary, ExakTime, safety, forms, tools, manager handoff, and 30-day follow-up.</p><ul><li>Employee sees a sequenced path.</li><li>Company forms explain when/how/what next.</li><li>Admin has review questions for the Goff/BBSI walkthrough.</li><li>Original PDFs can attach later only after approval.</li></ul></article><article class="panel"><p class="eyebrow">Training progress</p><h2>${pct()}% complete</h2><div class="bar"><i style="width:${pct()}%"></i></div><p>V1 demo stores progress locally. Production should store progress per employee and expose it to admin/supervisor.</p><button onclick="nav('training')">Open training path</button></article></section><section class="panel"><p class="eyebrow">Fast access</p><h2>Key modules</h2><div class="cards">${[['ops','Admin control'],['bbsi','BBSI / myBBSI'],['exaktime','ExakTime'],['safety','Safety'],['forms','Company forms'],['handoff','Manager handoff'],['checkin','30-day check-in']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open module</small></button>`).join('')}</div></section>`; }
 function trainingSection(){ return `<section class="panel training-panel"><p class="eyebrow">Guided new-hire path</p><h2>From cleared candidate to active employee</h2><p class="summary">This is the consistent training sequence Austin was describing. It reduces the day-one fire hose and gives Goff a second pass at the 30-day check-in.</p><div class="training-steps">${trainingSteps.map((s,i)=>`<article class="training-step ${completed[`training-${i}`]?'complete':''}"><button class="step-check" onclick="toggle('training-${i}')">${completed[`training-${i}`]?'✓':i+1}</button><div><span>${esc(s.timing)} • ${esc(s.owner)}</span><h3>${esc(s.title)}</h3><p>${esc(s.why)}</p><button class="inline" onclick="nav('${s.page}')">Open module</button></div></article>`).join('')}</div></section>`; }
 function contentPage(id){ const p=pageContent[id]; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div><div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. These are placeholders until Austin confirms routing and visibility.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><div class="admin-actions"><button>Save check-in note</button><button>Assign follow-up</button><button>Mark 30-day complete</button></div></div></section>`; }
+function opsSection(){
+  return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics.map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${onboardingQueue.map(e=>`<article class="employee-row"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div><div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><div class="admin-actions"><button>Generate welcome message</button><button>Verify BBSI complete</button><button>Assign supervisor handoff</button><button>Schedule 30-day check-in</button></div></section>`;
+}
 function adminSection(){ return `<section class="panel"><p class="eyebrow">Internal review guide</p><h2>Questions for Goff/BBSI walkthrough</h2><p>Use this as the conversation guide before finalizing automation. Build the draft pages now; finalize routing/signatures/reminders after Goff confirms the actual process.</p><div class="handoff"><div><span>Employee</span><b>${esc(PROFILE.employeeName)}</b></div><div><span>Portal status</span><b>Training path drafted</b></div><div><span>BBSI</span><b>Boundary marked</b></div><div><span>Next admin action</span><b>Confirm routing + signoffs</b></div></div><div class="question-list">${adminQuestions.map(([topic,q])=>`<article><span>${esc(topic)}</span><b>${esc(q)}</b></article>`).join('')}</div><div class="admin-actions"><button>Generate welcome email</button><button>Send day-before reminder</button><button>Mark BBSI complete</button><button>Schedule 30-day check-in</button></div></section>`; }
 
 function main(){
   if(section==='start') return startSection();
+  if(section==='ops') return opsSection();
   if(section==='training') return trainingSection();
   if(section==='before') return contentPage('before');
   if(section==='bbsi') return contentPage('bbsi');
