@@ -14,6 +14,7 @@ const pages = [
   ['start','Start here'],
   ['ops','Admin control'],
   ['training','Training path'],
+  ['course','Orientation course'],
   ['before','Before day one'],
   ['bbsi','BBSI / myBBSI'],
   ['exaktime','ExakTime'],
@@ -24,6 +25,13 @@ const pages = [
   ['checkin','30-day check-in'],
   ['admin','Admin review'],
 ];
+
+const orientationSlides = Array.from({length:31}, (_,i) => ({
+  id: `orientation-${i+1}`,
+  title: `Orientation slide ${i+1}`,
+  src: `/goff-employee/course-slides/slide-${String(i+1).padStart(2,'0')}.png`
+}));
+let courseIndex = 0;
 
 const workflow = [
   { label:'Offer accepted', detail:'Candidate said yes. Do not treat as hired yet.', status:'Recruiting' },
@@ -205,15 +213,20 @@ function initialEmployeeSection(){
   if(explicit) return explicit;
   if(path.includes('/admin')) return 'ops';
   if(path.includes('/training')) return 'training';
+  if(path.includes('/course') || path.includes('/orientation')) return 'course';
   if(path.includes('/bbsi')) return 'bbsi';
   if(path.includes('/safety')) return 'safety';
   if(path.includes('/forms')) return 'forms';
   return 'start';
 }
 let section = initialEmployeeSection();
-let completed = JSON.parse(localStorage.getItem('goffEmployeeChecklist') || '{}');
-function save(){ localStorage.setItem('goffEmployeeChecklist', JSON.stringify(completed)); }
+const memoryStore = {};
+function safeGet(key){ try { return window.localStorage.getItem(key); } catch(_) { return memoryStore[key] || null; } }
+function safeSet(key, value){ try { window.localStorage.setItem(key, value); } catch(_) { memoryStore[key] = String(value); } }
+let completed = (() => { try { return JSON.parse(safeGet('goffEmployeeChecklist') || '{}'); } catch(_) { return {}; } })();
+function save(){ safeSet('goffEmployeeChecklist', JSON.stringify(completed)); }
 function pct(){ return Math.round((trainingSteps.filter((_,i)=>completed[`training-${i}`]).length / trainingSteps.length) * 100); }
+function coursePct(){ return Math.round((orientationSlides.filter((_,i)=>completed[`course-${i}`]).length / orientationSlides.length) * 100); }
 function toggle(key){ completed[key] = !completed[key]; save(); render(); }
 function nav(id){ section=id; render(); window.scrollTo({top:0, behavior:'smooth'}); }
 function copyLink(){
@@ -231,7 +244,7 @@ function header(){
         <p class="eyebrow">${esc(PROFILE.status)} • Goff onboarding path</p>
         <h1>Welcome to Goff Welding, ${esc(PROFILE.firstName)}.</h1>
         <p class="lead">A private start-here path for BBSI handoff, timekeeping, safety, company forms, tools, manager handoff, and the 30-day check-in.</p>
-        <div class="hero-actions"><button onclick="nav('training')">Open training path</button><button class="secondary" onclick="copyLink()">Copy re-access link</button></div>
+        <div class="hero-actions"><button onclick="nav('course')">Start orientation course</button><button class="secondary" onclick="nav('training')">Open training path</button><button class="secondary" onclick="copyLink()">Copy re-access link</button></div>
       </div>
       <aside class="start-card">
         <small>Your first day</small>
@@ -249,7 +262,16 @@ function header(){
 
 function tabs(){ return `<nav class="tabs">${pages.map(([id,label])=>`<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`).join('')}</nav>`; }
 function flow(){ return `<section class="panel"><p class="eyebrow">Recruiting → employee transition</p><h2>How someone gets here</h2><div class="flow expanded-flow">${workflow.map((s,i)=>`<div class="flow-step ${i<3?'done':''}"><span>${i+1}</span><em>${esc(s.status)}</em><b>${esc(s.label)}</b><small>${esc(s.detail)}</small></div>`).join('')}</div><p class="note"><strong>Rule:</strong> Offer Accepted is not hired. The full employee portal opens after clearance/start date are confirmed. BBSI remains formal payroll/compliance; Goff owns the training, forms, visibility, and employee experience around it.</p></section>`; }
-function startSection(){ return `${flow()}<section class="grid two"><article class="panel"><p class="eyebrow">What this is now</p><h2>Training path, not a file library</h2><p>The portal now teaches the repeatable parts of onboarding: BBSI boundary, ExakTime, safety, forms, tools, manager handoff, and 30-day follow-up.</p><ul><li>Employee sees a sequenced path.</li><li>Company forms explain when/how/what next.</li><li>Admin has review questions for the Goff/BBSI walkthrough.</li><li>Original PDFs can attach later only after approval.</li></ul></article><article class="panel"><p class="eyebrow">Training progress</p><h2>${pct()}% complete</h2><div class="bar"><i style="width:${pct()}%"></i></div><p>For live employee use, progress should store per employee and be visible to admin/supervisor through the production database.</p><button onclick="nav('training')">Open training path</button></article></section><section class="panel"><p class="eyebrow">Fast access</p><h2>Key modules</h2><div class="cards">${[['ops','Admin control'],['bbsi','BBSI / myBBSI'],['exaktime','ExakTime'],['safety','Safety'],['forms','Company forms'],['handoff','Manager handoff'],['checkin','30-day check-in']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open module</small></button>`).join('')}</div></section>`; }
+function startSection(){ return `${flow()}<section class="grid two"><article class="panel"><p class="eyebrow">What this is now</p><h2>Self-paced course, not a file library</h2><p>The portal now teaches the repeatable parts of onboarding: the Goff first-day orientation deck, BBSI boundary, ExakTime, safety, forms, tools, manager handoff, and 30-day follow-up.</p><ul><li>Employee can advance through the orientation deck at their own pace.</li><li>Each slide can be marked complete.</li><li>Company forms explain when/how/what next.</li><li>Admin can later see completion once the production database is connected.</li></ul></article><article class="panel"><p class="eyebrow">Course progress</p><h2>${coursePct()}% orientation • ${pct()}% checklist</h2><div class="bar"><i style="width:${coursePct()}%"></i></div><p>The PowerPoint has been implemented as a 31-slide self-paced course. For live employee use, completion should store per employee in the production database.</p><button onclick="nav('course')">Start orientation course</button></article></section><section class="panel"><p class="eyebrow">Fast access</p><h2>Key modules</h2><div class="cards">${[['course','Orientation course'],['ops','Admin control'],['bbsi','BBSI / myBBSI'],['exaktime','ExakTime'],['safety','Safety'],['forms','Company forms'],['handoff','Manager handoff'],['checkin','30-day check-in']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open module</small></button>`).join('')}</div></section>`; }
+
+function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(orientationSlides.length-1, i)); render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function toggleCourseSlide(i){ completed[`course-${i}`] = !completed[`course-${i}`]; save(); render(); }
+function courseSection(){
+  const slide = orientationSlides[courseIndex];
+  const done = completed[`course-${courseIndex}`];
+  return `<section class="panel course-panel"><div class="course-head"><div><p class="eyebrow">First day employee orientation</p><h2>Self-paced Goff onboarding course</h2><p class="summary">Imported from Goff_Welding_Onboarding.pptx. Work through each slide, mark it complete, and continue. This is the employee-facing course layer; admin/supervisor completion reporting will connect to the production database later.</p></div><div class="course-score"><strong>${coursePct()}%</strong><span>${orientationSlides.filter((_,i)=>completed[`course-${i}`]).length} of ${orientationSlides.length} complete</span></div></div><div class="bar course-bar"><i style="width:${coursePct()}%"></i></div><div class="course-layout"><aside class="slide-list">${orientationSlides.map((s,i)=>`<button class="slide-dot ${i===courseIndex?'active':''} ${completed[`course-${i}`]?'done':''}" onclick="setCourseSlide(${i})"><span>${i+1}</span><b>${completed[`course-${i}`]?'✓':'Slide'}</b></button>`).join('')}</aside><article class="slide-viewer"><div class="slide-frame"><img src="${esc(slide.src)}" alt="Goff Welding onboarding orientation slide ${courseIndex+1} of ${orientationSlides.length}" /></div><div class="slide-controls"><button class="secondary" onclick="setCourseSlide(${courseIndex-1})" ${courseIndex===0?'disabled':''}>← Previous</button><button onclick="toggleCourseSlide(${courseIndex})">${done?'Marked complete ✓':'Mark slide complete'}</button><button onclick="setCourseSlide(${courseIndex+1})" ${courseIndex===orientationSlides.length-1?'disabled':''}>Next →</button></div><p class="note"><strong>Slide ${courseIndex+1} of ${orientationSlides.length}.</strong> Completion is saved in this browser for the prototype. Production should save per employee/server-side before real use.</p></article></div></section>`;
+}
+
 function trainingSection(){ return `<section class="panel training-panel"><p class="eyebrow">Guided new-hire path</p><h2>From cleared candidate to active employee</h2><p class="summary">This is the consistent training sequence Austin was describing. It reduces the day-one fire hose and gives Goff a second pass at the 30-day check-in.</p><div class="training-steps">${trainingSteps.map((s,i)=>`<article class="training-step ${completed[`training-${i}`]?'complete':''}"><button class="step-check" onclick="toggle('training-${i}')">${completed[`training-${i}`]?'✓':i+1}</button><div><span>${esc(s.timing)} • ${esc(s.owner)}</span><h3>${esc(s.title)}</h3><p>${esc(s.why)}</p><button class="inline" onclick="nav('${s.page}')">Open module</button></div></article>`).join('')}</div></section>`; }
 function contentPage(id){ const p=pageContent[id]; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div><div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
@@ -263,6 +285,7 @@ function main(){
   if(section==='start') return startSection();
   if(section==='ops') return opsSection();
   if(section==='training') return trainingSection();
+  if(section==='course') return courseSection();
   if(section==='before') return contentPage('before');
   if(section==='bbsi') return contentPage('bbsi');
   if(section==='exaktime') return contentPage('exaktime');
