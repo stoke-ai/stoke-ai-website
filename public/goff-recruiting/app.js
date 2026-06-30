@@ -217,7 +217,11 @@ function normalizeCandidate(x){
   return x;
 }
 
-let candidates = (JSON.parse(localStorage.getItem('goffCandidatesV2') || 'null') || JSON.parse(localStorage.getItem('goffCandidates') || 'null') || seed).map(normalizeCandidate);
+const memoryStore = {};
+function safeGet(key){ try { return window.localStorage.getItem(key); } catch(_) { return memoryStore[key] || null; } }
+function safeSet(key, value){ try { window.localStorage.setItem(key, value); } catch(_) { memoryStore[key] = String(value); } }
+function safeJSON(key, fallback){ try { return JSON.parse(safeGet(key) || 'null') || fallback; } catch(_) { return fallback; } }
+let candidates = (safeJSON('goffCandidatesV2', null) || safeJSON('goffCandidates', null) || seed).map(normalizeCandidate);
 let selectedId = candidates[0]?.id || 1;
 function initialRecruitingView(){
   const path = window.location.pathname.toLowerCase();
@@ -229,10 +233,10 @@ function initialRecruitingView(){
 }
 let view = initialRecruitingView();
 let selectedStage = 'Interview completed';
-function save(){ localStorage.setItem('goffCandidatesV2', JSON.stringify(candidates)); }
+function save(){ safeSet('goffCandidatesV2', JSON.stringify(candidates)); }
 function c(){ return candidates.find(x=>x.id===selectedId) || candidates[0]; }
-function parseSharedQueue(){ try { return JSON.parse(localStorage.getItem('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
-function saveSharedQueue(list){ localStorage.setItem('goffOnboardingQueueV1', JSON.stringify(list)); }
+function parseSharedQueue(){ try { return JSON.parse(safeGet('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
+function saveSharedQueue(list){ safeSet('goffOnboardingQueueV1', JSON.stringify(list)); }
 function formatStartDateForQueue(x){
   const raw = x.offer?.startDate || '';
   if(!raw) return 'Pending';
@@ -404,10 +408,7 @@ function applyCandidateFilters(list){
     if(f.owner !== 'all' && x.owner !== f.owner) return false;
     if(f.pinned && !x.pinned) return false;
     if(f.stageGroup && !f.stageGroup.includes(x.stage)) return false;
-    if(f.source){
-      const sourceNeedle = String(f.source).toLowerCase().split(' ')[0];
-      if(!String(x.source||'').toLowerCase().includes(sourceNeedle)) return false;
-    }
+    if(f.source && !sourceMatchesCandidate(f.source, x)) return false;
     if(f.search){
       const s = f.search.toLowerCase();
       const hay = `${x.first} ${x.last} ${x.role} ${x.location || ''} ${x.email || ''} ${x.source || ''} ${x.stage}`.toLowerCase();
@@ -534,6 +535,24 @@ function decisionCard(x){
 }
 
 let expandedFunnelBucket = null; // { groupLabel, bucketId } or null
+let expandedIntakeSource = null;
+function toggleIntakeSourceSnapshot(source){
+  expandedIntakeSource = expandedIntakeSource === source ? null : source;
+  render();
+}
+function sourceMatchesCandidate(source, c){
+  const sourceNeedle = String(source||'').toLowerCase().split(' ')[0];
+  return String(c.source||'').toLowerCase().includes(sourceNeedle);
+}
+function intakeSourceSnapshot(source){
+  if(!source) return '';
+  const rows = candidates.filter(c => sourceMatchesCandidate(source, c));
+  return `<div class="source-snapshot">
+    <div class="bucket-snapshot-head"><strong>${esc(source)} — ${rows.length} candidate${rows.length===1?'':'s'} in current queue</strong><button class="btn ghost" onclick="filterCandidatesBySource('${esc(source).replace(/'/g,"\\'")}')">See full list →</button></div>
+    ${rows.length ? rows.slice(0,6).map(bucketSnapshotRow).join('') : `<p class="muted" style="padding:8px 0">No candidates are tagged from this source right now. Use the link template or quick-add/import when a lead comes in.</p>`}
+    ${rows.length > 6 ? `<p class="muted" style="padding-top:8px">+ ${rows.length - 6} more. Use “See full list” to open the complete filtered queue.</p>` : ''}
+  </div>`;
+}
 function toggleBucketSnapshot(groupLabel, bucketId){
   if(expandedFunnelBucket && expandedFunnelBucket.groupLabel === groupLabel && expandedFunnelBucket.bucketId === bucketId){
     expandedFunnelBucket = null;
@@ -595,11 +614,12 @@ function stageDetailPanel(){ const stage=selectedStage || WORKFLOW_STAGES[0].id;
 
 function intake(){
   const counts = Object.fromEntries(INTAKE_SOURCES.map(src => [src.id, candidates.filter(c => String(c.source||'').toLowerCase().includes(src.id.toLowerCase().split(' ')[0])).length]));
-  return `${head('Recruiting intake flow','Austin’s rule: every applicant source should funnel into one Goff application path first. Quick-add/import remains as a fallback when someone cannot apply through the link.',`<button class="btn brand" onclick="showApplicationLinkDraft('Indeed')">Send application link</button>`)}
+  return `${head('Recruiting intake flow','Austin’s rule: every applicant source should funnel into one Goff application path first. Quick-add/import remains as a fallback when someone cannot apply through the link.',`<button class="btn brand" onclick="showApplicationLinkDraft('Indeed')">Prepare message</button>`)}
   <section class="panel intake-front-door">
-    <div class="section-head"><div><div class="eyebrow">Universal front door</div><h3>One application path for every source.</h3><p class="muted">This screen is not a separate applicant tracker. It is the front door: send every lead to the same Goff application link when possible, then everyone lands in the Candidates queue for review. Use quick-add/import only when you need to preserve a lead that cannot complete the application link yet.</p></div><button class="btn primary" onclick="copyToClipboard(CAREERS_URL)">Copy application link</button></div>
-    <div class="intake-explainer"><strong>How to read this:</strong><span>Click a source card to see the candidates currently tagged from that source.</span><span>“Copy application link” copies the careers/apply URL only.</span><span>“Send application link” opens a ready-to-copy message for Indeed, phone, walk-in, referral, or social/email follow-up.</span></div>
-    <div class="intake-source-grid">${INTAKE_SOURCES.map(src => `<article class="clickable-source-card" onclick="filterCandidatesBySource('${esc(src.id).replace(/'/g,"\\'")}')"><span class="tag ${src.chip}">${esc(src.id)}</span><strong>${esc(src.label)}</strong><p>${esc(src.rule)}</p><small>${counts[src.id]||0} in current queue · view queue</small></article>`).join('')}</div>
+    <div class="section-head"><div><div class="eyebrow">Universal front door</div><h3>One application path for every source.</h3><p class="muted">This screen is not a separate applicant tracker. It is the front door: send every lead to the same Goff application link when possible, then everyone lands in the Candidates queue for review. Use quick-add/import only when you need to preserve a lead that cannot complete the application link yet.</p></div><div class="link-actions"><button class="btn primary" onclick="showApplicationLinkDraft('Indeed')">Prepare message</button><button class="btn" onclick="copyToClipboard(CAREERS_URL)">Copy raw link</button></div></div>
+    <div class="intake-explainer"><strong>How to read this:</strong><span>Click a source card for a quick snapshot here. Use “See full list” only when you want the detailed Candidates view.</span><span>“Prepare message” creates a source-specific text/email reply that includes the application link.</span><span>“Copy raw link” only copies the URL. It does not send anything.</span></div>
+    <div class="intake-source-grid">${INTAKE_SOURCES.map(src => `<article class="clickable-source-card ${expandedIntakeSource===src.id?'expanded':''}" onclick="toggleIntakeSourceSnapshot('${esc(src.id).replace(/'/g,"\\'")}')"><span class="tag ${src.chip}">${esc(src.id)}</span><strong>${esc(src.label)}</strong><p>${esc(src.rule)}</p><small>${counts[src.id]||0} in current queue · quick view</small></article>`).join('')}</div>
+    ${intakeSourceSnapshot(expandedIntakeSource)}
   </section>
   <div class="grid two" style="margin-top:16px">
     <section class="panel"><h3>Send application link</h3><p class="muted">Choose the source and copy the ready-to-send message. This is the v1 replacement for chasing Indeed/API sync first.</p><div class="intake-template-list">${Object.keys(APPLICATION_LINK_TEMPLATES).map(k => `<button class="template-row clickable" onclick="showApplicationLinkDraft('${esc(k).replace(/'/g,"\\'")}')"><b>${esc(APPLICATION_LINK_TEMPLATES[k].title)}</b><span class="tag ${tag(k)}">${esc(k)}</span></button>`).join('')}</div><div class="notice success"><strong>Shop/front-desk version:</strong><br>Print or display the QR to the careers link. Walk-ins scan it before they leave so the application is complete and legible.</div></section>
@@ -616,7 +636,7 @@ function showApplicationLinkDraft(source='Indeed'){
   const tpl = APPLICATION_LINK_TEMPLATES[source] || APPLICATION_LINK_TEMPLATES['Indeed'];
   const text = tpl.text.replaceAll('{{name}}','there').replaceAll('{{link}}',CAREERS_URL);
   document.getElementById('modal').className='modal open';
-  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>${esc(tpl.title)}</h3><p>Copy this into Indeed, text, email, or a front-desk script. It keeps every applicant moving into the same Goff application queue.</p><textarea>${esc(text)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(CAREERS_URL)">Copy link only</button><button class="btn brand" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy message</button></div></div>`;
+  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>${esc(tpl.title)}</h3><p>This is the message to paste into Indeed, a text, email, or a front-desk script. It includes the application link so the candidate enters the same Goff queue as everyone else.</p><textarea>${esc(text)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(CAREERS_URL)">Copy raw link</button><button class="btn brand" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy message</button></div></div>`;
 }
 function demoImport(){ view='intake'; render(); document.getElementById('pasteBox').value='Name: Jason Harper\nEmail: jason.harper@example.com\nPhone: 208-555-0188\nSource: Indeed\nRole: Sanitary Stainless Steel Welder/Fabricator\nNotes: 5 years stainless, currently in Idaho Falls, available for weld test next week.'; parseImport(); }
 function parseImport(){ let t=document.getElementById('pasteBox').value||''; let email=(t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[''])[0]; let phone=(t.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)||[''])[0]; let name=(t.match(/Name:\s*([^\n,]+)/i)||t.match(/^([^,\n]+)/)||['','Imported Candidate'])[1].trim(); let source=(t.match(/Source:\s*([^\n,]+)/i)||['','Indeed'])[1].trim(); let role=(t.match(/Role:\s*([^\n]+)/i)||t.match(/Job(?: Title)?:\s*([^\n]+)/i)||['',jobs[0].title])[1].trim(); let notes=(t.match(/Notes?:\s*([^]+)/i)||['','Imported applicant. System recommends Quinton review and choose first action.'])[1].trim(); let [first,...rest]=name.split(' '); let item=normalizeCandidate({id:Date.now(),first:first||'Imported',last:rest.join(' ')||'Candidate',email:email||'unknown@example.com',phone,role,source,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:notes.slice(0,260),concerns:'Imported data needs verification.',timeline:['Parsed from paste/import center','Queued for Quinton review']}); candidates.unshift(item); selectedId=item.id; save(); document.getElementById('importResult').innerHTML=`<strong>Imported:</strong> ${item.first} ${item.last} • ${item.role} • ${item.source}<br><button class="btn primary" onclick="view='candidate';render()">Open candidate</button>`; }
