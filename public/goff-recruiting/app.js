@@ -118,10 +118,9 @@ const TEMPLATE_TEXT = {
  'Onboarding Handoff Summary':`ONBOARDING HANDOFF SUMMARY\n\nCandidate: {{first}} {{last}}\nRole: {{role}}\n\nRecruiting complete. Move to new-hire onboarding workflow and make sure employee-facing materials are ready.`
 };
 
-// Job copy fields. Pay ranges, schedules, and perks are placeholders — Goff
-// can edit these in code (or eventually in a settings UI) once he gives Stoke
-// the real numbers. The careers page renders all of these fields verbatim, so
-// keep them short and applicant-facing.
+// Job copy fields. Keep public-facing details conservative until Goff confirms
+// exact pay, benefits, schedules, and eligibility language. The careers page
+// renders all fields verbatim.
 
 const CAREERS_URL = window.location.hostname === 'portal.goffwelding.com' ? 'https://portal.goffwelding.com/careers' : `${window.location.origin}/goff-recruiting/?view=career`;
 const INTAKE_SOURCES = [
@@ -160,37 +159,37 @@ const jobs = [
  {id:'welder', title:'Sanitary Stainless Steel Welder / Fabricator', type:'Full-time', path:'Welder path',
   summary:'Build high-stakes food and dairy stainless work the way it should be done — clean welds, tight tolerances, safe shop. Sanitary experience preferred; we will test on day one.',
   payRange:'$25–$32/hr DOE', schedule:'Mon–Fri, 6:00 AM–2:30 PM (some Saturdays as needed)', location:'On-site • Paul, ID (no remote)',
-  perks:['Weekly pay', 'Health benefits after 60 days', 'Sponsored training', 'Stable year-round shop work'],
+  perks:['Steady shop work', 'Training and growth path', 'Benefits/details confirmed during hiring', 'Local Paul, Idaho team'],
   certifications:'Welding cert or strong sanitary stainless portfolio. AWS or equivalent a plus.',
   roleFit:'Craftsmanship, stainless experience, blueprint reading, safe work habits, ability to pass weld test, pride in quality.'},
  {id:'fitter', title:'Sanitary Stainless Steel Fitter', type:'Full-time', path:'Welder path',
   summary:'Fit-up, layout, and teamwork on sanitary stainless projects. We test fit-up early so you know fast whether this is your shop.',
   payRange:'$22–$28/hr DOE', schedule:'Mon–Fri, 6:00 AM–2:30 PM', location:'On-site • Paul, ID',
-  perks:['Weekly pay', 'Health benefits after 60 days', 'Sponsored training'],
+  perks:['Steady shop work', 'Training and growth path', 'Benefits/details confirmed during hiring'],
   certifications:'Layout/fit-up experience on stainless or structural. Blueprint reading required.',
   roleFit:'Layout, fit-up, accuracy, teamwork, field awareness, willingness to follow Goff standards.'},
  {id:'helper', title:'Shop Helper / Entry Level', type:'Full-time / Part-time', path:'Other path',
   summary:'Entry path for reliable, teachable people with a strong work ethic and safety mindset. We hire for attitude and build the skill on the floor.',
   payRange:'$17–$20/hr', schedule:'Mon–Fri, 6:00 AM–2:30 PM', location:'On-site • Paul, ID',
-  perks:['Weekly pay', 'Health benefits after 60 days', 'On-the-job training paid by us'],
+  perks:['Entry path with hands-on training', 'Steady schedule', 'Benefits/details confirmed during hiring'],
   certifications:'None required. Reliability and willingness to learn matter most.',
   roleFit:'Reliability, teachability, safety, willingness to start with fundamentals and build skill.'},
  {id:'foreman', title:'Foreman / Project Lead', type:'Full-time', path:'Other path',
   summary:'Run crews, own jobs end-to-end, and keep customers in the loop. Second interview and manager review required because this seat carries weight.',
   payRange:'$30–$40/hr DOE + project bonuses', schedule:'Mon–Fri, day shift; occasional travel for installs', location:'On-site • Paul, ID + project sites',
-  perks:['Weekly pay', 'Health benefits after 60 days', 'Project bonus potential', 'Sponsored leadership training'],
+  perks:['Leadership seat with job ownership', 'Growth path', 'Compensation/details confirmed during hiring', 'Local Paul, Idaho team'],
   certifications:'Prior crew leadership in fabrication or industrial trades. Stainless background preferred.',
   roleFit:'Job ownership, crew productivity, communication, problem solving, quality control, safety leadership.'},
  {id:'inventory', title:'Inventory Control Specialist', type:'Full-time', path:'Other path',
   summary:'Be the person who keeps materials moving and the shop honest. Accuracy and clean handoffs save us money — and your work is visible every day.',
   payRange:'$20–$26/hr DOE', schedule:'Mon–Fri, day shift', location:'On-site • Paul, ID',
-  perks:['Weekly pay', 'Health benefits after 60 days', 'Stable role, no weekends'],
+  perks:['Steady operational role', 'Organized shop environment', 'Benefits/details confirmed during hiring'],
   certifications:'Warehouse / inventory experience. Comfortable with spreadsheets and barcode systems.',
   roleFit:'Accuracy guardian, material gatekeeper, organized warehouse steward, strong follow-through.'},
  {id:'procurement', title:'Procurement Manager', type:'Full-time', path:'Other path',
   summary:'Own vendor relationships, material cost, and the flow of metal into the shop. The job pays its salary when you negotiate well and prevent shortages.',
   payRange:'$60K–$80K DOE', schedule:'Mon–Fri, day shift', location:'On-site • Paul, ID',
-  perks:['Health benefits after 60 days', 'Sponsored training', 'Performance bonus potential'],
+  perks:['High-impact purchasing role', 'Growth path', 'Compensation/details confirmed during hiring'],
   certifications:'Procurement or buyer experience in fabrication, manufacturing, or industrial trades.',
   roleFit:'Material strategist, cost controller, vendor communication, job-flow enabler.'}
 ];
@@ -1000,14 +999,14 @@ function integrations(){
 }
 
 function howItWorks(){
-  return `${head('How Goff Recruiting works', 'A quick tour of the platform plus the features being brainstormed for the next phase. Use this as the one-pager to share or read on a phone.', `<button class="btn" onclick="window.print()">Print this guide</button>`)}
+  return `${head('How Goff Recruiting works', 'A quick tour of the platform plus later improvements to prioritize after the core workflow is in use. Use this as the one-pager to share or read on a phone.', `<button class="btn" onclick="window.print()">Print this guide</button>`)}
 
   <section class="panel">
     <h3>What this is</h3>
-    <p>Goff Recruiting replaces the Google Workspace + Indeed + BBSI shuffle. Every applicant lives in one queue, from first application through onboarding handoff. There are two front doors:</p>
+    <p>Goff Recruiting gives the hiring team one queue from first application through onboarding handoff. It can live under the same Goff portal subdomain as onboarding/admin once DNS is ready.</p>
     <ul class="howto-list">
-      <li><strong>Public careers page</strong> — currently at <code>goff.stoke-ai.com</code>, will move to <code>careers.goffwelding.com</code> when DNS is in hand. This is where applicants apply.</li>
-      <li><strong>Admin dashboard</strong> — what you are looking at now. This is where the Goff hiring team runs the queue day to day.</li>
+      <li><strong>Applicant path</strong> — <code>portal.goffwelding.com/careers</code> or <code>/apply</code> once DNS is connected. This is where applicants apply.</li>
+      <li><strong>Admin path</strong> — <code>portal.goffwelding.com/admin</code>. This is where the Goff hiring team runs the queue day to day.</li>
     </ul>
   </section>
 
@@ -1015,7 +1014,7 @@ function howItWorks(){
     <h3>Where applicants come in</h3>
     <p>Goff has multiple intake channels feeding one queue:</p>
     <ul class="howto-list">
-      <li><strong>Careers page</strong> — apply form on <code>careers.goffwelding.com</code>.</li>
+      <li><strong>Careers/apply page</strong> — apply form under <code>portal.goffwelding.com</code>.</li>
       <li><strong>Indeed</strong> — bulk CSV import or paste a single applicant.</li>
       <li><strong>Walk-ins, phone calls, referrals</strong> — quick-add by anyone on the team.</li>
     </ul>
@@ -1060,14 +1059,14 @@ function howItWorks(){
   </section>
 
   <section class="panel">
-    <h3>Features we can potentially add</h3>
-    <p>These are features we are brainstorming with Goff. None of them are built yet. Order will get nailed down once Goff starts running real candidates through the system and figures out which problems hurt the most. Some are huge wins; others are nice-to-have polish. The list is meant to be scanned and reacted to — yes, no, maybe later.</p>
+    <h3>Later improvements to prioritize</h3>
+    <p>These are not required for launch. They are follow-on improvements to prioritize after Goff starts using the core queue and we can see which problems actually hurt.</p>
 
     <h4 class="howto-subhead">Intake and quality</h4>
 
     <div class="howto-idea">
       <h5>One simple intake form for everyone</h5>
-      <p>Walk-in at the door. Phone caller. Goff employee at a computer. Indeed applicant. They all use the same apply form on <code>careers.goffwelding.com</code>. It works on a phone, a tablet at the front desk, or a laptop. For walk-ins with a paper resume, snap a photo — the AI reads it, pre-fills the form (name, contact, role, experience, certifications), and files the original resume to the candidate record. No more sticky notes at the front desk and nothing lost to memory.</p>
+      <p>Walk-in at the door. Phone caller. Goff employee at a computer. Indeed applicant. They all use the same apply form under <code>portal.goffwelding.com</code>. It works on a phone, a tablet at the front desk, or a laptop. For walk-ins with a paper resume, snap a photo — the AI reads it, pre-fills the form (name, contact, role, experience, certifications), and files the original resume to the candidate record. No more sticky notes at the front desk and nothing lost to memory.</p>
     </div>
 
     <div class="howto-idea">
