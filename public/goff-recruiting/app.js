@@ -368,8 +368,18 @@ function recentActivityPanel(){
 
 // Candidate list filters. Defaults to "active only" because the hiring lead
 // almost always wants the live pipeline, not parked / rejected candidates.
-let candidateFilters = { search:'', path:'all', group:'active', owner:'all', pinned:false };
-function setCandidateFilter(key, value){ candidateFilters[key] = value; render(); }
+let candidateFilters = { search:'', path:'all', group:'active', owner:'all', pinned:false, stageGroup:null, stageGroupLabel:'' };
+function setCandidateFilter(key, value){ candidateFilters[key] = value; candidateFilters.stageGroup = null; candidateFilters.stageGroupLabel = ''; render(); }
+function filterCandidatesByBucket(bucketId){
+  const b = FUNNEL_BUCKETS.find(x => x.id === bucketId);
+  if(!b) return;
+  candidateFilters.stageGroup = b.stages;
+  candidateFilters.stageGroupLabel = b.label;
+  candidateFilters.group = 'all';
+  view = 'candidates';
+  render();
+}
+function clearStageGroupFilter(){ candidateFilters.stageGroup = null; candidateFilters.stageGroupLabel = ''; render(); }
 function toggleCandidateFilter(key){ candidateFilters[key] = !candidateFilters[key]; render(); }
 function updateCandidateSearch(value){
   candidateFilters.search = value;
@@ -385,6 +395,7 @@ function applyCandidateFilters(list){
     if(f.path === 'other' && isWelderPath(x)) return false;
     if(f.owner !== 'all' && x.owner !== f.owner) return false;
     if(f.pinned && !x.pinned) return false;
+    if(f.stageGroup && !f.stageGroup.includes(x.stage)) return false;
     if(f.search){
       const s = f.search.toLowerCase();
       const hay = `${x.first} ${x.last} ${x.role} ${x.location || ''} ${x.email || ''} ${x.source || ''} ${x.stage}`.toLowerCase();
@@ -406,7 +417,9 @@ function renderCandidatesList(list){
 function candidateList(){
   const filtered = applyCandidateFilters(candidates);
   const totalActive = candidates.filter(isActive).length;
+  const stageBanner = candidateFilters.stageGroup ? `<div class="notice" style="margin-bottom:12px"><strong>Filtered: ${esc(candidateFilters.stageGroupLabel)} stage</strong> — showing ${filtered.length} candidate${filtered.length===1?'':'s'} currently there. <button class="btn ghost" style="margin-left:8px" onclick="clearStageGroupFilter()">Clear filter</button></div>` : '';
   return `${head('Candidates', `${filtered.length} shown · ${totalActive} active in pipeline · ${candidates.length} all-time`, `<button class="btn primary" onclick="view='intake';render()">Add candidate</button>`)}
+  ${stageBanner}
   <section class="panel">
     <div class="filters">
       <input type="search" placeholder="Search name, role, location, stage" value="${esc(candidateFilters.search)}" oninput="updateCandidateSearch(this.value)" class="filter-search" autocomplete="off">
@@ -513,7 +526,7 @@ function funnelHTML(label, list){
   return `<div class="funnel-group">
     <div class="funnel-label"><span>${label}</span><em>${total} active</em></div>
     <div class="funnel">
-      ${FUNNEL_BUCKETS.map((b,i) => `<div class="funnel-stage ${counts[i].length?'has-count':''}" onclick="selectedStage='${esc(b.stages[0])}';view='workflow';render()">
+      ${FUNNEL_BUCKETS.map((b,i) => `<div class="funnel-stage ${counts[i].length?'has-count':''}" onclick="filterCandidatesByBucket('${esc(b.id)}')">
         <div class="funnel-stage-count">${counts[i].length}</div>
         <div class="funnel-stage-label">${esc(b.label)}</div>
         <div class="funnel-chips">${counts[i].slice(0,3).map(c => `<span class="funnel-chip" onclick="event.stopPropagation();selectedId=${c.id};view='candidate';render()" title="${esc(c.first+' '+c.last)}">${esc(c.first)}</span>`).join('')}${counts[i].length > 3 ? `<span class="funnel-chip more">+${counts[i].length - 3}</span>` : ''}</div>
