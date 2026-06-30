@@ -368,8 +368,8 @@ function recentActivityPanel(){
 
 // Candidate list filters. Defaults to "active only" because the hiring lead
 // almost always wants the live pipeline, not parked / rejected candidates.
-let candidateFilters = { search:'', path:'all', group:'active', owner:'all', pinned:false, stageGroup:null, stageGroupLabel:'' };
-function setCandidateFilter(key, value){ candidateFilters[key] = value; candidateFilters.stageGroup = null; candidateFilters.stageGroupLabel = ''; render(); }
+let candidateFilters = { search:'', path:'all', group:'active', owner:'all', pinned:false, stageGroup:null, stageGroupLabel:'', source:null, sourceLabel:'' };
+function setCandidateFilter(key, value){ candidateFilters[key] = value; candidateFilters.stageGroup = null; candidateFilters.stageGroupLabel = ''; candidateFilters.source = null; candidateFilters.sourceLabel = ''; render(); }
 function filterCandidatesByBucket(bucketId){
   const b = FUNNEL_BUCKETS.find(x => x.id === bucketId);
   if(!b) return;
@@ -379,6 +379,14 @@ function filterCandidatesByBucket(bucketId){
   view = 'candidates';
   render();
 }
+function filterCandidatesBySource(source){
+  candidateFilters.source = source;
+  candidateFilters.sourceLabel = source;
+  candidateFilters.group = 'all';
+  view = 'candidates';
+  render();
+}
+function clearSourceFilter(){ candidateFilters.source = null; candidateFilters.sourceLabel = ''; render(); }
 function clearStageGroupFilter(){ candidateFilters.stageGroup = null; candidateFilters.stageGroupLabel = ''; render(); }
 function toggleCandidateFilter(key){ candidateFilters[key] = !candidateFilters[key]; render(); }
 function updateCandidateSearch(value){
@@ -396,6 +404,10 @@ function applyCandidateFilters(list){
     if(f.owner !== 'all' && x.owner !== f.owner) return false;
     if(f.pinned && !x.pinned) return false;
     if(f.stageGroup && !f.stageGroup.includes(x.stage)) return false;
+    if(f.source){
+      const sourceNeedle = String(f.source).toLowerCase().split(' ')[0];
+      if(!String(x.source||'').toLowerCase().includes(sourceNeedle)) return false;
+    }
     if(f.search){
       const s = f.search.toLowerCase();
       const hay = `${x.first} ${x.last} ${x.role} ${x.location || ''} ${x.email || ''} ${x.source || ''} ${x.stage}`.toLowerCase();
@@ -418,8 +430,9 @@ function candidateList(){
   const filtered = applyCandidateFilters(candidates);
   const totalActive = candidates.filter(isActive).length;
   const stageBanner = candidateFilters.stageGroup ? `<div class="notice" style="margin-bottom:12px"><strong>Filtered: ${esc(candidateFilters.stageGroupLabel)} stage</strong> — showing ${filtered.length} candidate${filtered.length===1?'':'s'} currently there. <button class="btn ghost" style="margin-left:8px" onclick="clearStageGroupFilter()">Clear filter</button></div>` : '';
+  const sourceBanner = candidateFilters.source ? `<div class="notice" style="margin-bottom:12px"><strong>Filtered: ${esc(candidateFilters.sourceLabel)} source</strong> — showing ${filtered.length} candidate${filtered.length===1?'':'s'} from that intake source. <button class="btn ghost" style="margin-left:8px" onclick="clearSourceFilter()">Clear source</button></div>` : '';
   return `${head('Candidates', `${filtered.length} shown · ${totalActive} active in pipeline · ${candidates.length} all-time`, `<button class="btn primary" onclick="view='intake';render()">Add candidate</button>`)}
-  ${stageBanner}
+  ${stageBanner}${sourceBanner}
   <section class="panel">
     <div class="filters">
       <input type="search" placeholder="Search name, role, location, stage" value="${esc(candidateFilters.search)}" oninput="updateCandidateSearch(this.value)" class="filter-search" autocomplete="off">
@@ -584,8 +597,9 @@ function intake(){
   const counts = Object.fromEntries(INTAKE_SOURCES.map(src => [src.id, candidates.filter(c => String(c.source||'').toLowerCase().includes(src.id.toLowerCase().split(' ')[0])).length]));
   return `${head('Recruiting intake flow','Austin’s rule: every applicant source should funnel into one Goff application path first. Quick-add/import remains as a fallback when someone cannot apply through the link.',`<button class="btn brand" onclick="showApplicationLinkDraft('Indeed')">Send application link</button>`)}
   <section class="panel intake-front-door">
-    <div class="section-head"><div><div class="eyebrow">Universal front door</div><h3>One application path for every source.</h3><p class="muted">Use the Goff careers/application link for Indeed, walk-ins, phone calls, referrals, social messages, and email leads. That keeps Quinton from managing applicants across five different places.</p></div><button class="btn primary" onclick="copyToClipboard(CAREERS_URL)">Copy application link</button></div>
-    <div class="intake-source-grid">${INTAKE_SOURCES.map(src => `<article><span class="tag ${src.chip}">${esc(src.id)}</span><strong>${esc(src.label)}</strong><p>${esc(src.rule)}</p><small>${counts[src.id]||0} in current queue</small></article>`).join('')}</div>
+    <div class="section-head"><div><div class="eyebrow">Universal front door</div><h3>One application path for every source.</h3><p class="muted">This screen is not a separate applicant tracker. It is the front door: send every lead to the same Goff application link when possible, then everyone lands in the Candidates queue for review. Use quick-add/import only when you need to preserve a lead that cannot complete the application link yet.</p></div><button class="btn primary" onclick="copyToClipboard(CAREERS_URL)">Copy application link</button></div>
+    <div class="intake-explainer"><strong>How to read this:</strong><span>Click a source card to see the candidates currently tagged from that source.</span><span>“Copy application link” copies the careers/apply URL only.</span><span>“Send application link” opens a ready-to-copy message for Indeed, phone, walk-in, referral, or social/email follow-up.</span></div>
+    <div class="intake-source-grid">${INTAKE_SOURCES.map(src => `<article class="clickable-source-card" onclick="filterCandidatesBySource('${esc(src.id).replace(/'/g,"\\'")}')"><span class="tag ${src.chip}">${esc(src.id)}</span><strong>${esc(src.label)}</strong><p>${esc(src.rule)}</p><small>${counts[src.id]||0} in current queue · view queue</small></article>`).join('')}</div>
   </section>
   <div class="grid two" style="margin-top:16px">
     <section class="panel"><h3>Send application link</h3><p class="muted">Choose the source and copy the ready-to-send message. This is the v1 replacement for chasing Indeed/API sync first.</p><div class="intake-template-list">${Object.keys(APPLICATION_LINK_TEMPLATES).map(k => `<button class="template-row clickable" onclick="showApplicationLinkDraft('${esc(k).replace(/'/g,"\\'")}')"><b>${esc(APPLICATION_LINK_TEMPLATES[k].title)}</b><span class="tag ${tag(k)}">${esc(k)}</span></button>`).join('')}</div><div class="notice success"><strong>Shop/front-desk version:</strong><br>Print or display the QR to the careers link. Walk-ins scan it before they leave so the application is complete and legible.</div></section>
