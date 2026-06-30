@@ -7,7 +7,7 @@ const PROFILE = {
   startTime: '6:00 AM',
   location: 'Goff Welding • 531 W 100 S #24, Paul, ID',
   status: 'Cleared for onboarding',
-  contact: 'careers@goffwelding.com',
+  contact: 'Goff admin / supervisor',
 };
 
 const pages = [
@@ -141,8 +141,8 @@ const checkinItems = [
 
 const demoOnboardingQueue = [
   { id:'demo-ricky', name:'Ricky Lambert', role:'Sanitary Stainless Steel Welder / Fabricator', supervisor:'Quinton Goff', stage:'Training path', status:'In progress', start:'Jul 8', progress:62, blocked:'BBSI completion needs confirmation', next:'Confirm myBBSI complete, then schedule manager handoff' },
-  { id:'demo-helper', name:'TBD helper hire', role:'Shop / field helper', supervisor:'TBD', stage:'Clearance hold', status:'Waiting', start:'Pending', progress:18, blocked:'Drug screen/background/start date not confirmed', next:'Do not send employee portal until clearance is confirmed' },
-  { id:'demo-driver', name:'Recent hire placeholder', role:'Driver / vehicle user', supervisor:'TBD', stage:'30-day check-in', status:'Due soon', start:'Started', progress:84, blocked:'Truck check-in routing needs owner', next:'Run 30-day check-in and confirm vehicle/form training' },
+  { id:'next-helper', name:'Next helper hire', role:'Shop / field helper', supervisor:'Supervisor to confirm', stage:'Clearance hold', status:'Waiting', start:'Pending', progress:18, blocked:'Drug screen/background/start date not confirmed', next:'Do not send employee portal until clearance is confirmed' },
+  { id:'vehicle-checkin', name:'Vehicle-user check-in', role:'Driver / assigned vehicle user', supervisor:'Supervisor to confirm', stage:'30-day check-in', status:'Due soon', start:'Started', progress:84, blocked:'Truck check-in routing needs owner', next:'Run 30-day check-in and confirm vehicle/form training' },
 ];
 function parseRecruitingHandoffs(){ try { return JSON.parse(localStorage.getItem('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
 function currentOnboardingQueue(){
@@ -169,7 +169,7 @@ const ownerActions = [
   { owner:'Admin / HR', count:4, items:['Confirm BBSI invite sent/completed','Resend expired myBBSI invite if needed','Generate day-before welcome reminder','Record 30-day check-in result'] },
   { owner:'Supervisor', count:4, items:['Confirm first-day contact','Complete safety / hands-on signoff','Review first assignment and expectations','Answer open employee questions'] },
   { owner:'Employee', count:5, items:['Complete BBSI/myBBSI','Review ExakTime page','Review safety basics','Learn company forms','Complete 30-day check-in questions'] },
-  { owner:'Stoke AI / portal setup', count:5, items:['Final route for each company form','Add approved PDFs/links only','Define notification recipients','Store progress per employee','Keep BBSI boundary clear'] },
+  { owner:'Portal setup', count:5, items:['Final route for each company form','Add approved PDFs/links only','Define notification recipients','Store progress per employee','Keep BBSI boundary clear'] },
 ];
 
 const blockers = [
@@ -198,14 +198,26 @@ const adminQuestions = [
   ['Visibility','Which docs/links are employee-visible, role-based, sensitive, or admin-only?'],
 ];
 
-let section = 'start';
+function initialEmployeeSection(){
+  const path = window.location.pathname.toLowerCase();
+  const params = new URLSearchParams(window.location.search);
+  const explicit = params.get('section');
+  if(explicit) return explicit;
+  if(path.includes('/admin')) return 'ops';
+  if(path.includes('/training')) return 'training';
+  if(path.includes('/bbsi')) return 'bbsi';
+  if(path.includes('/safety')) return 'safety';
+  if(path.includes('/forms')) return 'forms';
+  return 'start';
+}
+let section = initialEmployeeSection();
 let completed = JSON.parse(localStorage.getItem('goffEmployeeChecklist') || '{}');
 function save(){ localStorage.setItem('goffEmployeeChecklist', JSON.stringify(completed)); }
 function pct(){ return Math.round((trainingSteps.filter((_,i)=>completed[`training-${i}`]).length / trainingSteps.length) * 100); }
 function toggle(key){ completed[key] = !completed[key]; save(); render(); }
 function nav(id){ section=id; render(); window.scrollTo({top:0, behavior:'smooth'}); }
 function copyLink(){
-  navigator.clipboard?.writeText('https://employees.goffwelding.com/start');
+  navigator.clipboard?.writeText('https://portal.goffwelding.com/onboarding');
   const old=document.querySelector('.toast'); if(old) old.remove();
   const t=document.createElement('div'); t.className='toast'; t.textContent='Employee portal link copied'; document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
 }
@@ -216,7 +228,7 @@ function header(){
     <div class="brandbar"><img src="/goff-welding-logo.png" alt="Goff Welding" /><span>Employee training portal</span></div>
     <div class="hero-grid">
       <div>
-        <p class="eyebrow">${esc(PROFILE.status)} • draft pending Goff/BBSI review</p>
+        <p class="eyebrow">${esc(PROFILE.status)} • Goff onboarding path</p>
         <h1>Welcome to Goff Welding, ${esc(PROFILE.firstName)}.</h1>
         <p class="lead">A private start-here path for BBSI handoff, timekeeping, safety, company forms, tools, manager handoff, and the 30-day check-in.</p>
         <div class="hero-actions"><button onclick="nav('training')">Open training path</button><button class="secondary" onclick="copyLink()">Copy re-access link</button></div>
@@ -240,7 +252,7 @@ function flow(){ return `<section class="panel"><p class="eyebrow">Recruiting �
 function startSection(){ return `${flow()}<section class="grid two"><article class="panel"><p class="eyebrow">What this is now</p><h2>Training path, not a file library</h2><p>The portal now teaches the repeatable parts of onboarding: BBSI boundary, ExakTime, safety, forms, tools, manager handoff, and 30-day follow-up.</p><ul><li>Employee sees a sequenced path.</li><li>Company forms explain when/how/what next.</li><li>Admin has review questions for the Goff/BBSI walkthrough.</li><li>Original PDFs can attach later only after approval.</li></ul></article><article class="panel"><p class="eyebrow">Training progress</p><h2>${pct()}% complete</h2><div class="bar"><i style="width:${pct()}%"></i></div><p>V1 demo stores progress locally. Production should store progress per employee and expose it to admin/supervisor.</p><button onclick="nav('training')">Open training path</button></article></section><section class="panel"><p class="eyebrow">Fast access</p><h2>Key modules</h2><div class="cards">${[['ops','Admin control'],['bbsi','BBSI / myBBSI'],['exaktime','ExakTime'],['safety','Safety'],['forms','Company forms'],['handoff','Manager handoff'],['checkin','30-day check-in']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open module</small></button>`).join('')}</div></section>`; }
 function trainingSection(){ return `<section class="panel training-panel"><p class="eyebrow">Guided new-hire path</p><h2>From cleared candidate to active employee</h2><p class="summary">This is the consistent training sequence Austin was describing. It reduces the day-one fire hose and gives Goff a second pass at the 30-day check-in.</p><div class="training-steps">${trainingSteps.map((s,i)=>`<article class="training-step ${completed[`training-${i}`]?'complete':''}"><button class="step-check" onclick="toggle('training-${i}')">${completed[`training-${i}`]?'✓':i+1}</button><div><span>${esc(s.timing)} • ${esc(s.owner)}</span><h3>${esc(s.title)}</h3><p>${esc(s.why)}</p><button class="inline" onclick="nav('${s.page}')">Open module</button></div></article>`).join('')}</div></section>`; }
 function contentPage(id){ const p=pageContent[id]; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div><div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
-function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. These are placeholders until Austin confirms routing and visibility.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
+function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><div class="admin-actions"><button>Save check-in note</button><button>Assign follow-up</button><button>Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
   return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''}"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div><div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><div class="admin-actions"><button>Generate welcome message</button><button>Verify BBSI complete</button><button>Assign supervisor handoff</button><button>Schedule 30-day check-in</button></div></section>`;
@@ -262,5 +274,5 @@ function main(){
   if(section==='admin') return adminSection();
   return startSection();
 }
-function render(){ document.getElementById('app').innerHTML = `${header()}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal prototype • Draft content pending Goff/BBSI review • Formal payroll/compliance remains with BBSI/myBBSI.</footer>`; }
+function render(){ document.getElementById('app').innerHTML = `${header()}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal • Formal payroll/compliance remains with BBSI/myBBSI.</footer>`; }
 render();

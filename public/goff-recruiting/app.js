@@ -123,7 +123,7 @@ const TEMPLATE_TEXT = {
 // the real numbers. The careers page renders all of these fields verbatim, so
 // keep them short and applicant-facing.
 
-const CAREERS_URL = 'https://stoke-ai.com/goff-careers/';
+const CAREERS_URL = window.location.hostname === 'portal.goffwelding.com' ? 'https://portal.goffwelding.com/careers' : `${window.location.origin}/goff-recruiting/?view=career`;
 const INTAKE_SOURCES = [
   { id:'Website', label:'Website / direct careers page', chip:'green', rule:'Applicant submits the Goff careers form directly.' },
   { id:'Indeed', label:'Indeed applicant', chip:'blue', rule:'Send the Goff application link, then work them from Goff once they apply.' },
@@ -220,7 +220,15 @@ function normalizeCandidate(x){
 
 let candidates = (JSON.parse(localStorage.getItem('goffCandidatesV2') || 'null') || JSON.parse(localStorage.getItem('goffCandidates') || 'null') || seed).map(normalizeCandidate);
 let selectedId = candidates[0]?.id || 1;
-let view = 'dashboard';
+function initialRecruitingView(){
+  const path = window.location.pathname.toLowerCase();
+  const params = new URLSearchParams(window.location.search);
+  const explicit = params.get('view');
+  if(explicit) return explicit;
+  if(path.includes('/careers') || path.includes('/apply')) return 'career';
+  return 'dashboard';
+}
+let view = initialRecruitingView();
 let selectedStage = 'Interview completed';
 function save(){ localStorage.setItem('goffCandidatesV2', JSON.stringify(candidates)); }
 function c(){ return candidates.find(x=>x.id===selectedId) || candidates[0]; }
@@ -242,7 +250,7 @@ function onboardingRecordForCandidate(x){
     role: x.role,
     email: x.email || '',
     phone: x.phone || '',
-    supervisor: x.offer?.supervisor || 'TBD',
+    supervisor: x.offer?.supervisor || 'Supervisor to confirm',
     start: formatStartDateForQueue(x),
     startDate: x.offer?.startDate || '',
     stage: 'BBSI invite + training path',
@@ -460,7 +468,7 @@ function dashboard(){
 
   const todaySummary = buildTodaySummary(austinDecisions, stale.length, aging.length);
 
-  return `${head(`Today's hiring snapshot.`, todaySummary, `<button class="btn" onclick="view='intake';render()">Intake links</button><button class="btn primary" onclick="window.open('/goff-careers/','_blank','noopener')">Open careers page</button>`)}
+  return `${head(`Today's hiring snapshot.`, todaySummary, `<button class="btn" onclick="view='intake';render()">Intake links</button><button class="btn primary" onclick="window.open(CAREERS_URL,'_blank','noopener')">Open careers page</button>`)}
   ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on a hiring-lead call.' : `${austinDecisions.length} candidates are waiting on a hiring-lead call.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>No decisions waiting right now.</h3><p class="muted">The recruiting queue is moving. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
 
   ${recentActivityPanel()}
@@ -693,7 +701,7 @@ function thanks(){
           <li><strong>References + offer.</strong> We make a decision quickly so you are not left hanging.</li>
         </ol>
         <p class="muted">Questions in the meantime? Email <a href="mailto:info@goffwelding.com">info@goffwelding.com</a> or call (208) 647-2488.</p>
-        <button class="btn" onclick="window.open('/goff-careers/','_blank','noopener')">Back to open positions</button>
+        <button class="btn" onclick="window.open(CAREERS_URL,'_blank','noopener')">Back to open positions</button>
       </div>
     </section>
   </main>`;
@@ -703,7 +711,7 @@ function evidenceTable(x){ const e=x.evidence||{}; return `<div class="mini-grid
 function clearanceReady(x){ return x.clearance?.drug==='Passed' && ['Cleared','N/A'].includes(x.clearance?.background) && x.clearance?.startDate==='Confirmed'; }
 function clearancePanel(x){ const ready=clearanceReady(x); return `<div class="notice ${ready?'success':'warning'}"><strong>${ready?'Clearance complete':'BBSI guardrail active'}</strong><br>Offer Accepted is a hold stage. Do not move to BBSI onboarding until drug screen, background, and start date are complete.</div><div class="mini-grid">${field('Drug screen',x.clearance.drug)}${field('Background',x.clearance.background)}${field('Start date',x.clearance.startDate)}</div><div class="actions tight"><button class="btn" onclick="setClearance('drug','Scheduled')">Drug scheduled</button><button class="btn" onclick="setClearance('drug','Passed')">Drug passed</button><button class="btn" onclick="setClearance('background','Cleared')">Background cleared</button><button class="btn" onclick="setClearance('background','N/A')">Background N/A</button><button class="btn" onclick="setClearance('startDate','Confirmed')">Start confirmed</button></div>`; }
 function employeePortalUrl(x){ return `/goff-employee/?employee=${encodeURIComponent(`${x.first} ${x.last}`)}&role=${encodeURIComponent(x.role)}`; }
-function employeeHandoffPanel(x){ const ready=clearanceReady(x); const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee site</span><strong>employees.goffwelding.com</strong><small>Prototype path: <code>/goff-employee/</code></small></div><div><span>Access method</span><strong>Private link / magic code</strong><small>No employee password in v1.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Shared local queue for this prototype.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and leaves the BBSI/myBBSI completion item visible for admin follow-up.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
+function employeeHandoffPanel(x){ const ready=clearanceReady(x); const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee site</span><strong>portal.goffwelding.com/onboarding</strong><small>Temporary review path: <code>/goff-employee/</code></small></div><div><span>Access method</span><strong>Private link / magic code</strong><small>No employee password in v1.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Shared queue for launch review; production database is the next hardening step.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and leaves the BBSI/myBBSI completion item visible for admin follow-up.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
 function candidate(){
   const x=c();
   const meta=stageMeta(x.stage);
@@ -786,7 +794,7 @@ function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; c
 function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. For now, this creates a human-reviewed draft in the platform for copy/paste or manual sending.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn brand" onclick="markDraft()">Mark email draft created</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
 function showGuardrail(){ document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>BBSI handoff blocked</h3><p>Goff’s BBSI ATS SOP says <strong>Offer Accepted = not cleared</strong> and <strong>Onboarding = fully cleared</strong>. Complete drug screen, background, and start date before BBSI onboarding.</p><div class="modal-actions"><button class="btn brand" onclick="document.getElementById('modal').className='modal';render()">Review clearance checklist</button></div></div>`; }
-function employeeWelcomeDraft(x=c()){ const url='https://employees.goffwelding.com/start'; return `Subject: Welcome to Goff Welding — Start Here\n\nHi ${x.first},\n\nWelcome to Goff Welding. We’re excited to have you moving forward with us.\n\nYour next step is to complete your BBSI/myBBSI onboarding invite and use the Goff employee portal below for your first-day details, required resources, ExakTime/timekeeping instructions, safety orientation, tool list, and company links.\n\nEmployee portal: ${url}\n\nFirst day: ${x.offer?.startDate || '[confirm start date]'}\nSchedule: ${x.offer?.schedule || '[confirm schedule]'}\nSupervisor: ${x.offer?.supervisor || '[confirm supervisor]'}\n\nIf your myBBSI invite expires or you have questions, reply here or email careers@goffwelding.com.\n\nThank you,\nGoff Welding Hiring Team`; }
+function employeeWelcomeDraft(x=c()){ const url='https://portal.goffwelding.com/onboarding'; return `Subject: Welcome to Goff Welding — Start Here\n\nHi ${x.first},\n\nWelcome to Goff Welding. We’re excited to have you moving forward with us.\n\nYour next step is to complete your BBSI/myBBSI onboarding invite and use the Goff employee portal below for your first-day details, required resources, ExakTime/timekeeping instructions, safety orientation, tool list, and company links.\n\nEmployee portal: ${url}\n\nFirst day: ${x.offer?.startDate || '[confirm start date]'}\nSchedule: ${x.offer?.schedule || '[confirm schedule]'}\nSupervisor: ${x.offer?.supervisor || '[confirm supervisor]'}\n\nIf your myBBSI invite expires or you have questions, reply here or email careers@goffwelding.com.\n\nThank you,\nGoff Welding Hiring Team`; }
 function showEmployeeWelcomeDraft(){ const x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Employee portal welcome message</h3><p>Send after clearance is complete and the BBSI invite is ready. This is the handoff from recruiting into the employee site.</p><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn brand" onclick="generateEmployeePortalAccess()">Mark portal access generated</button></div></div>`; }
 function moveToOnboarding(){
   const x=c();
@@ -800,7 +808,7 @@ function moveToOnboarding(){
   x.timeline.push(`Moved to onboarding queue: ${record.name}`);
   save();
   document.getElementById('modal').className='modal open';
-  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Moved to onboarding</h3><p>${esc(record.name)} is now visible in the employee portal Admin control queue.</p><div class="notice success"><strong>Next action:</strong><br>${esc(record.next)}</div><div class="handoff-grid"><div><span>Stage</span><strong>${esc(record.stage)}</strong></div><div><span>Supervisor</span><strong>${esc(record.supervisor)}</strong></div><div><span>Start</span><strong>${esc(record.start)}</strong></div></div><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal';render()">Done</button><button class="btn" onclick="window.open('/goff-employee/?admin=1','_blank','noopener')">Open admin queue</button><button class="btn brand" onclick="copyToClipboard('https://employees.goffwelding.com/start')">Copy employee link</button></div></div>`;
+  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Moved to onboarding</h3><p>${esc(record.name)} is now visible in the employee portal Admin control queue.</p><div class="notice success"><strong>Next action:</strong><br>${esc(record.next)}</div><div class="handoff-grid"><div><span>Stage</span><strong>${esc(record.stage)}</strong></div><div><span>Supervisor</span><strong>${esc(record.supervisor)}</strong></div><div><span>Start</span><strong>${esc(record.start)}</strong></div></div><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal';render()">Done</button><button class="btn" onclick="window.open('/goff-employee/?admin=1','_blank','noopener')">Open admin queue</button><button class="btn brand" onclick="copyToClipboard('https://portal.goffwelding.com/onboarding')">Copy employee link</button></div></div>`;
 }
 function generateEmployeePortalAccess(){ moveToOnboarding(); }
 function manager(){
