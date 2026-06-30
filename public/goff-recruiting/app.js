@@ -520,18 +520,42 @@ function decisionCard(x){
   </article>`;
 }
 
+let expandedFunnelBucket = null; // { groupLabel, bucketId } or null
+function toggleBucketSnapshot(groupLabel, bucketId){
+  if(expandedFunnelBucket && expandedFunnelBucket.groupLabel === groupLabel && expandedFunnelBucket.bucketId === bucketId){
+    expandedFunnelBucket = null;
+  } else {
+    expandedFunnelBucket = { groupLabel, bucketId };
+  }
+  render();
+}
+function bucketSnapshotRow(x){
+  const meta = stageMeta(x.stage);
+  return `<div class="bucket-snapshot-row" onclick="selectedId=${x.id};view='candidate';render()">
+    <div><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)}</small></div>
+    <div class="bucket-snapshot-stage"><span class="tag dark">${esc(x.stage)}</span><small>Next: ${esc(meta.next || 'human decision')}</small></div>
+  </div>`;
+}
 function funnelHTML(label, list){
   const counts = FUNNEL_BUCKETS.map(b => list.filter(c => bucketForStage(c.stage)?.id === b.id));
   const total = counts.reduce((s, arr) => s + arr.length, 0);
   return `<div class="funnel-group">
     <div class="funnel-label"><span>${label}</span><em>${total} active</em></div>
     <div class="funnel">
-      ${FUNNEL_BUCKETS.map((b,i) => `<div class="funnel-stage ${counts[i].length?'has-count':''}" onclick="filterCandidatesByBucket('${esc(b.id)}')">
+      ${FUNNEL_BUCKETS.map((b,i) => `<div class="funnel-stage ${counts[i].length?'has-count':''} ${expandedFunnelBucket && expandedFunnelBucket.groupLabel===label && expandedFunnelBucket.bucketId===b.id?'expanded':''}" onclick="toggleBucketSnapshot('${esc(label)}','${esc(b.id)}')">
         <div class="funnel-stage-count">${counts[i].length}</div>
         <div class="funnel-stage-label">${esc(b.label)}</div>
         <div class="funnel-chips">${counts[i].slice(0,3).map(c => `<span class="funnel-chip" onclick="event.stopPropagation();selectedId=${c.id};view='candidate';render()" title="${esc(c.first+' '+c.last)}">${esc(c.first)}</span>`).join('')}${counts[i].length > 3 ? `<span class="funnel-chip more">+${counts[i].length - 3}</span>` : ''}</div>
       </div>${i < FUNNEL_BUCKETS.length-1 ? '<div class="funnel-arrow" aria-hidden="true">›</div>' : ''}`).join('')}
     </div>
+    ${expandedFunnelBucket && expandedFunnelBucket.groupLabel===label ? (() => {
+      const b = FUNNEL_BUCKETS.find(fb => fb.id === expandedFunnelBucket.bucketId);
+      const rows = list.filter(c => bucketForStage(c.stage)?.id === expandedFunnelBucket.bucketId);
+      return `<div class="bucket-snapshot">
+        <div class="bucket-snapshot-head"><strong>${esc(b.label)} — ${rows.length} candidate${rows.length===1?'':'s'}</strong><button class="btn ghost" onclick="filterCandidatesByBucket('${esc(b.id)}')">See full list →</button></div>
+        ${rows.length ? rows.map(bucketSnapshotRow).join('') : `<p class="muted" style="padding:8px 0">No one is in this stage right now.</p>`}
+      </div>`;
+    })() : ''}
   </div>`;
 }
 
