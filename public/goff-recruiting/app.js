@@ -487,9 +487,9 @@ function dashboard(){
 
   <section class="panel funnels"><div class="section-head"><div><div class="eyebrow">Pipeline by path</div><h3>From applied to hired.</h3></div><button class="btn" onclick="view='workflow';render()">View full workflow</button></div>${funnelHTML('Welder path — fabricators &amp; fitters', welderCandidates)}${funnelHTML('Other roles — foreman, inventory, procurement, helper', otherCandidates)}</section>
 
-  ${recentActivityPanel()}
+  <section class="panel"><div class="section-head"><div><div class="eyebrow">In motion</div><h3>${quintonsQueue.length === 1 ? '1 candidate moving normally.' : `${quintonsQueue.length} candidates moving normally.`}</h3></div></div>${quintonsQueue.length ? `<div class="queue">${quintonsQueue.map(card).join('')}</div>` : `<p class="muted">Nothing else in motion. Add a candidate from the Intake screen.</p>`}</section>
 
-  <section class="panel"><div class="section-head"><div><div class="eyebrow">In motion</div><h3>${quintonsQueue.length === 1 ? '1 candidate moving normally.' : `${quintonsQueue.length} candidates moving normally.`}</h3></div></div>${quintonsQueue.length ? `<div class="queue">${quintonsQueue.map(card).join('')}</div>` : `<p class="muted">Nothing else in motion. Add a candidate from the Intake screen.</p>`}</section>`;
+  ${recentActivityPanel()}`;
 }
 
 function buildTodaySummary(pendingDecisions, staleCount, agingCount){
