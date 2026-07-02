@@ -1589,11 +1589,26 @@ function tabs(){
   return `<nav class="tabs grouped-tabs">${groups.map(group=>`<div class="tab-group"><span>${esc(group)}</span>${pages.filter(p=>p[2]===group).map(([id,label])=>`<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`).join('')}</div>`).join('')}<div class="tab-group portal-switch"><span>One portal — switch area</span><a href="?section=start">Employee view</a><a href="/goff-recruiting/">Recruiting platform</a><a href="/goff-recruiting/?view=career">Public careers page</a></div></nav>`;
 }
 function onboardingComplete(){ return onboardingParts().every(p => p.pct === 100); }
-function startSection(){ return onboardingComplete() ? employeeHome() : pathSection(); }
+function startSection(){ return employeeHome(); }
 function homeSearchGo(el){
   const v = String(el?.value || '').trim();
   faqSearch = v.toLowerCase();
   nav('faq');
+}
+function onboardingCard(){
+  if(onboardingComplete()){
+    return `<section class="panel training-done-strip"><div class="progress-parts">${onboardingParts().map((p,i)=>`<span class="done"><b>${i+1}</b> ${esc(p.label)} ✓</span>`).join('')}<span class="done"><b>✓</b> Training complete</span></div></section>`;
+  }
+  const next = firstIncompletePathStep();
+  const pctNow = onboardingPct();
+  return `<section class="onboard-card"><span class="g-mark" aria-hidden="true">G</span><div class="onboard-card-in">
+    <p class="slide-eyebrow">Your onboarding — ${pctNow}% complete</p>
+    <h2>Next up: ${esc(next ? next.label : 'Finish up')}</h2>
+    <div class="bar onboard-bar"><i style="width:${pctNow}%"></i></div>
+    <div class="progress-parts onboard-parts">${onboardingParts().map((p,i)=>`<span class="${p.pct===100?'done':''}"><b>${i+1}</b> ${esc(p.label)} · ${p.pct}%</span>`).join('')}</div>
+    <div class="onboard-meta"><span><b>First day:</b> ${esc(PROFILE.startDate)}, ${esc(PROFILE.startTime)}</span><span><b>Where:</b> ${esc(PROFILE.location)}</span><span><b>Supervisor:</b> ${esc(PROFILE.supervisor)}</span></div>
+    <div class="hero-actions"><button onclick="nav('${next ? next.id : 'path'}')">Continue onboarding →</button><button class="secondary" onclick="nav('path')">See all 5 steps</button></div>
+  </div></section>`;
 }
 function employeeHome(){
   const quick = [
@@ -1605,12 +1620,12 @@ function employeeHome(){
     ["nav('bbsi')",'Paystubs & taxes','Everything myBBSI, one tap'],
   ];
   const find = [['faq','FAQs - search anything'],['policies','Policies & handbook'],['role','My role & expectations'],['safety','Safety refresher'],['perdiem','Per diem / travel'],['bbsi','Paystubs / myBBSI'],['tools','Tools / PPE'],['exaktime','Timekeeping'],['milestones','My check-ins']];
-  return `<section class="panel employee-path"><p class="eyebrow">Quick actions</p><h2>Do something</h2><div class="home-actions">${quick.map(([id,label,hint])=>`<button class="home-action" onclick="${id}"><b>${esc(label)}</b><small>${esc(hint)}</small></button>`).join('')}</div></section>
+  return `${onboardingCard()}<section class="panel employee-path"><p class="eyebrow">Quick actions</p><h2>Do something</h2><div class="home-actions">${quick.map(([id,label,hint])=>`<button class="home-action" onclick="${id}"><b>${esc(label)}</b><small>${esc(hint)}</small></button>`).join('')}</div></section>
   <section class="panel"><p class="eyebrow">Find something</p><h2>Everything you learned, one tap away</h2><div class="cards">${find.map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open</small></button>`).join('')}</div></section>
-  <section class="grid two"><article class="panel"><p class="eyebrow">My training record</p><h2>Complete ✓</h2><div class="progress-parts">${onboardingParts().map((p,i)=>`<span class="${p.pct===100?'done':''}"><b>${i+1}</b> ${esc(p.label)} · ${p.pct}%</span>`).join('')}</div><p>Your acknowledgements and signatures are stored on your employee record in production. A yearly refresher pulls 5 random sections; your manager can also assign retraining.</p><button class="secondary" onclick="nav('path')">Revisit my onboarding path</button></article><article class="panel"><p class="eyebrow">Stuck on something?</p><h2>Ask before guessing.</h2><p>Search the FAQs first - most answers are there. Then your supervisor, then the office. If you cannot reach your supervisor, call the main office line.</p><button class="secondary" onclick="nav('help')">Who to contact</button></article></section>`;
+  <section class="grid two">${onboardingComplete()?`<article class="panel"><p class="eyebrow">My training record</p><h2>Complete ✓</h2><p>Your acknowledgements and signatures are stored on your employee record in production. A yearly refresher pulls 5 random sections; your manager can also assign retraining.</p><button class="secondary" onclick="nav('path')">Revisit my onboarding path</button></article>`:`<article class="panel"><p class="eyebrow">While you're onboarding</p><h2>These tools are already yours.</h2><p>Safety reporting, the FAQs, and help contacts never wait for training to finish. If something happens in the shop, report it — training status doesn't matter.</p><button class="secondary" onclick="openFormFill('nearmiss')">Report a near miss</button></article>`}<article class="panel"><p class="eyebrow">Stuck on something?</p><h2>Ask before guessing.</h2><p>Search the FAQs first - most answers are there. Then your supervisor, then the office. If you cannot reach your supervisor, call the main office line.</p><button class="secondary" onclick="nav('help')">Who to contact</button></article></section>`;
 }
-function pathSection(){
-  const steps = [
+function pathSteps(){
+  return [
     ['course','First-day orientation','Start here. The 30,000-foot view of Goff — who we are, our values, and what to expect.','Begin',
       () => completed.orientation || coursePct()===100],
     ['policies','Policies & acknowledgements','Complete each policy course — real rules, real questions, acknowledgement at the end.','Continue',
@@ -1622,8 +1637,16 @@ function pathSection(){
     ['handoff','Meet with your supervisor','The in-person checklist: apparel, tools, equipment tests, emergency walk, first assignment.','Finish',
       () => handoffDone()]
   ];
+}
+function firstIncompletePathStep(){
+  const steps = pathSteps();
+  const i = steps.findIndex(s => !s[4]());
+  return i === -1 ? null : { index: i, id: steps[i][0], label: steps[i][1] };
+}
+function pathSection(){
+  const steps = pathSteps();
   const stepDone = (i) => steps[i][4]();
-  return `<section class="panel employee-path"><p class="eyebrow">My onboarding path</p><h2>Start with first-day orientation. Then keep going in order.</h2><p class="summary">Before you begin: confirm your arrival time, location, and supervisor in the card above. Then work through the steps below with your supervisor or on your own.</p><div class="path-steps">${(()=>{ const firstOpen = steps.findIndex((_,i)=>!stepDone(i)); return steps.map((step,i)=>{ const done=stepDone(i); return `<article class="path-step ${done?'complete':i===firstOpen?'current':''}"><span>${done?'Complete':`Step ${i+1}`}</span><h3>${esc(step[1])}</h3><p>${esc(step[2])}</p><button class="${done?'secondary':''}" onclick="nav('${step[0]}')">${done?'Completed ✓':esc(step[3])}</button></article>`; }).join(''); })()}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Progress</p><h2>${onboardingPct()}% of onboarding complete</h2><div class="bar"><i style="width:${onboardingPct()}%"></i></div><div class="progress-parts">${onboardingParts().map((p,i)=>`<span class="${p.pct===100?'done':''}"><b>${i+1}</b> ${esc(p.label)} · ${p.pct}%</span>`).join('')}</div><p>Production will save this to the employee record. For this review version, progress is saved on this device.</p></article><article class="panel"><p class="eyebrow">After onboarding</p><h2>This becomes your employee home.</h2><p>Once onboarding is complete, the portal should open to resources, policies, forms, and training refreshers — not this first-day path.</p><button class="secondary" onclick="nav('home')">Preview the employee home</button></article></section>`;
+  return `<section class="panel employee-path"><p class="eyebrow">My onboarding path</p><h2>Start with first-day orientation. Then keep going in order.</h2><p class="summary">Before you begin: confirm your arrival time, location, and supervisor in the card above. Then work through the steps below with your supervisor or on your own.</p><div class="path-steps">${(()=>{ const firstOpen = steps.findIndex((_,i)=>!stepDone(i)); return steps.map((step,i)=>{ const done=stepDone(i); return `<article class="path-step ${done?'complete':i===firstOpen?'current':''}"><span>${done?'Complete':`Step ${i+1}`}</span><h3>${esc(step[1])}</h3><p>${esc(step[2])}</p><button class="${done?'secondary':''}" onclick="nav('${step[0]}')">${done?'Completed ✓':esc(step[3])}</button></article>`; }).join(''); })()}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Progress</p><h2>${onboardingPct()}% of onboarding complete</h2><div class="bar"><i style="width:${onboardingPct()}%"></i></div><div class="progress-parts">${onboardingParts().map((p,i)=>`<span class="${p.pct===100?'done':''}"><b>${i+1}</b> ${esc(p.label)} · ${p.pct}%</span>`).join('')}</div><p>Production will save this to the employee record. For this review version, progress is saved on this device.</p></article><article class="panel"><p class="eyebrow">Your home page</p><h2>The everyday tools are already on your Home.</h2><p>Home always shows search, forms, and resources — this page is just your step-by-step training path. When every step is done, the onboarding card on Home becomes a ✓ and this page stays as your record.</p><button class="secondary" onclick="nav('start')">Go to my home</button></article></section>`;
 }
 
 function scrollToEl(sel){
@@ -1973,8 +1996,8 @@ function render(){
     // Full welcome hero only on the home screen; inner pages get a slim bar.
     // Once onboarding is done (or when previewing 'home'), the hero becomes the
     // everyday welcome-back with search instead of first-day logistics.
-    const isHome = section==='home' || (section==='start' && onboardingComplete());
-    const hdr = isHome ? homeHeader() : section==='start' ? header() : compactHeader();
+    const isHome = section==='home' || section==='start';
+    const hdr = isHome ? homeHeader() : section==='path' ? header() : compactHeader();
     app.innerHTML = `${hdr}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>${feedbackWidget()}`;
   }
 }
