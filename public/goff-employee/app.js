@@ -132,15 +132,8 @@ function orientIcon(name){ return `<svg class="orient-ic-svg" viewBox="0 0 24 24
 // had every correct answer at B, which teaches "always tap B" and defeats the
 // attempt tracking.
 const KNOWLEDGE_CHECKS = {
-  kc1:{ q:'You notice a frayed cable creating an unsafe condition mid-job. What should you do?', options:['Finish your current task first, then mention it','Wait for a supervisor to notice it','Use your Stop Work Authority and halt the job immediately','Only stop if someone could get hurt today'], correct:2 },
-  kc2:{ q:'Which PPE is required at all times while you are on the shop floor?', options:['Safety glasses and steel-toe footwear','Only gloves, and only while welding','A hard hat only during overhead work','PPE is optional for experienced welders'], correct:0 },
-  kc3:{ q:'Before operating any machine, what must you confirm first?', options:['That you are the only person in the shop','That your phone is fully charged','That it is after your lunch break','That machine guards are in place and aisles are clear'], correct:3 },
-  kc4:{ q:'You have just finished using a grinder. What is the correct way to handle it?', options:['Leave it out so it is easy to grab next time','Return it to its designated storage rack immediately','Set it on the nearest workstation','Wait until the end of shift to put everything away'], correct:1 },
-  kc5:{ q:'Who is permitted to operate a company vehicle?', options:['Any employee who is in a hurry','Anyone who holds a driver license','Only designated employees with a valid license and company approval','Whoever happens to have the keys'], correct:2 },
-  kc6:{ q:'What is Goff Welding’s policy on impairment while on duty?', options:['Zero tolerance — impairment of any kind is strictly prohibited','Allowed during breaks only','Acceptable if it does not affect your work','Only tested after an incident occurs'], correct:0 },
   kc7:{ q:'Which of the following must be kept confidential?', options:['Only customer credit-card numbers','Nothing — our work is public','Only documents marked “secret”','Customer info, drawings, pricing, and company processes'], correct:3 },
   kc8:{ q:'You realize you will be late for your shift. What should you do?', options:['Wait and explain once you arrive','Communicate the delay as early as possible','Have a coworker quietly cover for you','Nothing, as long as it rarely happens'], correct:1 },
-  kc9:{ q:'When may you operate shop machinery or welding equipment?', options:['As soon as you start your shift','Whenever the equipment is available','Only after proper training AND supervisor authorization','After watching someone else do it once'], correct:2 },
   // Orientation wrap-up check — per Austin: "they've passed two or three
   // questions" is the satisfactory-consumption signal. Light, not pass/fail.
   kc10:{ q:'What are Goff Welding’s four core values?', options:['Speed, strength, silence, and sales','Profit, punctuality, pride, and power','Talent, toughness, tradition, and trust','Integrity, humility, respect, and accountability'], correct:3 },
@@ -486,57 +479,6 @@ const SAFETY_QUIZ = [
 ];
 const SAFETY_ACK = 'I certify that I have read and know how to obtain a copy of the Injury and Illness Prevention Program and fully understand my responsibilities with respect to the policy and procedures as outlined. I further agree to comply with safe work practices.';
 
-// Safety Training — separate from orientation per Austin (2026-07-01): "10 or 15
-// sections... 15 minutes a piece... and a more important pass-or-fail quiz."
-// Sections 1-8 built from the onboarding deck's safety content + the V3 Safety
-// Training handbook. Remaining sections reserved for Dale/BBSI material.
-const SAFETY_SECTIONS = [
-  { id:'culture', title:'Safety culture & Stop Work Authority', kc:'kc1', cards:[
-    ['Shared responsibility','Safety is everyone’s responsibility. Look out for your crew, keep your area hazard-free, and speak up early — a culture of safety only works when all of us own it.'],
-    ['Stop Work Authority','Stop work the moment conditions become unsafe. Every employee has this authority — no permission needed and no blame for using it. When in doubt, stop and ask.'],
-  ]},
-  { id:'ppe', title:'PPE requirements', kc:'kc2', cards:[
-    ['Always required','Safety glasses at all times, steel-toe footwear on the floor, and hearing protection in the shop (per the safety handbook). The rest is task-dependent — but always on hand.'],
-    ['Task-dependent','Hard hats for overhead and field work, hi-vis vests in field and yard areas, fall protection when applicable, gloves matched to the task, welding helmets and respirators with training.'],
-    ['Provided by Goff','OSHA-required PPE is provided free of charge and replaced when broken or worn out. Find it in the parts room, shop entrances, and work trailers. No proper PPE? Do not start work — report it.'],
-  ]},
-  { id:'shop', title:'Shop safety: guards, aisles, hazards', kc:'kc3', cards:[
-    ['Machine guards','Ensure all protective guards are securely in place and fully functional before operating any machinery. Know where the emergency stops are.'],
-    ['Keep aisles clear','Maintain clear, unobstructed walkways, aisles, and emergency exits at all times. Never block fire extinguishers or control panels.'],
-    ['Report hazards','Immediately report any identified hazards, malfunctioning equipment, or unsafe practices to supervisors. Corrective deadlines are assigned by severity.'],
-  ]},
-  { id:'housekeeping', title:'Housekeeping', kc:'kc4', cards:[
-    ['Clean workstations','Keep your immediate work area tidy, free of debris, and fully prepared for safe operations. When housekeeping standards fall, safety inevitably deteriorates.'],
-    ['Organize tools','Return all equipment and tools to their designated storage racks immediately after use.'],
-    ['Prevent falls','Address spills and clear walk paths immediately to eliminate slips, trips, and falls. Stairs and hallways are not storage areas.'],
-  ]},
-  { id:'equipment', title:'Tools & equipment: trained and authorized', kc:'kc9', cards:[
-    ['Gate 1 · Proper training','Never operate shop machinery or welding equipment without completing the designated safety and training courses.'],
-    ['Gate 2 · Authorization','Ensure you have explicit approval and sign-off from your supervisor before power-up or beginning any task. You are not authorized to climb ladders over 8 feet, drive motor vehicles, or operate heavy equipment without specific authorization.'],
-    ['While operating','Make sure the area is clear before turning equipment on, never leave running equipment unattended, and never perform maintenance on a machine in motion.'],
-  ]},
-  { id:'incident', title:'Injury, incident & near-miss reporting', cards:[
-    ['If you are injured','Report to your supervisor immediately — even minor injuries. For serious injuries dial 9-1-1 and/or have a supervisor transport to the hospital / WorkMed facility.'],
-    ['Near misses count','A situation that could have caused injury or damage is a near miss. Submit the Near Miss Incident Report in Company Links — reporting near misses prevents the real thing.'],
-    ['Suggestion box','Share safety concerns or improvement ideas in the Safety and Suggestion Box at the north entrance of the east shops.'],
-  ]},
-  { id:'hazcom', title:'Hazard communication (Right-to-Know)', cards:[
-    ['Labels on everything','All containers with chemicals must be labeled — including transfer containers, spray bottles, and squeeze bottles. Plain water looks identical to acetone.'],
-    ['Safety Data Sheets','The SDS for every chemical product is in the Receiving / Parts Department office, accessible during all work hours. Do not work with a hazardous material until you have reviewed its SDS.'],
-    ['Exposure routes','Inhalation, ingestion, skin contact, and injection. Protect yourself: follow label directions, work with air circulation, keep containers covered.'],
-  ]},
-  { id:'emergency', title:'Emergency response & evacuation', cards:[
-    ['When the alarm sounds','Leave promptly — do not wait to see if it is “real.” Make sure others around you are leaving too.'],
-    ['Assembly point','The Evacuation Assembly Point is the northeast side of the Main Office building parking lot. Report anyone still inside to the Evacuation Management Team at the exits.'],
-    ['Know before you need it','Learn the exits, fire extinguishers, and first aid locations in your area. Evacuation plans are posted at every exit. To report emergencies, dial 9-1-1 and inform a supervisor.'],
-  ]},
-];
-function safetySectionDone(s){
-  const read = completed[`safesec-${s.id}`];
-  const kcOk = !s.kc || (kcState[s.kc] && kcState[s.kc].correct);
-  return read && kcOk;
-}
-function toggleSafetySection(id){ completed[`safesec-${id}`] = !completed[`safesec-${id}`]; save(); render(); }
 let quizAnswers = (() => { try { return JSON.parse(safeGetEarly('goffSafetyQuizV3') || '{}'); } catch(_) { return {}; } })();
 function safeGetEarly(key){ try { return window.localStorage.getItem(key); } catch(_) { return null; } }
 
@@ -938,50 +880,440 @@ const POLICY_COURSES = [
   ]},
 ];
 
-// --- Policy course player state & controls ---
-let policyCourseOpen = null;
-let policySlideIdx = (() => { try { return JSON.parse(safeGetEarly('goffPolicySlidesV1') || '{}'); } catch(_) { return {}; } })();
-function openPolicyCourse(id){ policyCourseOpen = id; render(); scrollToEl('.slide-canvas'); }
-function closePolicyCourse(){ policyCourseOpen = null; render(); scrollToEl('.policy-courses'); }
-function setPolicySlide(id, i){ const c = POLICY_COURSES.find(x=>x.id===id); if(!c) return; policySlideIdx[id] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffPolicySlidesV1', JSON.stringify(policySlideIdx)); render(); scrollToSlide(); }
-function finishPolicyCourse(id){ completed[`polcourse-${id}`] = true; save(); policyCourseOpen = null; render(); scrollToEl('.policy-courses'); }
+// BBSI / Goff Welding — New Hire Safety Orientation 2026 (Dale Edits) — structured course draft
+// SKIPPED (meta/draft/empty/placeholder slides):
+//   Slide 1  — welcome title only
+//   Slide 2  — draft note: "Could add a welcome video of Austin here or note"
+//   Slide 3  — draft note: "What are Goff Welding Core Values??????"
+//   Slides 12–22 — title-only topic placeholders with NO body content (Emergency Response, PPE,
+//     Hot Work, Compressed Gas, Fall Protection, Walking/Working Surfaces, Rigging, Respirator,
+//     Bloodborne Pathogens, Noise Exposure, Fire and Fire Extinguishers). Only the Fire and
+//     Respirator topics have real content elsewhere in the deck (slides 24–39 and 141).
+//   Slide 23 — "EMERGENCY ESCAPE PLAN" title only (folded into Fire course range)
+//   Slides 80–81 — "TEST TIME" / "QUESTIONS?" meta
+//   Slide 84 — layout placeholder ("Title and content layout with chart")
+//   Slides 122, 148, 155, 184 — "QUESTIONS?" / release-to-supervisor meta
+
+const SAFETY_COURSES_DRAFT = [
+
+  // ── 1. Stop Work Authority ──────────────────────────────────────────────
+  { id:'swa', title:'Stop Work Authority', tagline:'Every employee has the right — and the obligation — to stop unsafe work.', srcSlides:'4-11', slides:[
+    { theme:'dark', eyebrow:'Safety training · Stop Work Authority', title:'You are empowered to stop the job', body:'Goff Welding’s policy is that people are our most important asset. Stop Work Authority (SWA) gives every employee the responsibility and obligation to stop work when a perceived unsafe condition or behavior may result in an unwanted event.', prompt:'If it looks wrong, stop it — no retribution.' },
+    { eyebrow:'Roles and responsibilities', title:'Who does what under SWA', cards:[
+      ['Senior management','Creates a culture that promotes SWA, sets clear expectations, supports its use without retribution, resolves SWA conflicts, and holds everyone accountable for full compliance.'],
+      ['Supervisors and managers','Promote a culture where SWA is freely exercised. SWA requests are honored and resolved before operations resume, and required follow-up is completed.'],
+      ['Safety department','Provides training and support, facilitates stop-work inspections, and documents and monitors SWA compliance.'],
+      ['Employees and contractors','Initiate stop work, participate in the investigation, support peers and the SWA process, and ensure follow-up is done.'],
+    ] },
+    { eyebrow:'When to use it', title:'Situations that warrant a stop work', cards:[
+      ['Conditions change','A change in work conditions, working outside the job scope or plan, or an emergency situation all justify stopping the job.'],
+      ['Something is off','Equipment used improperly, unsafe conditions, or a near-miss incident — stop before it becomes an injury.'],
+      ['You don’t know enough','Lack of knowledge, understanding, or information is itself a valid reason to stop work and ask.'],
+    ] },
+    { eyebrow:'Your legal protection', title:'Federally protected refusal — all four conditions', cards:[
+      ['1. You asked first','Where possible, you asked the employer to eliminate the danger and the employer failed to do so.'],
+      ['2. Good faith','You genuinely believe an imminent danger exists — the refusal is made in good faith.'],
+      ['3. Reasonable person test','A reasonable person would agree there is a real danger of death or serious injury.'],
+      ['4. No time','The hazard is so urgent there isn’t time to get it corrected through regular enforcement channels.'],
+    ] },
+  ], quiz:[
+    { q:'Which of the following is NOT one of the four conditions required for your refusal to work to be federally protected?', options:['Where possible, you asked the employer to eliminate the danger and they failed to','A reasonable person would agree there is a real danger of death or serious injury','You filed a written complaint with OSHA before stopping work','There isn’t enough time to correct the hazard through regular enforcement channels'], correct:2 },
+    { q:'Under the SWA program, who is responsible for resolving SWA conflicts when they arise?', options:['Senior management','The employee who initiated the stop','The OSHA area office','The newest crew member on site'], correct:0 },
+  ] },
+
+  // ── 2. Fire & Fire Extinguishers ────────────────────────────────────────
+  { id:'fire', title:'Fire & Fire Extinguishers', tagline:'Know your fire classes, your extinguisher, and PASS.', srcSlides:'23-39', slides:[
+    { theme:'dark', eyebrow:'Safety training · Fire & Extinguishers', title:'Take one element away and the fire dies', body:'Fire needs fuel, heat, air, and a chemical chain reaction — the fire tetrahedron. To extinguish a fire, one of those elements must be taken away. Ignition sources in our work include sparks and arcs, hot surfaces, electrical energy, friction, compression of gases, and open flame.', prompt:'Which element will your extinguisher remove?' },
+    { eyebrow:'Fire classes', title:'Class A, B, and C', cards:[
+      ['Class A — leaves an ash','Ordinary solids: paper, trash, tires, coal, plastic, wood. Any fire that can leave an ash is usually Class A.'],
+      ['Class B — Boil','Flammable liquids (gasoline, diesel, kerosene, paint, alcohol, some solvents) and gases (propane, carbon monoxide, hydrogen, acetylene, methane, butane). These burn extremely hot, spread rapidly, and heavy smoke can make them hard to control.'],
+      ['Class C — electrical','Caused by electrical sources. The electrical source must be de-energized before fire fighting.'],
+    ] },
+    { eyebrow:'Fire classes', title:'Class D and Class K', cards:[
+      ['Class D — metal fires','Magnesium, sodium, potassium, titanium, zirconium and other combustible metals. Extreme heat and the ability to generate their own oxygen make them hard to fight — the best method is to bury the affected area for 72 hours.'],
+      ['Class D extinguisher','30 lb pressurized dry powder optimized for the specific metal (also available in bulk for hand-scooping onto the fire). 6–8 ft maximum effective range; extinguishes by smothering.'],
+      ['Class K — kitchen fats','Vegetable fats that burn at extremely high temperatures, mostly in commercial kitchens. Wet chemicals are used in extinguishing systems.'],
+    ] },
+    { eyebrow:'Your extinguisher', title:'Multipurpose dry chemical (ABC)', cards:[
+      ['The numbers','2.5–20 lb of dry chemical (ammonium phosphate), pressurized to 50–200 psi by nitrogen gas, with an 8–25 second discharge time and a 5–20 ft maximum effective range.'],
+      ['How it works','Extinguishes by smothering burning materials. A pressure gauge allows a visual capacity check (CO2 extinguishers have no gauge).'],
+      ['Monthly inspection','Confirm proper location and access; check locking pin and tamper seal; verify it’s full and pressurized; check hose, fittings, nozzle, and legible instructions. The inspection sticker date must not exceed 1 year — remove deficient units from service.'],
+    ] },
+    { eyebrow:'Fighting the fire', title:'Remember PASS', cards:[
+      ['P — Pull','Pull the pin.'],
+      ['A — Aim','Aim low, at the base of the flames.'],
+      ['S — Squeeze','Squeeze the handle.'],
+      ['S — Sweep','Sweep side to side until the fire is out.'],
+    ] },
+  ], quiz:[
+    { q:'What is the recommended method for fighting a Class D combustible-metal fire?', options:['Flood the burning metal with water','Bury the affected area for 72 hours','Use a multipurpose ABC dry-chemical extinguisher','Let it burn out on its own, usually within an hour'], correct:1 },
+    { q:'A multipurpose dry-chemical (ABC) extinguisher has a maximum effective range of…', options:['30–40 feet','1–2 feet','50–75 feet','5–20 feet'], correct:3 },
+  ] },
+
+  // ── 3. Electrical Safety ────────────────────────────────────────────────
+  { id:'electrical', title:'Electrical Safety', tagline:'Low voltage does not mean low hazard.', srcSlides:'40-48', slides:[
+    { theme:'dark', eyebrow:'Safety training · Electrical Safety', title:'One worker is electrocuted on the job every day', body:'That’s the national average. The four main types of electrical injuries are electrocution (death due to electrical shock), electrical shock, burns, and falls caused by contact.', prompt:'LOW VOLTAGE DOES NOT MEAN LOW HAZARD.' },
+    { eyebrow:'How shock happens', title:'Completing the circuit', cards:[
+      ['The path is you','You get a shock when part of your body completes a circuit — touching a live wire and an electrical ground, or a live wire and another wire at a different voltage.'],
+      ['Severity depends on three things','The path of the current through the body, the amount of current flowing, and the length of time the body is in the circuit.'],
+      ['75 mA can kill','Currents greater than 75 milliamperes can cause ventricular fibrillation — death in a few minutes unless a defibrillator is used. A small power drill uses 30 times that much current.'],
+    ] },
+    { eyebrow:'Common hazards', title:'Overloads, burns, and overhead lines', cards:[
+      ['Overloaded circuits','Too many devices on one circuit heat the wires to very high temperature and can start a fire. If insulation melts, arcing can ignite a fire even inside a wall.'],
+      ['Electrical burns','The most common shock-related nonfatal injury, typically on the hands, from improperly used or maintained wiring or equipment. A very serious injury needing immediate attention.'],
+      ['Overhead powerlines','Usually NOT insulated. Never use metal ladders or carry anything overhead near live overhead power, and watch for lines when working with ladders and scaffolding.'],
+    ] },
+    { eyebrow:'Protective measures', title:'How we control electrical hazards', cards:[
+      ['Engineering controls','Proper grounding, GFCIs, fuses and circuit breakers, and guarding of live parts.'],
+      ['Work practices','Lockout/tagout, proper use of flexible cords, and electrical safety training.'],
+      ['Wet conditions','All electrical hazards are made worse in wet conditions — inadequate wiring, bad insulation, damaged tools, and wrong PPE become far more dangerous.'],
+    ] },
+  ], quiz:[
+    { q:'Currents greater than what level can cause ventricular fibrillation (a rapid, ineffective heartbeat)?', options:['75 milliamperes','75 amperes','30 amperes','750 milliamperes'], correct:0 },
+    { q:'Which statement about overhead powerlines is true?', options:['They are insulated, so brief contact is harmless','Metal ladders are safe near them if you only touch the rungs','They are usually not insulated','Only utility powerline workers face any risk from them'], correct:2 },
+  ] },
+
+  // ── 4. Hazard Communication & GHS ───────────────────────────────────────
+  { id:'hazcom', title:'Hazard Communication & GHS', tagline:'One global system for classifying and labeling chemical hazards.', srcSlides:'49-63', slides:[
+    { theme:'dark', eyebrow:'Safety training · Hazard Communication', title:'Every chemical hazard, classified and communicated', body:'OSHA 1910.1200 requires that the hazards of all chemicals produced or imported are classified, and that hazard information reaches employers and employees — consistent with the UN Globally Harmonized System (GHS), Revision 3, through container labeling and comprehensive hazcom programs.', prompt:'If you can’t identify it, you can’t protect yourself from it.' },
+    { eyebrow:'The GHS system', title:'What GHS is and why it exists', cards:[
+      ['Globally Harmonized System','A standardized system for classifying and labeling chemicals. It defines health, physical, and environmental hazards and communicates them — plus protective measures — on labels and Safety Data Sheets (SDS).'],
+      ['Not itself a regulation','GHS is not a regulation or standard, but it is the widely accepted global method for hazard identification, ensuring manufacturers use agreed classification and communication methods.'],
+      ['Rollout dates','Dec 1, 2013: all employers trained on the new standard. June 1, 2015: all SDSs updated to GHS layout. Dec 1, 2015: manufacturers/distributors ship SDS with chemicals. June 1, 2016: employer hazcom programs compliant.'],
+    ] },
+    { eyebrow:'Classification', title:'Three hazard classes', cards:[
+      ['Physical hazards','Explosives, flammable gases/aerosols/liquids/solids, oxidizing gases/liquids/solids, gases under pressure, self-reactive substances, pyrophorics, self-heating substances, water-reactives, organic peroxides, corrosive to metals.'],
+      ['Health hazards','Acute toxicity, skin corrosion/irritation, serious eye damage, respiratory or skin sensitization, germ cell mutagenicity, carcinogenicity, reproductive toxicology, target organ toxicity (single and repeated exposure), aspiration toxicity.'],
+      ['Environmental hazards','Hazardous to the aquatic environment — acute and chronic aquatic toxicity, bioaccumulation potential, rapid degradability.'],
+    ] },
+    { eyebrow:'Labels', title:'The six GHS label elements', cards:[
+      ['Identify and signal','Product identifier, plus a signal word: “Danger” for the more severe hazards, “Warning” for the less severe.'],
+      ['Describe the hazard','Standardized hazard statements for each hazard class and category — e.g. “Causes eye irritation,” “Toxic if inhaled,” “May cause cancer,” “Contains gas under pressure; may explode if heated.”'],
+      ['Show and prevent','Pictograms — a black symbol on a white background with a red diamond frame — plus precautionary statements for each hazard class and category.'],
+      ['Who made it','Name, address, and telephone number of the chemical manufacturer.'],
+    ] },
+  ], quiz:[
+    { q:'By what date did all Safety Data Sheets have to be updated to reflect the GHS layout?', options:['December 1, 2013','December 1, 2015','June 1, 2016','June 1, 2015'], correct:3 },
+    { q:'Which signal word does GHS assign to the MORE severe hazards?', options:['Warning','Danger','Caution','Alert'], correct:1 },
+  ] },
+
+  // ── 5. GHS Pictograms & Safety Data Sheets ─────────────────────────────
+  { id:'pictograms', title:'GHS Pictograms & SDS', tagline:'Read the diamond, then read the sheet.', srcSlides:'64-79', slides:[
+    { theme:'dark', eyebrow:'Safety training · Pictograms & SDS', title:'The red diamond tells you what can hurt you', body:'GHS pictograms — black symbols on white with a red diamond frame — convey health, physical, and environmental hazard information at a glance. Behind every label is a 16-section Safety Data Sheet with the full story.', prompt:'Know the symbols before you open the container.' },
+    { eyebrow:'Health pictograms', title:'Health hazard, exclamation mark, skull & crossbones', cards:[
+      ['Health hazard (silhouette)','Carcinogens (asbestos, silica, diesel exhaust), mutagens (ionizing radiation, chemotherapy medicines), reproductive toxins (lead, organic solvents, PCBs, carbon monoxide), respiratory sensitizers (wood dust, latex, formaldehyde), target organ and aspiration toxicity.'],
+      ['Exclamation mark','Skin and eye irritants, skin sensitizers, respiratory tract irritants, narcotic effects, and acute toxicity. Toxicity is measured in LD 50 — the amount of a substance that kills 50% of those exposed to it.'],
+      ['Skull & crossbones','Acute toxicity — highly toxic substances that are life-threatening in small amounts, such as bleach, formaldehyde, and ammonia.'],
+      ['Corrosion','Skin corrosion/burns, eye damage, corrosive to metals. Acids have pH 7 or lower (vinegar, hydrochloric, sulfuric); bases have pH 9 or higher (bleach, lye). Corrosion falls into both health and physical hazard classes.'],
+    ] },
+    { eyebrow:'Physical & environmental pictograms', title:'Bomb, flame, and fish', cards:[
+      ['Exploding bomb','Explosives, self-reactives, organic peroxides — and gases under pressure such as oxygen, acetylene, and propane tanks.'],
+      ['Flame over circle & flame','Flame-over-circle marks oxidizers — substances that increase burning by adding available oxygen (bleach, pure oxygen, concentrated hydrogen peroxide). The plain flame marks flammables, pyrophorics, self-heating substances, and emitters of flammable gas.'],
+      ['Environment','Aquatic toxicity — substantial damage to living organisms through aquatic exposure: pesticide and fertilizer runoff, PCBs, lead, chromium.'],
+    ] },
+    { eyebrow:'Precautions & containers', title:'Precautionary statements and secondary containers', cards:[
+      ['Four kinds of precaution','Prevention (“Wear protective gloves”), Response (“If inhaled remove person to fresh air”), Storage (“Store in well ventilated place”), and Disposal (per federal, state, and local regulations).'],
+      ['Secondary containers','Any time a chemical leaves its original container — like diluting Simple Green into a spray bottle — the new container must be labeled with the product identifier, signal word, hazard statement(s), pictogram(s), and precautionary statement(s).'],
+    ] },
+    { eyebrow:'Safety Data Sheets', title:'16 sections, two places to find them', cards:[
+      ['Where SDSs live','In a binder in the shop/warehouse or office specific to each site, and on the Share Drive under the Safety Document folder for those with computer access.'],
+      ['What’s inside','16 standardized sections: identification, hazards, ingredients, first aid, firefighting, accidental release, handling and storage, exposure controls/PPE, physical and chemical properties, stability, toxicology, ecology, disposal, transport, regulatory, and other information.'],
+    ] },
+  ], quiz:[
+    { q:'What does an LD 50 value tell you about a substance?', options:['The amount that will kill 50% of those exposed to it','That it loses half its potency after 50 days','That it must be diluted to 50% before use','The legal exposure limit for a crew of 50 workers'], correct:0 },
+    { q:'How many standardized sections does a Safety Data Sheet contain?', options:['8','12','16','20'], correct:2 },
+  ] },
+
+  // ── 6. Job Hazard Analysis ──────────────────────────────────────────────
+  { id:'jha', title:'Job Hazard Analysis', tagline:'Break the job into steps, find the hazards, control them first.', srcSlides:'82-94', slides:[
+    { theme:'dark', eyebrow:'Safety training · Job Hazard Analysis', title:'Find the hazard before it finds you', body:'A JHA is a process for identifying hazards or potential harm, eliminating or controlling them, and preventing injuries or illnesses. It’s one component of a larger Safety and Health Management Plan (SHMP).', prompt:'Every uncontrolled hazard is a future incident.' },
+    { eyebrow:'What a JHA covers', title:'Task-focused or job-focused', cards:[
+      ['Task focused (steps)','Cast-in-place concrete, excavation, installation of electrical circuits — the JHA walks through the steps of a specific task.'],
+      ['Job focused (process)','Maintenance or janitorial work — the JHA covers the process of an entire job.'],
+      ['Four required elements','Description of the task/steps containing the hazard; description of the hazard and its type; consequence of the hazard; and the controls that mitigate or prevent it.'],
+    ] },
+    { eyebrow:'Best practices', title:'How to build a good JHA', cards:[
+      ['Start with the people and the history','Involve the employees at the worksite, review the worksite’s incident history, and conduct a preliminary job review — correcting the easy fixes immediately.'],
+      ['Rank and break down','List, rank, and set priorities for the hazardous jobs, then break each job into steps or tasks — photographing or recording the worker performing the job helps.'],
+      ['Train on it','Train the affected workers on the JHA and make sure they understand the process. Apply the hierarchy of controls when choosing mitigations.'],
+    ] },
+    { eyebrow:'When danger is immediate', title:'Act now, analyze after', cards:[
+      ['Immediate danger = immediate action','If you discover any hazard that poses an immediate danger to an employee’s life or health, take immediate action to protect the worker — don’t wait for the paperwork.'],
+      ['The goal','Remediation of uncontrolled hazards — ideally by eliminating them, or reducing them to an acceptable level.'],
+    ] },
+  ], quiz:[
+    { q:'During a JHA you discover a hazard posing an immediate danger to an employee’s life or health. What should you do?', options:['Note it for the next safety meeting','Take immediate action to protect the worker','Finish documenting the JHA before acting','Wait for an OSHA determination'], correct:1 },
+    { q:'Which of these is a required element of a JHA?', options:['A cost estimate for repairs','The names of local OSHA inspectors','Serial numbers of all equipment used','The consequence of the hazard'], correct:3 },
+  ] },
+
+  // ── 7. Lockout/Tagout ───────────────────────────────────────────────────
+  { id:'loto', title:'Lockout/Tagout', tagline:'Control hazardous energy before you put your body in the machine.', srcSlides:'95-115', slides:[
+    { theme:'dark', eyebrow:'Safety training · Lockout/Tagout', title:'Blocked energy can’t hurt you — stored energy can', body:'LOTO (29 CFR 1910.147, Control of Hazardous Energy) blocks the flow of energy from the power source to the equipment and provides a means of warning — the tag. It covers operators and service personnel and requires employee training.', prompt:'If it can start up unexpectedly, lock it out.' },
+    { eyebrow:'Energy and equipment', title:'What gets locked out', cards:[
+      ['Seven energy sources','Electricity, hydraulic, pneumatic, steam, thermal, chemical, and gravity.'],
+      ['Typical equipment','Presses, saws, conveyors, pumps, production equipment, trash compactors, and ovens.'],
+      ['Device requirements','Lockout devices — locks, blocks, chains, multilock hasps, wheel and ball valve covers — must be durable, standardized, substantial, and identifiable.'],
+    ] },
+    { eyebrow:'When it applies', title:'Required uses and exceptions', cards:[
+      ['LOTO is required when','Servicing or maintaining equipment where hazardous energy exists and unexpected start-up could occur; when employees remove or bypass a safety device; place any part of their body in harm’s way; or are exposed to hazardous energy.'],
+      ['LOTO exceptions','Work where hazardous energy does not exist, activities performed during routine production processes, work on cord-controlled devices, and hot tap operations where shutdown is not feasible.'],
+      ['The four-step procedure','Perform a shutdown, isolate the equipment, apply (and later remove) lockout devices, and safely release stored energy.'],
+    ] },
+    { eyebrow:'People', title:'Affected vs. authorized employees', cards:[
+      ['Affected employees','Operate, work around, or occasionally adjust equipment subject to LOTO. They notify maintenance when equipment needs repair, leave all LOTO devices in place, and verify equipment is safe to operate after LOTO.'],
+      ['Authorized employees','Maintain and service equipment and are trained to use LOTO. They lock out all energy sources, test to verify residual energy is dissipated, place a “Danger—Do Not Operate” tag, coordinate multi-shift repairs, and remove locks/tags when done.'],
+      ['Training frequency','Authorized employees: initially and at least annually. Affected employees: at least initially. Both: whenever jobs or procedures change, or when program deficiencies are noted.'],
+    ] },
+  ], quiz:[
+    { q:'How often must AUTHORIZED employees receive LOTO training?', options:['Initially and at least annually','Initially only','Once every five years','Only after an incident occurs'], correct:0 },
+    { q:'Which of these is an EXCEPTION where LOTO is not required?', options:['An employee must remove or bypass a safety device','Work on cord-controlled devices','An employee places part of their body in harm’s way','An employee is exposed to hazardous energy'], correct:1 },
+  ] },
+
+  // ── 8. OSHA Inspections & Incident Reporting ───────────────────────────
+  { id:'osha', title:'OSHA Inspections & Incident Reporting', tagline:'What to do when an inspector arrives — and when someone gets hurt.', srcSlides:'116-122', slides:[
+    { theme:'dark', eyebrow:'Safety training · OSHA & Reporting', title:'OSHA exists to protect workers — know the procedure', body:'OSHA is a regulatory federal agency put in place to protect workers. If a Compliance Officer arrives on your site, there is a defined sequence to follow — and if a coworker is injured, there is a defined way to report it.', prompt:'Calm, courteous, by the book.' },
+    { eyebrow:'When the officer arrives', title:'First steps of an inspection', cards:[
+      ['Verify and ask','Ask to see the Officer’s credentials and ask the reason for the inspection. If it’s the result of a written complaint, ask for a copy of it.'],
+      ['Call for backup','Contact your supervisor and Safety immediately and request one or both meet you at the site. You can ask the Officer to wait for Safety or management to arrive before starting.'],
+      ['Protect confidential information','Identify any trade secret, proprietary, or confidential information the Officer may be exposed to, and inform the Officer that OSHA must treat it confidentially.'],
+    ] },
+    { eyebrow:'During the inspection', title:'Manage and document', cards:[
+      ['Consider pausing work','If the work area is very active and violations could be spotted, consider shutting down operations during the inspection.'],
+      ['Document everything','The manager should document the Officer’s activities — who is interviewed, what equipment and areas are inspected, and what measurements or samples are taken.'],
+      ['Protect distraught employees','Management must intercede for employees who are distraught or physically unable to speak with OSHA — particularly after a fatality or catastrophic accident. No interviews until they are physically and emotionally able.'],
+    ] },
+    { eyebrow:'If you get hurt', title:'Reporting incidents and accidents', cards:[
+      ['Report up the chain','Report the injury through the proper chain of command and call the 1-800 number.'],
+      ['The 24/7 nurse','The 24/7 nurse line will guide the employee to where they can be seen for treatment.'],
+      ['ER for emergencies only','Go to the ER if — and only if — it is an emergency.'],
+    ] },
+  ], quiz:[
+    { q:'An OSHA Compliance Officer arrives at your site. What should you do first?', options:['Refuse entry until a company lawyer arrives','Begin correcting visible issues in front of the Officer','Ask to see the Officer’s credentials and the reason for the inspection','Send all employees home immediately'], correct:2 },
+    { q:'After a work injury, when should an employee be seen at the ER?', options:['Whenever it’s more convenient than the clinic','After the supervisor finishes the incident paperwork','Any time within 24 hours of the injury','Only during emergencies — otherwise the 24/7 nurse line directs care'], correct:3 },
+  ] },
+
+  // ── 9. Confined Spaces ──────────────────────────────────────────────────
+  { id:'confined', title:'Confined Spaces', tagline:'Trained entrants only — no exceptions, no partial roles.', srcSlides:'123-125', slides:[
+    { theme:'dark', eyebrow:'Safety training · Confined Spaces', title:'Confined spaces are only entered by trained employees', body:'All confined space entry at Goff Welding is performed by employees who have completed confined space training and are competent to recognize the specific hazards involved. We work in both permit-required and non-permit spaces.', prompt:'No training, no refresher — no role in the entry.' },
+    { eyebrow:'Hazard mitigation', title:'Controls that apply to every entry', cards:[
+      ['Permit or not, control it','Whether the space is permit-required or non-permit, hazard mitigation must be applied when making entry.'],
+      ['The five methods','Traffic control, air monitoring, ventilation, fall protection, and water removal are all mitigation methods that need to be applied to confined space entry.'],
+    ] },
+    { eyebrow:'Training rules', title:'What “no active role” means', cards:[
+      ['Annual refresher required','If you haven’t completed confined space training or the annual refresher, you cannot have an active role in the entry.'],
+      ['Specifically, you cannot','Use the sniffers (air monitors), serve as the attendant, serve as the entry supervisor, or place any part of your body into the space.'],
+    ] },
+  ], quiz:[
+    { q:'You haven’t completed the annual confined-space refresher. Which role may you fill during an entry?', options:['None — you cannot have an active role in the entry','Attendant only','Air-monitor (sniffer) operator only','Entry supervisor only'], correct:0 },
+    { q:'Goff Welding performs confined-space work in…', options:['Non-permit spaces only','Both permit-required and non-permit spaces','Permit-required spaces only','No confined spaces — that work is subcontracted'], correct:1 },
+  ] },
+
+  // ── 10. Respirable Silica & Respirators ────────────────────────────────
+  { id:'silica', title:'Respirable Silica & Respirators', tagline:'Silicosis is preventable — and incurable. Keep the dust wet.', srcSlides:'126-141', slides:[
+    { theme:'dark', eyebrow:'Safety training · Respirable Silica', title:'Once silica is in your lungs, it never comes out', body:'Cutting construction materials creates respirable crystalline silica — particles that travel deep into the lungs and cause silicosis, plus lung cancer, respiratory and pulmonary disease, and kidney disease (OSHA 29 CFR 1926.1153). Silicosis is preventable, but it is cumulative, incurable, and always deadly.', prompt:'There is a test on this section.' },
+    { eyebrow:'The disease', title:'Three stages of silicosis', cards:[
+      ['Chronic','Appears after LOW concentration levels within 10 years of exposure. Most cases result from years of exposure.'],
+      ['Accelerated','Develops after 5 to 10 years of HIGH concentration levels.'],
+      ['Acute','Develops within the first weeks to 5 years of VERY HIGH concentration.'],
+      ['Enforcement history','OSHA set standards in 1971; the 2013 final rule declared silicosis a disease; enforcement began June 23, 2018.'],
+    ] },
+    { eyebrow:'Exposure limits & Table 1', title:'How small is too much', cards:[
+      ['The exposure standard','25 micrograms per 4 hours of exposure; 50 micrograms per 8 hours. A microgram is one millionth of a gram — silica dust is smaller than fine beach sand, a human hair, or a dust particle.'],
+      ['Control Method Table 1','Table 1 matches 18 common construction tasks with effective dust controls: using water to keep dust out of the air, OR a vacuum dust collection system to capture it. The alternative is measuring exposure against the PEL and choosing controls independently.'],
+    ] },
+    { eyebrow:'The wet method', title:'Water on the blade, slurry swept wet', cards:[
+      ['Integral water delivery','Water must be delivered integrally — a continuous spray directly onto the blade via a built-in fitting. That is what makes it OSHA compliant. Handheld and walk-behind concrete saws use integral delivery; drills use a wand or hose; cinder-block core drilling uses HEPA vacuum with tool attachment.'],
+      ['Slurry cleanup','The remaining slurry is still potentially hazardous and must be swept up while wet, then either bagged in garbage bags for disposal at the shop OR mixed with the soil when excavating so it can’t become airborne.'],
+      ['Paperwork every time','Foreman and crew perform a JHA identifying silica, barricade the area with stanchions and yellow-and-black caution tape, and a Silica Control Form is filled out every time silica-bearing dust will be generated.'],
+    ] },
+    { eyebrow:'Respirators', title:'APF ratings — what the numbers mean', cards:[
+      ['APF 10 disposable masks','Air-purifying disposable particulate masks provide APF 10 protection, as required by the OSHA silica standard. APF 10 means no more than one-tenth of the contaminants leak into the mask.'],
+      ['Higher protection','Supplied-air respirators deliver clean air from an uncontaminated source; APF 25 masks and full-face respirators (APF 50) exceed the OSHA minimum but require fit testing.'],
+    ] },
+  ], quiz:[
+    { q:'OSHA’s silica exposure standard for an 8-hour exposure is…', options:['50 micrograms per 4 hours','25 micrograms per 8 hours','100 micrograms per 8 hours','50 micrograms per 8 hours'], correct:3 },
+    { q:'Accelerated silicosis develops after…', options:['A single day of exposure','More than 10 years of low concentration exposure','5 to 10 years of high concentration levels','Only genetic predisposition, not exposure time'], correct:2 },
+  ] },
+
+  // ── 11. Lead Exposure ───────────────────────────────────────────────────
+  { id:'lead', title:'Lead Exposure', tagline:'Crimpers, not power tools — keep lead off your hands and out of the air.', srcSlides:'142-148', slides:[
+    { theme:'dark', eyebrow:'Safety training · Lead Exposure', title:'Lead damage is slow, silent, and irreversible', body:'Lead enters the body by inhalation and ingestion. Stored in tissue, it slowly and irreversibly damages cells, bone marrow, red blood cells, kidneys, and the neurological system — it causes birth defects, affects male and female fertility, and causes permanent developmental damage to children.', prompt:'You won’t feel the exposure. You’ll live with the damage.' },
+    { eyebrow:'Where you meet it', title:'Exposure activities and covered work', cards:[
+      ['Activities that expose you','Abrasive blasting, sanding, scraping, cutting wire, burning, welding, and painting.'],
+      ['OSHA’s construction lead standard','Applies to demolition or salvage where lead is present, removal or encapsulation of lead materials, new construction/alteration/repair/renovation with lead, installation of lead products, emergency cleanup, and transport, disposal, storage, or containment of lead.'],
+    ] },
+    { eyebrow:'Goff best practices', title:'Lead abatement rules in the field', cards:[
+      ['Gloves and hygiene','Wear nitrile disposable gloves. Remove them and wash hands thoroughly before eating, drinking, using tobacco products, or touching your face.'],
+      ['Never power tools','Never cut lead products with power tools — always use crimpers. This prevents the lead from becoming airborne.'],
+      ['What abatement means','Abatement is simply the safe removal of lead-containing products, following OSHA guidelines to prevent overexposure or cross-contamination.'],
+    ] },
+  ], quiz:[
+    { q:'How should lead products be cut during abatement?', options:['With crimpers — never with power tools','With a power saw while wearing a dust mask','With a cutting torch, outdoors only','With any tool, as long as nitrile gloves are worn'], correct:0 },
+    { q:'Lead enters the body by…', options:['Absorption through unbroken skin only','Radiation from the metal','Eye contact only','Inhalation and ingestion'], correct:3 },
+  ] },
+
+  // ── 12. Heat Illness Prevention ─────────────────────────────────────────
+  { id:'heat', title:'Heat Illness Prevention', tagline:'Water, shade, rest — with hard numbers behind each one.', srcSlides:'149-155', slides:[
+    { theme:'dark', eyebrow:'Safety training · Heat Illness Prevention', title:'Heat illness is prevented by the quart, the degree, and the minute', body:'Heat illness prevention isn’t a suggestion — it comes with specific numbers for water, shade, rest breaks, and supervision. If an employee shows signs or reports symptoms of heat illness, emergency response procedures kick in immediately.', prompt:'Hydrate before you feel thirsty.' },
+    { eyebrow:'Water', title:'One quart, per employee, per hour', cards:[
+      ['The provision','At least one quart per employee per hour — fresh, pure, and suitably cool (cooler than the outside temperature, but not so cool it causes discomfort), as close as practicable to the work area.'],
+      ['What doesn’t count','Handing each employee a mug to fill daily is NOT compliant.'],
+    ] },
+    { eyebrow:'Shade & rest', title:'Shade at 80 degrees', cards:[
+      ['When and how much','Shade must be present when the temperature exceeds 80°F — enough to accommodate all employees on rest, recovery, and meal breaks, as close as practicable to the work areas.'],
+      ['Cool-down breaks','Employees are encouraged to take preventative cool-down rest breaks in the shade whenever they feel the need, staying until symptoms abate — no less than 5 minutes — while the employer closely monitors them.'],
+      ['Alternatives frowned upon','Measures like misting machines may substitute for shade (never in agriculture), but OSHA inspectors frown on them — the recommendation is: don’t use them.'],
+    ] },
+    { eyebrow:'High heat', title:'High-heat procedures at 95 degrees', cards:[
+      ['Observation','Direct supervision of 20 or fewer employees (a ratio over 1:20 is non-compliance), a mandatory daily buddy system, regular communication with sole employees, or other effective means — plus communication by voice, observation, or mobile phone.'],
+      ['Preparation','Designate authorized employees at each site to contact emergency medical services, and hold pre-shift meetings to review high-heat procedures, remind everyone to drink plenty of water, and take cool-down breaks whenever necessary.'],
+      ['Agriculture extra','Agricultural employees get additional requirements, such as a 10-minute break every two hours.'],
+    ] },
+  ], quiz:[
+    { q:'How much drinking water must be provided to employees?', options:['One gallon per employee per day','At least one quart per employee per hour','A personal mug each employee fills daily','One liter per crew per hour'], correct:1 },
+    { q:'High-heat procedures apply at what temperature, and what is the maximum direct-supervision ratio?', options:['80°F and 1 supervisor per 10 employees','90°F and 1 per 25','95°F and 1 per 20','100°F and 1 per 50'], correct:2 },
+  ] },
+
+  // ── 13. Ladder Safety ───────────────────────────────────────────────────
+  { id:'ladders', title:'Ladder Safety', tagline:'69% of fatal ladder falls happen at 10 feet or less.', srcSlides:'156-172', slides:[
+    { theme:'dark', eyebrow:'Safety training · Ladder Safety', title:'Over 300 ladder deaths a year — most from 10 feet or less', body:'Annual ladder fatalities top 300, and 69% of fatal falls happen at 10 feet or less. More than 164,000 people are treated in emergency rooms for ladder-related fall injuries. The three most common causes: wrong ladder used, ladder in poor condition, ladder used improperly.', prompt:'The right ladder, inspected, set up right.' },
+    { eyebrow:'Choosing & inspecting', title:'Duty ratings and inspection points', cards:[
+      ['Know the duty rating','Type I-A: heavy duty, up to 300 lbs. Type I: up to 250 lbs. Type II: 225 lbs. Type III: light duty only, up to 200 lbs.'],
+      ['Inspect before use','Steps/rungs, side rails, metal parts, rope, locking devices, splinters and sharp edges, safety feet, and dents.'],
+      ['Tag defective ladders','Defective ladders must be properly tagged “Do Not Use.” Read, understand, and follow ALL warning stickers.'],
+    ] },
+    { eyebrow:'Step ladders', title:'Set level, latches down, stay low', cards:[
+      ['Setup','Always set the ladder level and make sure the latches are down.'],
+      ['Where not to stand','Never stand on the step below the top step — stay off the top two steps. Never climb the back side of a folding ladder unless it’s designed for that.'],
+      ['Don’t lean','Avoid excessive stretching or leaning. Never work with one leg on the ladder and one off — a slip could mean a serious fall.'],
+    ] },
+    { eyebrow:'Extension ladders', title:'Face it, hold it, extend it 3 feet', cards:[
+      ['Working position','Always face the ladder, keep one hand on it for hold, work within easy reach, and do not work on the top four steps.'],
+      ['Above the landing','Access ladders must extend at least 3 feet above the landing platform.'],
+      ['Near electrical','Use non-conductive ladders, never carry or move an extension ladder while extended, and get help moving ladders to maintain control.'],
+    ] },
+  ], quiz:[
+    { q:'What percentage of fatal ladder falls happen at 10 feet or less?', options:['9%','25%','45%','69%'], correct:3 },
+    { q:'An access ladder must extend how far above the landing platform?', options:['It doesn’t need to extend above the platform','1 foot','At least 3 feet','At least 6 feet'], correct:2 },
+  ] },
+
+  // ── 14. Hand & Power Tool Safety ───────────────────────────────────────
+  { id:'tools', title:'Hand & Power Tool Safety', tagline:'Unsafe tools are prohibited — by regulation and by common sense.', srcSlides:'173-184', slides:[
+    { theme:'dark', eyebrow:'Safety training · Hand & Power Tools', title:'Employers shall not issue or permit unsafe tools', body:'That’s OSHA 1926.301(a) verbatim. Wrenches with sprung jaws that slip, impact tools with mushroomed heads, and wooden handles with splinters or cracks are all prohibited from use.', prompt:'If a tool is damaged, it comes out of service — today.' },
+    { eyebrow:'Hand tools', title:'Condition and handling rules', cards:[
+      ['The 1926.301 checklist','No sprung wrench jaws (adjustable, pipe, end, or socket). Drift pins, wedges, and chisels kept free of mushroomed heads. Wooden handles free of splinters and cracks, and tight in the tool.'],
+      ['Buy and maintain quality','Cutters and hammers should be steel and heat-treated. Inspect regularly, maintain per the manufacturer’s instructions, and use the right tool for the job.'],
+      ['Carry them right','Never carry tools up a ladder by hand — hoist them in a bucket or bag. Never carry pointed tools in your pocket; use a toolbox or cart. At heights, never leave tools where they could fall on workers below.'],
+    ] },
+    { eyebrow:'Electric power tools', title:'Grounded, insulated, dry', cards:[
+      ['1926.302 basics','Electric tools must be double-insulated or grounded per Subpart K. Electric cords may never be used for hoisting or lowering tools — and never carry a power tool by its cord.'],
+      ['Damaged = out of service','Remove tools with damaged cords (exposed wires, missing ground, or other defects) from service. Don’t use electric tools in wet conditions unless approved for it, and use a ground fault circuit interrupter.'],
+      ['Grinders','Grinding machines need enough power to keep spindle speed at safe levels and safety guards per ANSI B7.1-1970. Select a wheel approved for the grinder’s RPMs and check it for cracks or defects before each use.'],
+    ] },
+    { eyebrow:'Pneumatic tools', title:'Compressed air rules', cards:[
+      ['Never point it','Never point a compressed air gun at yourself or another person, and verify all parts are fastened securely before use.'],
+      ['30 psi for cleaning','When cleaning with high-pressure compressed air, use a chip guard and limit nozzle pressure to 30 pounds per square inch. Use screens to protect nearby workers from flying fragments — and always wear eye protection.'],
+      ['Depressurize first','When finished, make sure the pressure is released before breaking hose connections, and use a safety clip or retainer to keep attachments from being ejected during operation.'],
+    ] },
+  ], quiz:[
+    { q:'When using high-pressure compressed air for cleaning, nozzle pressure must be limited to…', options:['90 psi','30 psi','60 psi','120 psi'], correct:1 },
+    { q:'What is the correct way to get tools up a ladder?', options:['Carry them by hand, one at a time','Carry them in your pockets','Hoist them from the ground in a bucket or bag','Lower them from above by their power cords'], correct:2 },
+  ] },
+
+];
+
+// SECTIONS: 14 courses, 28 quiz questions
+// UNPLACEABLE: slides 12-22 announce topics (Emergency Response, PPE, Hot Work, Compressed Gas, Fall Protection, Walking/Working Surfaces, Rigging, Bloodborne Pathogens, Noise Exposure) with zero body content anywhere in the deck — no courses could be built for them; slide 23 (Emergency Escape Plan) likewise title-only; slides 1-4 welcome/policy content was folded into the SWA opener.
+
+// Goff-specific site content the BBSI deck doesn't cover — assembly point,
+// WorkMed, near-miss path, SDS location. Sourced from Goff's V3 handbook + FAQ.
+const GOFF_SITE_COURSE = { id:'goffsite', title:'Goff Site Basics: Emergencies & Reporting', tagline:'Assembly point, WorkMed, near-miss reporting — the Goff-specific essentials.', srcSlides:'Goff V3 handbook + FAQ', slides:[
+  { theme:'dark', eyebrow:'Safety training · Goff site basics', title:'Know YOUR shop', body:'The BBSI training covers the science; this section covers Goff\u2019s ground truth \u2014 where to go, who to call, and how to report at the Paul, Idaho shop.', prompt:'When the alarm sounds, leave promptly \u2014 do not wait to see if it is \u201creal.\u201d' },
+  { eyebrow:'Emergencies', title:'Where to go, who to call', cards:[
+    ['Assembly point','The Evacuation Assembly Point is the northeast side of the Main Office building parking lot. Report anyone still inside to the Evacuation Management Team at the exits.'],
+    ['If you are injured','Report to your supervisor immediately \u2014 even minor injuries. Serious injury: dial 9-1-1 and/or have a supervisor transport to the hospital / WorkMed facility.'],
+    ['Emergency plans','Evacuation plans are posted at every exit. Learn the exits, fire extinguishers, and first aid locations in your area.'],
+  ] },
+  { eyebrow:'Reporting', title:'Paper trails that prevent injuries', cards:[
+    ['Near miss','A situation that could have caused injury or damage. Submit the Near Miss Incident Report in Company Links \u2014 or use the Safety and Suggestion Box at the north entrance of the east shops.'],
+    ['Hazards & damage','Unsafe condition: stop and report immediately. Equipment or property damage: Company Damage Report in Company Links.'],
+    ['SDS binder','Safety Data Sheets for every chemical live in the Receiving / Parts Department office, available during all work hours.'],
+  ] },
+], quiz:[
+  { q:'Where is the Evacuation Assembly Point?', options:['Northeast side of the Main Office building parking lot','The breakroom in the west shops','The parts room','Wherever your truck is parked'], correct:0 },
+  { q:'You have a near miss \u2014 nobody hurt, nothing damaged. What do you do?', options:['Shake it off and keep working','Only report it if equipment was damaged','Submit the Near Miss Incident Report in Company Links (or use the Suggestion Box)','Mention it at the next monthly meeting'], correct:2 },
+] };
+
+// Final safety course list: Goff site basics first, then Dale/BBSI topics.
+// Each course's quiz questions register as knowledge checks and become a
+// gated final slide, so the shared player enforces answer-before-complete.
+const SAFETY_COURSES = [GOFF_SITE_COURSE, ...SAFETY_COURSES_DRAFT].map(c => {
+  const ids = (c.quiz || []).map((q, i) => { const id = `skc-${c.id}-${i}`; KNOWLEDGE_CHECKS[id] = q; return id; });
+  const slides = ids.length ? [...c.slides, { eyebrow:`Knowledge check \u00b7 ${c.title}`, title:'Show us you caught it', body:'Answer to complete this section. Wrong answers allow retries \u2014 retries are tracked on your training record.', quiz: ids }] : c.slides;
+  return Object.assign({}, c, { slides, required:'Training section' });
+});
+
+// --- Shared course player (policies + safety training) ---
+let courseOpenSet = null;   // 'policy' | 'safety'
+let courseOpenId = null;
+let courseSlidePos = (() => { try { return JSON.parse(safeGetEarly('goffCourseSlidesV2') || '{}'); } catch(_) { return {}; } })();
+function courseListFor(set){ return set === 'safety' ? SAFETY_COURSES : POLICY_COURSES; }
+function coursePrefix(set){ return set === 'safety' ? 'safecourse' : 'polcourse'; }
+function courseMenuSel(set){ return set === 'safety' ? '.safety-courses' : '.policy-courses'; }
+function openCourse(set, id){ courseOpenSet = set; courseOpenId = id; render(); scrollToEl('.slide-canvas'); }
+function closeCourse(){ const sel = courseMenuSel(courseOpenSet); courseOpenSet = null; courseOpenId = null; render(); scrollToEl(sel); }
+function setCoursePos(set, id, i){ const c = courseListFor(set).find(x=>x.id===id); if(!c) return; courseSlidePos[`${set}:${id}`] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffCourseSlidesV2', JSON.stringify(courseSlidePos)); render(); scrollToSlide(); }
+function finishCourse(set, id){ completed[`${coursePrefix(set)}-${id}`] = true; save(); const sel = courseMenuSel(set); courseOpenSet = null; courseOpenId = null; render(); scrollToEl(sel); }
+function openPolicyCourse(id){ openCourse('policy', id); }
 function slideQuizGated(item){ return !!(item && item.quiz && !item.quiz.every(id => kcState[id]?.correct)); }
-function policyCourseComplete(c){ return completed[`polcourse-${c.id}`] === true; }
-function policyCourseStatus(c){ if(policyCourseComplete(c)) return 'Complete'; if((policySlideIdx[c.id]||0) > 0) return 'In progress'; return 'Not started'; }
-function allPolicyCoursesDone(){ return POLICY_COURSES.every(policyCourseComplete); }
-function policyCoursePlayer(c){
-  const idx = policySlideIdx[c.id] || 0;
+function courseComplete(set, c){ return completed[`${coursePrefix(set)}-${c.id}`] === true; }
+function policyCourseComplete(c){ return courseComplete('policy', c); }
+function courseStatus(set, c){ if(courseComplete(set, c)) return 'Complete'; if((courseSlidePos[`${set}:${c.id}`]||0) > 0) return 'In progress'; return 'Not started'; }
+function policyCourseStatus(c){ return courseStatus('policy', c); }
+function allPolicyCoursesDone(){ return POLICY_COURSES.every(c => courseComplete('policy', c)); }
+function allSafetyCoursesDone(){ return SAFETY_COURSES.every(c => courseComplete('safety', c)); }
+function coursePlayer(set, c){
+  const idx = courseSlidePos[`${set}:${c.id}`] || 0;
   const item = c.slides[idx];
   const gated = slideQuizGated(item);
   const last = idx === c.slides.length - 1;
-  const signs = /Sign/.test(c.required);
-  // Signature/acknowledgement lives at the END of the presentation, unlocked
-  // only after every slide's questions are answered — never a page-bottom shortcut.
+  const isPolicy = set === 'policy';
+  const signs = isPolicy && /Sign/.test(c.required);
+  const isDone = courseComplete(set, c);
+  // Completion lives at the END of the presentation, unlocked only after every
+  // slide's questions are answered — never a page-bottom shortcut.
   const allQuizzesDone = c.slides.every(s => !slideQuizGated(s));
-  const ackPanel = last && allQuizzesDone && !policyCourseComplete(c)
-    ? `<div class="ack-box course-ack"><h3>${signs?'Sign to complete this policy':'Acknowledge to complete this policy'}</h3><p>I acknowledge that I have received, read, and understand the ${esc(c.title)} and agree to comply with its terms.</p><div class="admin-actions"><button class="complete-btn done" onclick="finishPolicyCourse('${c.id}')">${signs?'Sign & complete ✓':'Acknowledge & complete ✓'}</button></div><p class="note" style="margin-top:10px"><strong>Production note:</strong> this captures your signature and completion date on your employee record.</p></div>`
+  const finishCall = `finishCourse('${set}','${c.id}')`;
+  const ackPanel = last && allQuizzesDone && !isDone
+    ? (isPolicy
+      ? `<div class="ack-box course-ack"><h3>${signs?'Sign to complete this policy':'Acknowledge to complete this policy'}</h3><p>I acknowledge that I have received, read, and understand the ${esc(c.title)} and agree to comply with its terms.</p><div class="admin-actions"><button class="complete-btn done" onclick="${finishCall}">${signs?'Sign & complete ✓':'Acknowledge & complete ✓'}</button></div><p class="note" style="margin-top:10px"><strong>Production note:</strong> this captures your signature and completion date on your employee record.</p></div>`
+      : `<div class="ack-box course-ack"><h3>Section complete</h3><p>You’ve covered ${esc(c.title)} and answered its knowledge checks. This completion is tracked on your safety training record.</p><div class="admin-actions"><button class="complete-btn done" onclick="${finishCall}">Complete section ✓</button></div></div>`)
     : '';
-  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">Policy course • ${esc(c.required)}</p><h2>${esc(c.title)}</h2><p>Slide ${idx+1} of ${c.slides.length} • ${esc(c.tagline)}</p></div><button class="secondary" onclick="closePolicyCourse()">← All policies</button></div>
+  const backLabel = isPolicy ? '← All policies' : '← All safety sections';
+  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">${isPolicy?'Policy course':'Safety training'} • ${esc(c.required || 'Training section')}</p><h2>${esc(c.title)}</h2><p>Slide ${idx+1} of ${c.slides.length} • ${esc(c.tagline)}</p></div><button class="secondary" onclick="closeCourse()">${backLabel}</button></div>
   ${courseSlideCanvas(item)}
-  <div class="course-actions"><button class="secondary" onclick="setPolicySlide('${c.id}',${idx-1})" ${idx===0?'disabled':''}>← Previous</button>${last
-    ? (policyCourseComplete(c) ? `<button class="complete-btn done" disabled>Completed ✓</button>` : !allQuizzesDone ? `<button class="complete-btn" disabled title="Answer every question in this course first">Answer the questions in this course</button>` : `<button class="complete-btn" disabled title="Sign below">${signs?'Sign below to complete ↓':'Acknowledge below to complete ↓'}</button>`)
-    : `<button ${gated?'disabled title="Answer the questions above to continue"':''} onclick="setPolicySlide('${c.id}',${idx+1})">${gated?'Answer to continue':'Next →'}</button>`}</div>
+  <div class="course-actions"><button class="secondary" onclick="setCoursePos('${set}','${c.id}',${idx-1})" ${idx===0?'disabled':''}>← Previous</button>${last
+    ? (isDone ? `<button class="complete-btn done" disabled>Completed ✓</button>` : !allQuizzesDone ? `<button class="complete-btn" disabled title="Answer every question in this course first">Answer the questions in this course</button>` : `<button class="complete-btn" disabled title="Complete below">${signs?'Sign below to complete ↓':'Complete below ↓'}</button>`)
+    : `<button ${gated?'disabled title="Answer the questions above to continue"':''} onclick="setCoursePos('${set}','${c.id}',${idx+1})">${gated?'Answer to continue':'Next →'}</button>`}</div>
   ${ackPanel}
-  <div class="course-rail">${c.slides.map((s,i)=>`<button class="rail-dot ${i===idx?'active':''}" onclick="setPolicySlide('${c.id}',${i})" title="Slide ${i+1}">${i+1}</button>`).join('')}</div></section>`;
+  <div class="course-rail">${c.slides.map((s,i)=>`<button class="rail-dot ${i===idx?'active':''}" onclick="setCoursePos('${set}','${c.id}',${i})" title="Slide ${i+1}">${i+1}</button>`).join('')}</div></section>`;
+}
+function courseMenuCards(set){
+  const list = courseListFor(set);
+  return list.map((c,i)=>{
+    const status = courseStatus(set, c);
+    const isDone = status==='Complete';
+    return `<button class="policy-course-card ${isDone?'done':''}" onclick="openCourse('${set}','${c.id}')"><div class="pcc-top"><span class="pcc-num">${isDone?'✓':i+1}</span><em>${esc(c.required || 'Training')}</em></div><b>${esc(c.title)}</b><p>${esc(c.tagline)}</p><small class="pcc-status ${status==='In progress'?'prog':''} ${isDone?'ok':''}">${esc(status)} • ${c.slides.length} slides</small></button>`;
+  }).join('');
 }
 function policiesSection(){
-  if(policyCourseOpen){
-    const c = POLICY_COURSES.find(x=>x.id===policyCourseOpen);
-    if(c) return policyCoursePlayer(c);
+  if(courseOpenSet === 'policy' && courseOpenId){
+    const c = POLICY_COURSES.find(x=>x.id===courseOpenId);
+    if(c) return coursePlayer('policy', c);
   }
-  const p = pageContent.policies;
   const doneCount = POLICY_COURSES.filter(policyCourseComplete).length;
   return `<section class="panel doc-page"><p class="eyebrow">Step 2 • Policies &amp; acknowledgements</p><h2>The rules of working at Goff</h2><p class="summary">Each policy below is a short course — a few slides that explain the actual rules, a couple of questions to prove you caught them, and your acknowledgement at the end. ${doneCount} of ${POLICY_COURSES.length} complete. Take them in any order; the ones marked “Sign” become part of your signed employee record.</p>
-  <div class="policy-courses">${POLICY_COURSES.map((c,i)=>{
-    const status = policyCourseStatus(c);
-    const isDone = status==='Complete';
-    return `<button class="policy-course-card ${isDone?'done':''}" onclick="openPolicyCourse('${c.id}')"><div class="pcc-top"><span class="pcc-num">${isDone?'✓':i+1}</span><em>${esc(c.required)}</em></div><b>${esc(c.title)}</b><p>${esc(c.tagline)}</p><small class="pcc-status ${status==='In progress'?'prog':''} ${isDone?'ok':''}">${esc(status)} • ${c.slides.length} slides</small></button>`;
-  }).join('')}</div>
+  <div class="policy-courses">${courseMenuCards('policy')}</div>
   ${allPolicyCoursesDone()?`<div class="ack-box"><h3>All policies acknowledged ✓</h3><p>Every policy course is complete. In production, your signatures and completion dates are stored on your employee record and visible to HR.</p></div>`:''}</section>`;
 }
 
@@ -1056,7 +1388,7 @@ const phaseOneStatus = [
   { area:'Employee home', status:'Cleaned up', detail:'Employee sees a direct first-day path, not a build explanation.' },
   { area:'Orientation (restructured per July 1 call)', status:'Rebuilt — review wording', detail:'Now the 30,000-foot view Austin asked for: native, phone-friendly company/culture content ending in a 4-question check. Specific safety and policy detail pulled out into their own sections. The designed deck’s content carried over; the slide images are preserved.' },
   { area:'Onboarding path', status:'5 steps — confirming BBSI sequencing with Quinton', detail:'Orientation → Policies & acknowledgements → Safety Training → Work basics (ExakTime) → Supervisor handoff. Policy acknowledgement was content without a step — now it is step 2 and completes only when every policy check is answered. BBSI stays out of the path: its paperwork finishes before day one (that is what clears a hire to start); the BBSI page remains as a paystubs/taxes reference.' },
-  { area:'Safety Training (separate section)', status:'8 of 10–15 sections built', detail:'Sections with real tappable knowledge checks + the V3 pass/fail quiz and acknowledgement. Remaining sections slot in as Dale/BBSI deliver material.' },
+  { area:'Safety Training (separate section)', status:'15 slide courses from Dale’s 2026 deck', detail:'Dale/BBSI’s 184-slide New Hire Safety Orientation (received July 2) is now 14 slide courses — SWA, Fire & Extinguishers, Electrical, HazCom/GHS, SDS, JHA, LOTO, OSHA & incident reporting, Confined Spaces, Silica/Respirators, Lead, Heat Illness, Ladders, Hand & Power Tools — plus a Goff Site Basics course, each with knowledge checks, ending in the V3 pass/fail quiz. NOTE for Dale: the deck’s Emergency Response, PPE, Hot Work, Compressed Gas, Fall Protection, Rigging, Bloodborne, and Noise slides are title-only with no teaching content yet; shown as placeholders. His draft notes (“add Austin welcome video,” “core values??????”) were caught and excluded.' },
   { area:'Policy courses', status:'12 full courses built', detail:'Every policy is now its own slide presentation authored from the actual document: handbook, drug & alcohol (all 5 testing types), vehicle (48-hour rule, on-call), vacation (accrual rates, 1.5× cap), attendance (5 occurrences, 1-hour rule), hard hat (color system), NDA, anti-gossip, apparel (30-day deduction), video release, per diem, timecards. Checks gate each course; finishing records the acknowledgement. AI agent hookup is Phase 2.' },
   { area:'Knowledge-check tracking', status:'Working now', detail:'Every check records attempts — first-try vs second-guessing — exactly the click-click-click problem Austin flagged in the PPT version. Manager assign-retraining and yearly 5-section refresher are designed in, activate with the database.' },
   { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling — now 7', detail:'(1) Mission/vision wording exists in THREE versions: welcome packet, onboarding deck (“Mountain West”), and New Hire Checklist welcome (“our region”). Deck version currently shown. (2) Always-on PPE: deck says glasses + steel-toe; V3 safety handbook says glasses + hearing protection — portal shows the union. (3) Vehicle Policy docx says on-call runs through “ADP”; the PDF says Exak — portal says “the time app.” (4) Time-off requests: FAQ says the ExakTime app; Unexcused Absences policy says a “Request Days Off” form. (5) VACATION ACCRUAL: the standalone Vacation Policy says hourly weekly accrual (0.77/1.54/2.31 hrs) with a 1.5× carryover cap; the handbook (rev 3/2025) says 5/10/15 days per year with different carryover language. Portal teaches the standalone policy. (6) INSURANCE ELIGIBILITY: New Hire Checklist says after 60 days; handbook says Sterling membership after 3 months. (7) DRESS CODE: the handbook prohibits T-shirts and jeans as inappropriate attire — while the apparel program issues every new hire five Goff T-shirts. Handbook dress code likely template language needing a Goff rewrite.' },
@@ -1182,7 +1514,7 @@ function startSection(){
     ['policies','Policies & acknowledgements','Complete each policy course — real rules, real questions, acknowledgement at the end.','Continue',
       () => allPolicyCoursesDone()],
     ['safety','Safety training','Work through the safety sections and pass the quiz before hands-on work.','Continue',
-      () => SAFETY_SECTIONS.every(safetySectionDone) && quizScore()===SAFETY_QUIZ.length],
+      () => allSafetyCoursesDone() && quizScore()===SAFETY_QUIZ.length],
     ['exaktime','Learn work basics','Set up ExakTime, learn to clock in, and handle timecards the Goff way.','Continue',
       () => completed['path-exaktime'] === true],
     ['handoff','Meet with your supervisor','Review role expectations, tools/PPE, first assignment, and open questions.','Finish',
@@ -1307,23 +1639,20 @@ function resetQuiz(){ quizAnswers = {}; safeSet('goffSafetyQuizV3', '{}'); rende
 function quizScore(){ return SAFETY_QUIZ.reduce((n,item,i)=> n + (quizAnswers[i] === item.a ? 1 : 0), 0); }
 function quizAnsweredCount(){ return SAFETY_QUIZ.reduce((n,_,i)=> n + (typeof quizAnswers[i] === 'boolean' ? 1 : 0), 0); }
 function safetySection(){
+  if(courseOpenSet === 'safety' && courseOpenId){
+    const c = SAFETY_COURSES.find(x=>x.id===courseOpenId);
+    if(c) return coursePlayer('safety', c);
+  }
   const p = pageContent.safety;
   const answered = quizAnsweredCount();
   const score = quizScore();
   const done = answered === SAFETY_QUIZ.length;
   const passed = done && score === SAFETY_QUIZ.length;
-  const sectionsDone = SAFETY_SECTIONS.filter(safetySectionDone).length;
-  return `<section class="panel doc-page"><p class="eyebrow">Safety Training — separate from orientation, per Austin</p><h2>Safety training sections</h2><p class="summary">Work through each section, then answer its knowledge check. ${sectionsDone} of ${SAFETY_SECTIONS.length} sections complete. Goff plans 10–15 sections total (~15 minutes each) — the remaining sections arrive as Dale and BBSI’s safety team deliver material. The pass/fail quiz at the bottom completes your safety record.</p>
-  <div class="safety-sections">${SAFETY_SECTIONS.map((s,i)=>{
-    const isDone = safetySectionDone(s);
-    const read = completed[`safesec-${s.id}`];
-    return `<details class="safety-sec ${isDone?'done':''}" ${!isDone && (i===0 || safetySectionDone(SAFETY_SECTIONS[i-1]||{}))?'open':''}><summary><span class="sec-num">${isDone?'✓':i+1}</span>${esc(s.title)}<em>${isDone?'Complete':s.kc?'Reading + knowledge check':'Reading'}</em></summary>
-    <div class="doc-blocks">${s.cards.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>
-    <div class="admin-actions" style="margin-top:12px"><button class="${read?'secondary':''}" onclick="toggleSafetySection('${s.id}')">${read?'Marked as read ✓':'Mark section as read'}</button></div>
-    ${s.kc ? kcCard(s.kc, `Knowledge check · Section ${i+1}`) : ''}</details>`;
-  }).join('')}
-  <article class="safety-sec placeholder"><span class="sec-num">…</span><div><b>Sections ${SAFETY_SECTIONS.length+1}–15 reserved</b><p>Dale and BBSI’s safety team are gathering additional topics and teaching material. As it arrives, each topic becomes a section here — same format, same tracking.</p></div></article></div></section>
-  <section class="panel quiz-panel"><p class="eyebrow">Pass/fail quiz — from Goff’s Safety Training &amp; Quiz V3, pending Dale’s pass rule</p><h2>Safety training quiz</h2><p class="summary">These 10 true/false questions are taken directly from Goff’s current New Employee Safety Training handbook. Answer all 10. In production, results save to your employee record and route to HR/Safety; in this review version they save to this device.</p>
+  const coursesDone = SAFETY_COURSES.filter(c=>courseComplete('safety',c)).length;
+  return `<section class="panel doc-page"><p class="eyebrow">Step 3 • Safety training — built from Dale/BBSI’s 2026 New Hire Safety Orientation</p><h2>Safety training sections</h2><p class="summary">${coursesDone} of ${SAFETY_COURSES.length} sections complete. Each section is a short slide course with knowledge checks — this is the “10–15 sections” structure Austin described, filled with Dale’s actual 2026 material. Work through them all, then pass the final quiz below to complete your safety record.</p>
+  <div class="policy-courses safety-courses">${courseMenuCards('safety')}</div>
+  <article class="safety-sec placeholder" style="margin-top:16px"><span class="sec-num">…</span><div><b>More coming from Dale/BBSI</b><p>The 2026 deck reserves placeholders for Emergency Response, PPE, Hot Work, Compressed Gas, Fall Protection, Walking/Working Surfaces, Rigging, Bloodborne Pathogens, and Noise Exposure — titled but no teaching material yet. As Dale’s content arrives, each becomes a section here in the same format.</p></div></article></section>
+  <section class="panel quiz-panel"><p class="eyebrow">Pass/fail quiz — from Goff’s Safety Training &amp; Quiz V3, pending Dale’s pass rule</p><h2>Final safety quiz</h2><p class="summary">These 10 true/false questions are taken directly from Goff’s current New Employee Safety Training handbook. Answer all 10. In production, results save to your employee record and route to HR/Safety; in this review version they save to this device.</p>
   <div class="quiz-meter"><strong>${score}/${SAFETY_QUIZ.length}</strong><span>${done ? (passed ? 'All correct — acknowledgement unlocked' : 'Review the highlighted answers') : `${answered} of ${SAFETY_QUIZ.length} answered`}</span></div>
   <div class="quiz-list">${SAFETY_QUIZ.map((item,i)=>{
     const ans = quizAnswers[i];
