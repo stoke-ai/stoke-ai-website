@@ -28,3 +28,4 @@ google-oauth-client.json
 # data files (local only)
 data/
 .env*
+tsconfig.tsbuildinfo
