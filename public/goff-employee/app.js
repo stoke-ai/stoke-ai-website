@@ -39,66 +39,89 @@ let courseIndex = 0;
 // the designed onboarding deck (slides preserved in course-slides/) + Austin's
 // welcome packet language.
 const ORIENTATION_STEPS = [
-  { austin:true, eyebrow:'Message from Austin', title:'Welcome to Goff Welding',
-    body:'On behalf of your colleagues, welcome to Goff Welding. Every employee plays a direct role in our success, and we hope you feel proud of the work you do here. Quality workmanship. Dependable service. Everyone home safe — every single day.',
+  { austin:true, theme:'dark', eyebrow:'First day employee orientation', title:'Welcome to Goff Welding',
+    lede:'Quality workmanship. Dependable service. Everyone home safe — every single day.',
+    body:'On behalf of your colleagues, welcome to Goff Welding. Every employee plays a direct role in our success, and we hope you feel proud of the work you do here.',
     prompt:'You are not just starting a job. You are joining the group of people who build, solve problems, and stand behind the work together.' },
-  { austin:true, eyebrow:'Why your work matters', title:'You are part of what we build together',
+  { austin:true, theme:'dark', eyebrow:'Why your work matters', title:'You are part of what we build together',
     body:'At Goff, the quality of the work depends on each person taking responsibility for their part. The work you do affects your team, our customers, and the reputation of the company.',
     prompt:'Take pride in your work. Finish what you start. Represent Goff Welding with pride.' },
   { eyebrow:'Who we are', title:'Our mission and vision',
     cards:[
-      ['Our mission','To deliver superior craftsmanship and dependable service on every project — solving our customers’ toughest challenges through skilled fabrication, sound engineering, and an unwavering commitment to getting everyone home safe.'],
-      ['Our vision','To be the most trusted name in metal fabrication and pipe welding in the Mountain West — known for work that lasts, people who care, and a shop where safety and quality never take a back seat.'],
+      ['Our mission','To deliver superior craftsmanship and dependable service on every project — solving our customers’ toughest challenges through skilled fabrication, sound engineering, and an unwavering commitment to getting everyone home safe.','flag'],
+      ['Our vision','To be the most trusted name in metal fabrication and pipe welding in the Mountain West — known for work that lasts, people who care, and a shop where safety and quality never take a back seat.','eye'],
     ] },
   { eyebrow:'Our purpose', title:'Why we come to work',
     cards:[
-      ['Quality workmanship','Deliver superior craftsmanship and high-quality results on every single project, ensuring durability and precision.'],
-      ['Customer problems','Solve complex client challenges through active collaboration, innovative engineering, and reliable service.'],
-      ['Operate safely','Safety is our absolute priority. Maintain a secure work environment where everyone goes home safely.'],
+      ['Quality workmanship','Deliver superior craftsmanship and high-quality results on every single project, ensuring durability and precision.','star'],
+      ['Customer problems','Solve complex client challenges through active collaboration, innovative engineering, and reliable service.','bulb'],
+      ['Operate safely','Safety is our absolute priority. Maintain a secure work environment where everyone goes home safely.','shield'],
     ] },
   { eyebrow:'Our values', title:'How we carry ourselves',
     cards:[
-      ['Integrity','Doing what is right, even when no one is watching.'],
-      ['Humility','Always willing to learn, listen, and grow from others.'],
-      ['Respect','Valuing diverse perspectives and treating everyone with dignity.'],
-      ['Accountability','Taking ownership of our work, decisions, and overall safety.'],
+      ['Integrity','Doing what is right, even when no one is watching.','shield'],
+      ['Humility','Always willing to learn, listen, and grow from others.','cap'],
+      ['Respect','Valuing diverse perspectives and treating everyone with dignity.','users'],
+      ['Accountability','Taking ownership of our work, decisions, and overall safety.','clipboard'],
     ],
     prompt:'These values should show up in small daily choices — how you communicate, how you handle mistakes, and how you respond to feedback.' },
-  { eyebrow:'Your first 90 days', title:'What good looks like, early',
+  { eyebrow:'Your first 90 days', title:'What good looks like, early', numbered:true,
     cards:[
-      ['01 · Learn processes','Master foundational workflows, understand safety protocols, and build a solid technical base.'],
-      ['02 · Demonstrate reliability','Deliver consistent quality, prove dependability in teamwork, and commit to incident-free operations.'],
-      ['03 · Develop proficiency','Refine advanced technical skills, increase project efficiency, and execute high-quality craft welds.'],
+      ['Learn processes','Master foundational workflows, understand safety protocols, and build a solid technical base.'],
+      ['Demonstrate reliability','Deliver consistent quality, prove dependability in teamwork, and commit to incident-free operations.'],
+      ['Develop proficiency','Refine advanced technical skills, increase project efficiency, and execute high-quality craft welds.'],
     ] },
-  { austin:true, eyebrow:'The standard we hold', title:'Show up ready, ask questions, and keep your word',
+  { austin:true, theme:'dark', eyebrow:'The standard we hold', title:'Show up ready, ask questions, and keep your word',
     body:'Goff looks for quality work, productivity, professionalism, and accountability. Talk less, do more. Be specific. Keep your word. Know where to draw the line on integrity.',
     prompt:'Nobody expects you to know everything on day one. We do expect you to pay attention, ask before guessing, and care about doing good work.' },
   { eyebrow:'Team communication', title:'Clear signals, fewer mistakes',
+    body:'Clear communication prevents mistakes and improves safety on a busy shop floor.',
     cards:[
-      ['Active listening','Confirm understanding before starting any task — repeat it back if you’re unsure.'],
-      ['Hazard alerts','Immediately report any shop safety concerns or issues to those around you.'],
-      ['Clear signals','Use standardized hand signals on the welding floor where noise limits voice.'],
+      ['Active listening','Confirm understanding before starting any task — repeat it back if you’re unsure.','ear'],
+      ['Hazard alerts','Immediately report any shop safety concerns or issues to those around you.','megaphone'],
+      ['Clear signals','Use standardized hand signals on the welding floor where noise limits voice.','chat'],
     ] },
   { eyebrow:'First week checklist', title:'Your first five days',
     cards:[
-      ['Paperwork','Complete all HR documents, tax forms, and employment agreements.'],
-      ['Safety training','Review mandatory shop safety rules and protective gear protocols.'],
-      ['Meet your team','Get introduced to your crew, shop leads, and department supervisor.'],
-      ['Learn procedures','Familiarize yourself with welding workflows and quality standards.'],
+      ['Paperwork','Complete all HR documents, tax forms, and employment agreements.','doc'],
+      ['Safety training','Review mandatory shop safety rules and protective gear protocols.','helmet'],
+      ['Meet your team','Get introduced to your crew, shop leads, and department supervisor.','users'],
+      ['Learn procedures','Familiarize yourself with welding workflows and quality standards.','wrench'],
     ] },
   { eyebrow:'Recognition', title:'Honoring our unsung heroes',
     body:'The Spark Award honors Goff Welding’s unsung heroes — individuals who ignite positive change through their craftsmanship, kindness, and dedication.',
     cards:[
-      ['How to nominate','Nominate a coworker on the company links page — it only takes a minute.'],
-      ['Rewards & recognition','Nominees receive a sticker each month. Top quarterly nominees enter the yearly big drawing.'],
+      ['How to nominate','Nominate a coworker on the company links page — it only takes a minute.','trophy'],
+      ['Rewards & recognition','Nominees receive a sticker each month. Top quarterly nominees enter the yearly big drawing.','sparkle'],
     ] },
-  { austin:true, eyebrow:'What happens next', title:'Your first day has a clear path',
+  { austin:true, theme:'dark', eyebrow:'What happens next', title:'Your first day has a clear path',
     body:'After this orientation you will move through setup items, work basics, the safety training sections, and a supervisor handoff. Ask questions early and often — we’re here to help you succeed.',
     prompt:'Next step: continue through the onboarding path in order.' },
-  { eyebrow:'Welcome to the team', title:'We’re glad you’re here',
+  { theme:'red', eyebrow:'Welcome to the team', title:'We’re glad you’re here',
     body:'Welcome to Goff Welding. We’re thrilled to have you join our team of dedicated professionals committed to quality, precision, and craftsmanship.',
     prompt:'Finish orientation to unlock the rest of your onboarding path.' },
 ];
+
+// Inline brand icons for orientation cards (stroke uses currentColor).
+const ORIENT_ICONS = {
+  flag:'<path d="M6 21V4h11l-2 3.5L17 11H6"/>',
+  eye:'<path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/>',
+  star:'<path d="M12 3.5l2.6 5.5 6 .7-4.4 4.1 1.2 5.9L12 16.8 6.6 19.7l1.2-5.9L3.4 9.7l6-.7z"/>',
+  bulb:'<path d="M9.5 18h5"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.8 10.6c.7.6 1.1 1.4 1.2 2.4h5.2c.1-1 .5-1.8 1.2-2.4A6 6 0 0 0 12 3z"/>',
+  shield:'<path d="M12 3l7 2.6v5.1c0 4.4-3 7.4-7 8.8-4-1.4-7-4.4-7-8.8V5.6L12 3z"/><path d="M9 12l2 2 4-4.2"/>',
+  cap:'<path d="M12 4L2 8.5l10 4.5 10-4.5L12 4z"/><path d="M6 10.5v4c0 1.2 3 2.6 6 2.6s6-1.4 6-2.6v-4"/>',
+  users:'<circle cx="9" cy="9" r="3.1"/><path d="M3.5 19c.4-3 2.8-4.8 5.5-4.8s5.1 1.8 5.5 4.8"/><path d="M16 6.4a3 3 0 0 1 0 5.9"/><path d="M17.5 19c-.2-1.9-1-3.3-2.3-4.2"/>',
+  clipboard:'<rect x="6" y="4.5" width="12" height="15.5" rx="2"/><path d="M9.2 4.5h5.6v2.4H9.2z"/><path d="M9 13.2l2 2 3.8-4"/>',
+  ear:'<path d="M8 9a4 4 0 1 1 7.5 2c-.8 1.4-2.3 2-2.8 3.4a2.4 2.4 0 0 1-4.6-.4"/><path d="M10 9.2a2 2 0 0 1 3.4 1.3"/>',
+  megaphone:'<path d="M4 10v4l11 4.5V5.5L4 10z"/><path d="M15 8.5v7"/><path d="M18.5 9.5v5"/>',
+  chat:'<path d="M4.5 5.5h15v9h-9l-4 3.2v-3.2h-2z"/><path d="M8 9.5h8M8 12h5"/>',
+  doc:'<path d="M7 3.5h7l4 4V20.5H7z"/><path d="M14 3.5v4h4"/><path d="M9.5 13h5M9.5 16.5h5"/>',
+  helmet:'<path d="M4 15.5a8 8 0 0 1 16 0"/><rect x="3" y="15.5" width="18" height="2.6" rx="1.2"/><path d="M10 7.5v4M14 7.5v4"/>',
+  wrench:'<path d="M15.5 6.5a3.8 3.8 0 0 1-4.9 4.9l-5.2 5.2 2 2 5.2-5.2a3.8 3.8 0 0 0 4.9-4.9l-2.2 2.2-2-.5-.5-2 2.7-1.7z"/>',
+  trophy:'<path d="M8 4.5h8V9a4 4 0 0 1-8 0V4.5z"/><path d="M8 6.5H5V8a3 3 0 0 0 3 3M16 6.5h3V8a3 3 0 0 1-3 3"/><path d="M12 13v3.5M9 20h6M10.2 20l.4-3.5h2.8l.4 3.5"/>',
+  sparkle:'<path d="M12 3.5l1.6 5.2 5.2 1.6-5.2 1.6L12 17l-1.6-5.1L5.2 10.3l5.2-1.6z"/><path d="M18.5 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/>',
+};
+function orientIcon(name){ return `<svg class="orient-ic-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${ORIENT_ICONS[name] || ORIENT_ICONS.star}</svg>`; }
 
 // Knowledge checks rebuilt from the deck — natively tappable with attempt
 // tracking (Austin: the PPT version just advanced on any click; he wants to
@@ -939,14 +962,38 @@ function finishOrientation(){
   save();
   nav('bbsi');
 }
+function courseSlideCanvas(item){
+  const theme = item.theme || 'light';
+  const heroTitle = theme === 'dark'
+    ? `${esc(item.title)}<span class="rp">.</span>`
+    : esc(item.title);
+  const cards = item.cards ? `<div class="slide-cards cols-${Math.min(item.cards.length,4)}">${item.cards.map((c,i)=>{
+    const [h,b,ic] = c;
+    const badge = item.numbered
+      ? `<span class="slide-ic num">${String(i+1).padStart(2,'0')}</span>`
+      : `<span class="slide-ic">${orientIcon(ic)}</span>`;
+    return `<article class="slide-card">${badge}<h4>${esc(h)}</h4><p>${esc(b)}</p></article>`;
+  }).join('')}</div>` : '';
+  return `<article class="slide-canvas theme-${theme}">
+    <span class="g-mark" aria-hidden="true">G</span>
+    <div class="slide-inner">
+      ${item.austin?`<div class="austin-badge">Austin Goff • CEO</div>`:''}
+      <p class="slide-eyebrow">${esc(item.eyebrow)}</p>
+      <h3 class="slide-headline">${heroTitle}</h3>
+      ${item.lede?`<p class="slide-lede">${esc(item.lede)}</p>`:''}
+      ${item.body?`<p class="slide-body">${esc(item.body)}</p>`:''}
+      ${cards}
+      ${item.prompt?`<blockquote class="slide-quote">${esc(item.prompt)}</blockquote>`:''}
+    </div>
+  </article>`;
+}
 function courseSection(){
   const item = ORIENTATION_STEPS[courseIndex] || ORIENTATION_STEPS[0];
   const done = completed[`course-${courseIndex}`];
   const completeCount = ORIENTATION_STEPS.filter((_,i)=>completed[`course-${i}`]).length;
-  const cardsHtml = item.cards ? `<div class="doc-blocks orientation-cards">${item.cards.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>` : '';
-  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">Step 1 • Goff orientation — the 30,000-foot view</p><h2>Welcome to Goff Welding</h2><p>${completeCount} of ${ORIENTATION_STEPS.length} sections complete • Safety training and policy details come next, in their own sections</p></div><div class="course-meter"><strong>${coursePct()}%</strong><span>complete</span></div></div><div class="bar course-bar"><i style="width:${coursePct()}%"></i></div><article class="austin-message">${item.austin?`<div class="austin-badge">Austin Goff • CEO</div>`:''}<p class="eyebrow">${esc(item.eyebrow)}</p><h3>${esc(item.title)}</h3>${item.body?`<p class="message-body">${esc(item.body)}</p>`:''}${cardsHtml}${item.prompt?`<blockquote>${esc(item.prompt)}</blockquote>`:''}</article><div class="course-actions"><button class="secondary" onclick="setCourseSlide(${courseIndex-1})" ${courseIndex===0?'disabled':''}>← Previous</button>${courseIndex===ORIENTATION_STEPS.length-1
+  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">Goff orientation — the 30,000-foot view</p><h2>Step ${courseIndex+1} of ${ORIENTATION_STEPS.length}</h2><p>${completeCount} of ${ORIENTATION_STEPS.length} sections complete • Safety training and policy details come next, in their own sections</p></div><div class="course-meter"><strong>${coursePct()}%</strong><span>complete</span></div></div><div class="bar course-bar"><i style="width:${coursePct()}%"></i></div>${courseSlideCanvas(item)}<div class="course-actions"><button class="secondary" onclick="setCourseSlide(${courseIndex-1})" ${courseIndex===0?'disabled':''}>← Previous</button>${courseIndex===ORIENTATION_STEPS.length-1
   ? `<button class="complete-btn done" onclick="finishOrientation()">Finish orientation → Next step</button>`
-  : `<button class="complete-btn ${done?'done':''}" onclick="toggleCourseSlide(${courseIndex})">${done?'Complete ✓':'Mark complete'}</button><button onclick="completeAndNextCourseSlide(${courseIndex})">Next →</button>`}</div><div class="orientation-outline" aria-label="Goff orientation sections">${ORIENTATION_STEPS.map((s,i)=>`<button class="orientation-dot ${i===courseIndex?'active':''} ${completed[`course-${i}`]?'done':''}" onclick="setCourseSlide(${i})"><span>${i+1}</span><b>${esc(s.title)}</b></button>`).join('')}</div></section>`;
+  : `<button class="complete-btn ${done?'done':''}" onclick="toggleCourseSlide(${courseIndex})">${done?'Complete ✓':'Mark complete'}</button><button onclick="completeAndNextCourseSlide(${courseIndex})">Next →</button>`}</div><div class="orientation-outline" aria-label="Goff orientation sections">${ORIENTATION_STEPS.map((s,i)=>`<button class="orientation-dot ${i===courseIndex?'active':''} ${completed[`course-${i}`]?'done':''}" onclick="setCourseSlide(${i})"><span>${completed[`course-${i}`]?'✓':i+1}</span><b>${esc(s.title)}</b></button>`).join('')}</div></section>`;
 }
 
 function trainingSection(){ return `<section class="panel training-panel"><p class="eyebrow">Guided new-hire path</p><h2>From cleared candidate to active employee</h2><p class="summary">This is the consistent training sequence Austin was describing. It reduces the day-one fire hose and gives Goff a second pass at the 30-day check-in.</p><div class="training-steps">${trainingSteps.map((s,i)=>`<article class="training-step ${completed[`training-${i}`]?'complete':''}"><button class="step-check" onclick="toggle('training-${i}')">${completed[`training-${i}`]?'✓':i+1}</button><div><span>${esc(s.timing)} • ${esc(s.owner)}</span><h3>${esc(s.title)}</h3><p>${esc(s.why)}</p><button class="inline" onclick="nav('${s.page}')">Open module</button></div></article>`).join('')}</div></section>`; }

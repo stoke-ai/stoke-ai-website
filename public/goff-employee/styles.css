@@ -138,3 +138,61 @@ button.inline-link:hover{background:none;color:#9e1320}
 .orientation-cards{margin-bottom:20px}
 .orientation-cards article{border-left:4px solid var(--red)}
 @media(max-width:760px){.safety-sec summary{padding:13px 12px;gap:10px}.safety-sec>.doc-blocks,.safety-sec>.admin-actions,.safety-sec>.kc-card{margin-left:12px;margin-right:12px}.kc-opt{padding:12px 10px}}
+
+/* Themed orientation slides — recreate the deck's dark/light/red looks (2026-07-02b) */
+.slide-canvas{position:relative;border-radius:16px;overflow:hidden;margin:4px 0 6px;min-height:clamp(360px,52vh,540px);display:flex;box-shadow:0 14px 44px rgba(0,0,0,.14)}
+.slide-inner{position:relative;z-index:2;width:100%;padding:clamp(26px,4.5vw,58px);display:flex;flex-direction:column;justify-content:center}
+.g-mark{position:absolute;right:-.08em;bottom:-.32em;font-family:'Playfair Display',serif;font-weight:800;font-size:clamp(300px,44vw,560px);line-height:.7;z-index:1;pointer-events:none;user-select:none}
+/* Light theme (default) */
+.slide-canvas.theme-light{background:linear-gradient(150deg,#fff 0%,#f3f3f3 100%);border:1px solid var(--line)}
+.theme-light .g-mark{color:rgba(17,17,17,.035)}
+.theme-light .slide-eyebrow{color:var(--red)}
+.theme-light .slide-headline{color:#111}
+.theme-light .slide-body,.theme-light .slide-lede{color:#4a4a4a}
+/* Dark hero theme */
+.slide-canvas.theme-dark{background:radial-gradient(circle at 82% 8%,rgba(192,24,43,.42),transparent 42%),linear-gradient(155deg,#141414,#080808);border-top:6px solid var(--red)}
+.theme-dark .g-mark{color:rgba(255,255,255,.045)}
+.theme-dark .slide-eyebrow{color:#ff5666}
+.theme-dark .slide-headline{color:#fff}
+.theme-dark .slide-headline .rp{color:var(--red)}
+.theme-dark .slide-body{color:#c9c9c9}
+.theme-dark .slide-lede{color:#f0f0f0}
+/* Red closing theme */
+.slide-canvas.theme-red{background:radial-gradient(circle at 84% 10%,rgba(255,255,255,.14),transparent 44%),linear-gradient(150deg,#d21d33,#a10f20)}
+.theme-red .g-mark{color:rgba(255,255,255,.09)}
+.theme-red .slide-eyebrow{color:rgba(255,255,255,.82)}
+.theme-red .slide-headline,.theme-red .slide-body{color:#fff}
+/* Shared slide typography */
+.slide-eyebrow{margin:0 0 14px;font-size:12px;font-weight:900;letter-spacing:.26em;text-transform:uppercase;display:inline-flex;align-items:center;gap:12px}
+.slide-eyebrow::after{content:"";width:38px;height:2px;background:currentColor;opacity:.55}
+.slide-headline{font-family:'Playfair Display',serif;font-size:clamp(34px,5.6vw,64px);line-height:1.0;letter-spacing:-.032em;margin:0;max-width:15ch}
+.slide-lede{font-size:clamp(18px,2.3vw,23px);font-weight:700;margin:18px 0 0;max-width:44ch}
+.slide-body{font-size:clamp(16px,1.9vw,19px);line-height:1.5;margin:18px 0 0;max-width:60ch}
+.austin-badge{align-self:flex-start;margin-bottom:20px}
+/* Icon/number cards */
+.slide-cards{display:grid;gap:14px;margin-top:26px}
+.slide-cards.cols-2{grid-template-columns:repeat(2,1fr)}
+.slide-cards.cols-3{grid-template-columns:repeat(3,1fr)}
+.slide-cards.cols-4{grid-template-columns:repeat(4,1fr)}
+.slide-card{background:#fff;border:1px solid rgba(0,0,0,.06);border-top:4px solid var(--red);border-radius:12px;padding:20px 18px;box-shadow:0 6px 20px rgba(0,0,0,.08)}
+.theme-dark .slide-card,.theme-red .slide-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-top:4px solid #fff;backdrop-filter:blur(4px)}
+.slide-ic{display:inline-grid;place-items:center;width:52px;height:52px;border-radius:14px;background:rgba(192,24,43,.1);color:var(--red);margin-bottom:14px}
+.theme-dark .slide-ic,.theme-red .slide-ic{background:rgba(255,255,255,.12);color:#fff}
+.slide-ic.num{font-family:'Playfair Display',serif;font-size:22px;font-weight:800}
+.orient-ic-svg{width:27px;height:27px}
+.slide-card h4{font-family:'Playfair Display',serif;font-size:22px;line-height:1.12;margin:0 0 8px;color:#111}
+.slide-card p{margin:0;color:#555;font-size:14.5px;line-height:1.45}
+.theme-dark .slide-card h4,.theme-red .slide-card h4{color:#fff}
+.theme-dark .slide-card p,.theme-red .slide-card p{color:rgba(255,255,255,.82)}
+/* Pullquote */
+.slide-quote{font-family:'Playfair Display',serif;font-size:clamp(19px,2.6vw,27px);line-height:1.18;margin:26px 0 0;padding:18px 22px;border-radius:12px}
+.theme-light .slide-quote{background:#111;color:#fff;border-left:5px solid var(--red)}
+.theme-dark .slide-quote{background:rgba(255,255,255,.06);color:#fff;border-left:5px solid var(--red)}
+.theme-red .slide-quote{background:rgba(0,0,0,.16);color:#fff;border-left:5px solid #fff}
+@media(max-width:760px){
+  .slide-canvas{min-height:0;border-radius:12px}
+  .slide-inner{padding:24px 18px}
+  .slide-cards.cols-2,.slide-cards.cols-3,.slide-cards.cols-4{grid-template-columns:1fr}
+  .g-mark{font-size:300px;bottom:-.28em}
+  .slide-headline{max-width:none}
+}
