@@ -33,50 +33,114 @@ const pages = [
 
 let courseIndex = 0;
 
-const austinOrientationSteps = [
-  {
-    eyebrow:'Message from Austin',
-    title:'Welcome to Goff Welding',
-    body:'On behalf of your colleagues, welcome to Goff Welding. Every employee plays a direct role in our success, and we hope you feel proud of the work you do here.',
-    prompt:'You are not just starting a job. You are joining the group of people who build, solve problems, and stand behind the work together.'
-  },
-  {
-    eyebrow:'Why your work matters',
-    title:'You are part of what we build together',
+// 30,000-foot orientation per Austin's 2026-07-01 direction: wide-lens company
+// view only. Specific safety content moved to the Safety Training section;
+// policy detail moved to the policy walkthrough. Content rebuilt natively from
+// the designed onboarding deck (slides preserved in course-slides/) + Austin's
+// welcome packet language.
+const ORIENTATION_STEPS = [
+  { austin:true, eyebrow:'Message from Austin', title:'Welcome to Goff Welding',
+    body:'On behalf of your colleagues, welcome to Goff Welding. Every employee plays a direct role in our success, and we hope you feel proud of the work you do here. Quality workmanship. Dependable service. Everyone home safe — every single day.',
+    prompt:'You are not just starting a job. You are joining the group of people who build, solve problems, and stand behind the work together.' },
+  { austin:true, eyebrow:'Why your work matters', title:'You are part of what we build together',
     body:'At Goff, the quality of the work depends on each person taking responsibility for their part. The work you do affects your team, our customers, and the reputation of the company.',
-    prompt:'Take pride in your work. Finish what you start. Represent Goff Welding with pride.'
-  },
-  {
-    eyebrow:'Company vision',
-    title:'Add value — always',
-    body:'Goff’s vision is to be known for adding value by taking responsibility and supporting everything we do. That means looking for ways to help the team, improve the work, and do things the right way.',
-    prompt:'A good day here is not just being busy. It is adding value to the people and projects around you.'
-  },
-  {
-    eyebrow:'Mission',
-    title:'Integrity, respect, and continuous improvement',
-    body:'We add value every day through integrity, respect, and continuous improvement. The goal is to keep getting better while treating people right and standing behind the work.',
-    prompt:'If you are unsure, ask. If something can be improved, speak up. If something is wrong, do the right thing.'
-  },
-  {
-    eyebrow:'Core values',
-    title:'How we expect people to work',
-    body:'Integrity means doing the right thing when no one is looking. Humility means being teachable and open to feedback. Respect means treating others how you want to be treated. Responsibility means owning your work, actions, and results.',
-    prompt:'These values should show up in small daily choices — how you communicate, how you handle mistakes, and how you respond to feedback.'
-  },
-  {
-    eyebrow:'Day-one mindset',
-    title:'Show up ready, ask questions, and keep your word',
-    body:'Goff looks for reliability, responsibility, work ethic, clear communication, and pride in the quality of what you produce. Talk less, do more. Be specific. Keep your word. Know where to draw the line on integrity.',
-    prompt:'Nobody expects you to know everything on day one. We do expect you to pay attention, ask before guessing, and care about doing good work.'
-  },
-  {
-    eyebrow:'What happens next',
-    title:'Your first day has a clear path',
-    body:'After this orientation, you will move through setup items, work basics, safety, and a supervisor handoff. Your supervisor and Goff admin are here to help you get started the right way.',
-    prompt:'Next step: continue through the onboarding path in order.'
-  }
+    prompt:'Take pride in your work. Finish what you start. Represent Goff Welding with pride.' },
+  { eyebrow:'Who we are', title:'Our mission and vision',
+    cards:[
+      ['Our mission','To deliver superior craftsmanship and dependable service on every project — solving our customers’ toughest challenges through skilled fabrication, sound engineering, and an unwavering commitment to getting everyone home safe.'],
+      ['Our vision','To be the most trusted name in metal fabrication and pipe welding in the Mountain West — known for work that lasts, people who care, and a shop where safety and quality never take a back seat.'],
+    ] },
+  { eyebrow:'Our purpose', title:'Why we come to work',
+    cards:[
+      ['Quality workmanship','Deliver superior craftsmanship and high-quality results on every single project, ensuring durability and precision.'],
+      ['Customer problems','Solve complex client challenges through active collaboration, innovative engineering, and reliable service.'],
+      ['Operate safely','Safety is our absolute priority. Maintain a secure work environment where everyone goes home safely.'],
+    ] },
+  { eyebrow:'Our values', title:'How we carry ourselves',
+    cards:[
+      ['Integrity','Doing what is right, even when no one is watching.'],
+      ['Humility','Always willing to learn, listen, and grow from others.'],
+      ['Respect','Valuing diverse perspectives and treating everyone with dignity.'],
+      ['Accountability','Taking ownership of our work, decisions, and overall safety.'],
+    ],
+    prompt:'These values should show up in small daily choices — how you communicate, how you handle mistakes, and how you respond to feedback.' },
+  { eyebrow:'Your first 90 days', title:'What good looks like, early',
+    cards:[
+      ['01 · Learn processes','Master foundational workflows, understand safety protocols, and build a solid technical base.'],
+      ['02 · Demonstrate reliability','Deliver consistent quality, prove dependability in teamwork, and commit to incident-free operations.'],
+      ['03 · Develop proficiency','Refine advanced technical skills, increase project efficiency, and execute high-quality craft welds.'],
+    ] },
+  { austin:true, eyebrow:'The standard we hold', title:'Show up ready, ask questions, and keep your word',
+    body:'Goff looks for quality work, productivity, professionalism, and accountability. Talk less, do more. Be specific. Keep your word. Know where to draw the line on integrity.',
+    prompt:'Nobody expects you to know everything on day one. We do expect you to pay attention, ask before guessing, and care about doing good work.' },
+  { eyebrow:'Team communication', title:'Clear signals, fewer mistakes',
+    cards:[
+      ['Active listening','Confirm understanding before starting any task — repeat it back if you’re unsure.'],
+      ['Hazard alerts','Immediately report any shop safety concerns or issues to those around you.'],
+      ['Clear signals','Use standardized hand signals on the welding floor where noise limits voice.'],
+    ] },
+  { eyebrow:'First week checklist', title:'Your first five days',
+    cards:[
+      ['Paperwork','Complete all HR documents, tax forms, and employment agreements.'],
+      ['Safety training','Review mandatory shop safety rules and protective gear protocols.'],
+      ['Meet your team','Get introduced to your crew, shop leads, and department supervisor.'],
+      ['Learn procedures','Familiarize yourself with welding workflows and quality standards.'],
+    ] },
+  { eyebrow:'Recognition', title:'Honoring our unsung heroes',
+    body:'The Spark Award honors Goff Welding’s unsung heroes — individuals who ignite positive change through their craftsmanship, kindness, and dedication.',
+    cards:[
+      ['How to nominate','Nominate a coworker on the company links page — it only takes a minute.'],
+      ['Rewards & recognition','Nominees receive a sticker each month. Top quarterly nominees enter the yearly big drawing.'],
+    ] },
+  { austin:true, eyebrow:'What happens next', title:'Your first day has a clear path',
+    body:'After this orientation you will move through setup items, work basics, the safety training sections, and a supervisor handoff. Ask questions early and often — we’re here to help you succeed.',
+    prompt:'Next step: continue through the onboarding path in order.' },
+  { eyebrow:'Welcome to the team', title:'We’re glad you’re here',
+    body:'Welcome to Goff Welding. We’re thrilled to have you join our team of dedicated professionals committed to quality, precision, and craftsmanship.',
+    prompt:'Finish orientation to unlock the rest of your onboarding path.' },
 ];
+
+// Knowledge checks rebuilt from the deck — natively tappable with attempt
+// tracking (Austin: the PPT version just advanced on any click; he wants to
+// see who breezed through vs who had to second-guess).
+const KNOWLEDGE_CHECKS = {
+  kc1:{ q:'You notice a frayed cable creating an unsafe condition mid-job. What should you do?', options:['Finish your current task first, then mention it','Use your Stop Work Authority and halt the job immediately','Wait for a supervisor to notice it','Only stop if someone could get hurt today'], correct:1 },
+  kc2:{ q:'Which PPE is required at all times while you are on the shop floor?', options:['Only gloves, and only while welding','Safety glasses and steel-toe footwear','A hard hat only during overhead work','PPE is optional for experienced welders'], correct:1 },
+  kc3:{ q:'Before operating any machine, what must you confirm first?', options:['That you are the only person in the shop','That machine guards are in place and aisles are clear','That your phone is fully charged','That it is after your lunch break'], correct:1 },
+  kc4:{ q:'You have just finished using a grinder. What is the correct way to handle it?', options:['Leave it out so it is easy to grab next time','Return it to its designated storage rack immediately','Set it on the nearest workstation','Wait until the end of shift to put everything away'], correct:1 },
+  kc5:{ q:'Who is permitted to operate a company vehicle?', options:['Any employee who is in a hurry','Only designated employees with a valid license and company approval','Anyone who holds a driver license','Whoever happens to have the keys'], correct:1 },
+  kc6:{ q:'What is Goff Welding’s policy on impairment while on duty?', options:['Allowed during breaks only','Zero tolerance — impairment of any kind is strictly prohibited','Acceptable if it does not affect your work','Only tested after an incident occurs'], correct:1 },
+  kc7:{ q:'Which of the following must be kept confidential?', options:['Only customer credit-card numbers','Customer info, drawings, pricing, and company processes','Nothing — our work is public','Only documents marked “secret”'], correct:1 },
+  kc8:{ q:'You realize you will be late for your shift. What should you do?', options:['Wait and explain once you arrive','Communicate the delay as early as possible','Have a coworker quietly cover for you','Nothing, as long as it rarely happens'], correct:1 },
+  kc9:{ q:'When may you operate shop machinery or welding equipment?', options:['As soon as you start your shift','Only after proper training AND supervisor authorization','Whenever the equipment is available','After watching someone else do it once'], correct:1 },
+};
+let kcState = (() => { try { return JSON.parse(safeGetEarly('goffKCv1') || '{}'); } catch(_) { return {}; } })();
+function answerKC(id, idx){
+  const kc = KNOWLEDGE_CHECKS[id]; if(!kc) return;
+  const s = kcState[id] || { attempts:0, correct:false, picked:null };
+  if(s.correct) return;
+  s.attempts++; s.picked = idx; s.correct = idx === kc.correct;
+  kcState[id] = s;
+  safeSet('goffKCv1', JSON.stringify(kcState));
+  render();
+}
+function kcCard(id, label){
+  const kc = KNOWLEDGE_CHECKS[id]; if(!kc) return '';
+  const s = kcState[id] || { attempts:0, correct:false, picked:null };
+  const letters = ['A','B','C','D'];
+  return `<div class="kc-card ${s.correct?'kc-done':''}"><p class="eyebrow">${esc(label || 'Knowledge check')}</p><h4>${esc(kc.q)}</h4>
+  <div class="kc-options">${kc.options.map((opt,i)=>{
+    const cls = s.correct && i===kc.correct ? 'kc-right' : (!s.correct && s.picked===i ? 'kc-wrong' : '');
+    return `<button class="kc-opt ${cls}" onclick="answerKC('${id}',${i})" ${s.correct?'disabled':''}><span>${letters[i]}</span>${esc(opt)}</button>`;
+  }).join('')}</div>
+  ${s.correct ? `<p class="kc-feedback ok">✓ Correct${s.attempts===1?' — first try':` — after ${s.attempts} attempts (tracked for your record)`}</p>` : s.attempts>0 ? `<p class="kc-feedback no">✗ Not quite — re-read the section above and try again. Attempts are tracked.</p>` : `<p class="kc-feedback">Select an answer to continue.</p>`}</div>`;
+}
+function kcStats(){
+  const all = Object.keys(KNOWLEDGE_CHECKS);
+  const done = all.filter(id => kcState[id]?.correct);
+  const firstTry = done.filter(id => kcState[id].attempts === 1);
+  return { total: all.length, done: done.length, firstTry: firstTry.length, retried: done.length - firstTry.length };
+}
 
 const workflow = [
   { label:'Offer accepted', detail:'Candidate said yes. Do not treat as hired yet.', status:'Recruiting' },
@@ -203,6 +267,7 @@ const pageContent = {
       ['Missed punch or correction','If you forget to clock in/out, clock in as soon as possible and add a note explaining the missed punch. Tell your supervisor.'],
       ['Job changes','If you switch jobs during the day, log each job change in the ExakTime app so time is tied to the right work.'],
       ['Timecard approval','Timecards are approved every Monday in the ExakTime app.'],
+      ['Six questions, every entry','Don’t just write “welding” or “working.” Every entry answers: WHAT exactly (“Welding Stainless 3″ Pipe”), WHERE (Burley, Paul, Field, Town, The Shop), WHO we’re billing (exact client), HOW long (nearest quarter hour), WHEN done (status), and DID you break (log lunches).'],
       ['Time off requests','Request time off in the ExakTime app at least two weeks in advance.'],
     ],
     questions:['Who issues activation codes?','What are the exact lunch punch rules?','Do shop and field roles use ExakTime differently?','Who approves time-off requests submitted in ExakTime?']
@@ -362,6 +427,58 @@ const SAFETY_QUIZ = [
   { q:'As an operator, I should make sure all the guards are in place before operating any of the equipment in my work area.', a:true },
 ];
 const SAFETY_ACK = 'I certify that I have read and know how to obtain a copy of the Injury and Illness Prevention Program and fully understand my responsibilities with respect to the policy and procedures as outlined. I further agree to comply with safe work practices.';
+
+// Safety Training — separate from orientation per Austin (2026-07-01): "10 or 15
+// sections... 15 minutes a piece... and a more important pass-or-fail quiz."
+// Sections 1-8 built from the onboarding deck's safety content + the V3 Safety
+// Training handbook. Remaining sections reserved for Dale/BBSI material.
+const SAFETY_SECTIONS = [
+  { id:'culture', title:'Safety culture & Stop Work Authority', kc:'kc1', cards:[
+    ['Shared responsibility','Safety is everyone’s responsibility. Look out for your crew, keep your area hazard-free, and speak up early — a culture of safety only works when all of us own it.'],
+    ['Stop Work Authority','Stop work the moment conditions become unsafe. Every employee has this authority — no permission needed and no blame for using it. When in doubt, stop and ask.'],
+  ]},
+  { id:'ppe', title:'PPE requirements', kc:'kc2', cards:[
+    ['Always required','Safety glasses at all times, steel-toe footwear on the floor, and hearing protection in the shop (per the safety handbook). The rest is task-dependent — but always on hand.'],
+    ['Task-dependent','Hard hats for overhead and field work, hi-vis vests in field and yard areas, fall protection when applicable, gloves matched to the task, welding helmets and respirators with training.'],
+    ['Provided by Goff','OSHA-required PPE is provided free of charge and replaced when broken or worn out. Find it in the parts room, shop entrances, and work trailers. No proper PPE? Do not start work — report it.'],
+  ]},
+  { id:'shop', title:'Shop safety: guards, aisles, hazards', kc:'kc3', cards:[
+    ['Machine guards','Ensure all protective guards are securely in place and fully functional before operating any machinery. Know where the emergency stops are.'],
+    ['Keep aisles clear','Maintain clear, unobstructed walkways, aisles, and emergency exits at all times. Never block fire extinguishers or control panels.'],
+    ['Report hazards','Immediately report any identified hazards, malfunctioning equipment, or unsafe practices to supervisors. Corrective deadlines are assigned by severity.'],
+  ]},
+  { id:'housekeeping', title:'Housekeeping', kc:'kc4', cards:[
+    ['Clean workstations','Keep your immediate work area tidy, free of debris, and fully prepared for safe operations. When housekeeping standards fall, safety inevitably deteriorates.'],
+    ['Organize tools','Return all equipment and tools to their designated storage racks immediately after use.'],
+    ['Prevent falls','Address spills and clear walk paths immediately to eliminate slips, trips, and falls. Stairs and hallways are not storage areas.'],
+  ]},
+  { id:'equipment', title:'Tools & equipment: trained and authorized', kc:'kc9', cards:[
+    ['Gate 1 · Proper training','Never operate shop machinery or welding equipment without completing the designated safety and training courses.'],
+    ['Gate 2 · Authorization','Ensure you have explicit approval and sign-off from your supervisor before power-up or beginning any task. You are not authorized to climb ladders over 8 feet, drive motor vehicles, or operate heavy equipment without specific authorization.'],
+    ['While operating','Make sure the area is clear before turning equipment on, never leave running equipment unattended, and never perform maintenance on a machine in motion.'],
+  ]},
+  { id:'incident', title:'Injury, incident & near-miss reporting', cards:[
+    ['If you are injured','Report to your supervisor immediately — even minor injuries. For serious injuries dial 9-1-1 and/or have a supervisor transport to the hospital / WorkMed facility.'],
+    ['Near misses count','A situation that could have caused injury or damage is a near miss. Submit the Near Miss Incident Report in Company Links — reporting near misses prevents the real thing.'],
+    ['Suggestion box','Share safety concerns or improvement ideas in the Safety and Suggestion Box at the north entrance of the east shops.'],
+  ]},
+  { id:'hazcom', title:'Hazard communication (Right-to-Know)', cards:[
+    ['Labels on everything','All containers with chemicals must be labeled — including transfer containers, spray bottles, and squeeze bottles. Plain water looks identical to acetone.'],
+    ['Safety Data Sheets','The SDS for every chemical product is in the Receiving / Parts Department office, accessible during all work hours. Do not work with a hazardous material until you have reviewed its SDS.'],
+    ['Exposure routes','Inhalation, ingestion, skin contact, and injection. Protect yourself: follow label directions, work with air circulation, keep containers covered.'],
+  ]},
+  { id:'emergency', title:'Emergency response & evacuation', cards:[
+    ['When the alarm sounds','Leave promptly — do not wait to see if it is “real.” Make sure others around you are leaving too.'],
+    ['Assembly point','The Evacuation Assembly Point is the northeast side of the Main Office building parking lot. Report anyone still inside to the Evacuation Management Team at the exits.'],
+    ['Know before you need it','Learn the exits, fire extinguishers, and first aid locations in your area. Evacuation plans are posted at every exit. To report emergencies, dial 9-1-1 and inform a supervisor.'],
+  ]},
+];
+function safetySectionDone(s){
+  const read = completed[`safesec-${s.id}`];
+  const kcOk = !s.kc || (kcState[s.kc] && kcState[s.kc].correct);
+  return read && kcOk;
+}
+function toggleSafetySection(id){ completed[`safesec-${id}`] = !completed[`safesec-${id}`]; save(); render(); }
 let quizAnswers = (() => { try { return JSON.parse(safeGetEarly('goffSafetyQuizV3') || '{}'); } catch(_) { return {}; } })();
 function safeGetEarly(key){ try { return window.localStorage.getItem(key); } catch(_) { return null; } }
 
@@ -562,9 +679,47 @@ const POLICY_LIST = [
   { name:'Emergency Call-Back Policy', type:'HOLD — draft', who:'TBD', note:'Filed as “draft” in Drive. Do not publish until approved.' },
   { name:'Travel & Business Expense Reimbursement Policy v9.21.24', type:'Read & acknowledge', who:'Traveling roles', note:'Confirmed in the doc manifest alongside the new Per Diem policy — confirm how the two divide (business expenses vs per diem/lodging).' },
 ];
+// Policy walkthrough per Austin: a guided explain-each-policy experience with a
+// short check after each one — later connected to the AI agent that answers
+// policy questions and surfaces recurring ones to admins. First five built from
+// the deck; the rest follow once Austin approves the pattern.
+const POLICY_WALKTHROUGH = [
+  { id:'vehicle', title:'Vehicle policy — behind the wheel', kc:'kc5', cards:[
+    ['Authorized drivers','Only designated employees with valid licenses and company approval may operate company vehicles.'],
+    ['Seat belts required','Seat belts must be worn by all occupants whenever the vehicle is in motion. No exceptions.'],
+    ['No distractions','Strict prohibition of mobile phone use, texting, or other distractions while operating a vehicle.'],
+  ]},
+  { id:'drugalcohol', title:'Drug & alcohol — zero tolerance, every shift', kc:'kc6', cards:[
+    ['Zero tolerance','Impairment of any kind while on duty is strictly prohibited to ensure a safe workplace for everyone. This policy applies on the clock, on every site, with no exceptions.'],
+    ['Operating safety','Absolute sobriety and focus are required at all times while working or operating equipment.'],
+  ]},
+  { id:'confidentiality', title:'Confidentiality — what stays in the shop', kc:'kc7', cards:[
+    ['Customer info','Protect all personal and contact details of our customers.'],
+    ['Drawings & pricing','Keep proprietary blueprints and technical drawings secure. Safeguard internal pricing strategies and rate quotes.'],
+    ['Company processes','Maintain confidentiality of workflows and operational steps.'],
+  ]},
+  { id:'attendance', title:'Attendance — your crew is counting on you', kc:'kc8', cards:[
+    ['Punctuality','Show up on time and be ready to work when your shift begins.'],
+    ['Communication','Communicate any issues or delays as early as possible so the team can adjust.'],
+    ['Dependability','Be a reliable team player others can count on, shift after shift.'],
+  ]},
+  { id:'timecards', title:'Timecards — six questions, every entry', cards:[
+    ['WHAT are you doing?','Be specific: “Welding Stainless 3″ Pipe,” not just “welding.” Your timecard is how we bill correctly and get you paid.'],
+    ['WHERE and WHO?','Exact location (Burley, Paul, Field, Town, or The Shop) and the exact client being billed.'],
+    ['HOW long, WHEN done, DID you break?','Round to the nearest quarter hour (“1.5 hours,” “2.75 hours”), give a clear status (“1 day left” / “complete”), and log lunches accurately (“Skipped lunch” / “Took lunch”).'],
+  ]},
+];
 function policiesSection(){
   const p = pageContent.policies;
+  const walkDone = POLICY_WALKTHROUGH.filter(w => !w.kc || kcState[w.kc]?.correct).length;
   return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div></section>
+  <section class="panel"><p class="eyebrow">Policy walkthrough — read each policy, then answer its check</p><h2>Policies &amp; safe practices</h2><p class="summary">Each policy is explained in plain language with a short knowledge check — you’ll need to answer it before it counts. ${walkDone} of ${POLICY_WALKTHROUGH.length} complete. Once approved, every company policy gets this treatment, and Goff’s AI assistant will answer policy questions here and flag recurring ones for the office.</p>
+  <div class="safety-sections">${POLICY_WALKTHROUGH.map((w,i)=>{
+    const isDone = !w.kc || kcState[w.kc]?.correct;
+    return `<details class="safety-sec ${isDone?'done':''}" ${i===0 && !isDone?'open':''}><summary><span class="sec-num">${isDone?'✓':i+1}</span>${esc(w.title)}<em>${isDone?'Complete':w.kc?'Reading + knowledge check':'Reading'}</em></summary>
+    <div class="doc-blocks">${w.cards.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}
+    </div>${w.kc ? kcCard(w.kc, `Policy check`) : ''}</details>`;
+  }).join('')}</div></section>
   <section class="panel"><p class="eyebrow">Draft checklist from the actual Drive documents — classifications proposed, not final</p><h2>Every named policy, one list</h2><p class="summary">These are the real policy documents in Goff’s Drive today. Each becomes a trackable item on the employee’s record: sign, read-and-acknowledge, secure/BBSI, or held back. In production, completion status saves per employee.</p>
   <div class="table-list">${POLICY_LIST.map(x=>`<article><div><b>${esc(x.name)}</b>${x.note?`<small>${esc(x.note)}</small>`:''}</div><span>${esc(x.who)}</span><em>${esc(x.type)}</em></article>`).join('')}</div>
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`;
@@ -639,6 +794,12 @@ const adminQuestions = [
 ];
 const phaseOneStatus = [
   { area:'Employee home', status:'Cleaned up', detail:'Employee sees a direct first-day path, not a build explanation.' },
+  { area:'Orientation (restructured per July 1 call)', status:'Rebuilt — review wording', detail:'Now the 30,000-foot view Austin asked for: native, phone-friendly, 12 steps of company/culture content. Specific safety and policy detail pulled out into their own sections. The designed deck’s content carried over; the slide images are preserved.' },
+  { area:'Safety Training (separate section)', status:'8 of 10–15 sections built', detail:'Sections with real tappable knowledge checks + the V3 pass/fail quiz and acknowledgement. Remaining sections slot in as Dale/BBSI deliver material.' },
+  { area:'Policy walkthrough', status:'First 5 policies built', detail:'Vehicle, drug & alcohol, confidentiality, attendance, timecards — each explained with a tracked check. Pattern extends to all 24 policies after approval; AI agent hookup is Phase 2.' },
+  { area:'Knowledge-check tracking', status:'Working now', detail:'Every check records attempts — first-try vs second-guessing — exactly the click-click-click problem Austin flagged in the PPT version. Manager assign-retraining and yearly 5-section refresher are designed in, activate with the database.' },
+  { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling', detail:'(1) Mission/vision wording differs: welcome packet says “add value always / integrity, respect, continuous improvement” while the onboarding deck says “superior craftsmanship / most trusted name in the Mountain West.” The deck version is currently shown. (2) Always-on PPE differs: deck says safety glasses + steel-toe; V3 safety handbook says safety glasses + hearing protection. Portal currently shows the union of both.' },
+  { area:'Document standardization', status:'Planned', detail:'Austin asked for tidied, consistently-branded documents and AI flagging of conflicting policy facts (e.g., observed holidays). The two conflicts above are the first output of that process.' },
   { area:'Training structure', status:'Ready for review', detail:'General onboarding, safety, policies, tools, links, role expectations, and milestones are separated.' },
   { area:'Safety', status:'Drafted — confirm with Dale', detail:'The real 10-question quiz from Safety Training & Quiz V3 is now live in the portal with instant feedback and the acknowledgement text. Dale confirms pass/fail, retakes, timing, and hands-on signoff.' },
   { area:'FAQs', status:'New — drafted', detail:'The Goff Welding FAQs PDF is now a searchable FAQ hub (50+ answers) and its facts are woven into ExakTime, first-day, and forms modules.' },
@@ -693,10 +854,10 @@ const memoryStore = {};
 function safeGet(key){ try { return window.localStorage.getItem(key); } catch(_) { return memoryStore[key] || null; } }
 function safeSet(key, value){ try { window.localStorage.setItem(key, value); } catch(_) { memoryStore[key] = String(value); } }
 let completed = (() => { try { return JSON.parse(safeGet('goffEmployeeChecklist') || '{}'); } catch(_) { return {}; } })();
-courseIndex = (() => { const v = parseInt(safeGet('goffCourseIndex') || '0', 10); return Number.isFinite(v) ? Math.max(0, Math.min(6, v)) : 0; })();
+courseIndex = (() => { const v = parseInt(safeGet('goffCourseIndex') || '0', 10); return Number.isFinite(v) ? Math.max(0, Math.min(ORIENTATION_STEPS.length - 1, v)) : 0; })();
 function save(){ safeSet('goffEmployeeChecklist', JSON.stringify(completed)); }
 function pct(){ return Math.round((trainingSteps.filter((_,i)=>completed[`training-${i}`]).length / trainingSteps.length) * 100); }
-function coursePct(){ if(completed.orientation) return 100; return Math.round((austinOrientationSteps.filter((_,i)=>completed[`course-${i}`]).length / austinOrientationSteps.length) * 100); }
+function coursePct(){ if(completed.orientation) return 100; return Math.round((ORIENTATION_STEPS.filter((_,i)=>completed[`course-${i}`]).length / ORIENTATION_STEPS.length) * 100); }
 function toggle(key){ completed[key] = !completed[key]; save(); render(); }
 function nav(id, updateUrl=true){
   section=id;
@@ -765,7 +926,7 @@ function startSection(){
   return `<section class="panel employee-path"><p class="eyebrow">My onboarding path</p><h2>Start with first-day orientation. Then keep going in order.</h2><p class="summary">Before you begin: confirm your arrival time, location, and supervisor in the card above. Then work through the steps below with your supervisor or on your own.</p><div class="path-steps">${steps.map((step,i)=>{ const done=stepDone(i); return `<article class="path-step ${done?'complete':i===0?'current':''}"><span>${done?'Complete':`Step ${i+1}`}</span><h3>${esc(step[1])}</h3><p>${esc(step[2])}</p><button class="${done?'secondary':''}" onclick="nav('${step[0]}')">${done?'Completed ✓':esc(step[3])}</button></article>`; }).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Progress</p><h2>${coursePct()}% orientation • ${pct()}% checklist</h2><div class="bar"><i style="width:${Math.max(coursePct(), pct())}%"></i></div><p>Production will save this to the employee record. For this review version, progress is saved on this device.</p></article><article class="panel"><p class="eyebrow">After onboarding</p><h2>This becomes your employee home.</h2><p>Once onboarding is complete, the portal should open to resources, policies, forms, and training refreshers — not this first-day path.</p><button class="secondary" onclick="nav('resources')">Preview resources</button></article></section>`;
 }
 
-function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(austinOrientationSteps.length-1, i)); safeSet('goffCourseIndex', courseIndex); render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(ORIENTATION_STEPS.length-1, i)); safeSet('goffCourseIndex', courseIndex); render(); window.scrollTo({top:0, behavior:'smooth'}); }
 function toggleCourseSlide(i){ completed[`course-${i}`] = !completed[`course-${i}`]; save(); render(); }
 function completeAndNextCourseSlide(i){
   completed[`course-${i}`] = true;
@@ -779,12 +940,13 @@ function finishOrientation(){
   nav('bbsi');
 }
 function courseSection(){
-  const item = austinOrientationSteps[courseIndex] || austinOrientationSteps[0];
+  const item = ORIENTATION_STEPS[courseIndex] || ORIENTATION_STEPS[0];
   const done = completed[`course-${courseIndex}`];
-  const completeCount = austinOrientationSteps.filter((_,i)=>completed[`course-${i}`]).length;
-  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">Step 1 • Austin orientation</p><h2>A welcome from Austin</h2><p>${completeCount} of ${austinOrientationSteps.length} sections complete</p></div><div class="course-meter"><strong>${coursePct()}%</strong><span>complete</span></div></div><div class="bar course-bar"><i style="width:${coursePct()}%"></i></div><article class="austin-message"><div class="austin-badge">Austin Goff • CEO</div><p class="eyebrow">${esc(item.eyebrow)}</p><h3>${esc(item.title)}</h3><p class="message-body">${esc(item.body)}</p><blockquote>${esc(item.prompt)}</blockquote></article><div class="course-actions"><button class="secondary" onclick="setCourseSlide(${courseIndex-1})" ${courseIndex===0?'disabled':''}>← Previous</button>${courseIndex===austinOrientationSteps.length-1
+  const completeCount = ORIENTATION_STEPS.filter((_,i)=>completed[`course-${i}`]).length;
+  const cardsHtml = item.cards ? `<div class="doc-blocks orientation-cards">${item.cards.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>` : '';
+  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">Step 1 • Goff orientation — the 30,000-foot view</p><h2>Welcome to Goff Welding</h2><p>${completeCount} of ${ORIENTATION_STEPS.length} sections complete • Safety training and policy details come next, in their own sections</p></div><div class="course-meter"><strong>${coursePct()}%</strong><span>complete</span></div></div><div class="bar course-bar"><i style="width:${coursePct()}%"></i></div><article class="austin-message">${item.austin?`<div class="austin-badge">Austin Goff • CEO</div>`:''}<p class="eyebrow">${esc(item.eyebrow)}</p><h3>${esc(item.title)}</h3>${item.body?`<p class="message-body">${esc(item.body)}</p>`:''}${cardsHtml}${item.prompt?`<blockquote>${esc(item.prompt)}</blockquote>`:''}</article><div class="course-actions"><button class="secondary" onclick="setCourseSlide(${courseIndex-1})" ${courseIndex===0?'disabled':''}>← Previous</button>${courseIndex===ORIENTATION_STEPS.length-1
   ? `<button class="complete-btn done" onclick="finishOrientation()">Finish orientation → Next step</button>`
-  : `<button class="complete-btn ${done?'done':''}" onclick="toggleCourseSlide(${courseIndex})">${done?'Complete ✓':'Mark complete'}</button><button onclick="completeAndNextCourseSlide(${courseIndex})">Next →</button>`}</div><div class="orientation-outline" aria-label="Austin orientation sections">${austinOrientationSteps.map((s,i)=>`<button class="orientation-dot ${i===courseIndex?'active':''} ${completed[`course-${i}`]?'done':''}" onclick="setCourseSlide(${i})"><span>${i+1}</span><b>${esc(s.title)}</b></button>`).join('')}</div></section>`;
+  : `<button class="complete-btn ${done?'done':''}" onclick="toggleCourseSlide(${courseIndex})">${done?'Complete ✓':'Mark complete'}</button><button onclick="completeAndNextCourseSlide(${courseIndex})">Next →</button>`}</div><div class="orientation-outline" aria-label="Goff orientation sections">${ORIENTATION_STEPS.map((s,i)=>`<button class="orientation-dot ${i===courseIndex?'active':''} ${completed[`course-${i}`]?'done':''}" onclick="setCourseSlide(${i})"><span>${i+1}</span><b>${esc(s.title)}</b></button>`).join('')}</div></section>`;
 }
 
 function trainingSection(){ return `<section class="panel training-panel"><p class="eyebrow">Guided new-hire path</p><h2>From cleared candidate to active employee</h2><p class="summary">This is the consistent training sequence Austin was describing. It reduces the day-one fire hose and gives Goff a second pass at the 30-day check-in.</p><div class="training-steps">${trainingSteps.map((s,i)=>`<article class="training-step ${completed[`training-${i}`]?'complete':''}"><button class="step-check" onclick="toggle('training-${i}')">${completed[`training-${i}`]?'✓':i+1}</button><div><span>${esc(s.timing)} • ${esc(s.owner)}</span><h3>${esc(s.title)}</h3><p>${esc(s.why)}</p><button class="inline" onclick="nav('${s.page}')">Open module</button></div></article>`).join('')}</div></section>`; }
@@ -792,7 +954,16 @@ function contentPage(id){ const p=pageContent[id]; if(!p) return startSection();
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><p class="note"><strong>Production database needed:</strong> notes, assignments, and completion status will activate once employee records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Save check-in note</button><button disabled title="Requires production database">Assign follow-up</button><button disabled title="Requires production database">Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
-  return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''}"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div><div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Production database needed:</strong> these actions become one-click workflow actions once onboarding records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Generate welcome message</button><button disabled title="Requires production database">Verify BBSI complete</button><button disabled title="Requires production database">Assign supervisor handoff</button><button disabled title="Requires production database">Schedule 30-day check-in</button></div></section>`;
+  return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''}"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div><div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Production database needed:</strong> these actions become one-click workflow actions once onboarding records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Generate welcome message</button><button disabled title="Requires production database">Verify BBSI complete</button><button disabled title="Requires production database">Assign supervisor handoff</button><button disabled title="Requires production database">Schedule 30-day check-in</button></div></section>
+  <section class="panel"><p class="eyebrow">Training oversight — what Austin asked for on the July 1 call</p><h2>Who actually read it, and who click-click-clicked</h2><p class="summary">Every knowledge check tracks attempts, not just completion. Quinton and managers see per-employee results: first-try answers versus second-guessing, section completion, quiz scores, and acknowledgements. Demo data below is from this device.</p>
+  <div class="metric-grid">${(()=>{const s=kcStats();return [
+    { label:'Knowledge checks', value:`${s.done}/${s.total}`, detail:'Answered correctly so far on this device' },
+    { label:'First-try correct', value:String(s.firstTry), detail:'Read it and got it — the signal Austin wants' },
+    { label:'Needed retries', value:String(s.retried), detail:'Second-guessed — flag for a manager conversation' },
+    { label:'Safety quiz', value:`${quizScore()}/${SAFETY_QUIZ.length}`, detail:'Pass/fail rule pending Dale' },
+  ].map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')})()}</div>
+  <div class="doc-blocks" style="margin-top:16px"><article><h3>Assign retraining</h3><p>Manager assigns any section or policy to an employee with a deadline (“Did you even read the vehicle policy? You’re doing it tomorrow.”) — trackable instead of take-my-word-for-it.</p></article><article><h3>Yearly refresher</h3><p>Each year every employee gets 5 randomly-pulled sections as a refresher, per Austin. With all resources in one spot, this becomes a button, not a project.</p></article></div>
+  <div class="admin-actions"><button disabled title="Requires production database">Assign section to employee</button><button disabled title="Requires production database">Set completion deadline</button><button disabled title="Requires production database">Trigger yearly refresher</button></div></section>`;
 }
 function resourcesSection(){ return `<section class="panel"><p class="eyebrow">Employee resources</p><h2>After onboarding, this becomes the main employee home.</h2><p class="summary">A new employee does not need to choose from all resources on day one. They learn them through onboarding first. Once complete, this page becomes the place to come back for forms, policies, training refreshers, and company links.</p><div class="cards">${[['faq','FAQs — search anything'],['forms','Company forms'],['policies','Policies'],['perdiem','Per diem / travel'],['exaktime','Timekeeping'],['safety','Safety refresher'],['tools','Tools / PPE'],['role','Role expectations'],['milestones','Check-ins']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open resource</small></button>`).join('')}</div></section>`; }
 
@@ -825,8 +996,18 @@ function safetySection(){
   const score = quizScore();
   const done = answered === SAFETY_QUIZ.length;
   const passed = done && score === SAFETY_QUIZ.length;
-  return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div></section>
-  <section class="panel quiz-panel"><p class="eyebrow">Draft from Goff’s Safety Training &amp; Quiz V3 — pending Dale’s confirmation</p><h2>Safety orientation quiz</h2><p class="summary">These 10 true/false questions are taken directly from Goff’s current New Employee Safety Training handbook. Answer all 10. In production, results save to your employee record and route to HR/Safety; in this review version they save to this device.</p>
+  const sectionsDone = SAFETY_SECTIONS.filter(safetySectionDone).length;
+  return `<section class="panel doc-page"><p class="eyebrow">Safety Training — separate from orientation, per Austin</p><h2>Safety training sections</h2><p class="summary">Work through each section, then answer its knowledge check. ${sectionsDone} of ${SAFETY_SECTIONS.length} sections complete. Goff plans 10–15 sections total (~15 minutes each) — the remaining sections arrive as Dale and BBSI’s safety team deliver material. The pass/fail quiz at the bottom completes your safety record.</p>
+  <div class="safety-sections">${SAFETY_SECTIONS.map((s,i)=>{
+    const isDone = safetySectionDone(s);
+    const read = completed[`safesec-${s.id}`];
+    return `<details class="safety-sec ${isDone?'done':''}" ${!isDone && (i===0 || safetySectionDone(SAFETY_SECTIONS[i-1]||{}))?'open':''}><summary><span class="sec-num">${isDone?'✓':i+1}</span>${esc(s.title)}<em>${isDone?'Complete':s.kc?'Reading + knowledge check':'Reading'}</em></summary>
+    <div class="doc-blocks">${s.cards.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>
+    <div class="admin-actions" style="margin-top:12px"><button class="${read?'secondary':''}" onclick="toggleSafetySection('${s.id}')">${read?'Marked as read ✓':'Mark section as read'}</button></div>
+    ${s.kc ? kcCard(s.kc, `Knowledge check · Section ${i+1}`) : ''}</details>`;
+  }).join('')}
+  <article class="safety-sec placeholder"><span class="sec-num">…</span><div><b>Sections ${SAFETY_SECTIONS.length+1}–15 reserved</b><p>Dale and BBSI’s safety team are gathering additional topics and teaching material. As it arrives, each topic becomes a section here — same format, same tracking.</p></div></article></div></section>
+  <section class="panel quiz-panel"><p class="eyebrow">Pass/fail quiz — from Goff’s Safety Training &amp; Quiz V3, pending Dale’s pass rule</p><h2>Safety training quiz</h2><p class="summary">These 10 true/false questions are taken directly from Goff’s current New Employee Safety Training handbook. Answer all 10. In production, results save to your employee record and route to HR/Safety; in this review version they save to this device.</p>
   <div class="quiz-meter"><strong>${score}/${SAFETY_QUIZ.length}</strong><span>${done ? (passed ? 'All correct — acknowledgement unlocked' : 'Review the highlighted answers') : `${answered} of ${SAFETY_QUIZ.length} answered`}</span></div>
   <div class="quiz-list">${SAFETY_QUIZ.map((item,i)=>{
     const ans = quizAnswers[i];
