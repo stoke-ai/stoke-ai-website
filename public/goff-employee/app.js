@@ -97,6 +97,8 @@ const ORIENTATION_STEPS = [
   { austin:true, theme:'dark', eyebrow:'What happens next', title:'Your first day has a clear path',
     body:'After this orientation you will move through setup items, work basics, the safety training sections, and a supervisor handoff. Ask questions early and often — we’re here to help you succeed.',
     prompt:'Next step: continue through the onboarding path in order.' },
+  { quiz:['kc10','kc11','kc12','kc13'], eyebrow:'Quick check — four questions', title:'Show us you caught the important parts',
+    body:'Answer these before finishing orientation. Get one wrong? No problem — re-read and try again. Your answers and retries are part of your training record.' },
   { theme:'red', eyebrow:'Welcome to the team', title:'We’re glad you’re here',
     body:'Welcome to Goff Welding. We’re thrilled to have you join our team of dedicated professionals committed to quality, precision, and craftsmanship.',
     prompt:'Finish orientation to unlock the rest of your onboarding path.' },
@@ -136,7 +138,15 @@ const KNOWLEDGE_CHECKS = {
   kc7:{ q:'Which of the following must be kept confidential?', options:['Only customer credit-card numbers','Customer info, drawings, pricing, and company processes','Nothing — our work is public','Only documents marked “secret”'], correct:1 },
   kc8:{ q:'You realize you will be late for your shift. What should you do?', options:['Wait and explain once you arrive','Communicate the delay as early as possible','Have a coworker quietly cover for you','Nothing, as long as it rarely happens'], correct:1 },
   kc9:{ q:'When may you operate shop machinery or welding equipment?', options:['As soon as you start your shift','Only after proper training AND supervisor authorization','Whenever the equipment is available','After watching someone else do it once'], correct:1 },
+  // Orientation wrap-up check — per Austin: "they've passed two or three
+  // questions" is the satisfactory-consumption signal. Light, not pass/fail.
+  kc10:{ q:'What are Goff Welding’s four core values?', options:['Speed, strength, silence, and sales','Integrity, humility, respect, and accountability','Profit, punctuality, pride, and power','Talent, toughness, tradition, and trust'], correct:1 },
+  kc11:{ q:'Which of these is Goff’s absolute priority on every single job?', options:['Finishing as fast as possible','Operating safely so everyone goes home — every single day','Using the least amount of material','Beating the estimate no matter what'], correct:1 },
+  kc12:{ q:'What does “good” look like in your first 90 days?', options:['Keep your head down and stay quiet','Learn processes, demonstrate reliability, develop proficiency','Memorize every policy word-for-word','Work overtime every week'], correct:1 },
+  kc13:{ q:'You’re not sure how to start a task. What does Goff expect you to do?', options:['Guess and keep moving so you look busy','Ask instead of guessing — repeat the task back if you’re unsure','Wait until someone notices you’re stuck','Skip it and start something else'], correct:1 },
 };
+const ORIENTATION_QUIZ = ['kc10','kc11','kc12','kc13'];
+function orientationQuizDone(){ return ORIENTATION_QUIZ.every(id => kcState[id]?.correct); }
 let kcState = (() => { try { return JSON.parse(safeGetEarly('goffKCv1') || '{}'); } catch(_) { return {}; } })();
 function answerKC(id, idx){
   const kc = KNOWLEDGE_CHECKS[id]; if(!kc) return;
@@ -957,6 +967,11 @@ function completeAndNextCourseSlide(i){
   setCourseSlide(i+1);
 }
 function finishOrientation(){
+  if(!orientationQuizDone()){
+    const quizIdx = ORIENTATION_STEPS.findIndex(s => s.quiz);
+    setCourseSlide(quizIdx >= 0 ? quizIdx : 0);
+    return;
+  }
   completed[`course-${courseIndex}`] = true;
   completed.orientation = true;
   save();
@@ -974,6 +989,7 @@ function courseSlideCanvas(item){
       : `<span class="slide-ic">${orientIcon(ic)}</span>`;
     return `<article class="slide-card">${badge}<h4>${esc(h)}</h4><p>${esc(b)}</p></article>`;
   }).join('')}</div>` : '';
+  const quiz = item.quiz ? `<div class="slide-quiz">${item.quiz.map((id,i)=>kcCard(id, `Question ${i+1} of ${item.quiz.length}`)).join('')}</div>` : '';
   return `<article class="slide-canvas theme-${theme}">
     <span class="g-mark" aria-hidden="true">G</span>
     <div class="slide-inner">
@@ -983,6 +999,7 @@ function courseSlideCanvas(item){
       ${item.lede?`<p class="slide-lede">${esc(item.lede)}</p>`:''}
       ${item.body?`<p class="slide-body">${esc(item.body)}</p>`:''}
       ${cards}
+      ${quiz}
       ${item.prompt?`<blockquote class="slide-quote">${esc(item.prompt)}</blockquote>`:''}
     </div>
   </article>`;
@@ -991,9 +1008,12 @@ function courseSection(){
   const item = ORIENTATION_STEPS[courseIndex] || ORIENTATION_STEPS[0];
   const done = completed[`course-${courseIndex}`];
   const completeCount = ORIENTATION_STEPS.filter((_,i)=>completed[`course-${i}`]).length;
+  const quizGate = item.quiz && !item.quiz.every(id => kcState[id]?.correct);
   return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">Goff orientation — the 30,000-foot view</p><h2>Step ${courseIndex+1} of ${ORIENTATION_STEPS.length}</h2><p>${completeCount} of ${ORIENTATION_STEPS.length} sections complete • Safety training and policy details come next, in their own sections</p></div><div class="course-meter"><strong>${coursePct()}%</strong><span>complete</span></div></div><div class="bar course-bar"><i style="width:${coursePct()}%"></i></div>${courseSlideCanvas(item)}<div class="course-actions"><button class="secondary" onclick="setCourseSlide(${courseIndex-1})" ${courseIndex===0?'disabled':''}>← Previous</button>${courseIndex===ORIENTATION_STEPS.length-1
   ? `<button class="complete-btn done" onclick="finishOrientation()">Finish orientation → Next step</button>`
-  : `<button class="complete-btn ${done?'done':''}" onclick="toggleCourseSlide(${courseIndex})">${done?'Complete ✓':'Mark complete'}</button><button onclick="completeAndNextCourseSlide(${courseIndex})">Next →</button>`}</div><div class="orientation-outline" aria-label="Goff orientation sections">${ORIENTATION_STEPS.map((s,i)=>`<button class="orientation-dot ${i===courseIndex?'active':''} ${completed[`course-${i}`]?'done':''}" onclick="setCourseSlide(${i})"><span>${completed[`course-${i}`]?'✓':i+1}</span><b>${esc(s.title)}</b></button>`).join('')}</div></section>`;
+  : quizGate
+    ? `<button class="complete-btn" disabled title="Answer all four questions to continue">Answer all questions to continue</button><button disabled title="Answer all four questions to continue">Next →</button>`
+    : `<button class="complete-btn ${done?'done':''}" onclick="toggleCourseSlide(${courseIndex})">${done?'Complete ✓':'Mark complete'}</button><button onclick="completeAndNextCourseSlide(${courseIndex})">Next →</button>`}</div><div class="orientation-outline" aria-label="Goff orientation sections">${ORIENTATION_STEPS.map((s,i)=>`<button class="orientation-dot ${i===courseIndex?'active':''} ${completed[`course-${i}`]?'done':''}" onclick="setCourseSlide(${i})"><span>${completed[`course-${i}`]?'✓':i+1}</span><b>${esc(s.title)}</b></button>`).join('')}</div></section>`;
 }
 
 function trainingSection(){ return `<section class="panel training-panel"><p class="eyebrow">Guided new-hire path</p><h2>From cleared candidate to active employee</h2><p class="summary">This is the consistent training sequence Austin was describing. It reduces the day-one fire hose and gives Goff a second pass at the 30-day check-in.</p><div class="training-steps">${trainingSteps.map((s,i)=>`<article class="training-step ${completed[`training-${i}`]?'complete':''}"><button class="step-check" onclick="toggle('training-${i}')">${completed[`training-${i}`]?'✓':i+1}</button><div><span>${esc(s.timing)} • ${esc(s.owner)}</span><h3>${esc(s.title)}</h3><p>${esc(s.why)}</p><button class="inline" onclick="nav('${s.page}')">Open module</button></div></article>`).join('')}</div></section>`; }

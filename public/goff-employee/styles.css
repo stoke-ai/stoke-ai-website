@@ -196,3 +196,7 @@ button.inline-link:hover{background:none;color:#9e1320}
   .g-mark{font-size:300px;bottom:-.28em}
   .slide-headline{max-width:none}
 }
+
+/* Orientation wrap-up quiz inside the slide canvas */
+.slide-quiz{display:grid;gap:14px;margin-top:24px}
+.slide-quiz .kc-card{margin-top:0}
