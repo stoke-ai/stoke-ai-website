@@ -68,18 +68,20 @@ export async function middleware(request: NextRequest) {
   const host = request.headers.get('host')?.split(':')[0]?.toLowerCase() ?? '';
   const { pathname } = request.nextUrl;
 
-  // Vanity host (goff.stoke-ai.com) → public careers site. This stays
-  // unauthenticated so applicants can apply directly.
+  // Vanity host (goff.stoke-ai.com) → public careers site, served by the
+  // recruiting app's career view (single careers codebase; the app hard-locks
+  // this host to career/apply views client-side). Stays unauthenticated so
+  // applicants can apply directly.
   if (GOFF_HOSTS.has(host)) {
-    if (pathname === '/' || pathname === '/apply' || pathname === '/index.html') {
-      return NextResponse.rewrite(new URL('/goff-careers/index.html', request.url));
+    if (pathname === '/' || pathname === '/apply' || pathname === '/careers' || pathname === '/index.html' || pathname.startsWith('/goff-careers')) {
+      return NextResponse.rewrite(new URL('/goff-recruiting/index.html', request.url));
     }
-    if (pathname.startsWith('/goff-careers')) {
-      return NextResponse.next();
+    if (pathname.startsWith('/goff-recruiting/login')) {
+      // Not even the login page belongs on the public host.
+      return NextResponse.rewrite(new URL('/goff-recruiting/index.html', request.url));
     }
-    // The vanity host should NEVER expose the admin tool.
     if (pathname.startsWith('/goff-recruiting')) {
-      return NextResponse.rewrite(new URL('/goff-careers/index.html', request.url));
+      return NextResponse.next(); // static assets for the SPA
     }
   }
 
@@ -106,6 +108,14 @@ export async function middleware(request: NextRequest) {
   }
   if (pathname === '/goff-recruiting' || pathname === '/goff-recruiting/') {
     return NextResponse.rewrite(new URL('/goff-recruiting/index.html', request.url));
+  }
+  // The standalone goff-careers app was removed (duplicate implementation);
+  // any old links land on the single careers experience.
+  if (pathname.startsWith('/goff-careers')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/goff-recruiting/';
+    url.search = '?view=career';
+    return NextResponse.redirect(url, 308);
   }
 
   // Gate /goff-recruiting/* on the main domain: require a portal session

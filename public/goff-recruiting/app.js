@@ -284,10 +284,16 @@ async function initCandidateSync(){
     pullCandidates(true).catch(()=>{});
   }, 45000);
 }
+// Hosts that must only ever show the public careers experience — never the
+// recruiting admin, regardless of URL tricks.
+const PUBLIC_CAREERS_HOSTS = ['goff.stoke-ai.com', 'goff-stoke-ai.vercel.app', 'careers.goffwelding.com'];
+function isPublicCareersHost(){ return PUBLIC_CAREERS_HOSTS.includes(window.location.hostname.toLowerCase()); }
+function publicSafeView(v){ return ['career','apply','thanks'].includes(v) ? v : 'career'; }
 function initialRecruitingView(){
   const path = window.location.pathname.toLowerCase();
   const params = new URLSearchParams(window.location.search);
   const explicit = params.get('view');
+  if(isPublicCareersHost()) return publicSafeView(explicit || 'career');
   if(explicit) return explicit;
   if(path.includes('/careers') || path.includes('/apply')) return 'career';
   return 'dashboard';
@@ -591,7 +597,7 @@ function render(){
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
-function page(){ return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)(); }
+function page(){ if(isPublicCareersHost()) view = publicSafeView(view); return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)(); }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
   const austinDecisions = candidates.filter(needsHiringManager);
