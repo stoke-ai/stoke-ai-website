@@ -1796,18 +1796,64 @@ function main(){
   return startSection();
 }
 function courseHeader(){ return `<header class="course-appbar"><img src="/goff-welding-logo.png" alt="Goff Welding" /><button class="secondary" onclick="nav('start')">Portal home</button></header>`; }
+
+// --- Review feedback widget (Austin's red pen) ---
+let feedbackOpen = false;
+function feedbackContext(){
+  if(section === 'course') return `Orientation slide ${courseIndex+1}`;
+  if(courseOpenSet && courseOpenId){
+    const c = courseListFor(courseOpenSet).find(x=>x.id===courseOpenId);
+    const pos = (courseSlidePos[`${courseOpenSet}:${courseOpenId}`]||0)+1;
+    return c ? `${c.title} — slide ${pos}` : '';
+  }
+  return '';
+}
+function toggleFeedback(){ feedbackOpen = !feedbackOpen; render(); if(feedbackOpen){ const t=document.getElementById('fb-text'); if(t) t.focus(); } }
+async function sendFeedback(){
+  const textEl = document.getElementById('fb-text');
+  const nameEl = document.getElementById('fb-name');
+  const btn = document.getElementById('fb-send');
+  const comment = (textEl?.value || '').trim();
+  const author = (nameEl?.value || '').trim() || 'Goff reviewer';
+  if(!comment){ if(textEl) textEl.focus(); return; }
+  if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+  try{
+    safeSet('goffFeedbackName', author);
+    const res = await fetch('/api/goff-portal/feedback', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ author, comment, section, context: feedbackContext(), url: window.location.href })
+    });
+    if(!res.ok) throw new Error('bad status '+res.status);
+    feedbackOpen = false; render();
+    const t=document.createElement('div'); t.className='toast'; t.textContent='Comment sent to Jeff ✓'; document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+  }catch(_){
+    if(btn){ btn.disabled = false; btn.textContent = 'Send comment'; }
+    const t=document.createElement('div'); t.className='toast'; t.textContent='Could not send — try again'; document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+  }
+}
+function feedbackWidget(){
+  const ctx = feedbackContext();
+  if(!feedbackOpen) return `<button class="fb-fab" onclick="toggleFeedback()" title="Leave a review comment">📝 Feedback</button>`;
+  return `<div class="fb-panel"><div class="fb-head"><b>Review comment</b><button class="fb-x" onclick="toggleFeedback()">✕</button></div>
+  <p class="fb-where">On: <b>${esc(section)}</b>${ctx?` — ${esc(ctx)}`:''}</p>
+  <input id="fb-name" placeholder="Your name" value="${esc(safeGet('goffFeedbackName') || '')}" />
+  <textarea id="fb-text" placeholder="What should change here? Wording, order, missing info — anything."></textarea>
+  <button id="fb-send" onclick="sendFeedback()">Send comment</button>
+  <small>Goes straight to Jeff with this exact location attached.</small></div>`;
+}
+
 function compactHeader(){
   return `<header class="mini-hero"><img src="/goff-welding-logo.png" alt="Goff Welding" /><span class="mini-sep">Employee portal</span><div class="mini-meta"><span>${esc(PROFILE.firstName)} • starts ${esc(PROFILE.startDate)}</span><button class="secondary" onclick="nav('start')">Portal home</button></div></header>`;
 }
 function render(){
   const app = document.getElementById('app');
   if(section==='course'){
-    app.innerHTML = `${courseHeader()}<main class="course-wrap">${main()}</main>`;
+    app.innerHTML = `${courseHeader()}<main class="course-wrap">${main()}</main>${feedbackWidget()}`;
   } else {
     // Full welcome hero only on the home screen; inner pages get a slim bar so
     // content is immediately visible after navigation.
     const hdr = section==='start' ? header() : compactHeader();
-    app.innerHTML = `${hdr}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>`;
+    app.innerHTML = `${hdr}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>${feedbackWidget()}`;
   }
 }
 render();

@@ -238,3 +238,16 @@ button.inline-link:hover{background:none;color:#9e1320}
 .theme-dark .slide-links a,.theme-red .slide-links a{background:#fff;color:#111}
 .theme-dark .slide-links a:hover,.theme-red .slide-links a:hover{background:#ffe3e6}
 @media(max-width:640px){.slide-links a{flex:1;justify-content:center}}
+
+/* Review feedback widget */
+.fb-fab{position:fixed;right:18px;bottom:18px;z-index:60;background:#111;color:#fff;border-radius:999px;padding:13px 18px;font-weight:900;box-shadow:0 8px 26px rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.15)}
+.fb-fab:hover{background:var(--red)}
+.fb-panel{position:fixed;right:18px;bottom:18px;z-index:60;width:min(360px,calc(100vw - 36px));background:#fff;border:1px solid var(--line);border-top:5px solid var(--red);border-radius:12px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;gap:10px}
+.fb-head{display:flex;align-items:center;justify-content:space-between}
+.fb-head b{font-family:'Playfair Display',serif;font-size:20px}
+.fb-x{background:none;color:#666;box-shadow:none;padding:4px 8px;font-size:15px}
+.fb-x:hover{background:#f1f1f1;color:#111}
+.fb-where{margin:0;font-size:12px;color:#666}
+.fb-panel input,.fb-panel textarea{border:1px solid var(--line);border-radius:6px;padding:10px 12px;font:inherit;font-size:14px}
+.fb-panel textarea{min-height:110px;resize:vertical}
+.fb-panel small{color:#999;font-size:11px}
