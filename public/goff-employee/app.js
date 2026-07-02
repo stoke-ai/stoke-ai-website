@@ -1330,12 +1330,18 @@ function main(){
   return startSection();
 }
 function courseHeader(){ return `<header class="course-appbar"><img src="/goff-welding-logo.png" alt="Goff Welding" /><button class="secondary" onclick="nav('start')">Portal home</button></header>`; }
+function compactHeader(){
+  return `<header class="mini-hero"><img src="/goff-welding-logo.png" alt="Goff Welding" /><span class="mini-sep">Employee portal</span><div class="mini-meta"><span>${esc(PROFILE.firstName)} • starts ${esc(PROFILE.startDate)}</span><button class="secondary" onclick="nav('start')">Portal home</button></div></header>`;
+}
 function render(){
   const app = document.getElementById('app');
   if(section==='course'){
     app.innerHTML = `${courseHeader()}<main class="course-wrap">${main()}</main>`;
   } else {
-    app.innerHTML = `${header()}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>`;
+    // Full welcome hero only on the home screen; inner pages get a slim bar so
+    // content is immediately visible after navigation.
+    const hdr = section==='start' ? header() : compactHeader();
+    app.innerHTML = `${hdr}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>`;
   }
 }
 render();
