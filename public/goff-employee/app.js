@@ -113,8 +113,9 @@ const pageContent = {
       ['Core values','Integrity, humility, respect, and accountability. These should show up in how employees communicate, finish work, handle feedback, and represent the company.'],
       ['What Goff expects','Reliability, ownership, work ethic, communication, and pride in the quality of what is produced.'],
       ['Living the values','Take pride in your work, finish what you start, do what needs done without being asked, keep your word, ride for the brand, say less/do more, communicate clearly, and know where integrity is not negotiable.'],
+      ['En Español — confirmed for v1','“¡Bienvenido a Goff Welding LLC!” — Visión: ser conocidos por agregar valor, siempre. Misión: agregamos valor todos los días a través de la integridad, el respeto y la mejora continua. Valores: integridad, humildad, respeto, responsabilidad. The full Spanish welcome (from “Welcome to Goff Value - Spanish”) ships as a language toggle in production.'],
     ],
-    questions:['Does Austin want this exact wording from the updated packet?','Should values include short scenario questions?','Does Goff want employee acknowledgement stored for values/expectations?','Should Spanish values copy be included in v1?']
+    questions:['Does Austin want this exact wording from the updated packet?','Should values include short scenario questions?','Does Goff want employee acknowledgement stored for values/expectations?','Spanish welcome is confirmed in — should ExakTime and payroll-deduction Spanish docs join it in v1?']
   },
   clearance: {
     kicker:'Pre-employment guardrail',
@@ -421,6 +422,104 @@ const KRA_DATA = [
     ],
     success:'Jobs start on time, no material-related delays, strong vendor reliability, accurate pricing for estimating.',
     failure:'Late POs, surprise delays, poor vendor communication, repeated PO corrections.' },
+  { id:'tradesman2', role:'Tradesman Class 2', identity:'Skilled Producer. Reliable Contributor.',
+    why:'Executes skilled work consistently while supporting crew productivity and developing toward leadership. Takes ownership of assigned work and adds value through consistency and reliability.',
+    areas:[
+      ['Work execution & accuracy','40%','Perform welds and fabrication tasks correctly, follow drawings and specifications; install and assemble equipment correctly, assist with alignment and setup.'],
+      ['Productivity & work pace','30%','Maintain a steady production pace, stay engaged and working, contribute consistently to crew output.'],
+      ['Skill development & growth','20%','Improve trade skills and expand capabilities — progress toward Class 1 level.'],
+      ['Safety & reliability','10%','Show up prepared, work safely and consistently.'],
+    ],
+    success:'Dependable and consistent, improving technical ability, contributes to team productivity.',
+    failure:'Repeated mistakes, slow production, lack of improvement.' },
+  { id:'tradesman3', role:'Tradesman Class 3', identity:'Developing Tradesman. Emerging Contributor.',
+    why:'Supports crew execution while building foundational skills in the trade. Works hard, learns quickly, takes direction well.',
+    areas:[
+      ['Basic task execution','40%','Perform basic welds and prep; assist with assembly, bolting, and setup.'],
+      ['Work ethic & productivity','30%','Stay active and engaged, support crew operations.'],
+      ['Learning & skill development','20%','Build trade knowledge and improve daily.'],
+      ['Safety & attitude','10%','Follow direction and maintain a positive attitude.'],
+    ],
+    success:'Improving consistently, reliable and engaged, supports the team.',
+    failure:'Lack of effort, poor attitude, no improvement.' },
+  { id:'estimator', role:'Estimator', identity:'Scope Interpreter. Cost Architect. Proposal Builder.',
+    why:'Accurately interprets drawings, specifications, and customer intent and converts them into clear, competitive, profitable proposals. The first line of defense against unclear or risky work.',
+    areas:[
+      ['Scope interpretation & drawing analysis','30%','Read and interpret drawings, specs, and customer documents; identify missing, vague, or conflicting information early; provide technical clarity to CRMs.'],
+      ['Estimate development & cost accuracy','25%','Build accurate labor, material, and fabrication cost models using historical data, shop input, and technical judgment. Identify cost risks and opportunities.'],
+      ['Proposal creation & documentation','20%','Develop clear professional proposals with scope, materials, timeline, assumptions, and exclusions — CRM-ready on first pass.'],
+      ['SAP bill of materials & job setup support','15%','Accurate BOMs that support production and procurement. Detailed targets live in the role-scoped KRA document.'],
+    ],
+    success:'CRMs understand exactly what Goff is proposing, fewer surprises after award, competitive profitable bids.',
+    failure:'Scope confusion, estimate-vs-actual surprises, late or unclear proposals.' },
+  { id:'crm', role:'Customer Relations Manager (CRM)', identity:'Pipeline Builder. Revenue Driver. Capacity Creator.',
+    why:'Creates, secures, and manages work that keeps Goff Welding’s crews productive and profitable. Not a “sales role” — a production-driving leadership role that feeds the entire operation.',
+    areas:[
+      ['Pipeline development & visibility','30%','Maintain an active, visible pipeline with a consistent weekly prospecting and quoting rhythm. Leadership can understand the workload outlook instantly. Specific volume targets live in the role-scoped KRA document.'],
+      ['Work conversion & job creation','25%','Convert quotes into executable work — clearly defined, approved, and ready for production, with strong quote-to-close follow-up.'],
+      ['Production alignment & support','20%','Align the pipeline with shop and field capacity; coordinate with the Shop Manager, foremen, and procurement so crews stay productive without being overwhelmed.'],
+      ['Revenue flow & job value','15%','Drive consistent revenue and prioritize profitable work. Targets live in the role-scoped KRA document.'],
+      ['Customer stewardship & reputation','10%','Build long-term relationships, communicate clearly, represent Goff Welding professionally.'],
+    ],
+    success:'Consistent opportunity flow, no surprise gaps in workload, crews consistently fed, repeat business.',
+    failure:'Pipeline gaps, poor follow-up, jobs entering production unclear, starved or overwhelmed crews.' },
+  { id:'officemanager', role:'Office Manager', identity:'Administrative & Financial Control Lead.',
+    why:'Ensures the company’s financial, HR, and administrative functions operate with accuracy, discipline, and reliability — the control tower for AP, AR, payroll, HR, insurance, finance, and procurement support.',
+    areas:[
+      ['Financial accuracy & administrative control','30%','AP, AR, payroll, and finance executed accurately and on time; clean, reconciled, audit-ready data; procurement discipline enforced.'],
+      ['Department performance monitoring','25%','Weekly visibility to leadership on performance, risks, and bottlenecks; hold each function accountable to standards and deadlines.'],
+      ['HR, payroll & compliance administration','20%','Accurate employee records, onboarding documentation, certifications; payroll processed accurately and confidentially; insurance compliance maintained.'],
+      ['Office operations & process improvement','15%','Organized, efficient office systems; improve processes to reduce errors; support new systems and reporting tools.'],
+    ],
+    success:'Leadership trusts the data, functions hit deadlines, recurring errors decline.',
+    failure:'Reconciliation delays, payroll errors, compliance lapses, leadership in the dark.' },
+  { id:'supplychain', role:'Supply Chain Specialist', identity:'Material Controller. Flow Enabler. Warehouse Guardian.',
+    why:'Ensures materials flow cleanly, accurately, and predictably through Goff Welding — from receiving, to storage, to staging, to outbound delivery — keeping crews supplied and moving.',
+    areas:[
+      ['Inventory accuracy & material control','30%','95%+ inventory accuracy, weekly cycle counts, zero stock-outs on critical consumables, same-day recording of material movements.'],
+      ['Receiving & verification','25%','100% verification against PO and packing slip, materials labeled and logged same day, discrepancies reported within 24 hours.'],
+      ['Staging, warehouse & team support','—','Staging readiness ahead of jobs, warehouse orderliness, and support for Procurement, CRMs, and production. Weights in the role-scoped KRA document.'],
+    ],
+    success:'Production never stops for missing materials, CRMs and Procurement trust the numbers, clean predictable warehouse.',
+    failure:'Missing materials, receiving discrepancies, disorganized warehouse, unclear material status.' },
+  { id:'facilities', role:'Facilities / Equipment Lead', identity:'Capacity Protector & Cost Controller.',
+    why:'Protects production capacity and controls maintenance costs — keeping vehicles, welders, equipment, tools, and facility systems safe, reliable, and operational. Asset stewardship, not a “repair role.”',
+    areas:[
+      ['Vehicle reliability & uptime','30%','PM schedules for trucks and trailers, mileage and service tracking, DOT compliance, driver inspection checklists, repair-vs-replace recommendations.'],
+      ['Welding machines & field equipment','20%','Maintain all welding machines; inspect leads, torches, grounds, cables; calibration schedules; track recurring operator damage.'],
+      ['PM system, budget & asset tracking','—','Master preventive-maintenance system, budget control, vendor coordination, asset tagging, and scorecard reporting. Weights in the role-scoped KRA document.'],
+    ],
+    success:'Reduced roadside failures, fewer emergency repairs, longer asset life, uninterrupted crews.',
+    failure:'Field delays from vehicle failures, unplanned downtime, runaway maintenance costs.' },
+  { id:'timekeeping', role:'Timekeeping & Administrative Coordinator', identity:'Timekeeping Accuracy & Operational Support Coordinator.',
+    why:'Maintains accurate timekeeping, operational tracking, compliance coordination, and administrative support — protecting company resources and payroll accuracy.',
+    areas:[
+      ['Timekeeping & payroll support','45%','Monitor ExakTime accuracy and completeness, coordinate corrections, support payroll preparation, follow up on missing approvals.'],
+      ['Compliance & operational tracking','30%','Safety training tracking and reminders, licensing/certification/COI tracking, OSHA administrative documentation, recurring deadline monitoring.'],
+      ['Reporting & administrative operations','15%','Operational reports, organized tracking systems, office communication and social media coordination.'],
+      ['Cross-training & office support','10%','Working knowledge of onboarding and billing processes; office coverage and administrative projects.'],
+    ],
+    success:'Reliable timekeeping data, compliance deadlines never missed, proactive communication of discrepancies.',
+    failure:'Payroll discrepancies, missed compliance deadlines, disorganized tracking.' },
+  { id:'aphr', role:'Billing & Administrative Support (AP/HR Support)', identity:'Billing Accuracy & Administrative Support Specialist.',
+    why:'Supports accurate billing, purchasing coordination, vendor communication, and administrative organization — protecting the company through organized financial support and reliable follow-through.',
+    areas:[
+      ['Billing & financial support','40%','Support AP/AR processes, accurate invoice coding and documentation, collections follow-up, vendor communication.'],
+      ['Purchasing & administrative coordination','30%','Office purchasing and supply management; apparel, merchandise, and promotional ordering; employee appreciation items and company events.'],
+      ['Administrative organization & follow-through','20%','Organized digital and physical records, established procedures followed, proactive communication of discrepancies.'],
+      ['Cross-training & office support','10%','Working knowledge of onboarding and timekeeping processes; office coverage and special projects.'],
+    ],
+    success:'Accurate billing records, organized purchasing, tasks completed accurately and on time.',
+    failure:'Invoice errors, missed follow-ups, disorganized documentation.' },
+  { id:'prefab', role:'Prefabrication Manager', identity:'Production Flow Leader & Material Readiness Manager.',
+    why:'Ensures materials, components, tooling, and fabrication resources flow efficiently through the prefabrication area — transforming it from a reactive work center into a proactive production system.',
+    areas:[
+      ['Material readiness & production flow','30%','Raw materials processed and ready ahead of demand; workflow through waterjet, bandsaw, ironworker, press brake, and staging; bottlenecks identified before they impact production.'],
+      ['Inventory, organization & tooling','—','SAP Business One inventory accuracy, shop organization and cleanliness, tooling and equipment development. Weights in the role-scoped KRA document.'],
+      ['Leadership & delegation','—','Workforce coordination, production scheduling support, continuous improvement, area accountability reporting.'],
+    ],
+    success:'Crews never wait on prefab, staging predictable, prefab area organized and proactive.',
+    failure:'Material emergencies, reactive scrambles, bottlenecks discovered on job day.' },
 ];
 let kraSelected = KRA_DATA[0].id;
 
@@ -431,7 +530,7 @@ const formModules = [
   { id:'timeoff', title:'Request days off', audience:'All employees', status:'Employee-facing', when:'Use before taking time off, vacation, planned appointments, or schedule exceptions.', how:'Per the FAQ: submit in the ExakTime app at least two weeks in advance.', next:'Supervisor reviews, approval/denial is communicated, and the Work Schedule is updated.', route:'ExakTime is the system of record → supervisor approves → Scheduler updates the Work Schedule. Portal links to ExakTime rather than duplicating the request.', confirm:'Confirm supervisor-level approval and whether any roles need admin/HR signoff too.' },
   { id:'truck', title:'Truck check-out / check-in', audience:'Drivers / assigned vehicle users', status:'Role-based', when:'Check out a truck before use (authorized drivers only) and check it in on return with condition, mileage, fuel, and maintenance notes.', how:'Complete the Truck Check Out / Truck Check In forms in Company Links. Confirm you are an authorized driver with your supervisor first.', next:'Vehicle status is reviewed, maintenance/follow-up assigned, damage escalated to a Company Damage Report if needed.', route:'Supervisor confirms authorized driver → Maintenance owns vehicle follow-up (per FAQ: facility/equipment issues go to Maintenance) → damage escalates to supervisor + safety.', confirm:'Confirm which roles need this, how often, and who owns maintenance follow-up.' },
   { id:'purchase', title:'Purchase request', audience:'Role-specific', status:'Confirm approval path', when:'Use when materials, supplies, tools, or job-related purchases need approval.', how:'Per the FAQ: notify your supervisor first. If directed, submit the Purchase Request Form (Company Links) with item, vendor, job, cost, urgency.', next:'The inventory/procurement team orders. Only order or pick up materials yourself if directed by your supervisor.', route:'Supervisor screens the need → Purchase Request routes to Procurement/Inventory team → requester notified of approval and pickup/delivery.', confirm:'Confirm approval limits and whether urgent purchases have a different process.' },
-  { id:'spark', title:'Spark Award', audience:'All employees', status:'Likely visible', when:'Use to recognize a coworker for helpfulness, safety, quality, attitude, or going above expectations.', how:'Submit a Spark Award Nomination in Company Links: employee name, what they did, and why it matters.', next:'Nomination routes to the right person/team and may be included in recognition or awards process.', route:'Nominations route to office/leadership for review on a recurring cadence (monthly proposed).', confirm:'Confirm who reviews nominations and how often awards are selected.' },
+  { id:'spark', title:'Spark Award', audience:'All employees', status:'Confirmed employee-facing', when:'The Spark Award honors the unsung heroes of Goff Welding — people whose everyday actions ignite something greater. Nominate a coworker whose craftsmanship, kindness, or pride made a lasting impact.', how:'Submit a Spark Award Nomination in Company Links: employee name, what they did, and why it matters.', next:'Nomination routes to the right person/team and may be included in recognition or awards process.', route:'Nominations route to office/leadership for review on a recurring cadence (monthly proposed).', confirm:'Confirm who reviews nominations and how often awards are selected.' },
   { id:'contacts', title:'Company contacts / schedule links', audience:'Approved employees', status:'Needs visibility approval', when:'Use when employees need approved internal contacts, group emails, schedules, or company resources.', how:'Open the relevant contact/schedule resource and use only approved channels. The Work Schedule (Google Sheets) is the main hub.', next:'Employee gets the correct contact/resource without asking around or using stale lists.', route:'Scheduler owns Work Schedule access (per FAQ: contact the Scheduler if you lose access). Portal links out to approved tabs only.', confirm:'Confirm which contact sheets are safe to publish, and which stay admin-only.' },
 ];
 
@@ -446,7 +545,12 @@ const POLICY_LIST = [
   { name:'Apparel Responsibility Form', type:'Sign', who:'All employees', note:'Connects to Tools/PPE module.' },
   { name:'Employee Tool List Requirement Form', type:'Sign', who:'Shop/field roles', note:'Required tools + 30-day inspection. Now drafted in the Tools/PPE module.' },
   { name:'Per Diem & Travel Allowance Policy', type:'Sign', who:'Traveling roles', note:'NEW — added to Drive 2026-07-01. Drafted as its own portal module.' },
-  { name:'Goff Welding Vehicle Policy', type:'Sign', who:'Drivers / vehicle users', note:'Three versions exist in Drive (2 docx + 1 pdf) — confirm which is current.' },
+  { name:'Goff Welding Vehicle Policy', type:'Sign', who:'Drivers / vehicle users', note:'Per the doc manifest: the published PDF is authoritative; the two docx copies are pending confirmation as source files.' },
+  { name:'Goff Welding Complaint Procedure', type:'Read', who:'All employees', note:'External complaint process (customers/vendors) — employees should know it exists. Internal concerns go up the chain of command per the FAQ.' },
+  { name:'Rehire — Employee Expectations Agreement', type:'Sign (rehires)', who:'Rehired employees', note:'' },
+  { name:'Authorization for Medical Treatment', type:'Sign', who:'All employees', note:'Part of the hire packet.' },
+  { name:'Authorization for Personal Purchase (EN/ES)', type:'Sign when applicable', who:'As needed', note:'Client confirming overlap with the Payroll Deduction Authorization form.' },
+  { name:'Update Your Federal Tax Filing Status SOP', type:'Reference / how-to', who:'All employees', note:'Employee how-to; tax changes happen in MyBBSI.' },
   { name:'Vacation Policy (Master)', type:'Read & acknowledge', who:'All employees', note:'' },
   { name:'Unexcused Absences Policy', type:'Read & acknowledge', who:'All employees', note:'' },
   { name:'Workplace Communication & Anti-Gossip Policy', type:'Read & acknowledge', who:'All employees', note:'' },
@@ -456,7 +560,7 @@ const POLICY_LIST = [
   { name:'Payroll Deduction Authorization', type:'Sign when applicable', who:'As needed', note:'Spanish version exists in Drive.' },
   { name:'Training Investment Agreement', type:'Sign when applicable', who:'Role-specific', note:'Confirm which roles/training this applies to.' },
   { name:'Emergency Call-Back Policy', type:'HOLD — draft', who:'TBD', note:'Filed as “draft” in Drive. Do not publish until approved.' },
-  { name:'Travel & Business Expense Reimbursement Policy v9.21.24', type:'HOLD — likely superseded', who:'TBD', note:'Confirm whether the new Per Diem & Travel policy replaces this.' },
+  { name:'Travel & Business Expense Reimbursement Policy v9.21.24', type:'Read & acknowledge', who:'Traveling roles', note:'Confirmed in the doc manifest alongside the new Per Diem policy — confirm how the two divide (business expenses vs per diem/lodging).' },
 ];
 function policiesSection(){
   const p = pageContent.policies;
@@ -539,7 +643,8 @@ const phaseOneStatus = [
   { area:'Safety', status:'Drafted — confirm with Dale', detail:'The real 10-question quiz from Safety Training & Quiz V3 is now live in the portal with instant feedback and the acknowledgement text. Dale confirms pass/fail, retakes, timing, and hands-on signoff.' },
   { area:'FAQs', status:'New — drafted', detail:'The Goff Welding FAQs PDF is now a searchable FAQ hub (50+ answers) and its facts are woven into ExakTime, first-day, and forms modules.' },
   { area:'Per diem / travel', status:'New — drafted', detail:'The Per Diem & Travel policy added to Drive today is a full portal module with rates, eligibility, and the signature acknowledgement. Confirm effective date and relation to the older travel reimbursement policy.' },
-  { area:'Role expectations', status:'Drafted for 5 roles', detail:'Tradesman 1 & 4, Foreman, Inventory Control, and Procurement KRAs are drafted from the actual Drive docs. Eight more roles ready to add after approval.' },
+  { area:'Role expectations', status:'All 15 roles drafted', detail:'Every KRA doc in Drive is now a role page — trades, leadership, and office roles. Role-scoped visibility (each employee sees only their KRA) activates with auth; sensitive business targets held back to the docs.' },
+  { area:'Document manifest', status:'Aligned', detail:'The portal now matches the Cowork document manifest: all 46 confirmed employee-facing files represented, pending items flagged not built, admin/finance/hiring docs excluded.' },
   { area:'Policies/forms', status:'Needs Austin decision', detail:'Documents are categorized and proposed routing is drafted on each form, but currentness, signatures, visibility, and final recipients must be approved.' },
   { area:'Backend tracking', status:'Not live yet', detail:'UI shows completion locally; production employee records, quiz results, signatures, and reminders need database work after structure approval.' },
   { area:'Domain', status:'Later', detail:'Use Stoke AI URL for review now. Move to portal.goffwelding.com after LinkNow/DNS access is clear.' },
@@ -555,7 +660,7 @@ const reconciliationRows = [
   { source:'ExakTime English/Spanish SOPs', use:'Phone-first timekeeping lesson', audience:'Employee', status:'Drafted', decision:'Exact punch/lunch/missed-punch rules and whether Spanish ships in v1.' },
   { source:'Tool list, apparel, hard hat/PPE forms', use:'Tools/PPE page with the real required-tool list, fitter/welder extras, 30-day inspection + deduction rule (live now)', audience:'Role-based', status:'Drafted — confirm version', decision:'Docx vs PDF master, reduced list for helpers, and who approves exceptions?' },
   { source:'Damage, incident, near-miss, time off, truck, purchase, Spark Award', use:'Company links/action hub', audience:'Employee / role-based', status:'Needs routing', decision:'Who receives each submission and what happens next?' },
-  { source:'KRAs and job descriptions', use:'Role expectations pages — 5 roles drafted from real KRA docs (live now)', audience:'Role-based', status:'Drafted — confirm versions', decision:'Which KRA is current for each role, what is manager-only, and which 8 remaining roles to add.' },
+  { source:'KRAs and job descriptions', use:'Role expectations pages — all 15 KRA roles drafted (live now); job descriptions stay recruiting-side', audience:'Role-based (each employee sees only their role in production)', status:'Drafted — confirm versions', decision:'Confirm each KRA is current, which parts are manager-only, and the weights for partially-extracted docs (Supply Chain, Facilities, Prefab).' },
   { source:'Reviews, warnings, PIP, termination forms', use:'Admin/supervisor only', audience:'Admin-only', status:'Hold out of employee portal', decision:'Which review template ties to 30/90/180/365 milestones?' },
   { source:'Emergency Action Plan–ICE SOP (immigration enforcement response), external complaint procedure, SAP/vendor/payment SOPs', use:'None — deliberately excluded from the employee portal', audience:'Admin-only / sensitive', status:'Excluded', decision:'Confirm these stay admin-only. The ICE SOP contains personal contact numbers and must never be on an open URL.' },
   { source:'Candidate email templates / recruiting docs', use:'Recruiting workflow only', audience:'Admin/recruiting', status:'Separate from employee portal', decision:'Connect recruiting handoff later, but do not show to new hires.' },
@@ -737,12 +842,12 @@ function selectKra(id){ kraSelected = id; render(); }
 function roleSection(){
   const p = pageContent.role;
   const k = KRA_DATA.find(x=>x.id===kraSelected) || KRA_DATA[0];
-  return `<section class="panel doc-page"><p class="eyebrow">Draft from Goff’s KRA documents — confirm current versions &amp; visibility</p><h2>Role expectations / KRA</h2><p class="summary">Each role at Goff has a Key Results Area document: why the role exists, what success looks like, and how performance is scored. Five roles are drafted below from the actual KRA docs in Drive. Pick a role to preview what a new hire in that role would see.</p>
+  return `<section class="panel doc-page"><p class="eyebrow">Draft from Goff’s KRA documents — confirm current versions &amp; visibility</p><h2>Role expectations / KRA</h2><p class="summary">Each role at Goff has a Key Results Area document: why the role exists, what success looks like, and how performance is scored. All 15 roles are drafted below from the actual KRA docs in Drive. In production each employee sees only the KRA for their own role — this picker is for review. Business-sensitive targets (revenue, quoting volumes) are held back to the role-scoped documents.</p>
   <div class="kra-tabs">${KRA_DATA.map(x=>`<button class="${x.id===kraSelected?'active':''}" onclick="selectKra('${x.id}')">${esc(x.role)}</button>`).join('')}</div>
   <article class="kra-card"><p class="eyebrow">Role identity</p><h3>${esc(k.role)}</h3><blockquote>${esc(k.identity)}</blockquote><p class="summary">${esc(k.why)}</p>
   <div class="kra-areas">${k.areas.map(([title,weight,detail])=>`<article><div class="kra-weight">${esc(weight)}</div><b>${esc(title)}</b><p>${esc(detail)}</p></article>`).join('')}</div>
   <div class="doc-blocks" style="margin-top:16px"><article><h3>What success looks like</h3><p>${esc(k.success)}</p></article><article><h3>Failure signals</h3><p>${esc(k.failure)}</p></article></div></article>
-  <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}<li>KRAs exist in Drive for 8 more roles (CRM, Estimator, Office Manager, Supply Chain, Timekeeping, Facilities, AP/HR, Prefab Manager) — add them once these five are approved.</li></ul></div></section>`;
+  <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}<li>A few KRA docs were partially extracted (Supply Chain, Facilities, Prefab) — some area weights show “—” until confirmed against the source doc.</li></ul></div></section>`;
 }
 
 function main(){
