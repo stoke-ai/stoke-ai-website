@@ -426,7 +426,7 @@ const FAQ_DATA = [
     ['Is PPE required?','Yes — required PPE must be worn at all times based on the task. If you don’t have proper PPE, do not start work and report it immediately.'],
     ['What if I see an unsafe condition?','Stop work and report it immediately.'],
     ['What is a near miss and how do I report it?','A situation that could have caused injury or damage. Submit the Near Miss Incident Report in Company Links.'],
-    ['What if I get injured at work?','Report it immediately through your direct supervisor and up the chain of command; if no one is available, contact the office. Complete an Injury Report (Company Links).'],
+    ['What if I get injured or have an accident at work?','Report it immediately through your direct supervisor and up the chain of command; if no one is available, contact the office. Complete an Injury Report (Company Links). Per the safety handbook, report ALL accidents, near misses, and injuries — even without medical treatment.'],
     ['What if equipment or property is damaged?','Report it and complete a Company Damage Report (Company Links).'],
     ['Where are safety violations documented?','Through the PPE Correction / Safety Infraction Form in Company Links.'],
     ['Where can I share safety concerns or suggestions?','Use the Safety and Suggestion Box at the north entrance of the east set of shops.'],
@@ -1787,11 +1787,76 @@ function adminSection(){ return `<section class="panel"><p class="eyebrow">Austi
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${pageContent.policies.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section><section class="panel"><p class="eyebrow">Source material crosswalk</p><h2>What goes where</h2><div class="recon-table">${reconciliationRows.map(r=>`<article><div><span>Source</span><b>${esc(r.source)}</b></div><div><span>Use in portal</span><p>${esc(r.use)}</p></div><div><span>Audience</span><p>${esc(r.audience)}</p></div><div><span>Status</span><em>${esc(r.status)}</em></div><div><span>Decision needed</span><p>${esc(r.decision)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Human input needed</p><h2>What Jeff/Austin/BBSI need to answer</h2><div class="question-list">${humanNeeds.map(([topic,q])=>`<article><span>${esc(topic)}</span><b>${esc(q)}</b></article>`).join('')}</div></article><article class="panel"><p class="eyebrow">Walkthrough questions</p><h2>Questions for Goff/BBSI</h2><div class="question-list single">${adminQuestions.map(([topic,q])=>`<article><span>${esc(topic)}</span><b>${esc(q)}</b></article>`).join('')}</div><p class="note"><strong>Phase 1 rule:</strong> build the reviewable structure now; save real employee records, quiz results, acknowledgements, reminders, and signatures for backend work after Goff approves the flow.</p></article></section>`; }
 
 function setFaqSearch(value){ faqSearch = String(value || '').toLowerCase(); const target = document.getElementById('faq-results'); if(target) target.innerHTML = faqResults(); }
+// Search normalization: lowercase, strip punctuation, squash repeated letters —
+// so "acccident" and "accident" both become "acident" and typos still match.
+function faqNorm(s){ return String(s).toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/(.)\1+/g,'$1'); }
+// Welder-vocabulary synonyms (values are stems, matched after normalization).
+const FAQ_SYNONYMS_RAW = {
+  accident:['injur','incident','damage','hurt','near miss','report'],
+  hurt:['injur','incident','first aid','medical'],
+  injury:['incident','hurt','medical','report'],
+  emergency:['injur','911','first aid','fire'],
+  pay:['paycheck','paystub','payday','deposit','advance','check'],
+  paid:['payday','paycheck','friday'],
+  money:['pay','advance','paycheck'],
+  raise:['pay','review','evaluation'],
+  vacation:['time off','request days','pto'],
+  dayoff:['time off','request days'],
+  sick:['absence','doctor','notify','ill'],
+  late:['absence','notify','supervisor','hour'],
+  boss:['supervisor','foreman','report to'],
+  manager:['supervisor','foreman'],
+  gear:['ppe','apparel','glove','helmet','glasses'],
+  clothes:['apparel','shirt'],
+  uniform:['apparel','shirt'],
+  truck:['vehicle','check out','check in','driver'],
+  car:['vehicle','truck','personal vehicle'],
+  phone:['quo','cell','call','breaks'],
+  lunch:['meal','break'],
+  clock:['exaktime','punch','time'],
+  timecard:['exaktime','approve','punch'],
+  schedule:['work schedule','shift'],
+  quit:['resign','termination'],
+  fired:['termination','warning','discipline'],
+  drug:['alcohol','test','screen'],
+  beer:['alcohol','drug'],
+  smoke:['smoking','tobacco'],
+  tools:['tool list','sign out','parts room'],
+  buy:['purchase','request'],
+  broke:['damage','report','maintenance'],
+  broken:['damage','report','maintenance','equipment'],
+  bathroom:['restroom'],
+  handbook:['company links','policies'],
+  insurance:['eligib','workers comp','benefit'],
+  taxes:['mybbsi','tax','w-4'],
+};
+const FAQ_SYNONYMS = Object.fromEntries(Object.entries(FAQ_SYNONYMS_RAW).map(([k,v]) => [faqNorm(k), v]));
+function faqTokenMatches(normText, token){
+  if(normText.includes(token)) return true;
+  // prefix match for longer tokens ("welding" finds "welder")
+  if(token.length >= 5 && normText.includes(token.slice(0, token.length - 2))) return true;
+  const syns = FAQ_SYNONYMS[token] || [];
+  return syns.some(s => normText.includes(faqNorm(s)));
+}
 function faqResults(){
   const s = faqSearch.trim();
-  const groups = FAQ_DATA.map(g => ({ category:g.category, items: s ? g.items.filter(([q,a]) => (q+' '+a).toLowerCase().includes(s)) : g.items })).filter(g => g.items.length);
-  if(!groups.length) return `<p class="summary" style="padding-top:14px">No answers match “${esc(faqSearch)}”. Try a different word, or ask your supervisor or the office.</p>`;
-  return groups.map(g => `<div class="faq-group"><h3>${esc(g.category)}</h3>${g.items.map(([q,a]) => `<details class="faq-item"${s?' open':''}><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>`).join('');
+  if(!s){
+    return FAQ_DATA.map(g => `<div class="faq-group"><h3>${esc(g.category)}</h3>${g.items.map(([q,a]) => `<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>`).join('');
+  }
+  const tokens = faqNorm(s).split(/\s+/).filter(t => t.length > 1);
+  const scored = [];
+  FAQ_DATA.forEach(g => g.items.forEach(([q,a]) => {
+    const t = faqNorm(q + ' ' + a);
+    const hits = tokens.filter(tok => faqTokenMatches(t, tok)).length;
+    if(hits > 0) scored.push({ category:g.category, q, a, hits });
+  }));
+  const full = scored.filter(x => x.hits === tokens.length);
+  const show = full.length ? full : scored.sort((x,y) => y.hits - x.hits).slice(0, 8);
+  if(!show.length) return `<p class="summary" style="padding-top:14px">No answers match “${esc(faqSearch)}”. Try a different word, or ask your supervisor or the office.</p>`;
+  const banner = full.length ? '' : `<p class="summary" style="padding-top:10px">No exact match for “${esc(faqSearch)}” — closest answers:</p>`;
+  const byCat = {};
+  show.forEach(x => { (byCat[x.category] ||= []).push(x); });
+  return banner + Object.entries(byCat).map(([cat, items]) => `<div class="faq-group"><h3>${esc(cat)}</h3>${items.map(x => `<details class="faq-item" open><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p></details>`).join('')}</div>`).join('');
 }
 function faqSection(){
   const total = FAQ_DATA.reduce((n,g)=>n+g.items.length,0);
