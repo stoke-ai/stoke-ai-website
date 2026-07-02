@@ -333,6 +333,13 @@ function upsertOnboardingRecord(x){
   if(idx >= 0) queue[idx] = Object.assign({}, queue[idx], record);
   else queue.unshift(record);
   saveSharedQueue(queue);
+  // Also create the real employee record so the onboarding ops board sees the
+  // handoff on any device, not just this browser.
+  fetch('/api/goff-portal/employees', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ first: x.first, last: x.last, email: x.email, phone: x.phone,
+      role: x.role, supervisor: x.offer?.supervisor || '', startDate: x.offer?.startDate || '' })
+  }).catch(err => console.warn('[handoff] employee record create failed:', err));
   return record;
 }
 function alreadyMovedToOnboarding(x){ return parseSharedQueue().some(item => item.id === `candidate-${x.id}` || item.candidateId === x.id); }

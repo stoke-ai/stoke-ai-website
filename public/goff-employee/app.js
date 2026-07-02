@@ -1396,11 +1396,38 @@ const demoOnboardingQueue = [
   { id:'vehicle-checkin', name:'Vehicle-user check-in', role:'Driver / assigned vehicle user', supervisor:'Supervisor to confirm', stage:'30-day check-in', status:'Due soon', start:'Started', progress:84, blocked:'Truck check-in routing needs owner', next:'Run 30-day check-in and confirm vehicle/form training' },
 ];
 function parseRecruitingHandoffs(){ try { return JSON.parse(localStorage.getItem('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
+// Real onboarding records from the server (created by the recruiting handoff).
+let serverEmployees = [];
+let serverEmployeesLoaded = false;
+async function loadServerEmployees(){
+  try{
+    const res = await fetch('/api/goff-portal/employees');
+    if(!res.ok) return;
+    const data = await res.json();
+    serverEmployees = (Array.isArray(data.employees) ? data.employees : []).map(e => ({
+      id: `emp-${e.id}`,
+      name: `${e.first_name} ${e.last_name}`.trim(),
+      role: e.role || 'Role TBD',
+      supervisor: e.supervisor || 'Supervisor to confirm',
+      stage: 'BBSI invite + training path',
+      status: e.status === 'onboarding' ? 'Ready for onboarding' : e.status,
+      start: e.start_date ? new Date(`${e.start_date}T12:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : 'Pending',
+      progress: 28,
+      blocked: 'BBSI/myBBSI invite and completion still need admin confirmation',
+      next: 'Send welcome link, confirm myBBSI invite, then start training path',
+      fromRecruiting: true, fromServer: true,
+    }));
+    serverEmployeesLoaded = true;
+    if(section === 'ops') render();
+  }catch(_){ /* offline: fall back to local queue */ }
+}
 function currentOnboardingQueue(){
   const handoffs = parseRecruitingHandoffs().map(x => Object.assign({ progress:28, status:'Ready for onboarding', stage:'BBSI invite + training path', blocked:'BBSI/myBBSI invite and completion still need admin confirmation', next:'Send welcome link, confirm myBBSI invite, then start training path' }, x, { fromRecruiting:true }));
-  const handoffNames = new Set(handoffs.map(x => String(x.name || '').toLowerCase()));
-  const demos = demoOnboardingQueue.filter(x => !handoffNames.has(String(x.name || '').toLowerCase()));
-  return [...handoffs, ...demos];
+  const seen = new Set(serverEmployees.map(x => String(x.name || '').toLowerCase()));
+  const localOnly = handoffs.filter(x => !seen.has(String(x.name || '').toLowerCase()));
+  localOnly.forEach(x => seen.add(String(x.name || '').toLowerCase()));
+  const demos = demoOnboardingQueue.filter(x => !seen.has(String(x.name || '').toLowerCase()));
+  return [...serverEmployees, ...localOnly, ...demos];
 }
 function computedAdminMetrics(){
   const q = currentOnboardingQueue();
@@ -1419,14 +1446,14 @@ const adminMetrics = computedAdminMetrics;
 const ownerActions = [
   { owner:'Admin / HR', count:4, items:['Confirm BBSI invite sent/completed','Resend expired myBBSI invite if needed','Generate day-before welcome reminder','Record 30-day check-in result'] },
   { owner:'Supervisor', count:4, items:['Confirm first-day contact','Complete safety / hands-on signoff','Review first assignment and expectations','Answer open employee questions'] },
-  { owner:'Employee', count:5, items:['Complete BBSI/myBBSI','Review ExakTime page','Review safety basics','Learn company forms','Complete 30-day check-in questions'] },
+  { owner:'Employee', count:5, items:['Complete BBSI/myBBSI','Complete the Work Basics course','Complete the safety training sections','Learn company forms','Complete 30-day check-in questions'] },
   { owner:'Portal setup', count:5, items:['Final route for each company form','Add approved PDFs/links only','Define notification recipients','Store progress per employee','Keep BBSI boundary clear'] },
 ];
 
 const blockers = [
   { title:'BBSI completion signal', owner:'Admin / BBSI', impact:'Cannot reliably mark day-one ready until Goff knows what complete looks like.' },
   { title:'Company form routing', owner:'Austin / Goff', impact:'Damage, time off, truck, purchase, and Spark forms need recipients and next actions.' },
-  { title:'Safety signoff rule', owner:'Supervisor', impact:'Need to know what is portal acknowledgement vs hands-on signoff.' },
+  { title:'Safety hands-on signoff', owner:'Supervisor', impact:'Portal tracks module completion + IIPP acknowledgement; the hands-on signoff (LOTO demo, equipment tests) lives in the step-5 checklist and needs a named owner.' },
   { title:'Employee-visible links', owner:'Austin / Goff', impact:'Contact sheets and schedule links need visibility approval before publishing broadly.' },
 ];
 
@@ -2082,3 +2109,4 @@ function render(){
   }
 }
 render();
+loadServerEmployees();
