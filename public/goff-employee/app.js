@@ -147,6 +147,23 @@ const KNOWLEDGE_CHECKS = {
   kc11:{ q:'Which of these is Goff’s absolute priority on every single job?', options:['Operating safely so everyone goes home — every single day','Finishing as fast as possible','Using the least amount of material','Beating the estimate no matter what'], correct:0 },
   kc12:{ q:'What does “good” look like in your first 90 days?', options:['Keep your head down and stay quiet','Memorize every policy word-for-word','Learn processes, demonstrate reliability, develop proficiency','Work overtime every week'], correct:2 },
   kc13:{ q:'You’re not sure how to start a task. What does Goff expect you to do?', options:['Guess and keep moving so you look busy','Ask instead of guessing — repeat the task back if you’re unsure','Wait until someone notices you’re stuck','Skip it and start something else'], correct:1 },
+  // Policy-course checks, authored from the actual policy documents.
+  kc14:{ q:'What happens if you refuse a drug test or tamper with a sample?', options:['Nothing, if it’s your first time','You are retested the following week','Your manager decides later','It is treated as a policy violation and may result in immediate termination'], correct:3 },
+  kc15:{ q:'You’re taking a prescription that makes you drowsy. What does the policy require?', options:['Notify your supervisor that it may impair your ability to work safely','Nothing — prescriptions are legal','Stop taking the medication','Use vacation days until it’s done'], correct:0 },
+  kc16:{ q:'You scrape a company truck against a post and nobody saw it. What does the policy require?', options:['Fix it quietly and move on','Only report damage over $500','Report it to your supervisor and HR within 48 hours, regardless of severity','Wait for the next vehicle inspection'], correct:2 },
+  kc17:{ q:'Your kid needs a ride while you’re driving the company truck. What does the policy say?', options:['Fine for short trips','Non-employees — including family — may not ride in company trucks','Fine if they’re in a car seat','Fine on weekends only'], correct:1 },
+  kc18:{ q:'When can you start USING your accrued vacation time?', options:['Immediately — day one','After six months','After one year','After the 90-day introductory period (accrual itself starts day one)'], correct:3 },
+  kc19:{ q:'What happens when your banked vacation reaches 1.5× your annual accrual rate?', options:['Accrual stops until you use some time','You lose it all on January 1','It automatically pays out','Nothing — it keeps growing'], correct:0 },
+  kc20:{ q:'How many unexcused occurrences are you allowed per calendar year before discipline starts?', options:['1','3','5','10'], correct:2 },
+  kc21:{ q:'You wake up sick. When must you notify your supervisor?', options:['By the end of the day','At least 1 hour before your shift starts','Within 24 hours','Only if you’ll miss two or more days'], correct:1 },
+  kc22:{ q:'You’re a Tradesman 4 (helper). What color hard hat do you wear?', options:['Orange','Brown','White','Black'], correct:0 },
+  kc23:{ q:'Your hard hat’s suspension is frayed. What does the SOP require?', options:['Tape it up','Wear it carefully until payday','Turn the hat backward','Replace it immediately'], correct:3 },
+  kc24:{ q:'How long does the video release last once you sign it?', options:['One year','Until you leave Goff','Forever — it is granted in perpetuity, worldwide','Five years'], correct:2 },
+  kc25:{ q:'You resign three weeks after starting. What happens to the apparel you were issued?', options:['Nothing — it was a gift','Its total value is deducted from your final paycheck (leaving within the first 30 days)','You mail the shirts back','Goff bills you later'], correct:1 },
+  kc26:{ q:'Where do you find the Employee Handbook?', options:['Ask HR to print a copy','It’s posted in the breakroom','Emailed to you monthly','Work Schedule → Company Links → Employee Handbook (Employee Copy)'], correct:3 },
+  kc27:{ q:'When does per diem apply?', options:['Any drive over 30 minutes','Whenever you buy lunch on a job','Only approved overnight travel outside the daily commute range (~1 hour / 60 miles)','Every scheduled Friday'], correct:2 },
+  kc28:{ q:'What is the standard overnight meals & incidentals (M&IE) per diem?', options:['$60 per day, no receipts required','$100 per day with receipts','$25 per day','Whatever you actually spend'], correct:0 },
+  kc29:{ q:'What makes a correct timecard entry?', options:['“Welding” is enough','“Working, 8 hours”','Whatever the foreman writes','WHAT you did, WHERE, WHO we bill, HOW long (quarter-hour), WHEN done, and DID you break'], correct:3 },
 };
 const ORIENTATION_QUIZ = ['kc10','kc11','kc12','kc13'];
 function orientationQuizDone(){ return ORIENTATION_QUIZ.every(id => kcState[id]?.correct); }
@@ -715,47 +732,215 @@ const POLICY_LIST = [
   { name:'Emergency Call-Back Policy', type:'HOLD — draft', who:'TBD', note:'Filed as “draft” in Drive. Do not publish until approved.' },
   { name:'Travel & Business Expense Reimbursement Policy v9.21.24', type:'Read & acknowledge', who:'Traveling roles', note:'Confirmed in the doc manifest alongside the new Per Diem policy — confirm how the two divide (business expenses vs per diem/lodging).' },
 ];
-// Policy walkthrough per Austin: a guided explain-each-policy experience with a
-// short check after each one — later connected to the AI agent that answers
-// policy questions and surfaces recurring ones to admins. First five built from
-// the deck; the rest follow once Austin approves the pattern.
-const POLICY_WALKTHROUGH = [
-  { id:'vehicle', title:'Vehicle policy — behind the wheel', kc:'kc5', cards:[
-    ['Authorized drivers','Only designated employees with valid licenses and company approval may operate company vehicles.'],
-    ['Seat belts required','Seat belts must be worn by all occupants whenever the vehicle is in motion. No exceptions.'],
-    ['No distractions','Strict prohibition of mobile phone use, texting, or other distractions while operating a vehicle.'],
+// Policy courses — each policy is its own slide presentation (per Austin: "a
+// specific policy-type PowerPoint... explain each one of the policies in
+// detail"). Slides authored from the ACTUAL policy documents in Drive; each
+// course ends behind its knowledge checks and records the acknowledgement.
+const POLICY_COURSES = [
+  { id:'handbook', title:'Employee Handbook', short:'Handbook', required:'Sign receipt', tagline:'The rulebook for working at Goff — and where to find it.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Employee Handbook', title:'The rulebook, in one place',
+      body:'The handbook covers how employment at Goff works: conduct and work rules, harassment policy, timekeeping, overtime, holidays, meal periods, phone and computer use, discipline, and how to raise a problem. You sign a receipt saying you got it and read it.',
+      prompt:'Employment is at-will, and Goff may revise policies over time — changes come as written amendments.' },
+    { eyebrow:'What’s inside', title:'Know where the big rules live',
+      cards:[
+        ['Conduct & work rules','Ethics, workplace violence prevention, harassment policy, personal appearance, and progressive discipline.','clipboard'],
+        ['Pay & time','Timekeeping, work schedules, overtime, meal periods, holidays, and vacation benefits.','doc'],
+        ['Problem resolution','A defined path to raise concerns — plus policies on equal opportunity and accommodation.','users'],
+      ] },
+    { eyebrow:'Your copy', title:'Where to find it, any time', quiz:['kc26'],
+      body:'The full Employee Copy lives in the Work Schedule under Company Links. Read it — your signed acknowledgement of receipt goes in your file.' },
   ]},
-  { id:'drugalcohol', title:'Drug & alcohol — zero tolerance, every shift', kc:'kc6', cards:[
-    ['Zero tolerance','Impairment of any kind while on duty is strictly prohibited to ensure a safe workplace for everyone. This policy applies on the clock, on every site, with no exceptions.'],
-    ['Operating safety','Absolute sobriety and focus are required at all times while working or operating equipment.'],
+  { id:'drugalcohol', title:'Drug & Alcohol Policy', short:'Drug & Alcohol', required:'Sign', tagline:'Zero tolerance, five kinds of testing — read this one carefully.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Drug & Alcohol', title:'Zero tolerance, every shift',
+      body:'Use, possession, sale, distribution, or being under the influence of illegal drugs or alcohol is strictly prohibited on company property, in company vehicles, at job sites, or while conducting company business. You must report to work fit for duty.',
+      prompt:'Violations mean discipline up to termination — and possibly legal consequences.' },
+    { eyebrow:'Testing', title:'Five ways a test can happen', numbered:true,
+      cards:[
+        ['Pre-employment','Passing a drug test may be a condition of getting hired.'],
+        ['Random — any time','Everyone may be in the random pool. Selection is neutral, objective, and non-discriminatory.'],
+        ['Reasonable suspicion','Observable behavior, appearance, speech, odors, performance issues, or accidents can trigger a test.'],
+        ['Post-accident','Any workplace accident or incident with injury, property damage, safety violations — or a near miss.'],
+        ['Return-to-duty','After a violation: rehabilitation, a passed test before returning, and follow-up testing.'],
+      ] },
+    { eyebrow:'The fine print that matters', title:'Refusals, prescriptions, convictions', quiz:['kc14','kc15'],
+      cards:[
+        ['Refusing = violating','Refusing a test, failing to cooperate, or tampering with a sample may mean immediate termination.','shield'],
+        ['Prescriptions','Lawful medication is allowed — but you must notify your supervisor if it could impair safe work. You may be moved off duty if it creates risk.','doc'],
+        ['Get help early','Voluntarily seeking help for a drug or alcohol problem before a violation will not, by itself, result in discipline. Criminal drug convictions must be reported within 7 days.','users'],
+      ] },
   ]},
-  { id:'confidentiality', title:'Confidentiality — what stays in the shop', kc:'kc7', cards:[
-    ['Customer info','Protect all personal and contact details of our customers.'],
-    ['Drawings & pricing','Keep proprietary blueprints and technical drawings secure. Safeguard internal pricing strategies and rate quotes.'],
-    ['Company processes','Maintain confidentiality of workflows and operational steps.'],
+  { id:'vehicle', title:'Vehicle Policy', short:'Vehicle', required:'Sign (drivers)', tagline:'Authorization, on-call duty, and the 48-hour reporting rule.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Vehicle Policy', title:'Behind the wheel',
+      body:'Driving a company truck is a privilege with conditions: supervisor approval, an HR driving-record check, and a valid license you keep valid. Tell your supervisor about anything that changes your ability to drive legally or safely.',
+      prompt:'All exceptions go through Austin — approved and documented, never verbal.' },
+    { eyebrow:'Using the truck', title:'What the truck is — and isn’t — for',
+      cards:[
+        ['Work use only','Company trucks are for work tasks. Non-employees — including family — may not ride. Personal use needs Austin’s prior approval, case by case.','wrench'],
+        ['On-call comes with it','If you’re assigned a truck, the on-call rotation is mandatory. Can’t cover your slot? Arrange coverage in the time app — failing to may cost you truck privileges.','clipboard'],
+        ['Care & costs','Report maintenance needs immediately. Driving fines are yours. Authorized fuel goes on the company card.','star'],
+      ] },
+    { eyebrow:'Safety & consequences', title:'Non-negotiables', quiz:['kc16','kc17'],
+      cards:[
+        ['Distraction-free','No phone use or texting while driving on company business — hands-free only for calls, no headphones. Seat belts always; obey posted limits.','shield'],
+        ['Alcohol = career risk','Transporting alcohol or illegal substances in a company vehicle can mean immediate termination.','flag'],
+        ['48-hour rule','Any accident, theft, or damage — however small — must be reported to your supervisor and HR within 48 hours.','megaphone'],
+      ] },
   ]},
-  { id:'attendance', title:'Attendance — your crew is counting on you', kc:'kc8', cards:[
-    ['Punctuality','Show up on time and be ready to work when your shift begins.'],
-    ['Communication','Communicate any issues or delays as early as possible so the team can adjust.'],
-    ['Dependability','Be a reliable team player others can count on, shift after shift.'],
+  { id:'vacation', title:'Vacation Policy', short:'Vacation', required:'Read & acknowledge', tagline:'How time accrues, the 90-day wait, and the 1.5× cap.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Vacation', title:'Your time off, by the numbers',
+      body:'All full-time employees accrue paid vacation weekly from day one, based on years of service. You can start using it after your 90-day introductory period.' },
+    { eyebrow:'Accrual schedule', title:'It grows with your service', numbered:true,
+      cards:[
+        ['Years 0–3','0.77 hours per week — about 40 hours (one week) per year.'],
+        ['Years 3–5','1.54 hours per week — about 80 hours (two weeks) per year.'],
+        ['Years 5+','2.31 hours per week — about 120 hours (three weeks) per year.'],
+      ] },
+    { eyebrow:'The rules', title:'Requesting, banking, leaving', quiz:['kc18','kc19'],
+      cards:[
+        ['Two weeks ahead','Vacation requests go in writing, approved by management, at least two weeks in advance. Approval considers business needs.','doc'],
+        ['The 1.5× cap','Unused time carries over, but your bank stops growing at 1.5× your annual accrual until you use some.','clipboard'],
+        ['If you leave','Unused accrued vacation is paid out on termination.','star'],
+      ] },
   ]},
-  { id:'timecards', title:'Timecards — six questions, every entry', cards:[
-    ['WHAT are you doing?','Be specific: “Welding Stainless 3″ Pipe,” not just “welding.” Your timecard is how we bill correctly and get you paid.'],
-    ['WHERE and WHO?','Exact location (Burley, Paul, Field, Town, or The Shop) and the exact client being billed.'],
-    ['HOW long, WHEN done, DID you break?','Round to the nearest quarter hour (“1.5 hours,” “2.75 hours”), give a clear status (“1 day left” / “complete”), and log lunches accurately (“Skipped lunch” / “Took lunch”).'],
+  { id:'absences', title:'Attendance & Unexcused Absences', short:'Attendance', required:'Sign', tagline:'The 1-hour rule, 5 occurrences, and what no-call/no-show means.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Attendance', title:'Your crew is counting on you',
+      body:'Show up on time, ready to work. When life happens, the difference between excused and unexcused is communication and documentation.',
+      prompt:'A no-call/no-show can mean immediate disciplinary action — up to termination.' },
+    { eyebrow:'Getting an absence excused', title:'The two paths',
+      cards:[
+        ['Planned time off','Submit a Request Days Off form two weeks in advance and get supervisor approval before the date.','doc'],
+        ['Same-day (sick, emergency)','Notify your supervisor at least 1 hour before your shift — phone, email, or text. Can’t reach them? Contact HR. A doctor’s note or documentation makes it excused.','megaphone'],
+      ] },
+    { eyebrow:'The math & the ladder', title:'Occurrences and consequences', quiz:['kc20','kc21'],
+      cards:[
+        ['5 per year','You’re allowed 5 unexcused occurrences per calendar year. 1–2 consecutive days = one occurrence; 3+ consecutive days count as additional.','clipboard'],
+        ['The discipline ladder','Exceeding the limit: written warning → final warning or suspension → termination.','flag'],
+      ] },
+  ]},
+  { id:'hardhat', title:'Hard Hat & Head Protection SOP', short:'Hard Hat', required:'Read & acknowledge', tagline:'When it’s required, hat condition, and Goff’s color system.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Hard Hat SOP', title:'Protect the head that does the thinking',
+      body:'Hard hats are required on active jobsites, whenever work is happening above you, and in any area with overhead hazards — lifts, elevated work, suspended loads. No exceptions without site-supervision approval.',
+      prompt:'Worn forward-facing, chin strap when conditions call for it, and it stays ON — comfort is not an exception.' },
+    { eyebrow:'Condition', title:'A damaged hat is no hat',
+      cards:[
+        ['No damage','Free from cracks, dents, or structural damage. Never drilled, altered, or modified.','shield'],
+        ['Suspension intact','The suspension system must be whole and adjusted — frayed or broken means replace immediately.','wrench'],
+        ['Accessories secured','Face shields, welding hoods, and lights must be properly attached and maintained.','helmet'],
+      ] },
+    { eyebrow:'Who wears what', title:'The color tells the story', quiz:['kc22','kc23'],
+      cards:[
+        ['Brown / Orange','Brown: welders (Tradesman 1–3). Orange: Tradesman 4 — entry-level and helpers.'],
+        ['Blue / Black','Blue: mechanics and millwrights. Black: supervisors — foremen and PMs.'],
+        ['Green / White','Green: safety personnel. White: visitors, engineers, office personnel.'],
+      ] },
+  ]},
+  { id:'conf', title:'NDA & Confidentiality', short:'Confidentiality', required:'Sign', tagline:'What stays in the shop — and for how long.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Confidentiality', title:'What stays in the shop',
+      body:'Customer information, blueprints and drawings, pricing, and company processes are confidential. So is the fact that confidential discussions are even happening.',
+      prompt:'If it isn’t public, treat it like it’s protected.' },
+    { eyebrow:'The agreement', title:'What you’re actually signing', quiz:['kc7'],
+      cards:[
+        ['Use it only for work','Confidential information is for doing your job — not for sharing outside, and it stays Goff’s property. Return or destroy it on request.','shield'],
+        ['You answer for your leaks','Share it with someone helping you work, and they leak it? You remain liable for the breach.','users'],
+        ['Three years, Idaho law','The agreement runs 3 years from signing and survives even after discussions or employment end.','doc'],
+      ] },
+  ]},
+  { id:'gossip', title:'Workplace Communication & Anti-Gossip', short:'Anti-Gossip', required:'Sign', tagline:'Praise down. Send problems up.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Communication', title:'Praise down. Send problems up.',
+      body:'Gossip kills trust and divides crews. The rule is simple: recognition flows freely to teammates and leadership; concerns about people go UP to a supervisor — not sideways to the crew.',
+      prompt:'Complaining about someone to coworkers instead of leadership is the definition of gossip here.' },
+    { eyebrow:'How it works', title:'The one-of-two rule', quiz:['kc8'],
+      cards:[
+        ['What counts as gossip','Talking negatively about someone who isn’t present, discussing others’ mistakes or discipline, speculating about company decisions.','chat'],
+        ['The rule','A concern about another employee belongs in a conversation that includes either that person or a supervisor who can fix it. One of the two — always.','users'],
+        ['What’s protected','Reporting legitimate workplace concerns, safety issues, or policy violations to management is never gossip.','shield'],
+      ] },
+  ]},
+  { id:'apparel', title:'Apparel Responsibility', short:'Apparel', required:'Sign', tagline:'Your Goff gear, its value, and the 30-day rule.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Apparel', title:'You’re issued the brand — wear it well',
+      body:'New hires are issued Goff apparel (typically 5 shirts) at the start. You sign for the total value of what you receive — t-shirts $20–25, button-ups $35–40, hats $25, beanies $30.' },
+    { eyebrow:'The deal', title:'One rule to remember', quiz:['kc25'],
+      cards:[
+        ['The 30-day rule','Resign or be terminated within your first 30 days, and the total value of the apparel you were issued is deducted from your final paycheck.','clipboard'],
+        ['Take care of it','Keep issued apparel in good condition and available for work.','star'],
+      ] },
+  ]},
+  { id:'videorelease', title:'Video Release', short:'Video Release', required:'Sign', tagline:'What you grant when Goff films the shop.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Video Release', title:'When the camera comes out',
+      body:'Goff uses photos and video of real work for its website, social media, promotional materials, and ads. Signing grants the company the right to record and use your image, likeness, and voice for those purposes.' },
+    { eyebrow:'Know what you’re signing', title:'The three things people miss', quiz:['kc24'],
+      cards:[
+        ['It’s permanent','The release is irrevocable, worldwide, and lasts in perpetuity — forever.','eye'],
+        ['No approval rights','Content may be edited or modified; you waive the right to inspect or approve the finished product.','doc'],
+        ['No compensation','You will not be paid for the use of this media.','clipboard'],
+      ] },
+  ]},
+  { id:'perdiem', title:'Per Diem & Travel', short:'Per Diem', required:'Sign (traveling roles)', tagline:'$60/day rules, lodging caps, and when none of it applies.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Per Diem & Travel', title:'Overnight travel, by the book',
+      body:'Per diem is a daily allowance for approved overnight travel — not extra pay, not guaranteed, and never for local jobs where you can reasonably drive home (about 1 hour or 60 miles one way).' },
+    { eyebrow:'The rates', title:'What you get', numbered:true,
+      cards:[
+        ['Meals & incidentals','$60 per day flat, no receipts ($75 in high-cost areas with management approval). Covers meals, tips, small incidentals.'],
+        ['Lodging — separate','Target $90 per night, up to $110 in high-cost areas with manager approval. Booked by Goff or reimbursed with a receipt.'],
+        ['Day-travel stipend','Up to $30 for long day trips with no overnight — discretionary, not GSA per diem.'],
+      ] },
+    { eyebrow:'The boundaries', title:'What it never covers', quiz:['kc27','kc28'],
+      cards:[
+        ['Not covered','Fuel, mileage, tools, entertainment, lodging taxes. Vehicle costs follow the Truck Policy.','flag'],
+        ['Travel status, not hours','Full daily rate applies when an overnight is required — but M&IE can be withheld if you call in sick and don’t work.','clipboard'],
+      ] },
+  ]},
+  { id:'timecards', title:'Timecards & Time Entry', short:'Timecards', required:'Read & acknowledge', tagline:'Six questions, every entry — it’s how you get paid.', slides:[
+    { theme:'dark', eyebrow:'Policy course · Timecards', title:'Six questions, every entry',
+      body:'Don’t write “welding” or “working.” Your timecard is how Goff bills correctly and how you get paid — every entry answers six questions.',
+      prompt:'Timecards are approved every Monday in ExakTime. Missed punch? Clock in ASAP and add a note.' },
+    { eyebrow:'The six questions', title:'What a real entry looks like', numbered:true, quiz:['kc29'],
+      cards:[
+        ['WHAT & WHERE','Be specific: “Welding Stainless 3″ Pipe” — at Burley, Paul, Field, Town, or The Shop.'],
+        ['WHO & HOW LONG','Name the exact client being billed, and round to the nearest quarter hour: “2.75 hours.”'],
+        ['WHEN DONE & BREAKS','Give a status (“1 day left” / “complete”) and log lunches honestly: “Took lunch” / “Skipped lunch.”'],
+      ] },
   ]},
 ];
+
+// --- Policy course player state & controls ---
+let policyCourseOpen = null;
+let policySlideIdx = (() => { try { return JSON.parse(safeGetEarly('goffPolicySlidesV1') || '{}'); } catch(_) { return {}; } })();
+function openPolicyCourse(id){ policyCourseOpen = id; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function closePolicyCourse(){ policyCourseOpen = null; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function setPolicySlide(id, i){ const c = POLICY_COURSES.find(x=>x.id===id); if(!c) return; policySlideIdx[id] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffPolicySlidesV1', JSON.stringify(policySlideIdx)); render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function finishPolicyCourse(id){ completed[`polcourse-${id}`] = true; save(); policyCourseOpen = null; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function slideQuizGated(item){ return !!(item && item.quiz && !item.quiz.every(id => kcState[id]?.correct)); }
+function policyCourseComplete(c){ return completed[`polcourse-${c.id}`] === true; }
+function policyCourseStatus(c){ if(policyCourseComplete(c)) return 'Complete'; if((policySlideIdx[c.id]||0) > 0) return 'In progress'; return 'Not started'; }
+function allPolicyCoursesDone(){ return POLICY_COURSES.every(policyCourseComplete); }
+function policyCoursePlayer(c){
+  const idx = policySlideIdx[c.id] || 0;
+  const item = c.slides[idx];
+  const gated = slideQuizGated(item);
+  const last = idx === c.slides.length - 1;
+  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">Policy course • ${esc(c.required)}</p><h2>${esc(c.title)}</h2><p>Slide ${idx+1} of ${c.slides.length} • ${esc(c.tagline)}</p></div><button class="secondary" onclick="closePolicyCourse()">← All policies</button></div>
+  ${courseSlideCanvas(item)}
+  <div class="course-actions"><button class="secondary" onclick="setPolicySlide('${c.id}',${idx-1})" ${idx===0?'disabled':''}>← Previous</button>${last
+    ? `<button class="complete-btn ${gated?'':'done'}" ${gated?'disabled title="Answer the questions above to finish"':''} onclick="finishPolicyCourse('${c.id}')">${gated?'Answer the questions to finish':`Finish ${esc(c.short)} ✓`}</button>`
+    : `<button ${gated?'disabled title="Answer the questions above to continue"':''} onclick="setPolicySlide('${c.id}',${idx+1})">${gated?'Answer to continue':'Next →'}</button>`}</div>
+  <div class="course-rail">${c.slides.map((s,i)=>`<button class="rail-dot ${i===idx?'active':''}" onclick="setPolicySlide('${c.id}',${i})" title="Slide ${i+1}">${i+1}</button>`).join('')}</div>
+  ${policyCourseComplete(c)?'':last && !gated ? `<p class="course-note">Finishing records your acknowledgement${/Sign/.test(c.required)?' — in production this captures your signature on the record':''}.</p>`:''}</section>`;
+}
 function policiesSection(){
+  if(policyCourseOpen){
+    const c = POLICY_COURSES.find(x=>x.id===policyCourseOpen);
+    if(c) return policyCoursePlayer(c);
+  }
   const p = pageContent.policies;
-  const walkDone = POLICY_WALKTHROUGH.filter(w => !w.kc || kcState[w.kc]?.correct).length;
-  return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div></section>
-  <section class="panel"><p class="eyebrow">Policy walkthrough — read each policy, then answer its check</p><h2>Policies &amp; safe practices</h2><p class="summary">Each policy is explained in plain language with a short knowledge check — you’ll need to answer it before it counts. ${walkDone} of ${POLICY_WALKTHROUGH.length} complete. Once approved, every company policy gets this treatment, and Goff’s AI assistant will answer policy questions here and flag recurring ones for the office.</p>
-  <div class="safety-sections">${POLICY_WALKTHROUGH.map((w,i)=>{
-    const isDone = !w.kc || kcState[w.kc]?.correct;
-    return `<details class="safety-sec ${isDone?'done':''}" ${i===0 && !isDone?'open':''}><summary><span class="sec-num">${isDone?'✓':i+1}</span>${esc(w.title)}<em>${isDone?'Complete':w.kc?'Reading + knowledge check':'Reading'}</em></summary>
-    <div class="doc-blocks">${w.cards.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}
-    </div>${w.kc ? kcCard(w.kc, `Policy check`) : ''}</details>`;
-  }).join('')}</div></section>
+  const doneCount = POLICY_COURSES.filter(policyCourseComplete).length;
+  return `<section class="panel doc-page"><p class="eyebrow">Step 2 • Policies &amp; acknowledgements</p><h2>The rules of working at Goff</h2><p class="summary">Each policy below is a short course — a few slides that explain the actual rules, a couple of questions to prove you caught them, and your acknowledgement at the end. ${doneCount} of ${POLICY_COURSES.length} complete. Take them in any order; the ones marked “Sign” become part of your signed employee record.</p>
+  <div class="policy-courses">${POLICY_COURSES.map((c,i)=>{
+    const status = policyCourseStatus(c);
+    const isDone = status==='Complete';
+    return `<button class="policy-course-card ${isDone?'done':''}" onclick="openPolicyCourse('${c.id}')"><div class="pcc-top"><span class="pcc-num">${isDone?'✓':i+1}</span><em>${esc(c.required)}</em></div><b>${esc(c.title)}</b><p>${esc(c.tagline)}</p><small class="pcc-status ${status==='In progress'?'prog':''} ${isDone?'ok':''}">${esc(status)} • ${c.slides.length} slides</small></button>`;
+  }).join('')}</div>
+  ${allPolicyCoursesDone()?`<div class="ack-box"><h3>All policies acknowledged ✓</h3><p>Every policy course is complete. In production, your signatures and completion dates are stored on your employee record and visible to HR.</p></div>`:''}</section>
   <section class="panel"><p class="eyebrow">Draft checklist from the actual Drive documents — classifications proposed, not final</p><h2>Every named policy, one list</h2><p class="summary">These are the real policy documents in Goff’s Drive today. Each becomes a trackable item on the employee’s record: sign, read-and-acknowledge, secure/BBSI, or held back. In production, completion status saves per employee.</p>
   <div class="table-list">${POLICY_LIST.map(x=>`<article><div><b>${esc(x.name)}</b>${x.note?`<small>${esc(x.note)}</small>`:''}</div><span>${esc(x.who)}</span><em>${esc(x.type)}</em></article>`).join('')}</div>
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`;
@@ -833,9 +1018,9 @@ const phaseOneStatus = [
   { area:'Orientation (restructured per July 1 call)', status:'Rebuilt — review wording', detail:'Now the 30,000-foot view Austin asked for: native, phone-friendly company/culture content ending in a 4-question check. Specific safety and policy detail pulled out into their own sections. The designed deck’s content carried over; the slide images are preserved.' },
   { area:'Onboarding path', status:'5 steps — confirming BBSI sequencing with Quinton', detail:'Orientation → Policies & acknowledgements → Safety Training → Work basics (ExakTime) → Supervisor handoff. Policy acknowledgement was content without a step — now it is step 2 and completes only when every policy check is answered. BBSI stays out of the path: its paperwork finishes before day one (that is what clears a hire to start); the BBSI page remains as a paystubs/taxes reference.' },
   { area:'Safety Training (separate section)', status:'8 of 10–15 sections built', detail:'Sections with real tappable knowledge checks + the V3 pass/fail quiz and acknowledgement. Remaining sections slot in as Dale/BBSI deliver material.' },
-  { area:'Policy walkthrough', status:'First 5 policies built', detail:'Vehicle, drug & alcohol, confidentiality, attendance, timecards — each explained with a tracked check. Pattern extends to all 24 policies after approval; AI agent hookup is Phase 2.' },
+  { area:'Policy courses', status:'12 full courses built', detail:'Every policy is now its own slide presentation authored from the actual document: handbook, drug & alcohol (all 5 testing types), vehicle (48-hour rule, on-call), vacation (accrual rates, 1.5× cap), attendance (5 occurrences, 1-hour rule), hard hat (color system), NDA, anti-gossip, apparel (30-day deduction), video release, per diem, timecards. Checks gate each course; finishing records the acknowledgement. AI agent hookup is Phase 2.' },
   { area:'Knowledge-check tracking', status:'Working now', detail:'Every check records attempts — first-try vs second-guessing — exactly the click-click-click problem Austin flagged in the PPT version. Manager assign-retraining and yearly 5-section refresher are designed in, activate with the database.' },
-  { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling', detail:'(1) Mission/vision wording differs: welcome packet says “add value always / integrity, respect, continuous improvement” while the onboarding deck says “superior craftsmanship / most trusted name in the Mountain West.” The deck version is currently shown. (2) Always-on PPE differs: deck says safety glasses + steel-toe; V3 safety handbook says safety glasses + hearing protection. Portal currently shows the union of both.' },
+  { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling', detail:'(1) Mission/vision wording exists in THREE versions: welcome packet (“add value always”), onboarding deck (“most trusted in the Mountain West”), and the New Hire Checklist welcome (“most trusted and sought-after in our region”). The deck version is currently shown. (2) Always-on PPE differs: deck says glasses + steel-toe; V3 handbook says glasses + hearing protection — portal shows the union. (3) Vehicle Policy docx says on-call coverage runs through “ADP”; the PDF says the Exak app — portal says “the time app.” (4) Time-off requests: the FAQ says the ExakTime app; the Unexcused Absences policy says a “Request Days Off” form — both say two weeks ahead. Which is the system of record?' },
   { area:'Document standardization', status:'Planned', detail:'Austin asked for tidied, consistently-branded documents and AI flagging of conflicting policy facts (e.g., observed holidays). The two conflicts above are the first output of that process.' },
   { area:'Training structure', status:'Ready for review', detail:'General onboarding, safety, policies, tools, links, role expectations, and milestones are separated.' },
   { area:'Safety', status:'Drafted — confirm with Dale', detail:'The real 10-question quiz from Safety Training & Quiz V3 is now live in the portal with instant feedback and the acknowledgement text. Dale confirms pass/fail, retakes, timing, and hands-on signoff.' },
@@ -955,8 +1140,8 @@ function startSection(){
   const steps = [
     ['course','First-day orientation','Start here. The 30,000-foot view of Goff — who we are, our values, and what to expect.','Begin',
       () => completed.orientation || coursePct()===100],
-    ['policies','Policies & acknowledgements','Read each company policy and answer its check. Signatures are captured with your record.','Continue',
-      () => POLICY_WALKTHROUGH.every(w => !w.kc || kcState[w.kc]?.correct)],
+    ['policies','Policies & acknowledgements','Complete each policy course — real rules, real questions, acknowledgement at the end.','Continue',
+      () => allPolicyCoursesDone()],
     ['safety','Safety training','Work through the safety sections and pass the quiz before hands-on work.','Continue',
       () => SAFETY_SECTIONS.every(safetySectionDone) && quizScore()===SAFETY_QUIZ.length],
     ['exaktime','Learn work basics','Set up ExakTime, learn to clock in, and handle timecards the Goff way.','Continue',
