@@ -391,9 +391,9 @@ const FAQ_DATA = [
     ['Where can I see who to report to or how the company is structured?','In the Work Schedule under the organizational chart tab.'],
     ['Where can I find the Work Schedule?','The Work Schedule is in Google Sheets. Log in with your company email and use the Google Sheets app on your phone. Look for the document labeled “Work Schedule.” If you don’t have a company email, a link will be provided.'],
     ['What does the Work Schedule include?','Your weekly schedule (by date tab), organizational chart, job duties, employee contact list, group email directory, and the Company Links page with documents and tools you use daily.'],
-    ['Where can I find company documents and forms?','In the Work Schedule under the “Company Links” page.'],
-    ['Where can I find the Employee Handbook?','Work Schedule → Company Links → Employee Handbook → Employee Copy.pdf.'],
-    ['Where can I find the Safety Manual?','Work Schedule → Company Links → Safety Manual.docx.'],
+    ['Where can I find company documents and forms?','Most forms and policies are right here in the portal — damage, incident, and near-miss reports can be filled out directly. Goff’s originals live in the Work Schedule under Company Links.',{label:'Open the forms hub',on:"nav('forms')"}],
+    ['Where can I find the Employee Handbook?','The handbook course is right here in the portal under Policies (with the rules explained slide by slide). The official PDF also lives in Work Schedule → Company Links.',{label:'Open the handbook course',on:"nav('policies')"}],
+    ['Where can I find the Safety Manual?','Safety training lives right here in the portal — sections with knowledge checks. The original Safety Manual document also lives in Work Schedule → Company Links.',{label:'Open safety training',on:"nav('safety')"}],
     ['Who do I contact if I lose access to the Work Schedule?','Contact the Scheduler.'],
   ]},
   { category:'First day & facility', items:[
@@ -425,9 +425,9 @@ const FAQ_DATA = [
     ['Do I need a hazard assessment before starting work?','Yes. A Pre-Job Hazard Assessment is required before starting any job (form in Company Links).'],
     ['Is PPE required?','Yes — required PPE must be worn at all times based on the task. If you don’t have proper PPE, do not start work and report it immediately.'],
     ['What if I see an unsafe condition?','Stop work and report it immediately.'],
-    ['What is a near miss and how do I report it?','A situation that could have caused injury or damage. Submit the Near Miss Incident Report in Company Links.'],
-    ['What if I get injured or have an accident at work?','Report it immediately through your direct supervisor and up the chain of command; if no one is available, contact the office. Complete an Injury Report (Company Links). Per the safety handbook, report ALL accidents, near misses, and injuries — even without medical treatment.'],
-    ['What if equipment or property is damaged?','Report it and complete a Company Damage Report (Company Links).'],
+    ['What is a near miss and how do I report it?','A situation that could have caused injury or damage. Report it right here in the portal (anonymous is allowed) — Goff’s original form also lives in Company Links.',{label:'Report a near miss now',on:"openFormFill('nearmiss')"}],
+    ['What if I get injured or have an accident at work?','Report it immediately through your direct supervisor and up the chain of command; if no one is available, contact the office. Then file the incident report right here in the portal. Per the safety handbook, report ALL accidents, near misses, and injuries — even without medical treatment.',{label:'File an incident report',on:"openFormFill('incident')"}],
+    ['What if equipment or property is damaged?','Report it to your supervisor and complete the Company Damage Report right here in the portal.',{label:'File a damage report',on:"openFormFill('damage')"}],
     ['Where are safety violations documented?','Through the PPE Correction / Safety Infraction Form in Company Links.'],
     ['Where can I share safety concerns or suggestions?','Use the Safety and Suggestion Box at the north entrance of the east set of shops.'],
   ]},
@@ -1841,14 +1841,14 @@ function faqTokenMatches(normText, token){
 function faqResults(){
   const s = faqSearch.trim();
   if(!s){
-    return FAQ_DATA.map(g => `<div class="faq-group"><h3>${esc(g.category)}</h3>${g.items.map(([q,a]) => `<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('')}</div>`).join('');
+    return FAQ_DATA.map(g => `<div class="faq-group"><h3>${esc(g.category)}</h3>${g.items.map(([q,a,act]) => `<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(a)}</p>${act?`<p><button class="faq-act" onclick="${act.on}">${esc(act.label)} →</button></p>`:''}</details>`).join('')}</div>`).join('');
   }
   const tokens = faqNorm(s).split(/\s+/).filter(t => t.length > 1);
   const scored = [];
-  FAQ_DATA.forEach(g => g.items.forEach(([q,a]) => {
+  FAQ_DATA.forEach(g => g.items.forEach(([q,a,act]) => {
     const t = faqNorm(q + ' ' + a);
     const hits = tokens.filter(tok => faqTokenMatches(t, tok)).length;
-    if(hits > 0) scored.push({ category:g.category, q, a, hits });
+    if(hits > 0) scored.push({ category:g.category, q, a, act, hits });
   }));
   const full = scored.filter(x => x.hits === tokens.length);
   const show = full.length ? full : scored.sort((x,y) => y.hits - x.hits).slice(0, 8);
@@ -1856,7 +1856,7 @@ function faqResults(){
   const banner = full.length ? '' : `<p class="summary" style="padding-top:10px">No exact match for “${esc(faqSearch)}” — closest answers:</p>`;
   const byCat = {};
   show.forEach(x => { (byCat[x.category] ||= []).push(x); });
-  return banner + Object.entries(byCat).map(([cat, items]) => `<div class="faq-group"><h3>${esc(cat)}</h3>${items.map(x => `<details class="faq-item" open><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p></details>`).join('')}</div>`).join('');
+  return banner + Object.entries(byCat).map(([cat, items]) => `<div class="faq-group"><h3>${esc(cat)}</h3>${items.map(x => `<details class="faq-item" open><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p>${x.act?`<p><button class="faq-act" onclick="${x.act.on}">${esc(x.act.label)} →</button></p>`:''}</details>`).join('')}</div>`).join('');
 }
 function faqSection(){
   const total = FAQ_DATA.reduce((n,g)=>n+g.items.length,0);

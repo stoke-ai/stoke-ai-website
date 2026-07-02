@@ -318,3 +318,7 @@ button.inline-link:hover{background:none;color:#9e1320}
 .onboard-meta b{color:#fff}
 .training-done-strip{padding:16px 20px}
 .training-done-strip .progress-parts{margin:0}
+
+/* Action buttons inside FAQ answers */
+.faq-act{margin:0 16px 14px;background:#111;box-shadow:none;padding:10px 16px;font-size:13px}
+.faq-act:hover{background:var(--red)}
