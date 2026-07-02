@@ -325,7 +325,7 @@ const pageContent = {
       ['Six questions, every entry','Don’t just write “welding” or “working.” Every entry answers: WHAT exactly (“Welding Stainless 3″ Pipe”), WHERE (Burley, Paul, Field, Town, The Shop), WHO we’re billing (exact client), HOW long (nearest quarter hour), WHEN done (status), and DID you break (log lunches).'],
       ['Time off requests','Request time off in the ExakTime app at least two weeks in advance.'],
     ],
-    questions:['Who issues activation codes?','What are the exact lunch punch rules?','Do shop and field roles use ExakTime differently?','Who approves time-off requests submitted in ExakTime?']
+    questions:['NEW ASK: Can someone with an ExakTime login capture screenshots (or a quick screen recording) of clock-in, job change, approval, and time-off request? We’ll embed them as visual walkthroughs in this course.','Who issues activation codes?','What are the exact lunch punch rules?','Do shop and field roles use ExakTime differently?','Who approves time-off requests submitted in ExakTime?']
   },
   safety: {
     kicker:'Safety training',
@@ -1484,6 +1484,7 @@ const humanNeeds = [
   ['Document currentness','Mark old/draft/duplicate policy docs vs official current versions.'],
   ['Visibility rules','Decide employee-facing, role-based, secure, admin-only, or recruiting-only.'],
   ['Routing owners','Name recipients/owners for time off, incident, damage, near-miss, truck, purchase, and Spark Award.'],
+  ['ExakTime screenshots','Have someone with an ExakTime login capture screenshots or a screen recording of clock-in, job change, approval, and time-off — we’ll embed them as visual walkthroughs in the Work Basics course.'],
   ['BBSI boundary','Confirm what BBSI owns and what Goff wants the portal to track.'],
 ];
 
