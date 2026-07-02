@@ -95,7 +95,7 @@ const ORIENTATION_STEPS = [
       ['Rewards & recognition','Nominees receive a sticker each month. Top quarterly nominees enter the yearly big drawing.','sparkle'],
     ] },
   { austin:true, theme:'dark', eyebrow:'What happens next', title:'Your first day has a clear path',
-    body:'After this orientation you will move through setup items, work basics, the safety training sections, and a supervisor handoff. Ask questions early and often — we’re here to help you succeed.',
+    body:'After this orientation you will move through work basics, the safety training sections, and a supervisor handoff. Your paperwork is already done through myBBSI — that’s what cleared you to start. Ask questions early and often — we’re here to help you succeed.',
     prompt:'Next step: continue through the onboarding path in order.' },
   { quiz:['kc10','kc11','kc12','kc13'], eyebrow:'Quick check — four questions', title:'Show us you caught the important parts',
     body:'Answer these before finishing orientation. Get one wrong? No problem — re-read and try again. Your answers and retries are part of your training record.' },
@@ -191,7 +191,7 @@ const trainingSteps = [
   { id:'welcome', title:'Welcome / start here', owner:'Employee', timing:'Start here', why:'Understand the onboarding path, what must be completed, and where to get help.', page:'before' },
   { id:'values', title:'Mission, vision, values', owner:'Employee', timing:'Start here', why:'Align the new hire with Goff expectations: ownership, integrity, respect, communication, reliability, and pride.', page:'values' },
   { id:'clearance', title:'Clearance hold', owner:'Admin', timing:'Before portal access', why:'Keep Offer Accepted separate from Hired until drug screen, background, and start date are confirmed.', page:'clearance' },
-  { id:'bbsi', title:'Complete setup items', owner:'Employee + Admin', timing:'Before day one', why:'Complete payroll/compliance items without mixing sensitive documents into Goff messages.', page:'bbsi' },
+  { id:'bbsi', title:'BBSI / myBBSI paperwork', owner:'Admin + BBSI', timing:'Before day one (prerequisite)', why:'Handled before training even starts: BBSI (Goff’s payroll/HR partner) collects payroll, tax, and employment documents and signals when the hire is ready to work. The portal tracks the status; the employee page becomes a reference.', page:'bbsi' },
   { id:'policies', title:'Required forms / policies', owner:'Employee + Admin', timing:'Before day one', why:'Track what is required, what is only read/acknowledge, and what is handled by BBSI.', page:'policies' },
   { id:'exaktime', title:'ExakTime / timekeeping', owner:'Employee', timing:'Before day one / day one', why:'Know how to clock in/out, review time, report missed punches, and approve time cards.', page:'exaktime' },
   { id:'safety', title:'Safety orientation + quiz', owner:'Employee + Dale/Supervisor', timing:'Day one', why:'Make safety expectations consistent and connect quiz results to the employee onboarding record.', page:'safety' },
@@ -282,16 +282,16 @@ const pageContent = {
     questions:['Who sends the final first-day text/email?','Who verifies myBBSI completion before start?','Does BBSI require anything physically brought on day one?','What exact wording should new hires receive the day before start?']
   },
   bbsi: {
-    kicker:'Boundary: BBSI owns formal HR/payroll',
-    title:'Complete setup items',
-    summary:'BBSI remains the formal payroll/compliance backend. This portal helps the employee understand the handoff, deadlines, and who to contact if stuck.',
+    kicker:'Completed before your first day — reference page',
+    title:'BBSI / myBBSI — payroll & employment paperwork',
+    summary:'BBSI (Barrett Business Services) is Goff’s payroll and HR partner — a nationwide PEO that handles employment paperwork, payroll, taxes, and workers’ comp. You completed your myBBSI onboarding before your first day; that’s what cleared you to start. This page is your reference for what lives there.',
     blocks:[
-      ['What BBSI is for','Use BBSI/myBBSI for formal onboarding items such as payroll, tax setup, employee information, and BBSI-required employment forms.'],
-      ['What Goff tracks','Goff tracks whether the invite was sent, whether it was completed, whether a resend is needed, and whether the employee is ready for the first day.'],
-      ['If the invite expires','Contact Goff quickly so the team can help with a resend or next step. Do not wait until the first morning.'],
-      ['Sensitive information','Do not send payroll, tax, banking, or identity documents by ordinary text/email unless Goff/BBSI explicitly provides an approved process.'],
+      ['What you already did','Before day one you received a myBBSI invite and completed payroll setup, tax forms (W-4), employment eligibility (I-9), and BBSI-required documents. BBSI notifies Goff when you are fully compliant and ready to work.'],
+      ['What lives in myBBSI going forward','Your paystubs, tax information and filing-status changes, and employment records. Payday is weekly on Fridays; your first check is paper while direct deposit processes (up to two weeks).'],
+      ['If something is wrong','Login trouble or a document issue in myBBSI? Contact HR or the Office Manager — they coordinate with BBSI for you.'],
+      ['Sensitive information','Never send payroll, tax, banking, or identity documents by ordinary text/email. Everything sensitive goes through myBBSI or an approved Goff process.'],
     ],
-    questions:['Exactly which items are inside BBSI vs Goff?','Who can resend BBSI invites?','What does “BBSI complete” look like to Goff?','Does direct deposit happen in BBSI or a separate Goff-controlled form?']
+    questions:['Confirming with Quinton: is myBBSI completion always required before new-hire training begins (assumed yes — awaiting reply)?','Who at Goff resends expired myBBSI invites?','What exact signal does Goff receive when BBSI marks someone ready to work?']
   },
   exaktime: {
     kicker:'Timekeeping training',
@@ -830,7 +830,8 @@ const adminQuestions = [
 ];
 const phaseOneStatus = [
   { area:'Employee home', status:'Cleaned up', detail:'Employee sees a direct first-day path, not a build explanation.' },
-  { area:'Orientation (restructured per July 1 call)', status:'Rebuilt — review wording', detail:'Now the 30,000-foot view Austin asked for: native, phone-friendly, 12 steps of company/culture content. Specific safety and policy detail pulled out into their own sections. The designed deck’s content carried over; the slide images are preserved.' },
+  { area:'Orientation (restructured per July 1 call)', status:'Rebuilt — review wording', detail:'Now the 30,000-foot view Austin asked for: native, phone-friendly company/culture content ending in a 4-question check. Specific safety and policy detail pulled out into their own sections. The designed deck’s content carried over; the slide images are preserved.' },
+  { area:'Onboarding path simplified', status:'4 steps — confirming with Quinton', detail:'BBSI removed as an employee training step: BBSI is Goff’s PEO and its paperwork completes BEFORE day one (that is what clears a hire to start), so the path is now Orientation → Work basics → Safety Training → Supervisor handoff. The BBSI page remains as a reference (paystubs, taxes, myBBSI help). Jeff emailed Quinton to confirm the sequencing assumption.' },
   { area:'Safety Training (separate section)', status:'8 of 10–15 sections built', detail:'Sections with real tappable knowledge checks + the V3 pass/fail quiz and acknowledgement. Remaining sections slot in as Dale/BBSI deliver material.' },
   { area:'Policy walkthrough', status:'First 5 policies built', detail:'Vehicle, drug & alcohol, confidentiality, attendance, timecards — each explained with a tracked check. Pattern extends to all 24 policies after approval; AI agent hookup is Phase 2.' },
   { area:'Knowledge-check tracking', status:'Working now', detail:'Every check records attempts — first-try vs second-guessing — exactly the click-click-click problem Austin flagged in the PPT version. Manager assign-retraining and yearly 5-section refresher are designed in, activate with the database.' },
@@ -849,7 +850,7 @@ const phaseOneStatus = [
 
 const reconciliationRows = [
   { source:'Welcome New Hire packet / course deck', use:'Employee orientation course + mission/values', audience:'Employee', status:'Ready for Austin wording review', decision:'Approve tone, mission/vision wording, and whether this is the main first-day course.' },
-  { source:'BBSI check-in + onboarding SOPs', use:'BBSI/myBBSI module + admin clearance guardrail', audience:'Employee + Admin', status:'Needs boundary decision', decision:'Who sends/resends invites and what counts as BBSI complete?' },
+  { source:'BBSI check-in + onboarding SOPs', use:'Pre-day-one prerequisite (admin-tracked) + employee reference page for myBBSI/paystubs/taxes', audience:'Employee + Admin', status:'Restructured — confirming with Quinton', decision:'Confirm BBSI paperwork always completes before training starts, who resends invites, and what “ready to work” signal Goff receives.' },
   { source:'Safety Training & Quiz V3 + PPE/incident docs', use:'Safety module with the real 10-question quiz + acknowledgement (live now)', audience:'Employee + Dale/Supervisor', status:'Drafted — confirm with Dale', decision:'Pass/fail rule, retake policy, timing, and hands-on signoff owner.' },
   { source:'Goff Welding FAQs.pdf (new in Drive)', use:'Searchable FAQ hub + facts woven into ExakTime, first-day, payroll, and forms modules', audience:'Employee', status:'Drafted', decision:'Confirm every answer is current, and whether Work Schedule / Company Links become live links.' },
   { source:'Per Diem & Travel Allowance Policy (added to Drive 2026-07-01)', use:'Per diem module with rates, eligibility, and signature acknowledgement', audience:'Employee + signed acknowledgement', status:'Drafted', decision:'Effective date, relation to Travel & Business Expense Reimbursement Policy v9.21.24, and who approves high-cost rates.' },
@@ -952,10 +953,9 @@ function tabs(){
 }
 function startSection(){
   const steps = [
-    ['course','First-day orientation','Start here. Review the welcome course and basic Goff expectations.','Begin'],
-    ['bbsi','Complete setup items','Finish the required employment setup items you were sent.','Continue'],
+    ['course','First-day orientation','Start here. The 30,000-foot view of Goff — who we are, our values, and what to expect.','Begin'],
     ['exaktime','Learn work basics','Learn how to clock in, handle time, and use basic company links.','Continue'],
-    ['safety','Review safety','Complete the safety basics before hands-on work.','Continue'],
+    ['safety','Safety training','Work through the safety sections and pass the quiz before hands-on work.','Continue'],
     ['handoff','Meet with your supervisor','Review role expectations, tools/PPE, first assignment, and open questions.','Finish']
   ];
   const stepDone = (i) => i===0 ? completed.orientation || coursePct()===100 : completed[`path-${i}`];
@@ -978,7 +978,7 @@ function finishOrientation(){
   completed[`course-${courseIndex}`] = true;
   completed.orientation = true;
   save();
-  nav('bbsi');
+  nav('exaktime');
 }
 function courseSlideCanvas(item){
   const theme = item.theme || 'light';
@@ -1035,7 +1035,7 @@ function opsSection(){
   <div class="doc-blocks" style="margin-top:16px"><article><h3>Assign retraining</h3><p>Manager assigns any section or policy to an employee with a deadline (“Did you even read the vehicle policy? You’re doing it tomorrow.”) — trackable instead of take-my-word-for-it.</p></article><article><h3>Yearly refresher</h3><p>Each year every employee gets 5 randomly-pulled sections as a refresher, per Austin. With all resources in one spot, this becomes a button, not a project.</p></article></div>
   <div class="admin-actions"><button disabled title="Requires production database">Assign section to employee</button><button disabled title="Requires production database">Set completion deadline</button><button disabled title="Requires production database">Trigger yearly refresher</button></div></section>`;
 }
-function resourcesSection(){ return `<section class="panel"><p class="eyebrow">Employee resources</p><h2>After onboarding, this becomes the main employee home.</h2><p class="summary">A new employee does not need to choose from all resources on day one. They learn them through onboarding first. Once complete, this page becomes the place to come back for forms, policies, training refreshers, and company links.</p><div class="cards">${[['faq','FAQs — search anything'],['forms','Company forms'],['policies','Policies'],['perdiem','Per diem / travel'],['exaktime','Timekeeping'],['safety','Safety refresher'],['tools','Tools / PPE'],['role','Role expectations'],['milestones','Check-ins']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open resource</small></button>`).join('')}</div></section>`; }
+function resourcesSection(){ return `<section class="panel"><p class="eyebrow">Employee resources</p><h2>After onboarding, this becomes the main employee home.</h2><p class="summary">A new employee does not need to choose from all resources on day one. They learn them through onboarding first. Once complete, this page becomes the place to come back for forms, policies, training refreshers, and company links.</p><div class="cards">${[['faq','FAQs — search anything'],['forms','Company forms'],['policies','Policies'],['perdiem','Per diem / travel'],['exaktime','Timekeeping'],['bbsi','Paystubs / myBBSI'],['safety','Safety refresher'],['tools','Tools / PPE'],['role','Role expectations'],['milestones','Check-ins']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open resource</small></button>`).join('')}</div></section>`; }
 
 function helpSection(){ return `<section class="panel"><p class="eyebrow">Help / questions</p><h2>If you are not sure what to do, ask here first.</h2><div class="doc-blocks"><article><h3>Check the FAQs</h3><p>Most day-one questions (parking, paychecks, time off, PPE, trucks) are already answered. <button class="inline-link" onclick="nav('faq')">Search the FAQs</button></p></article><article><h3>Your supervisor</h3><p>${esc(PROFILE.supervisor)} is the first person to ask about your first assignment, tools, PPE, and work expectations. If you can’t reach your supervisor, call the main office line.</p></article><article><h3>Goff admin / office</h3><p>Ask Goff admin if you are stuck on employment setup, login links, forms, or schedule/start details. Payroll questions go to HR or the Office Manager. Lost Work Schedule access goes to the Scheduler.</p></article><article><h3>Safety question</h3><p>Stop and ask before doing work that feels unsafe, unclear, or outside your training. Report hazards, near misses, and injuries immediately.</p></article><article><h3>Portal issue</h3><p>If something in the portal looks wrong or does not match what your supervisor told you, ask before guessing.</p></article></div></section>`; }
 
