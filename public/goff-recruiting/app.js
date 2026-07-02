@@ -517,12 +517,54 @@ function jobFor(role){ return jobs.find(j => role && role.toLowerCase().includes
 function roleFit(x){ return jobFor(x.role).roleFit; }
 function esc(s){ return String(s ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 function tag(v){ if(v==='Hot'||String(v).includes('overdue')) return 'red'; if(String(v).includes('Today')||String(v).includes('Tomorrow')||String(v).includes('24')) return 'amber'; if(String(v).includes('Website')) return 'green'; if(String(v).includes('Indeed')) return 'blue'; return 'violet'; }
+
+// --- Review feedback widget (same loop as the employee portal) ---
+let feedbackOpen = false;
+function feedbackContext(){
+  if(view === 'candidate'){ const x = c(); return x ? `Candidate: ${x.first} ${x.last} (${x.stage})` : ''; }
+  if(view === 'offer'){ const x = c(); return x ? `Offer workflow: ${x.first} ${x.last}` : ''; }
+  return '';
+}
+function toggleFeedback(){ feedbackOpen = !feedbackOpen; render(); if(feedbackOpen){ const t=document.getElementById('fb-text'); if(t) t.focus(); } }
+async function sendFeedback(){
+  const textEl = document.getElementById('fb-text');
+  const nameEl = document.getElementById('fb-name');
+  const btn = document.getElementById('fb-send');
+  const comment = (textEl?.value || '').trim();
+  const author = (nameEl?.value || '').trim() || 'Goff reviewer';
+  if(!comment){ if(textEl) textEl.focus(); return; }
+  if(btn){ btn.disabled = true; btn.textContent = 'Sending…'; }
+  try{
+    safeSet('goffFeedbackName', author);
+    const res = await fetch('/api/goff-portal/feedback', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ author, comment, section: 'recruiting:' + view, context: feedbackContext(), url: window.location.href })
+    });
+    if(!res.ok) throw new Error('bad status '+res.status);
+    feedbackOpen = false; render();
+    showToast('Comment sent to Jeff ✓');
+  }catch(_){
+    if(btn){ btn.disabled = false; btn.textContent = 'Send comment'; }
+    showToast('Could not send — try again');
+  }
+}
+function feedbackWidget(){
+  const ctx = feedbackContext();
+  if(!feedbackOpen) return `<button class="fb-fab" onclick="toggleFeedback()" title="Leave a review comment">📝 Feedback</button>`;
+  return `<div class="fb-panel"><div class="fb-head"><b>Review comment</b><button class="fb-x" onclick="toggleFeedback()">✕</button></div>
+  <p class="fb-where">On: <b>${esc(view)}</b>${ctx?` — ${esc(ctx)}`:''}</p>
+  <input id="fb-name" placeholder="Your name" value="${esc(safeGet('goffFeedbackName') || '')}" />
+  <textarea id="fb-text" placeholder="What should change here? Wording, order, missing info — anything."></textarea>
+  <button id="fb-send" onclick="sendFeedback()">Send comment</button>
+  <small>Goes straight to Jeff with this exact location attached.</small></div>`;
+}
+
 function render(){
   if(view==='career'||view==='thanks'){
-    document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>`;
+    document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
