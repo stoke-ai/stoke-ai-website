@@ -80,3 +80,14 @@ CREATE TABLE IF NOT EXISTS goff_milestones (
   owner       TEXT,
   notes       TEXT NOT NULL DEFAULT ''
 );
+
+-- ── In-portal form submissions (damage/incident/near-miss live first) ──────
+CREATE TABLE IF NOT EXISTS goff_form_submissions (
+  id            BIGSERIAL PRIMARY KEY,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  form_id       TEXT NOT NULL,           -- damage | incident | nearmiss | …
+  submitted_name TEXT NOT NULL DEFAULT '', -- empty = anonymous (allowed on near-miss)
+  fields        JSONB NOT NULL,
+  status        TEXT NOT NULL DEFAULT 'new'  -- new | reviewed | closed
+);
+CREATE INDEX IF NOT EXISTS goff_form_submissions_idx ON goff_form_submissions (form_id, created_at DESC);

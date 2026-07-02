@@ -1597,15 +1597,15 @@ function homeSearchGo(el){
 }
 function employeeHome(){
   const quick = [
-    ['forms','Report damage / incident','High priority - supervisor + safety are notified'],
-    ['forms','Report a near miss','Two minutes now prevents an injury later'],
-    ['faq','Request time off','ExakTime app, two weeks ahead - the FAQ walks you through it'],
-    ['forms','Truck check-out / check-in','Authorized drivers, before and after use'],
-    ['forms','Purchase request','Supervisor first, then the form'],
-    ['forms','Nominate a Spark Award','Caught someone doing it right? Take a minute'],
+    ["openFormFill('incident')",'Report an injury / incident','Fill it out right here - the office is notified'],
+    ["openFormFill('damage')",'Report damage','Equipment, vehicle, or property - fill out now'],
+    ["openFormFill('nearmiss')",'Report a near miss','Two minutes, anonymous allowed'],
+    ["nav('faq')",'Request time off','ExakTime app, two weeks ahead - the FAQ walks you through it'],
+    ["nav('forms')",'Truck / purchase / Spark Award','Company Links forms - how and when to use them'],
+    ["nav('bbsi')",'Paystubs & taxes','Everything myBBSI, one tap'],
   ];
   const find = [['faq','FAQs - search anything'],['policies','Policies & handbook'],['role','My role & expectations'],['safety','Safety refresher'],['perdiem','Per diem / travel'],['bbsi','Paystubs / myBBSI'],['tools','Tools / PPE'],['exaktime','Timekeeping'],['milestones','My check-ins']];
-  return `<section class="panel employee-path"><p class="eyebrow">Quick actions</p><h2>Do something</h2><div class="home-actions">${quick.map(([id,label,hint])=>`<button class="home-action" onclick="nav('${id}')"><b>${esc(label)}</b><small>${esc(hint)}</small></button>`).join('')}</div></section>
+  return `<section class="panel employee-path"><p class="eyebrow">Quick actions</p><h2>Do something</h2><div class="home-actions">${quick.map(([id,label,hint])=>`<button class="home-action" onclick="${id}"><b>${esc(label)}</b><small>${esc(hint)}</small></button>`).join('')}</div></section>
   <section class="panel"><p class="eyebrow">Find something</p><h2>Everything you learned, one tap away</h2><div class="cards">${find.map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open</small></button>`).join('')}</div></section>
   <section class="grid two"><article class="panel"><p class="eyebrow">My training record</p><h2>Complete ✓</h2><div class="progress-parts">${onboardingParts().map((p,i)=>`<span class="${p.pct===100?'done':''}"><b>${i+1}</b> ${esc(p.label)} · ${p.pct}%</span>`).join('')}</div><p>Your acknowledgements and signatures are stored on your employee record in production. A yearly refresher pulls 5 random sections; your manager can also assign retraining.</p><button class="secondary" onclick="nav('path')">Revisit my onboarding path</button></article><article class="panel"><p class="eyebrow">Stuck on something?</p><h2>Ask before guessing.</h2><p>Search the FAQs first - most answers are there. Then your supervisor, then the office. If you cannot reach your supervisor, call the main office line.</p><button class="secondary" onclick="nav('help')">Who to contact</button></article></section>`;
 }
@@ -1740,7 +1740,7 @@ function handoffSection(){
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}<li>Which roles require the Hyster / scissor-lift tests, and who administers them?</li><li>Does the Personal Information Sheet live in myBBSI or on paper?</li></ul></div></section>`;
 }
 function contentPage(id){ const p=pageContent[id]; if(!p) return startSection(); const bar = ''; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>${bar}<div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
-function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
+function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl>${m.id==='damage'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('damage')">Fill out: damage report</button><button onclick="openFormFill('incident')">Fill out: incident report</button></div>`:m.id==='nearmiss'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('nearmiss')">Fill out a near-miss report</button></div>`:''}</article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><p class="note"><strong>Production database needed:</strong> notes, assignments, and completion status will activate once employee records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Save check-in note</button><button disabled title="Requires production database">Assign follow-up</button><button disabled title="Requires production database">Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
   return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''}"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div><div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Production database needed:</strong> these actions become one-click workflow actions once onboarding records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Generate welcome message</button><button disabled title="Requires production database">Verify BBSI complete</button><button disabled title="Requires production database">Assign supervisor handoff</button><button disabled title="Requires production database">Schedule 30-day check-in</button></div></section>
@@ -1812,6 +1812,81 @@ function roleSection(){
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}<li>A few KRA docs were partially extracted (Supply Chain, Facilities, Prefab) — some area weights show “—” until confirmed against the source doc.</li></ul></div></section>`;
 }
 
+
+// --- In-portal fillable forms (fields from the actual Drive form documents) ---
+const SHARED_INCIDENT_FIELDS = [
+  { k:'Name of person(s) involved', type:'text', req:true },
+  { k:'Your name (person completing this form)', type:'text', req:true, name:true },
+  { k:'Date of incident', type:'date', req:true },
+  { k:'Time of incident', type:'time' },
+  { k:'Where did it happen? (Customer / jobsite / location)', type:'text', req:true },
+  { k:'What time did the shift start?', type:'time' },
+  { k:'Was there medical treatment?', type:'yesno' },
+  { k:'If yes: what was done? (cleaned and bandaged, ice/heat, OTC medicine…)', type:'text' },
+  { k:'Witnesses', type:'textarea' },
+  { k:'In detail: what was happening leading up to it, the incident itself, and what you did immediately after', type:'textarea', req:true },
+];
+const FORM_DEFS = {
+  damage: { title:'Company Damage Report', eyebrow:'Equipment, vehicle, or property damage', intro:'Report it immediately and complete this form. Your supervisor and the office are notified.', fields: SHARED_INCIDENT_FIELDS },
+  incident: { title:'Incident Report', eyebrow:'Injury or incident', intro:'All injuries are reported immediately through your supervisor — this form is the written record. Serious injury? 9-1-1 and WorkMed first, form second.', fields: SHARED_INCIDENT_FIELDS },
+  nearmiss: { title:'Near-Miss Report', eyebrow:'It almost happened — that counts', intro:'A near-miss is a potential hazard or incident that has not resulted in injury or damage. Reporting it is everyone’s responsibility — and per Goff’s own form, you may report anonymously.', fields:[
+    { k:'Name of person(s) involved (optional)', type:'text' },
+    { k:'Your name (optional — anonymous is allowed)', type:'text', name:true },
+    { k:'Date of incident', type:'date', req:true },
+    { k:'Time of incident', type:'time' },
+    { k:'Where did it happen? (Customer / jobsite / location)', type:'text', req:true },
+    { k:'This is a…', type:'checks', options:['Near miss','Safety concern','Safety suggestion','Other'] },
+    { k:'Type of concern', type:'checks', options:['Unsafe act','Unsafe conditions of area','Unsafe conditions of equipment','Unsafe use of equipment','Other'] },
+    { k:'Describe the near miss or concern', type:'textarea', req:true },
+    { k:'Your suggestion to prevent it (optional)', type:'textarea' },
+  ] },
+};
+let formFillId = null;
+let formFillDone = null;
+function openFormFill(id){ if(!FORM_DEFS[id]) return; formFillId = id; formFillDone = null; nav('formfill'); }
+function ffInputId(i){ return `ff-field-${i}`; }
+function formFieldHtml(f, i){
+  const id = ffInputId(i);
+  const label = `<label class="ff-label" for="${id}">${esc(f.k)}${f.req?' <em>*</em>':''}</label>`;
+  if(f.type==='textarea') return `${label}<textarea id="${id}" rows="4"></textarea>`;
+  if(f.type==='yesno') return `${label}<select id="${id}"><option value=""></option><option>Yes</option><option>No</option></select>`;
+  if(f.type==='checks') return `${label}<div class="ff-checks" id="${id}">${f.options.map((o,j)=>`<label><input type="checkbox" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>`;
+  return `${label}<input id="${id}" type="${f.type==='date'?'date':f.type==='time'?'time':'text'}" />`;
+}
+async function submitGoffForm(){
+  const def = FORM_DEFS[formFillId]; if(!def) return;
+  const fields = {}; let submittedName = ''; let missing = null;
+  def.fields.forEach((f,i) => {
+    const el = document.getElementById(ffInputId(i)); if(!el) return;
+    let v = '';
+    if(f.type==='checks') v = Array.from(el.querySelectorAll('input:checked')).map(x=>x.value).join(', ');
+    else v = String(el.value || '').trim();
+    fields[f.k] = v;
+    if(f.name && v) submittedName = v;
+    if(f.req && !v && !missing) missing = f.k;
+  });
+  if(missing){ const t=document.createElement('div'); t.className='toast'; t.textContent=`Required: ${missing}`; document.body.appendChild(t); setTimeout(()=>t.remove(),2200); return; }
+  const btn = document.getElementById('ff-submit'); if(btn){ btn.disabled=true; btn.textContent='Submitting…'; }
+  try{
+    const res = await fetch('/api/goff-portal/forms', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ formId: formFillId, submittedName, fields }) });
+    const data = await res.json().catch(()=>({}));
+    if(!res.ok || !data.ok) throw new Error(data.error || 'submit failed');
+    formFillDone = { id: data.id }; render(); window.scrollTo({top:0, behavior:'smooth'});
+  }catch(_){
+    if(btn){ btn.disabled=false; btn.textContent='Submit report'; }
+    const t=document.createElement('div'); t.className='toast'; t.textContent='Could not submit — tell your supervisor directly'; document.body.appendChild(t); setTimeout(()=>t.remove(),2600);
+  }
+}
+function formFillSection(){
+  const def = FORM_DEFS[formFillId];
+  if(!def) return formsSection();
+  if(formFillDone) return `<section class="panel doc-page"><div class="ack-box"><h3>${esc(def.title)} submitted ✓ — reference #${esc(String(formFillDone.id))}</h3><p>It’s recorded and the office has been notified. For anything urgent, also tell your supervisor in person — the form is the record, not the alarm.</p><div class="admin-actions"><button onclick="nav('start')">Back to home</button><button class="secondary" onclick="openFormFill('${formFillId}')">Submit another</button></div></div></section>`;
+  return `<section class="panel doc-page ff-panel"><p class="eyebrow">${esc(def.eyebrow)} — fields from Goff’s official form</p><h2>${esc(def.title)}</h2><p class="summary">${esc(def.intro)}</p>
+  <div class="ff-form">${def.fields.map((f,i)=>`<div class="ff-row ${f.type==='textarea'||f.type==='checks'?'wide':''}">${formFieldHtml(f,i)}</div>`).join('')}</div>
+  <div class="admin-actions" style="margin-top:18px"><button id="ff-submit" onclick="submitGoffForm()">Submit report</button><button class="secondary" onclick="nav('forms')">Cancel</button></div>
+  <p class="note" style="margin-top:14px"><strong>Routing pending Goff:</strong> submissions are stored and currently notify the portal team; final recipients (supervisor, Dale, office) activate once Austin confirms routing.</p></section>`;
+}
+
 function main(){
   if(section==='start') return startSection();
   if(section==='home') return employeeHome();
@@ -1827,6 +1902,7 @@ function main(){
   if(section==='exaktime') return exaktimeSection();
   if(section==='safety') return safetySection();
   if(section==='forms') return formsSection();
+  if(section==='formfill') return formFillSection();
   if(section==='tools') return contentPage('tools');
   if(section==='role') return roleSection();
   if(section==='faq') return faqSection();
