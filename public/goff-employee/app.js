@@ -13,7 +13,7 @@ const PROFILE = {
 const pages = [
   ['start','Start here','Employee'],
   ['course','Orientation course','Employee'],
-  ['training','Training path','Employee'],
+  ['training','Full path map','Admin'],
   ['values','Mission / values','Employee'],
   ['bbsi','BBSI / myBBSI','Employee'],
   ['exaktime','ExakTime','Employee'],
@@ -1552,7 +1552,7 @@ function header(){
         <p class="eyebrow">${esc(PROFILE.status)} • Goff onboarding path</p>
         <h1>Welcome to Goff Welding, ${esc(PROFILE.firstName)}.</h1>
         <p class="lead">Everything you need for your first day — where to go, what to review, and who will help you get started.</p>
-        <div class="hero-actions"><button onclick="nav('course')">Start orientation course</button><button class="secondary" onclick="nav('training')">Open training path</button><button class="secondary" onclick="copyLink()">Copy re-access link</button></div>
+        <div class="hero-actions"><button onclick="nav('course')">Start orientation course</button><button class="secondary" onclick="nav('resources')">Browse resources</button><button class="secondary" onclick="copyLink()">Copy re-access link</button></div>
       </div>
       <aside class="start-card">
         <small>Your first day</small>
