@@ -162,6 +162,10 @@ const KNOWLEDGE_CHECKS = {
   kc31:{ q:'Which is true about paid holidays at Goff?', options:['Every employee gets them from day one','There are four — New Year’s, July 4th, Thanksgiving, Christmas — with eligibility after one year','All ten federal holidays are paid','Holiday pay counts as hours worked for overtime'], correct:1 },
   kc32:{ q:'How many forgotten weekly timecard approvals are you allowed before consequences (like a delayed paycheck)?', options:['One','Five','Three','Unlimited'], correct:2 },
   kc33:{ q:'The person harassing you IS your supervisor. What does the handbook say to do?', options:['Wait and document it for three incidents first','Tell your coworkers so they can back you up','Nothing can be done','Go directly to HR or any member of management — reports are investigated without reprisal'], correct:3 },
+  // Work-basics course checks (from the ExakTime SOPs + FAQ).
+  kc34:{ q:'Your Tuesday time entry is wrong. What is the deadline to fix it?', options:['Fix it whenever you notice','Get the correction to Andrea no later than Monday at noon','By the end of the pay year','Corrections are not allowed'], correct:1 },
+  kc35:{ q:'Your supervisor approved your timecard Monday afternoon — then you spot an error. What now?', options:['Tap Unapprove and fix it yourself','Edit the entry directly','Let it go — it is locked forever','You cannot un-approve it yourself — speak with your supervisor or an administrator'], correct:3 },
+  kc36:{ q:'What do you use for work-related phone calls?', options:['The QUO app with your assigned company number','Your personal cell number','Any messaging app you like','Calls are not allowed during work'], correct:0 },
 };
 const ORIENTATION_QUIZ = ['kc10','kc11','kc12','kc13'];
 function orientationQuizDone(){ return ORIENTATION_QUIZ.every(id => kcState[id]?.correct); }
@@ -1259,13 +1263,55 @@ const SAFETY_COURSES = [GOFF_SITE_COURSE, ...SAFETY_COURSES_DRAFT].map(c => {
   return Object.assign({}, c, { slides, required:'Training section' });
 });
 
+
+// Step 4 as a slide course — built from the two real ExakTime SOPs in Drive
+// (install SOP + time card approval SOP) and the Goff FAQ. Replaces the old
+// static page + self-attested mark-complete.
+const WORKBASICS_COURSES = [
+  { id:'workbasics', title:'Work Basics: ExakTime & Daily Tools', short:'Work Basics', required:'Training', tagline:'Clock in right, get paid right, and know the tools you touch every day.', slides:[
+    { theme:'dark', eyebrow:'Work basics · Step 4', title:'Your timecard is how you get paid',
+      body:'ExakTime is Goff’s timekeeping system — clocking in and out, job changes, and time-off requests all live there. The pay period runs Monday to Sunday, and payday is every Friday.',
+      prompt:'Only clock in when you are on-site and ready to work.' },
+    { eyebrow:'Setup', title:'Get the app running',
+      cards:[
+        ['iPhone','App Store → search “ExakTime Mobile” → Get → Open. Goff provides your activation code or setup help on day one.','doc'],
+        ['Android','Play Store → search “ExakTime Mobile” → Install → Open. Same activation process.','doc'],
+        ['Keep it yours','Never share your login or activation info. Problems? Ask your supervisor or the office.','shield'],
+      ] },
+    { eyebrow:'The daily rhythm', title:'Four habits, every shift',
+      cards:[
+        ['Clock in ready','On-site and ready to begin — that’s when you clock in. Not from the truck, not from home.','clipboard'],
+        ['Lunch punches','Clock out for lunch, back in after. Skipped lunch? Add a note in the app.','star'],
+        ['Job changes','Switch jobs mid-day? Log each change so time lands on the right job number.','wrench'],
+        ['Missed punch','Forgot? Clock in as soon as possible, add a note explaining it, and tell your supervisor.','megaphone'],
+      ] },
+    { eyebrow:'Approval week', title:'How a timecard becomes a paycheck', numbered:true,
+      cards:[
+        ['Review daily','Three-lines menu → Approvals. Check your time every day — entries follow the six questions from the Timecards policy.'],
+        ['Corrections by Monday noon','Any fix goes to Andrea no later than Monday at noon for the prior Monday–Sunday period. Then tap APPROVE.'],
+        ['Locked after sign-off','Supervisors approve crews Monday afternoon. Once approved by your supervisor or an administrator you cannot un-approve it yourself — and three forgotten approvals brings consequences, including a delayed paycheck.'],
+      ] },
+    { eyebrow:'Beyond the clock', title:'The other tools you’ll touch',
+      cards:[
+        ['QUO app','All business calls use QUO and your assigned company number — personal phones are for breaks and lunch.','chat'],
+        ['Travel Bank','Carry a company card? Receipts are submitted every Friday in the Travel Bank app. The how-to video is in Company Links.','doc'],
+        ['Purchases','Need materials? Notify your supervisor first; if directed, submit the Purchase Request form. Procurement orders — you don’t.','clipboard'],
+        ['Work Schedule hub','Your schedule, the org chart, contacts, and Company Links all live in the Work Schedule (Google Sheets). Lost access? Contact the Scheduler.','users'],
+      ] },
+    { eyebrow:'Knowledge check · Work basics', title:'Show us you caught it',
+      body:'Answer to complete this step. Wrong answers allow retries — retries are tracked on your training record.',
+      quiz:['kc34','kc35','kc36'] },
+  ] },
+];
+function allWorkBasicsDone(){ return WORKBASICS_COURSES.every(c => courseComplete('basics', c)); }
+
 // --- Shared course player (policies + safety training) ---
 let courseOpenSet = null;   // 'policy' | 'safety'
 let courseOpenId = null;
 let courseSlidePos = (() => { try { return JSON.parse(safeGetEarly('goffCourseSlidesV2') || '{}'); } catch(_) { return {}; } })();
-function courseListFor(set){ return set === 'safety' ? SAFETY_COURSES : POLICY_COURSES; }
-function coursePrefix(set){ return set === 'safety' ? 'safecourse' : 'polcourse'; }
-function courseMenuSel(set){ return set === 'safety' ? '.safety-courses' : '.policy-courses'; }
+function courseListFor(set){ return set === 'safety' ? SAFETY_COURSES : set === 'basics' ? WORKBASICS_COURSES : POLICY_COURSES; }
+function coursePrefix(set){ return set === 'safety' ? 'safecourse' : set === 'basics' ? 'basicscourse' : 'polcourse'; }
+function courseMenuSel(set){ return set === 'safety' ? '.safety-courses' : set === 'basics' ? '.basics-courses' : '.policy-courses'; }
 function openCourse(set, id){ courseOpenSet = set; courseOpenId = id; render(); scrollToEl('.slide-canvas'); }
 function closeCourse(){ const sel = courseMenuSel(courseOpenSet); courseOpenSet = null; courseOpenId = null; render(); scrollToEl(sel); }
 function setCoursePos(set, id, i){ const c = courseListFor(set).find(x=>x.id===id); if(!c) return; courseSlidePos[`${set}:${id}`] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffCourseSlidesV2', JSON.stringify(courseSlidePos)); render(); scrollToSlide(); }
@@ -1295,8 +1341,8 @@ function coursePlayer(set, c){
       ? `<div class="ack-box course-ack"><h3>${signs?'Sign to complete this policy':'Acknowledge to complete this policy'}</h3><p>I acknowledge that I have received, read, and understand the ${esc(c.title)} and agree to comply with its terms.</p><div class="admin-actions"><button class="complete-btn done" onclick="${finishCall}">${signs?'Sign & complete ✓':'Acknowledge & complete ✓'}</button></div><p class="note" style="margin-top:10px"><strong>Production note:</strong> this captures your signature and completion date on your employee record.</p></div>`
       : `<div class="ack-box course-ack"><h3>Section complete</h3><p>You’ve covered ${esc(c.title)} and answered its knowledge checks. This completion is tracked on your safety training record.</p><div class="admin-actions"><button class="complete-btn done" onclick="${finishCall}">Complete section ✓</button></div></div>`)
     : '';
-  const backLabel = isPolicy ? '← All policies' : '← All safety sections';
-  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">${isPolicy?'Policy course':'Safety training'} • ${esc(c.required || 'Training section')}</p><h2>${esc(c.title)}</h2><p>Slide ${idx+1} of ${c.slides.length} • ${esc(c.tagline)}</p></div><button class="secondary" onclick="closeCourse()">${backLabel}</button></div>
+  const backLabel = isPolicy ? '← All policies' : set === 'basics' ? '← Work basics' : '← All safety sections';
+  return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">${isPolicy?'Policy course':set==='basics'?'Work basics':'Safety training'} • ${esc(c.required || 'Training section')}</p><h2>${esc(c.title)}</h2><p>Slide ${idx+1} of ${c.slides.length} • ${esc(c.tagline)}</p></div><button class="secondary" onclick="closeCourse()">${backLabel}</button></div>
   ${courseSlideCanvas(item)}
   <div class="course-actions"><button class="secondary" onclick="setCoursePos('${set}','${c.id}',${idx-1})" ${idx===0?'disabled':''}>← Previous</button>${last
     ? (isDone ? `<button class="complete-btn done" disabled>Completed ✓</button>` : !allQuizzesDone ? `<button class="complete-btn" disabled title="Answer every question in this course first">Answer the questions in this course</button>` : `<button class="complete-btn" disabled title="Complete below">${signs?'Sign below to complete ↓':'Complete below ↓'}</button>`)
@@ -1399,6 +1445,7 @@ const phaseOneStatus = [
   { area:'Knowledge-check tracking', status:'Working now', detail:'Every check records attempts — first-try vs second-guessing — exactly the click-click-click problem Austin flagged in the PPT version. Manager assign-retraining and yearly 5-section refresher are designed in, activate with the database.' },
   { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling — now 7', detail:'(1) Mission/vision wording exists in THREE versions: welcome packet, onboarding deck (“Mountain West”), and New Hire Checklist welcome (“our region”). Deck version currently shown. (2) Always-on PPE: deck says glasses + steel-toe; V3 safety handbook says glasses + hearing protection — portal shows the union. (3) Vehicle Policy docx says on-call runs through “ADP”; the PDF says Exak — portal says “the time app.” (4) Time-off requests: FAQ says the ExakTime app; Unexcused Absences policy says a “Request Days Off” form. (5) VACATION ACCRUAL: the standalone Vacation Policy says hourly weekly accrual (0.77/1.54/2.31 hrs) with a 1.5× carryover cap; the handbook (rev 3/2025) says 5/10/15 days per year with different carryover language. Portal teaches the standalone policy. (6) INSURANCE ELIGIBILITY: New Hire Checklist says after 60 days; handbook says Sterling membership after 3 months. (7) DRESS CODE: the handbook prohibits T-shirts and jeans as inappropriate attire — while the apparel program issues every new hire five Goff T-shirts. Handbook dress code likely template language needing a Goff rewrite.' },
   { area:'Document standardization', status:'Planned', detail:'Austin asked for tidied, consistently-branded documents and AI flagging of conflicting policy facts (e.g., observed holidays). The two conflicts above are the first output of that process.' },
+  { area:'Work basics (step 4)', status:'Now a slide course', detail:'Rebuilt from the two real ExakTime SOPs: install steps, review-daily habit, corrections to Andrea by Monday noon, locked-after-supervisor-sign-off rule, plus QUO/Travel Bank/purchasing/Work Schedule basics from the FAQ. Replaces the old static page and self-attested completion; step 4 now completes via 3 tracked questions.' },
   { area:'Training structure', status:'Ready for review', detail:'General onboarding, safety, policies, tools, links, role expectations, and milestones are separated.' },
   { area:'Safety', status:'Drafted — confirm with Dale', detail:'The real 10-question quiz from Safety Training & Quiz V3 is now live in the portal with instant feedback and the acknowledgement text. Dale confirms pass/fail, retakes, timing, and hands-on signoff.' },
   { area:'FAQs', status:'New — drafted', detail:'The Goff Welding FAQs PDF is now a searchable FAQ hub (50+ answers) and its facts are woven into ExakTime, first-day, and forms modules.' },
@@ -1521,8 +1568,8 @@ function startSection(){
       () => allPolicyCoursesDone()],
     ['safety','Safety training','Work through the safety sections and pass the quiz before hands-on work.','Continue',
       () => allSafetyCoursesDone()],
-    ['exaktime','Learn work basics','Set up ExakTime, learn to clock in, and handle timecards the Goff way.','Continue',
-      () => completed['path-exaktime'] === true],
+    ['exaktime','Learn work basics','A short course: ExakTime setup, the clock-in rhythm, timecard approval, and daily tools.','Continue',
+      () => allWorkBasicsDone()],
     ['handoff','Meet with your supervisor','Review role expectations, tools/PPE, first assignment, and open questions.','Finish',
       () => completed['path-handoff'] === true]
   ];
@@ -1601,7 +1648,18 @@ function pathStepBar(id, label){
   const done = completed[`path-${id}`] === true;
   return `<div class="path-mark ${done?'done':''}"><p>${esc(label)}</p><button class="${done?'secondary':''}" onclick="markPathStep('${id}')">${done?'Step complete ✓ (tap to undo)':'Mark this step complete'}</button></div>`;
 }
-function contentPage(id){ const p=pageContent[id]; if(!p) return startSection(); const bar = id==='exaktime' ? pathStepBar('exaktime','Done reading and set up? Mark the work-basics step complete.') : id==='handoff' ? pathStepBar('handoff','Handoff finished with your supervisor? Mark the final step complete.') : ''; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>${bar}<div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
+function exaktimeSection(){
+  if(courseOpenSet === 'basics' && courseOpenId){
+    const c = WORKBASICS_COURSES.find(x=>x.id===courseOpenId);
+    if(c) return coursePlayer('basics', c);
+  }
+  const p = pageContent.exaktime;
+  return `<section class="panel doc-page"><p class="eyebrow">Step 4 • Learn work basics</p><h2>ExakTime &amp; the tools of the day</h2><p class="summary">One short course covers it: setting up ExakTime, the daily clock-in rhythm, how a timecard becomes a paycheck, and the other tools you’ll touch — QUO, Travel Bank, purchase requests, and the Work Schedule. Finish the course to complete this step.</p>
+  <div class="policy-courses basics-courses">${courseMenuCards('basics')}</div>
+  ${allWorkBasicsDone()?`<div class="ack-box"><h3>Work basics complete ✓</h3><p>This step is done. The FAQ keeps every one of these answers searchable whenever you need a refresher.</p></div>`:''}
+  <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`;
+}
+function contentPage(id){ const p=pageContent[id]; if(!p) return startSection(); const bar = id==='handoff' ? pathStepBar('handoff','Handoff finished with your supervisor? Mark the final step complete.') : ''; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>${bar}<div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><p class="note"><strong>Production database needed:</strong> notes, assignments, and completion status will activate once employee records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Save check-in note</button><button disabled title="Requires production database">Assign follow-up</button><button disabled title="Requires production database">Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
@@ -1684,7 +1742,7 @@ function main(){
   if(section==='before') return contentPage('before');
   if(section==='bbsi') return contentPage('bbsi');
   if(section==='policies') return policiesSection();
-  if(section==='exaktime') return contentPage('exaktime');
+  if(section==='exaktime') return exaktimeSection();
   if(section==='safety') return safetySection();
   if(section==='forms') return formsSection();
   if(section==='tools') return contentPage('tools');
