@@ -16,10 +16,12 @@ export async function sendGoffEmail(subject: string, html: string): Promise<bool
     console.warn('[goff-notify] RESEND_API_KEY not set — notification skipped:', subject);
     return false;
   }
+  // PORTAL_EMAIL_FROM may be a bare address or already "Name <email>" — don't double-wrap.
+  const from = FROM.includes('<') ? FROM : `Goff Portal <${FROM}>`;
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: `Goff Portal <${FROM}>`, to: [TO], subject, html }),
+    body: JSON.stringify({ from, to: [TO], subject, html }),
   });
   if (!response.ok) {
     const body = await response.text().catch(() => '');
