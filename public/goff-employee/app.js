@@ -280,6 +280,7 @@ const pageContent = {
     blocks:[
       ['Day one','Paperwork, start details, safety basics, ExakTime, tools/apparel/PPE, and supervisor handoff.'],
       ['30 days','Tool check, ExakTime confidence, safety questions, role expectations, company links/forms, and employee questions.'],
+      ['60 days','Insurance eligibility (per the New Hire Checklist — the handbook says 3 months for Sterling membership; conflict flagged for Austin). Admin reminder to start enrollment.'],
       ['3 months','Evaluation reminder and early performance/fit review.'],
       ['6 months','Evaluation, referral payout if applicable, urgent care item if applicable, and role progression check.'],
       ['1 year','Evaluation, PTO benefits, referral payout if applicable, and longer-term development.'],
@@ -1451,6 +1452,7 @@ const phaseOneStatus = [
   { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling — now 7', detail:'(1) Mission/vision wording exists in THREE versions: welcome packet, onboarding deck (“Mountain West”), and New Hire Checklist welcome (“our region”). Deck version currently shown. (2) Always-on PPE: deck says glasses + steel-toe; V3 safety handbook says glasses + hearing protection — portal shows the union. (3) Vehicle Policy docx says on-call runs through “ADP”; the PDF says Exak — portal says “the time app.” (4) Time-off requests: FAQ says the ExakTime app; Unexcused Absences policy says a “Request Days Off” form. (5) VACATION ACCRUAL: the standalone Vacation Policy says hourly weekly accrual (0.77/1.54/2.31 hrs) with a 1.5× carryover cap; the handbook (rev 3/2025) says 5/10/15 days per year with different carryover language. Portal teaches the standalone policy. (6) INSURANCE ELIGIBILITY: New Hire Checklist says after 60 days; handbook says Sterling membership after 3 months. (7) DRESS CODE: the handbook prohibits T-shirts and jeans as inappropriate attire — while the apparel program issues every new hire five Goff T-shirts. Handbook dress code likely template language needing a Goff rewrite.' },
   { area:'Document standardization', status:'Planned', detail:'Austin asked for tidied, consistently-branded documents and AI flagging of conflicting policy facts (e.g., observed holidays). The two conflicts above are the first output of that process.' },
   { area:'Work basics (step 4)', status:'Now a slide course', detail:'Rebuilt from the two real ExakTime SOPs: install steps, review-daily habit, corrections to Andrea by Monday noon, locked-after-supervisor-sign-off rule, plus QUO/Travel Bank/purchasing/Work Schedule basics from the FAQ. Replaces the old static page and self-attested completion; step 4 now completes via 3 tracked questions.' },
+  { area:'Supervisor handoff (step 5)', status:'Now the in-person checklist', detail:'Built from the New Hire Checklist’s physical items: apparel issue + form, tool/material sign-out, PPE walk, hands-on LOTO demo, Hyster & scissor-lift tests, emergency walk with FROI, personal info/emergency contact, receipts, first assignment, open questions. In production this becomes the supervisor’s signed checklist.' },
   { area:'Training structure', status:'Ready for review', detail:'General onboarding, safety, policies, tools, links, role expectations, and milestones are separated.' },
   { area:'Safety', status:'Drafted — confirm with Dale', detail:'The real 10-question quiz from Safety Training & Quiz V3 is now live in the portal with instant feedback and the acknowledgement text. Dale confirms pass/fail, retakes, timing, and hands-on signoff.' },
   { area:'FAQs', status:'New — drafted', detail:'The Goff Welding FAQs PDF is now a searchable FAQ hub (50+ answers) and its facts are woven into ExakTime, first-day, and forms modules.' },
@@ -1576,8 +1578,8 @@ function startSection(){
       () => allSafetyCoursesDone()],
     ['exaktime','Learn work basics','A short course: ExakTime setup, the clock-in rhythm, timecard approval, and daily tools.','Continue',
       () => allWorkBasicsDone()],
-    ['handoff','Meet with your supervisor','Review role expectations, tools/PPE, first assignment, and open questions.','Finish',
-      () => completed['path-handoff'] === true]
+    ['handoff','Meet with your supervisor','The in-person checklist: apparel, tools, equipment tests, emergency walk, first assignment.','Finish',
+      () => handoffDone()]
   ];
   const stepDone = (i) => steps[i][4]();
   return `<section class="panel employee-path"><p class="eyebrow">My onboarding path</p><h2>Start with first-day orientation. Then keep going in order.</h2><p class="summary">Before you begin: confirm your arrival time, location, and supervisor in the card above. Then work through the steps below with your supervisor or on your own.</p><div class="path-steps">${(()=>{ const firstOpen = steps.findIndex((_,i)=>!stepDone(i)); return steps.map((step,i)=>{ const done=stepDone(i); return `<article class="path-step ${done?'complete':i===firstOpen?'current':''}"><span>${done?'Complete':`Step ${i+1}`}</span><h3>${esc(step[1])}</h3><p>${esc(step[2])}</p><button class="${done?'secondary':''}" onclick="nav('${step[0]}')">${done?'Completed ✓':esc(step[3])}</button></article>`; }).join(''); })()}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Progress</p><h2>${coursePct()}% orientation • ${pct()}% checklist</h2><div class="bar"><i style="width:${Math.max(coursePct(), pct())}%"></i></div><p>Production will save this to the employee record. For this review version, progress is saved on this device.</p></article><article class="panel"><p class="eyebrow">After onboarding</p><h2>This becomes your employee home.</h2><p>Once onboarding is complete, the portal should open to resources, policies, forms, and training refreshers — not this first-day path.</p><button class="secondary" onclick="nav('resources')">Preview resources</button></article></section>`;
@@ -1666,7 +1668,36 @@ function exaktimeSection(){
   ${allWorkBasicsDone()?`<div class="ack-box"><h3>Work basics complete ✓</h3><p>This step is done. The FAQ keeps every one of these answers searchable whenever you need a refresher.</p></div>`:''}
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`;
 }
-function contentPage(id){ const p=pageContent[id]; if(!p) return startSection(); const bar = id==='handoff' ? pathStepBar('handoff','Handoff finished with your supervisor? Mark the final step complete.') : ''; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>${bar}<div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
+
+// Step 5 — the physical day-one handoff, from Goff's own Welcome New Hire
+// Checklist (Protocol/Procedure + Apparel Distribution + Emergency items).
+// These are the things that happen with a person in the shop, not on a phone.
+// In production this becomes the SUPERVISOR's signoff checklist per Austin's
+// manager-handoff tracking ask; for review it is check-off-able here.
+const HANDOFF_CHECKLIST = [
+  ['Meet your supervisor','Confirm who you report to, your first assignment, work area, expected pace, and who to ask for help.'],
+  ['Role expectations reviewed','Walk through your role’s KRA — what success looks like and how your work is scored.'],
+  ['Apparel issued','Receive your Goff apparel (typically 5 shirts) and sign the Apparel Responsibility form for its value.'],
+  ['Tool list & sign-out','Review the required tool list for your role, note anything missing before the 30-day check, and complete the tool sign-out sheet.'],
+  ['Material sign-out','Learn the material sign-out sheet and when to use it.'],
+  ['PPE walk','See where PPE lives (parts room, shop entrances, trailers) and confirm proper use for your tasks.'],
+  ['Lockout/tagout demo','Hands-on LOTO demonstration on real equipment — the training course covered the theory; this is the practice.'],
+  ['Equipment tests (as applicable)','Hyster (forklift) and scissor-lift safety tests for roles that operate them.'],
+  ['Emergency walk','Physically walk the exits, first aid kits, fire extinguishers, and the assembly point (northeast of the Main Office parking lot). Review FROI and the emergency contact list.'],
+  ['Personal info & emergency contact','Confirm your Personal Information Sheet and emergency contact details are on file and current.'],
+  ['Receipts & purchases','Where receipts go (Travel Bank, Fridays) and how purchases are requested through your supervisor.'],
+  ['Open questions captured','Anything unclear gets written down and assigned a follow-up before the 30-day check-in.'],
+];
+function handoffDone(){ return HANDOFF_CHECKLIST.every((_,i)=>completed[`handoffitem-${i}`]); }
+function handoffSection(){
+  const p = pageContent.handoff;
+  const doneCount = HANDOFF_CHECKLIST.filter((_,i)=>completed[`handoffitem-${i}`]).length;
+  return `<section class="panel doc-page"><p class="eyebrow">Step 5 • Supervisor handoff — the in-person checklist</p><h2>Meet with your supervisor</h2><p class="summary">Everything before this step happened on a screen. This step happens in the shop, with ${esc(PROFILE.supervisor)} — the physical items from Goff’s New Hire Checklist. ${doneCount} of ${HANDOFF_CHECKLIST.length} complete. In production, your supervisor checks these off and signs; for this review version, check them here.</p>
+  <div class="checkin-grid">${HANDOFF_CHECKLIST.map(([title,detail],i)=>`<label class="check ${completed[`handoffitem-${i}`]?'checked':''}"><input type="checkbox" ${completed[`handoffitem-${i}`]?'checked':''} onchange="toggle('handoffitem-${i}')" /><span><b>${esc(title)}</b><small>${esc(detail)}</small></span></label>`).join('')}</div>
+  ${handoffDone()?`<div class="ack-box"><h3>Handoff complete — welcome to the crew ✓</h3><p>Onboarding is done. From here the portal is your everyday home: FAQs, forms, policies, and training refreshers. Your 30-day check-in is already on the calendar.</p><div class="admin-actions"><button disabled title="Requires production database">Supervisor sign-off</button></div></div>`:''}
+  <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}<li>Which roles require the Hyster / scissor-lift tests, and who administers them?</li><li>Does the Personal Information Sheet live in myBBSI or on paper?</li></ul></div></section>`;
+}
+function contentPage(id){ const p=pageContent[id]; if(!p) return startSection(); const bar = ''; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>${bar}<div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`; }
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl></article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><p class="note"><strong>Production database needed:</strong> notes, assignments, and completion status will activate once employee records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Save check-in note</button><button disabled title="Requires production database">Assign follow-up</button><button disabled title="Requires production database">Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
@@ -1756,7 +1787,7 @@ function main(){
   if(section==='role') return roleSection();
   if(section==='faq') return faqSection();
   if(section==='perdiem') return contentPage('perdiem');
-  if(section==='handoff') return contentPage('handoff');
+  if(section==='handoff') return handoffSection();
   if(section==='milestones') return contentPage('milestones');
   if(section==='resources') return resourcesSection();
   if(section==='help') return helpSection();
