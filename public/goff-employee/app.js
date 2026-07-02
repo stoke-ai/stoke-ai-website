@@ -164,6 +164,11 @@ const KNOWLEDGE_CHECKS = {
   kc27:{ q:'When does per diem apply?', options:['Any drive over 30 minutes','Whenever you buy lunch on a job','Only approved overnight travel outside the daily commute range (~1 hour / 60 miles)','Every scheduled Friday'], correct:2 },
   kc28:{ q:'What is the standard overnight meals & incidentals (M&IE) per diem?', options:['$60 per day, no receipts required','$100 per day with receipts','$25 per day','Whatever you actually spend'], correct:0 },
   kc29:{ q:'What makes a correct timecard entry?', options:['“Welding” is enough','“Working, 8 hours”','Whatever the foreman writes','WHAT you did, WHERE, WHO we bill, HOW long (quarter-hour), WHEN done, and DID you break'], correct:3 },
+  // Handbook course checks (from the full 67-page handbook, rev 3/7/2025).
+  kc30:{ q:'You miss three consecutive scheduled days without notifying anyone. Per the handbook, what happens?', options:['You are considered to have voluntarily quit and are removed from payroll','You get a verbal warning','HR calls you within 48 hours','Nothing, if you had a good reason'], correct:0 },
+  kc31:{ q:'Which is true about paid holidays at Goff?', options:['Every employee gets them from day one','There are four — New Year’s, July 4th, Thanksgiving, Christmas — with eligibility after one year','All ten federal holidays are paid','Holiday pay counts as hours worked for overtime'], correct:1 },
+  kc32:{ q:'How many forgotten weekly timecard approvals are you allowed before consequences (like a delayed paycheck)?', options:['One','Five','Three','Unlimited'], correct:2 },
+  kc33:{ q:'The person harassing you IS your supervisor. What does the handbook say to do?', options:['Wait and document it for three incidents first','Tell your coworkers so they can back you up','Nothing can be done','Go directly to HR or any member of management — reports are investigated without reprisal'], correct:3 },
 };
 const ORIENTATION_QUIZ = ['kc10','kc11','kc12','kc13'];
 function orientationQuizDone(){ return ORIENTATION_QUIZ.every(id => kcState[id]?.correct); }
@@ -737,18 +742,48 @@ const POLICY_LIST = [
 // detail"). Slides authored from the ACTUAL policy documents in Drive; each
 // course ends behind its knowledge checks and records the acknowledgement.
 const POLICY_COURSES = [
-  { id:'handbook', title:'Employee Handbook', short:'Handbook', required:'Sign receipt', tagline:'The rulebook for working at Goff — and where to find it.', slides:[
+  { id:'handbook', title:'Employee Handbook', short:'Handbook', required:'Sign receipt', tagline:'The full rulebook — 8 slides covering what 67 pages actually say.', slides:[
     { theme:'dark', eyebrow:'Policy course · Employee Handbook', title:'The rulebook, in one place',
-      body:'The handbook covers how employment at Goff works: conduct and work rules, harassment policy, timekeeping, overtime, holidays, meal periods, phone and computer use, discipline, and how to raise a problem. You sign a receipt saying you got it and read it.',
-      prompt:'Employment is at-will, and Goff may revise policies over time — changes come as written amendments.' },
-    { eyebrow:'What’s inside', title:'Know where the big rules live',
+      body:'The handbook (revised March 2025) is how employment at Goff actually works. Employment is at-will. Every new hire starts with a 90-day introductory period — significant absences extend it — and satisfactory completion makes you a regular employee.',
+      prompt:'You sign a receipt saying you got it and read it. These slides cover the rules people most often get wrong.' },
+    { eyebrow:'Pay & time', title:'Getting paid correctly', quiz:['kc32'],
       cards:[
-        ['Conduct & work rules','Ethics, workplace violence prevention, harassment policy, personal appearance, and progressive discipline.','clipboard'],
-        ['Pay & time','Timekeeping, work schedules, overtime, meal periods, holidays, and vacation benefits.','doc'],
-        ['Problem resolution','A defined path to raise concerns — plus policies on equal opportunity and accommodation.','users'],
+        ['Payday & meals','Paid weekly on Fridays. One 30-minute unpaid meal period per day, scheduled by your supervisor.','doc'],
+        ['Overtime needs approval','Overtime requires your supervisor’s PRIOR authorization — unauthorized overtime is a disciplinable offense, and so is refusing scheduled overtime.','clipboard'],
+        ['Approve your time','ExakTime reminder Sundays at 5 PM; approve by noon Monday. You get three forgotten approvals — after that, consequences (including a delayed paycheck). Falsifying time records can mean termination.','wrench'],
+      ] },
+    { eyebrow:'Holidays & benefits', title:'What comes with the job', quiz:['kc31'],
+      cards:[
+        ['Four paid holidays','New Year’s Day, July 4th, Thanksgiving, Christmas — paid at straight time, with eligibility after one year of employment.','star'],
+        ['Care & coverage','Workers’ comp is provided at no cost for on-the-job injuries. Sterling Urgent Care membership covers you and up to 4 dependents after eligibility.','shield'],
+        ['Sick time','No paid sick leave for temporary illness. Notify your supervisor before your shift, each day you’re out; three or more consecutive days may require a doctor’s note.','doc'],
+      ] },
+    { eyebrow:'Life happens', title:'Leave when you need it',
+      cards:[
+        ['Bereavement','Spouse or child: 5 working days. Parent or sibling: 3 days. Extended family (grandparents, in-laws, aunts/uncles, nieces/nephews): 1 day. Paid at base rate, for employees past 90 days.','users'],
+        ['Military service','Unpaid leave for uniformed service — give your supervisor as much advance notice as reasonable.','flag'],
+        ['Religious observance','Use vacation or personal days — request through your manager two weeks ahead.','cap'],
+      ] },
+    { eyebrow:'Conduct', title:'The lines you don’t cross', quiz:['kc30'],
+      cards:[
+        ['The big ones','Theft, falsifying records, insubordination, fighting or threats, harassment, safety violations, working under the influence, unauthorized disclosure of company information — discipline up to termination, and serious offenses skip the ladder.','shield'],
+        ['Show up','Three or more consecutive no-call absences = you have voluntarily quit and are removed from payroll. Loafing, excessive tardiness, and leaving your station without permission are all conduct violations.','clipboard'],
+        ['Everywhere, always','No smoking anywhere on company property including vehicles. Desks and lockers are company property and can be inspected at any time. No favoritism — same rules for everyone.','eye'],
+      ] },
+    { eyebrow:'Harassment', title:'Zero tolerance, clear path', quiz:['kc33'],
+      cards:[
+        ['What it is','Unwanted sexual advances, verbal or physical conduct of a sexual nature, slurs, degrading jokes, or any harassment tied to a protected characteristic — from anyone, of anyone.','shield'],
+        ['How to report','Tell your supervisor immediately. If they’re unavailable — or they ARE the problem — go straight to HR or any member of management.','megaphone'],
+        ['What happens','Prompt, discreet investigation. Confidentiality protected as much as possible. No reprisal for reporting. Violators face discipline up to termination.','users'],
+      ] },
+    { eyebrow:'When something goes wrong', title:'Discipline and problem resolution', numbered:true,
+      cards:[
+        ['The discipline ladder','Verbal warning → written warning → suspension → termination. Steps can be skipped for serious offenses.'],
+        ['Your voice is protected','No employee is penalized for raising a problem in a business-like manner.'],
+        ['The resolution path','Supervisor → HR → written to the President, who has full authority to resolve it. You can stop the process at any step.'],
       ] },
     { eyebrow:'Your copy', title:'Where to find it, any time', quiz:['kc26'],
-      body:'The full Employee Copy lives in the Work Schedule under Company Links. Read it — your signed acknowledgement of receipt goes in your file.' },
+      body:'The full Employee Copy lives in the Work Schedule under Company Links. These slides are the highlights — the handbook itself is the authority. Your signed acknowledgement of receipt goes in your employee file.' },
   ]},
   { id:'drugalcohol', title:'Drug & Alcohol Policy', short:'Drug & Alcohol', required:'Sign', tagline:'Zero tolerance, five kinds of testing — read this one carefully.', slides:[
     { theme:'dark', eyebrow:'Policy course · Drug & Alcohol', title:'Zero tolerance, every shift',
@@ -906,10 +941,10 @@ const POLICY_COURSES = [
 // --- Policy course player state & controls ---
 let policyCourseOpen = null;
 let policySlideIdx = (() => { try { return JSON.parse(safeGetEarly('goffPolicySlidesV1') || '{}'); } catch(_) { return {}; } })();
-function openPolicyCourse(id){ policyCourseOpen = id; render(); window.scrollTo({top:0, behavior:'smooth'}); }
-function closePolicyCourse(){ policyCourseOpen = null; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function openPolicyCourse(id){ policyCourseOpen = id; render(); scrollToEl('.slide-canvas'); }
+function closePolicyCourse(){ policyCourseOpen = null; render(); scrollToEl('.policy-courses'); }
 function setPolicySlide(id, i){ const c = POLICY_COURSES.find(x=>x.id===id); if(!c) return; policySlideIdx[id] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffPolicySlidesV1', JSON.stringify(policySlideIdx)); render(); scrollToSlide(); }
-function finishPolicyCourse(id){ completed[`polcourse-${id}`] = true; save(); policyCourseOpen = null; render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function finishPolicyCourse(id){ completed[`polcourse-${id}`] = true; save(); policyCourseOpen = null; render(); scrollToEl('.policy-courses'); }
 function slideQuizGated(item){ return !!(item && item.quiz && !item.quiz.every(id => kcState[id]?.correct)); }
 function policyCourseComplete(c){ return completed[`polcourse-${c.id}`] === true; }
 function policyCourseStatus(c){ if(policyCourseComplete(c)) return 'Complete'; if((policySlideIdx[c.id]||0) > 0) return 'In progress'; return 'Not started'; }
@@ -1020,7 +1055,7 @@ const phaseOneStatus = [
   { area:'Safety Training (separate section)', status:'8 of 10–15 sections built', detail:'Sections with real tappable knowledge checks + the V3 pass/fail quiz and acknowledgement. Remaining sections slot in as Dale/BBSI deliver material.' },
   { area:'Policy courses', status:'12 full courses built', detail:'Every policy is now its own slide presentation authored from the actual document: handbook, drug & alcohol (all 5 testing types), vehicle (48-hour rule, on-call), vacation (accrual rates, 1.5× cap), attendance (5 occurrences, 1-hour rule), hard hat (color system), NDA, anti-gossip, apparel (30-day deduction), video release, per diem, timecards. Checks gate each course; finishing records the acknowledgement. AI agent hookup is Phase 2.' },
   { area:'Knowledge-check tracking', status:'Working now', detail:'Every check records attempts — first-try vs second-guessing — exactly the click-click-click problem Austin flagged in the PPT version. Manager assign-retraining and yearly 5-section refresher are designed in, activate with the database.' },
-  { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling', detail:'(1) Mission/vision wording exists in THREE versions: welcome packet (“add value always”), onboarding deck (“most trusted in the Mountain West”), and the New Hire Checklist welcome (“most trusted and sought-after in our region”). The deck version is currently shown. (2) Always-on PPE differs: deck says glasses + steel-toe; V3 handbook says glasses + hearing protection — portal shows the union. (3) Vehicle Policy docx says on-call coverage runs through “ADP”; the PDF says the Exak app — portal says “the time app.” (4) Time-off requests: the FAQ says the ExakTime app; the Unexcused Absences policy says a “Request Days Off” form — both say two weeks ahead. Which is the system of record?' },
+  { area:'CONTENT CONFLICTS FOUND', status:'Needs Austin ruling — now 7', detail:'(1) Mission/vision wording exists in THREE versions: welcome packet, onboarding deck (“Mountain West”), and New Hire Checklist welcome (“our region”). Deck version currently shown. (2) Always-on PPE: deck says glasses + steel-toe; V3 safety handbook says glasses + hearing protection — portal shows the union. (3) Vehicle Policy docx says on-call runs through “ADP”; the PDF says Exak — portal says “the time app.” (4) Time-off requests: FAQ says the ExakTime app; Unexcused Absences policy says a “Request Days Off” form. (5) VACATION ACCRUAL: the standalone Vacation Policy says hourly weekly accrual (0.77/1.54/2.31 hrs) with a 1.5× carryover cap; the handbook (rev 3/2025) says 5/10/15 days per year with different carryover language. Portal teaches the standalone policy. (6) INSURANCE ELIGIBILITY: New Hire Checklist says after 60 days; handbook says Sterling membership after 3 months. (7) DRESS CODE: the handbook prohibits T-shirts and jeans as inappropriate attire — while the apparel program issues every new hire five Goff T-shirts. Handbook dress code likely template language needing a Goff rewrite.' },
   { area:'Document standardization', status:'Planned', detail:'Austin asked for tidied, consistently-branded documents and AI flagging of conflicting policy facts (e.g., observed holidays). The two conflicts above are the first output of that process.' },
   { area:'Training structure', status:'Ready for review', detail:'General onboarding, safety, policies, tools, links, role expectations, and milestones are separated.' },
   { area:'Safety', status:'Drafted — confirm with Dale', detail:'The real 10-question quiz from Safety Training & Quiz V3 is now live in the portal with instant feedback and the acknowledgement text. Dale confirms pass/fail, retakes, timing, and hands-on signoff.' },
@@ -1153,13 +1188,14 @@ function startSection(){
   return `<section class="panel employee-path"><p class="eyebrow">My onboarding path</p><h2>Start with first-day orientation. Then keep going in order.</h2><p class="summary">Before you begin: confirm your arrival time, location, and supervisor in the card above. Then work through the steps below with your supervisor or on your own.</p><div class="path-steps">${(()=>{ const firstOpen = steps.findIndex((_,i)=>!stepDone(i)); return steps.map((step,i)=>{ const done=stepDone(i); return `<article class="path-step ${done?'complete':i===firstOpen?'current':''}"><span>${done?'Complete':`Step ${i+1}`}</span><h3>${esc(step[1])}</h3><p>${esc(step[2])}</p><button class="${done?'secondary':''}" onclick="nav('${step[0]}')">${done?'Completed ✓':esc(step[3])}</button></article>`; }).join(''); })()}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Progress</p><h2>${coursePct()}% orientation • ${pct()}% checklist</h2><div class="bar"><i style="width:${Math.max(coursePct(), pct())}%"></i></div><p>Production will save this to the employee record. For this review version, progress is saved on this device.</p></article><article class="panel"><p class="eyebrow">After onboarding</p><h2>This becomes your employee home.</h2><p>Once onboarding is complete, the portal should open to resources, policies, forms, and training refreshers — not this first-day path.</p><button class="secondary" onclick="nav('resources')">Preview resources</button></article></section>`;
 }
 
-function scrollToSlide(){
-  const el = document.querySelector('.slide-canvas');
-  if(!el){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+function scrollToEl(sel){
+  const el = document.querySelector(sel);
+  if(!el) return;
   const r = el.getBoundingClientRect();
-  // Only move if the slide isn't already fully in view — keeps the Next button under the cursor on desktop.
+  // Only move if the target isn't already near the top of the viewport — never jump to page top.
   if(r.top < 0 || r.top > 160) window.scrollTo({ top: r.top + (window.pageYOffset || 0) - 84, behavior:'smooth' });
 }
+function scrollToSlide(){ scrollToEl('.slide-canvas'); }
 function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(ORIENTATION_STEPS.length-1, i)); safeSet('goffCourseIndex', courseIndex); render(); scrollToSlide(); }
 function toggleCourseSlide(i){ completed[`course-${i}`] = !completed[`course-${i}`]; save(); render(); }
 function completeAndNextCourseSlide(i){
