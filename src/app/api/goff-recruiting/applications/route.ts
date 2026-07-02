@@ -5,9 +5,26 @@ import { goffDb } from '@/lib/goff-portal/db';
 
 // A website application immediately becomes a live pipeline candidate so it
 // shows up on Quinton's dashboard without any import step.
-async function addPipelineCandidate(application: GoffApplication) {
+// Returns 'new' | 'repeat' so the email alert can flag repeat applicants.
+async function addPipelineCandidate(application: GoffApplication): Promise<'new' | 'repeat' | 'skipped'> {
   const sql = goffDb();
-  if (!sql) return;
+  if (!sql) return 'skipped';
+  // Repeat-applicant guard: same email = same person. Append to their
+  // timeline and resurface them instead of creating a duplicate card.
+  const email = application.email.toLowerCase();
+  if (email) {
+    const existing = await sql`SELECT id, data FROM goff_candidates WHERE lower(email) = ${email} LIMIT 1`;
+    if (existing.length) {
+      const data = (existing[0].data || {}) as Record<string, unknown>;
+      const timeline = Array.isArray(data.timeline) ? data.timeline : [];
+      timeline.push(`Applied AGAIN via careers page (${new Date().toISOString().slice(0, 10)}) for: ${application.role}${application.notes ? ` — notes: ${application.notes.slice(0, 200)}` : ''}`);
+      await sql`
+        UPDATE goff_candidates
+        SET data = ${sql.json({ ...data, timeline } as never)}, stage_updated_at = now(), updated_at = now()
+        WHERE id = ${existing[0].id}`;
+      return 'repeat';
+    }
+  }
   const id = Date.now();
   const isWelderPath = /weld|fitter/i.test(application.role);
   const data = {
@@ -23,6 +40,7 @@ async function addPipelineCandidate(application: GoffApplication) {
       ${isWelderPath ? 'Welder path' : 'Other path'}, ${'Application received'}, ${'Quinton'}, ${'Normal'},
       ${application.email}, ${application.phone}, ${''}, ${sql.json(data as never)})
     ON CONFLICT (id) DO NOTHING`;
+  return 'new';
 }
 
 // Applicant alerts go out by email (Resend). The previous Telegram wiring was
@@ -67,14 +85,16 @@ export async function POST(request: NextRequest) {
     // Await both before responding: Vercel freezes the function once the
     // response returns, so fire-and-forget work silently never completes.
     // Failures log but never bubble to the applicant.
-    await Promise.allSettled([
-      addPipelineCandidate(saved).catch((err) =>
-        console.error('[goff-recruiting] pipeline insert failed:', err),
-      ),
-      notifyGoffIntake(saved).catch((err) =>
-        console.error('[goff-recruiting] email fan-out failed:', err),
-      ),
-    ]);
+    const pipelineResult = await addPipelineCandidate(saved).catch((err) => {
+      console.error('[goff-recruiting] pipeline insert failed:', err);
+      return 'skipped' as const;
+    });
+    if (pipelineResult === 'repeat') {
+      saved.notes = `REPEAT APPLICANT — existing pipeline card updated.\n${saved.notes}`;
+    }
+    await notifyGoffIntake(saved).catch((err) =>
+      console.error('[goff-recruiting] email fan-out failed:', err),
+    );
 
     return NextResponse.json({ ok: true, id: saved.id });
   } catch (err) {

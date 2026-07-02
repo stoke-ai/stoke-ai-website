@@ -246,27 +246,43 @@ function pushCandidates(){
     }
   }, 800);
 }
+async function pullCandidates(announce){
+  // Skip a pull while a local push is pending — never clobber unsent edits.
+  if(syncTimer) return;
+  const res = await fetch('/api/goff-recruiting/candidates');
+  if(!res.ok) throw new Error('status ' + res.status);
+  const data = await res.json();
+  const remote = Array.isArray(data.candidates) ? data.candidates : [];
+  if(!remote.length){
+    if(candidates.length) pushCandidates(); // empty DB + local data = first boot: seed the server
+    return;
+  }
+  const knownIds = new Set(candidates.map(x => x.id));
+  const fresh = remote.filter(x => !knownIds.has(Number(x.id)));
+  syncPaused = true;
+  candidates = remote.map(normalizeCandidate);
+  if(!candidates.find(x => x.id === selectedId)) selectedId = candidates[0]?.id || 1;
+  safeSet('goffCandidatesV2', JSON.stringify(candidates));
+  syncPaused = false;
+  render();
+  if(announce && fresh.length){
+    const f = fresh[0];
+    showToast(fresh.length === 1
+      ? `🔔 New application: ${f.first} ${f.last} — ${f.role}`
+      : `🔔 ${fresh.length} new candidates on the board`);
+  }
+}
 async function initCandidateSync(){
   if(view === 'career' || view === 'thanks') return;
-  try{
-    const res = await fetch('/api/goff-recruiting/candidates');
-    if(!res.ok) throw new Error('status ' + res.status);
-    const data = await res.json();
-    const remote = Array.isArray(data.candidates) ? data.candidates : [];
-    if(remote.length){
-      syncPaused = true;
-      candidates = remote.map(normalizeCandidate);
-      if(!candidates.find(x => x.id === selectedId)) selectedId = candidates[0]?.id || 1;
-      safeSet('goffCandidatesV2', JSON.stringify(candidates));
-      syncPaused = false;
-      render();
-    } else if(candidates.length){
-      // Empty database, local data exists (first boot): seed the server.
-      pushCandidates();
-    }
-  }catch(err){
-    console.warn('[sync] load failed — using local data:', err);
-  }
+  try{ await pullCandidates(false); }
+  catch(err){ console.warn('[sync] load failed — using local data:', err); }
+  // Live board: refresh every 45s while the tab is visible, so new website
+  // applications appear without a reload.
+  setInterval(() => {
+    if(typeof document !== 'undefined' && document.hidden) return;
+    if(view === 'career' || view === 'thanks') return;
+    pullCandidates(true).catch(()=>{});
+  }, 45000);
 }
 function initialRecruitingView(){
   const path = window.location.pathname.toLowerCase();
