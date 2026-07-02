@@ -51,11 +51,14 @@ export async function POST(request: NextRequest) {
       `<table style="border-collapse:collapse">${fieldRows}</table>`,
       `<p style="margin-top:16px;color:#999;font-size:12px">Routing note: recipients pending Goff confirmation — this went to the default recipient.</p>`,
     ].join('\n');
-    sendGoffEmail(`Goff ${title}${submittedName ? ` — ${submittedName}` : ' — Anonymous'}`, html).catch((err) =>
-      console.error('[goff-forms] email notify crashed:', err),
-    );
+    // Awaited: Vercel freezes the function after the response, so unawaited
+    // notifications silently never send.
+    const notified = await sendGoffEmail(`Goff ${title}${submittedName ? ` — ${submittedName}` : ' — Anonymous'}`, html).catch((err) => {
+      console.error('[goff-forms] email notify failed:', err);
+      return false;
+    });
 
-    return NextResponse.json({ ok: true, id });
+    return NextResponse.json({ ok: true, id, notified });
   } catch (err) {
     console.error('[goff-forms] save failed:', err);
     return NextResponse.json({ error: 'Could not submit. Try again or tell your supervisor directly.' }, { status: 500 });

@@ -64,14 +64,17 @@ export async function POST(request: NextRequest) {
 
     const saved = await addApplication({ first, last, email, phone, role, source, notes });
 
-    // Candidate row + email alert are fire-and-forget so the apply-form
-    // response stays fast; failures log but never bubble to the applicant.
-    addPipelineCandidate(saved).catch((err) =>
-      console.error('[goff-recruiting] pipeline insert crashed:', err),
-    );
-    notifyGoffIntake(saved).catch((err) =>
-      console.error('[goff-recruiting] email fan-out crashed:', err),
-    );
+    // Await both before responding: Vercel freezes the function once the
+    // response returns, so fire-and-forget work silently never completes.
+    // Failures log but never bubble to the applicant.
+    await Promise.allSettled([
+      addPipelineCandidate(saved).catch((err) =>
+        console.error('[goff-recruiting] pipeline insert failed:', err),
+      ),
+      notifyGoffIntake(saved).catch((err) =>
+        console.error('[goff-recruiting] email fan-out failed:', err),
+      ),
+    ]);
 
     return NextResponse.json({ ok: true, id: saved.id });
   } catch (err) {
