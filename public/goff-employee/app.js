@@ -1273,10 +1273,15 @@ const WORKBASICS_COURSES = [
       body:'ExakTime is Goff’s timekeeping system — clocking in and out, job changes, and time-off requests all live there. The pay period runs Monday to Sunday, and payday is every Friday.',
       prompt:'Only clock in when you are on-site and ready to work.' },
     { eyebrow:'Setup', title:'Get the app running',
+      body:'Tap your phone’s button below — it opens ExakTime Mobile in the store. Goff provides your activation code or setup help on day one.',
       cards:[
-        ['iPhone','App Store → search “ExakTime Mobile” → Get → Open. Goff provides your activation code or setup help on day one.','doc'],
-        ['Android','Play Store → search “ExakTime Mobile” → Install → Open. Same activation process.','doc'],
+        ['iPhone','App Store → “ExakTime Mobile – Time Clock App” (by Arcoro) → Get → Open.','doc'],
+        ['Android','Google Play → “ExakTime Mobile” → Install → Open. Same activation process.','doc'],
         ['Keep it yours','Never share your login or activation info. Problems? Ask your supervisor or the office.','shield'],
+      ],
+      links:[
+        { label:' Download for iPhone', href:'https://apps.apple.com/us/app/exaktime-mobile-time-clock-app/id372863459' },
+        { label:'▶ Download for Android', href:'https://play.google.com/store/apps/details?id=com.exaktime.mobile' },
       ] },
     { eyebrow:'The daily rhythm', title:'Four habits, every shift',
       cards:[
@@ -1625,6 +1630,7 @@ function courseSlideCanvas(item){
       ${item.lede?`<p class="slide-lede">${esc(item.lede)}</p>`:''}
       ${item.body?`<p class="slide-body">${esc(item.body)}</p>`:''}
       ${cards}
+      ${item.links?`<div class="slide-links">${item.links.map(l=>`<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join('')}</div>`:''}
       ${quiz}
       ${item.prompt?`<blockquote class="slide-quote">${esc(item.prompt)}</blockquote>`:''}
     </div>

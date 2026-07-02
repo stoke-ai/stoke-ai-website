@@ -230,3 +230,11 @@ button.inline-link:hover{background:none;color:#9e1320}
 .mini-meta>span{color:#ddd;font-size:13px;font-weight:700}
 .mini-hero button{box-shadow:none;padding:8px 12px;font-size:12px}
 @media(max-width:640px){.mini-sep,.mini-meta>span{display:none}.mini-hero img{width:96px}}
+
+/* Slide link buttons (app downloads etc.) */
+.slide-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:22px}
+.slide-links a{display:inline-flex;align-items:center;gap:8px;background:#111;color:#fff;text-decoration:none;font-weight:900;font-size:15px;border-radius:8px;padding:14px 20px;border:1px solid rgba(255,255,255,.14);box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.slide-links a:hover{background:var(--red)}
+.theme-dark .slide-links a,.theme-red .slide-links a{background:#fff;color:#111}
+.theme-dark .slide-links a:hover,.theme-red .slide-links a:hover{background:#ffe3e6}
+@media(max-width:640px){.slide-links a{flex:1;justify-content:center}}
