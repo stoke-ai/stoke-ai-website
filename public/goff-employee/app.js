@@ -128,21 +128,24 @@ function orientIcon(name){ return `<svg class="orient-ic-svg" viewBox="0 0 24 24
 // Knowledge checks rebuilt from the deck — natively tappable with attempt
 // tracking (Austin: the PPT version just advanced on any click; he wants to
 // see who breezed through vs who had to second-guess).
+// Correct answers are deliberately spread across A/B/C/D — the original deck
+// had every correct answer at B, which teaches "always tap B" and defeats the
+// attempt tracking.
 const KNOWLEDGE_CHECKS = {
-  kc1:{ q:'You notice a frayed cable creating an unsafe condition mid-job. What should you do?', options:['Finish your current task first, then mention it','Use your Stop Work Authority and halt the job immediately','Wait for a supervisor to notice it','Only stop if someone could get hurt today'], correct:1 },
-  kc2:{ q:'Which PPE is required at all times while you are on the shop floor?', options:['Only gloves, and only while welding','Safety glasses and steel-toe footwear','A hard hat only during overhead work','PPE is optional for experienced welders'], correct:1 },
-  kc3:{ q:'Before operating any machine, what must you confirm first?', options:['That you are the only person in the shop','That machine guards are in place and aisles are clear','That your phone is fully charged','That it is after your lunch break'], correct:1 },
+  kc1:{ q:'You notice a frayed cable creating an unsafe condition mid-job. What should you do?', options:['Finish your current task first, then mention it','Wait for a supervisor to notice it','Use your Stop Work Authority and halt the job immediately','Only stop if someone could get hurt today'], correct:2 },
+  kc2:{ q:'Which PPE is required at all times while you are on the shop floor?', options:['Safety glasses and steel-toe footwear','Only gloves, and only while welding','A hard hat only during overhead work','PPE is optional for experienced welders'], correct:0 },
+  kc3:{ q:'Before operating any machine, what must you confirm first?', options:['That you are the only person in the shop','That your phone is fully charged','That it is after your lunch break','That machine guards are in place and aisles are clear'], correct:3 },
   kc4:{ q:'You have just finished using a grinder. What is the correct way to handle it?', options:['Leave it out so it is easy to grab next time','Return it to its designated storage rack immediately','Set it on the nearest workstation','Wait until the end of shift to put everything away'], correct:1 },
-  kc5:{ q:'Who is permitted to operate a company vehicle?', options:['Any employee who is in a hurry','Only designated employees with a valid license and company approval','Anyone who holds a driver license','Whoever happens to have the keys'], correct:1 },
-  kc6:{ q:'What is Goff Welding’s policy on impairment while on duty?', options:['Allowed during breaks only','Zero tolerance — impairment of any kind is strictly prohibited','Acceptable if it does not affect your work','Only tested after an incident occurs'], correct:1 },
-  kc7:{ q:'Which of the following must be kept confidential?', options:['Only customer credit-card numbers','Customer info, drawings, pricing, and company processes','Nothing — our work is public','Only documents marked “secret”'], correct:1 },
+  kc5:{ q:'Who is permitted to operate a company vehicle?', options:['Any employee who is in a hurry','Anyone who holds a driver license','Only designated employees with a valid license and company approval','Whoever happens to have the keys'], correct:2 },
+  kc6:{ q:'What is Goff Welding’s policy on impairment while on duty?', options:['Zero tolerance — impairment of any kind is strictly prohibited','Allowed during breaks only','Acceptable if it does not affect your work','Only tested after an incident occurs'], correct:0 },
+  kc7:{ q:'Which of the following must be kept confidential?', options:['Only customer credit-card numbers','Nothing — our work is public','Only documents marked “secret”','Customer info, drawings, pricing, and company processes'], correct:3 },
   kc8:{ q:'You realize you will be late for your shift. What should you do?', options:['Wait and explain once you arrive','Communicate the delay as early as possible','Have a coworker quietly cover for you','Nothing, as long as it rarely happens'], correct:1 },
-  kc9:{ q:'When may you operate shop machinery or welding equipment?', options:['As soon as you start your shift','Only after proper training AND supervisor authorization','Whenever the equipment is available','After watching someone else do it once'], correct:1 },
+  kc9:{ q:'When may you operate shop machinery or welding equipment?', options:['As soon as you start your shift','Whenever the equipment is available','Only after proper training AND supervisor authorization','After watching someone else do it once'], correct:2 },
   // Orientation wrap-up check — per Austin: "they've passed two or three
   // questions" is the satisfactory-consumption signal. Light, not pass/fail.
-  kc10:{ q:'What are Goff Welding’s four core values?', options:['Speed, strength, silence, and sales','Integrity, humility, respect, and accountability','Profit, punctuality, pride, and power','Talent, toughness, tradition, and trust'], correct:1 },
-  kc11:{ q:'Which of these is Goff’s absolute priority on every single job?', options:['Finishing as fast as possible','Operating safely so everyone goes home — every single day','Using the least amount of material','Beating the estimate no matter what'], correct:1 },
-  kc12:{ q:'What does “good” look like in your first 90 days?', options:['Keep your head down and stay quiet','Learn processes, demonstrate reliability, develop proficiency','Memorize every policy word-for-word','Work overtime every week'], correct:1 },
+  kc10:{ q:'What are Goff Welding’s four core values?', options:['Speed, strength, silence, and sales','Profit, punctuality, pride, and power','Talent, toughness, tradition, and trust','Integrity, humility, respect, and accountability'], correct:3 },
+  kc11:{ q:'Which of these is Goff’s absolute priority on every single job?', options:['Operating safely so everyone goes home — every single day','Finishing as fast as possible','Using the least amount of material','Beating the estimate no matter what'], correct:0 },
+  kc12:{ q:'What does “good” look like in your first 90 days?', options:['Keep your head down and stay quiet','Memorize every policy word-for-word','Learn processes, demonstrate reliability, develop proficiency','Work overtime every week'], correct:2 },
   kc13:{ q:'You’re not sure how to start a task. What does Goff expect you to do?', options:['Guess and keep moving so you look busy','Ask instead of guessing — repeat the task back if you’re unsure','Wait until someone notices you’re stuck','Skip it and start something else'], correct:1 },
 };
 const ORIENTATION_QUIZ = ['kc10','kc11','kc12','kc13'];
