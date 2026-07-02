@@ -3,8 +3,13 @@
 // the channel Goff will actually use. Recipient defaults to Jeff until Goff
 // routing is decided (GOFF_NOTIFY_EMAIL overrides).
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM = process.env.PORTAL_EMAIL_FROM || 'portal@stoke-ai.com';
+// Goff-specific overrides win, so moving to Goff's own Resend account and
+// @goffwelding.com sender (once LinkNow DNS access lands) is pure env config:
+//   GOFF_RESEND_API_KEY  -> key from Goff's Resend account
+//   GOFF_EMAIL_FROM      -> e.g. "Goff Portal <portal@goffwelding.com>"
+//   GOFF_NOTIFY_EMAIL    -> who receives alerts (e.g. Quinton for applicants)
+const RESEND_API_KEY = process.env.GOFF_RESEND_API_KEY || process.env.RESEND_API_KEY;
+const FROM = process.env.GOFF_EMAIL_FROM || process.env.PORTAL_EMAIL_FROM || 'portal@stoke-ai.com';
 const TO = process.env.GOFF_NOTIFY_EMAIL || 'automate@stoke-ai.com';
 
 export function escapeHtml(value: string) {
