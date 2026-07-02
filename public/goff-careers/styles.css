@@ -115,3 +115,11 @@ img,svg,canvas,iframe{max-width:100%}
   .job-card-grid{grid-template-columns:1fr}
   .public-footer{padding:28px 24px}
 }
+
+/* Colorblind accessibility: no red content/accents on dark backgrounds. */
+.public-hero{background:linear-gradient(90deg,rgba(10,10,10,.92),rgba(10,10,10,.75)),radial-gradient(circle at 70% 20%,rgba(255,255,255,.12),transparent 34%),#0a0a0a}
+.public-hero:before{background:#fff}
+.public-brand strong:after{color:#fff}
+.public-hero .eyebrow{color:#fff}
+.public-footer{border-top-color:#fff}
+.mark{box-shadow:none}

@@ -508,3 +508,31 @@ img,svg,canvas,iframe{max-width:100%}
 .fb-panel textarea{min-height:110px;resize:vertical}
 .fb-panel button#fb-send{background:var(--brand);color:#fff;border:0;border-radius:6px;padding:12px;font-weight:900;cursor:pointer}
 .fb-panel small{color:#999;font-size:11px}
+
+/* Role-specific application page */
+.apply-page{padding-top:36px}
+.apply-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+.apply-h{grid-column:1/-1;font-family:'Playfair Display',serif;font-size:22px;margin:12px 0 0;border-bottom:2px solid var(--brand);padding-bottom:6px}
+.apply-grid .field-label{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px;color:#333}
+.field-label .req{color:var(--brand);font-style:normal}
+.app-checks{display:flex;flex-wrap:wrap;gap:8px}
+.app-check{display:inline-flex;align-items:center;gap:7px;border:1.5px solid #d5d5d5;border-radius:999px;padding:9px 14px;background:#fafafa;font-weight:700;font-size:13px;cursor:pointer}
+.app-check input{width:auto;accent-color:var(--brand)}
+.apply-grid .field-label:has(textarea),.apply-grid .btn,.apply-grid .apply-fineprint{grid-column:1/-1}
+.app-answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.app-answer{background:#fafafa;border:1px solid #eee;border-radius:var(--radius);padding:12px 14px}
+.app-answer span{display:block;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#888;margin-bottom:4px}
+.app-answer p{margin:0;color:#222;font-size:14px}
+@media(max-width:700px){.apply-grid,.app-answers{grid-template-columns:1fr}}
+
+/* Colorblind accessibility: no red content/accents on dark backgrounds.
+   Dark surfaces get white accents; red stays on white surfaces. */
+.sidebar:before{background:#fff}
+.nav button.active,.nav button:hover{background:rgba(255,255,255,.10);border-left-color:#fff;border-bottom-color:#fff}
+.sidebar-signout:hover{border-color:#fff;background:rgba(255,255,255,.10)}
+.portal-links a:hover{background:rgba(255,255,255,.10);border-left-color:#fff}
+.public-hero{background:linear-gradient(90deg,rgba(10,10,10,.92),rgba(10,10,10,.75)),radial-gradient(circle at 70% 20%,rgba(255,255,255,.12),transparent 34%),#0a0a0a}
+.public-hero:before{background:#fff}
+.public-brand strong:after{color:#fff}
+.public-hero .eyebrow{color:#fff}
+.footer-band{border-top-color:#fff}

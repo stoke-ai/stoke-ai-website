@@ -273,14 +273,14 @@ async function pullCandidates(announce){
   }
 }
 async function initCandidateSync(){
-  if(view === 'career' || view === 'thanks') return;
+  if(view === 'career' || view === 'thanks' || view === 'apply') return;
   try{ await pullCandidates(false); }
   catch(err){ console.warn('[sync] load failed — using local data:', err); }
   // Live board: refresh every 45s while the tab is visible, so new website
   // applications appear without a reload.
   setInterval(() => {
     if(typeof document !== 'undefined' && document.hidden) return;
-    if(view === 'career' || view === 'thanks') return;
+    if(view === 'career' || view === 'thanks' || view === 'apply') return;
     pullCandidates(true).catch(()=>{});
   }, 45000);
 }
@@ -583,7 +583,7 @@ function feedbackWidget(){
 }
 
 function render(){
-  if(view==='career'||view==='thanks'){
+  if(view==='career'||view==='thanks'||view==='apply'){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
   }
@@ -591,7 +591,7 @@ function render(){
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
-function page(){ return ({dashboard,intake,career,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)(); }
+function page(){ return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)(); }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
   const austinDecisions = candidates.filter(needsHiringManager);
@@ -762,7 +762,7 @@ function jobCardHTML(j){
   return `<article class="job-card" id="job-${j.id}">
     <header class="job-card-head">
       <div class="min-w-0"><strong>${esc(j.title)}</strong><div class="job-card-tags"><span class="tag blue">${esc(j.type)}</span><span class="tag">${esc(j.path)}</span></div></div>
-      <button class="btn brand" onclick="prefillApply('${j.id}')">Apply for this role</button>
+      <button class="btn brand" onclick="openApply('${j.id}')">Apply for this role</button>
     </header>
     <p class="job-card-summary">${esc(j.summary)}</p>
     <div class="job-card-grid">
@@ -773,6 +773,141 @@ function jobCardHTML(j){
     </div>
     <div class="job-card-perks"><span>What you get</span><ul>${(j.perks||[]).map(p=>`<li>${esc(p)}</li>`).join('')}</ul></div>
   </article>`;
+}
+
+
+// Role-specific application questions — each role asks what actually matters
+// for that seat (welders get weld-test readiness, foremen get crew history).
+// Austin's team can reword freely; the structure is the showcase.
+const APP_CORE_FIELDS = [
+  { k:'First name', type:'text', req:true, id:'first' },
+  { k:'Last name', type:'text', req:true, id:'last' },
+  { k:'Email', type:'email', req:true, id:'email' },
+  { k:'Phone', type:'tel', id:'phone' },
+  { k:'City / town you live in', type:'text', id:'city' },
+  { k:'Soonest you could start', type:'select', options:['Within 2 weeks','Within 30 days','30–60 days','Just exploring for now'], id:'start' },
+  { k:'How did you hear about us?', type:'select', options:['Indeed','Referral from a Goff employee','Drove by / local','Social media','Other'], id:'heard' },
+];
+const APP_QUESTIONS = {
+  welder: [
+    { k:'Years of welding experience', type:'select', options:['Less than 1','1–3','3–5','5–10','10+'], req:true },
+    { k:'Processes you run', type:'checks', options:['TIG','MIG','Stick','Flux-core'] },
+    { k:'Sanitary / food-grade stainless experience?', type:'yesno', req:true },
+    { k:'Certifications (AWS or equivalent)', type:'text' },
+    { k:'Can you read blueprints and drawings?', type:'yesno' },
+    { k:'Ready to take a weld test at our Paul shop?', type:'select', options:['This week','Within 2 weeks','I need more time'], req:true },
+    { k:'Tell us about the best stainless work you have done', type:'textarea' },
+  ],
+  fitter: [
+    { k:'Years of fit-up / layout experience', type:'select', options:['Less than 1','1–3','3–5','5+'], req:true },
+    { k:'Can you read blueprints and drawings?', type:'yesno', req:true },
+    { k:'Materials you have fit', type:'checks', options:['Sanitary stainless','Structural','Pipe'] },
+    { k:'Layout tools you use (2-hole pins, center finder, plumb/laser…)', type:'text' },
+    { k:'Ready for a fit-up / weld test at our Paul shop?', type:'select', options:['This week','Within 2 weeks','I need more time'], req:true },
+    { k:'Tell us about a recent fit-up job you are proud of', type:'textarea' },
+  ],
+  helper: [
+    { k:'Any shop, trade, farm, or physical work so far?', type:'textarea', req:true },
+    { k:'Reliable transportation to Paul?', type:'yesno', req:true },
+    { k:'Full-time or part-time?', type:'select', options:['Full-time','Part-time','Either'] },
+    { k:'Comfortable on your feet all day and lifting 50 lbs?', type:'yesno' },
+    { k:'What do you want to learn or become here?', type:'textarea' },
+  ],
+  foreman: [
+    { k:'Years leading crews', type:'select', options:['1–2','3–5','5–10','10+'], req:true },
+    { k:'Largest crew you have run', type:'select', options:['2–3','4–6','7–10','10+'] },
+    { k:'Trades background', type:'checks', options:['Welding','Millwright','Fabrication','General construction'] },
+    { k:'Have you managed labor hours against an estimate?', type:'yesno' },
+    { k:'Walk us through a job you owned end to end', type:'textarea', req:true },
+    { k:'Willing to travel for installs?', type:'yesno' },
+  ],
+  inventory: [
+    { k:'Years of warehouse / inventory experience', type:'select', options:['Less than 1','1–3','3–5','5+'], req:true },
+    { k:'Systems you have used', type:'checks', options:['SAP','Other ERP','Spreadsheets','Barcode / scanners'] },
+    { k:'Cycle count experience?', type:'yesno' },
+    { k:'Forklift certified?', type:'yesno', req:true },
+    { k:'Familiar with sanitary stainless fittings and parts?', type:'yesno' },
+    { k:'Tell us about an inventory mess you cleaned up', type:'textarea' },
+  ],
+  procurement: [
+    { k:'Years in purchasing / procurement', type:'select', options:['1–3','3–5','5–10','10+'], req:true },
+    { k:'Industry background', type:'text' },
+    { k:'Systems you have used', type:'checks', options:['SAP Business One','Other ERP','Spreadsheets'] },
+    { k:'Approximate annual spend you have managed', type:'select', options:['Under $250K','$250K–$1M','$1M–$5M','$5M+'] },
+    { k:'Tell us about a vendor negotiation win', type:'textarea', req:true },
+  ],
+};
+let applyJobId = null;
+function openApply(jobId){ applyJobId = jobId; view='apply'; render(); window.scrollTo({top:0,behavior:'smooth'}); }
+function appFieldHtml(f, idx, prefix){
+  const id = `${prefix}-${idx}`;
+  const label = `<label class="field-label" for="${id}">${esc(f.k)}${f.req?' <em class="req">*</em>':''}`;
+  if(f.type==='textarea') return `${label}<textarea id="${id}" rows="4"></textarea></label>`;
+  if(f.type==='yesno') return `${label}<select id="${id}"><option value=""></option><option>Yes</option><option>No</option></select></label>`;
+  if(f.type==='select') return `${label}<select id="${id}"><option value=""></option>${f.options.map(o=>`<option>${esc(o)}</option>`).join('')}</select></label>`;
+  if(f.type==='checks') return `${label}<div class="app-checks" id="${id}">${f.options.map(o=>`<label class="app-check"><input type="checkbox" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div></label>`;
+  return `${label}<input id="${id}" type="${f.type||'text'}"></label>`;
+}
+function readAppField(f, idx, prefix){
+  const el = document.getElementById(`${prefix}-${idx}`);
+  if(!el) return '';
+  if(f.type==='checks') return Array.from(el.querySelectorAll('input:checked')).map(x=>x.value).join(', ');
+  return String(el.value || '').trim();
+}
+function applyView(){
+  const j = jobs.find(x=>x.id===applyJobId);
+  if(!j) return career();
+  const qs = APP_QUESTIONS[j.id] || [];
+  return `<main class="public-careers"><section class="public-body apply-page">
+    <div class="public-brand" style="margin-bottom:18px"><img src="/goff-welding-logo.png" alt="Goff Welding" class="public-brand-logo"><span class="public-brand-tag">Application</span></div>
+    <button class="btn ghost" onclick="view='career';render()">← All open positions</button>
+    <section class="panel" style="margin-top:14px">
+      <div class="eyebrow">Applying for</div>
+      <h2>${esc(j.title)}</h2>
+      <p class="muted">${esc(j.payRange)} • ${esc(j.schedule)} • ${esc(j.location)}</p>
+      <div class="form apply-grid"><h3 class="apply-h">About you</h3>
+      ${APP_CORE_FIELDS.map((f,i)=>appFieldHtml(f,i,'rc')).join('')}
+      <h3 class="apply-h">About the work</h3>
+      ${qs.map((f,i)=>appFieldHtml(f,i,'rq')).join('')}
+      <h3 class="apply-h">Anything else?</h3>
+      <label class="field-label">Anything else Goff should know<textarea id="rq-extra" rows="3" placeholder="Schedule needs, references, links to your work…"></textarea></label>
+      <button class="btn primary" id="ra-submit" onclick="submitRoleApplication()">Submit application</button>
+      <p class="apply-fineprint">Your information goes straight to the Goff hiring team. We do not share it with third parties.</p>
+      </div>
+    </section>
+  </section></main>`;
+}
+async function submitRoleApplication(){
+  const j = jobs.find(x=>x.id===applyJobId); if(!j) return;
+  const qs = APP_QUESTIONS[j.id] || [];
+  const core = {}; const answers = {}; let missing = null;
+  APP_CORE_FIELDS.forEach((f,i)=>{ const v = readAppField(f,i,'rc'); core[f.id] = v; if(f.req && !v && !missing) missing = f.k; });
+  qs.forEach((f,i)=>{ const v = readAppField(f,i,'rq'); answers[f.k] = v; if(f.req && !v && !missing) missing = f.k; });
+  const extra = String(document.getElementById('rq-extra')?.value || '').trim();
+  if(missing){ showToast(`Required: ${missing}`); return; }
+  if(core.city) answers['City / town'] = core.city;
+  if(core.start) answers['Soonest start'] = core.start;
+  if(core.heard) answers['Heard about us via'] = core.heard;
+  if(extra) answers['Anything else'] = extra;
+  const btn = document.getElementById('ra-submit'); if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
+  const notes = Object.entries(answers).filter(([,v])=>v).map(([k,v])=>`${k}: ${v}`).join('\n');
+  let serverDelivered = false;
+  try{
+    const r = await fetch('/api/goff-recruiting/applications', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ first: core.first, last: core.last, email: core.email, phone: core.phone, role: j.title, notes, source:'Goff website', answers })
+    });
+    serverDelivered = r.ok;
+  }catch(_){ serverDelivered = false; }
+  const item = normalizeCandidate({
+    id: Date.now(), first: core.first, last: core.last || 'Applicant', email: core.email, phone: core.phone, role: j.title,
+    source:'Goff website', path: j.path, stage:'Application received', owner:'Quinton', due:'Today', priority:'Normal',
+    location: core.city || '', summary:`Website application (role-specific).\n${notes.slice(0,400)}`, concerns:'Needs screening.',
+    application: answers,
+    timeline:['Submitted role-specific application from careers page', serverDelivered ? 'Routed to Goff intake — Quinton notified.' : 'Local copy saved — server route unavailable.'],
+  });
+  candidates.unshift(item); selectedId = item.id; save();
+  view='thanks'; render();
 }
 
 function career(){
@@ -794,8 +929,8 @@ function career(){
           ${jobs.map(jobCardHTML).join('')}
         </div>
         <aside class="apply-panel panel" id="apply">
-          <h3>Apply now</h3>
-          <p class="muted">Submit your information and the Goff hiring team will review your application. We follow up by email or phone.</p>
+          <h3>Not sure which role?</h3>
+          <p class="muted">Use the general application and the hiring team will point you at the right seat. Applying for a specific role? Use the “Apply for this role” button on the job — it asks the right questions.</p>
           <div class="form">
             <label class="field-label">Full name<input id="appName" placeholder="First and last" required></label>
             <label class="field-label">Email<input id="appEmail" type="email" placeholder="you@example.com" required></label>
@@ -920,6 +1055,7 @@ function candidate(){
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
   </section>
+  ${x.application && Object.keys(x.application).length ? `<section class="panel" style="margin-top:16px"><h3>Application answers</h3><div class="app-answers">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></section>` : ''}
   <div class="grid two" style="margin-top:16px">
     <section class="panel">
       <h3>What needs to happen</h3>

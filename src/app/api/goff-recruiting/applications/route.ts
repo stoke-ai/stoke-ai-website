@@ -6,7 +6,7 @@ import { goffDb } from '@/lib/goff-portal/db';
 // A website application immediately becomes a live pipeline candidate so it
 // shows up on Quinton's dashboard without any import step.
 // Returns 'new' | 'repeat' so the email alert can flag repeat applicants.
-async function addPipelineCandidate(application: GoffApplication): Promise<'new' | 'repeat' | 'skipped'> {
+async function addPipelineCandidate(application: GoffApplication, answers: Record<string, string>): Promise<'new' | 'repeat' | 'skipped'> {
   const sql = goffDb();
   if (!sql) return 'skipped';
   // Repeat-applicant guard: same email = same person. Append to their
@@ -31,8 +31,9 @@ async function addPipelineCandidate(application: GoffApplication): Promise<'new'
     due: 'Today',
     summary: application.notes ? `Website application. Notes: ${application.notes.slice(0, 500)}` : 'Website application — queued for review.',
     concerns: '',
-    timeline: ['Submitted from Goff careers page'],
+    timeline: [Object.keys(answers).length ? 'Submitted role-specific application from careers page' : 'Submitted from Goff careers page'],
     notes: [],
+    ...(Object.keys(answers).length ? { application: answers } : {}),
   };
   await sql`
     INSERT INTO goff_candidates (id, first_name, last_name, role, source, path, stage, owner, priority, email, phone, location, data)
@@ -53,7 +54,9 @@ async function notifyGoffIntake(application: GoffApplication) {
     `<p><b>Source:</b> ${escapeHtml(application.source)}</p>`,
     `<p><b>Email:</b> ${escapeHtml(application.email)}</p>`,
     application.phone ? `<p><b>Phone:</b> ${escapeHtml(application.phone)}</p>` : '',
-    `<blockquote style="border-left:4px solid #c0182b;margin:16px 0;padding:8px 14px;background:#f7f7f7">${application.notes ? escapeHtml(application.notes.slice(0, 800)) : '<i>No notes provided.</i>'}</blockquote>`,
+    (application as GoffApplication & { answers?: Record<string, string> }).answers && Object.keys((application as GoffApplication & { answers?: Record<string, string> }).answers!).length
+      ? `<table style="border-collapse:collapse;margin:16px 0">${Object.entries((application as GoffApplication & { answers?: Record<string, string> }).answers!).map(([k, v]) => `<tr><td style="padding:6px 12px 6px 0;color:#666;vertical-align:top;white-space:nowrap"><b>${escapeHtml(k)}</b></td><td style="padding:6px 0">${escapeHtml(v).replace(/\n/g, '<br>')}</td></tr>`).join('')}</table>`
+      : `<blockquote style="border-left:4px solid #c0182b;margin:16px 0;padding:8px 14px;background:#f7f7f7">${application.notes ? escapeHtml(application.notes.slice(0, 800)) : '<i>No notes provided.</i>'}</blockquote>`,
   ].filter(Boolean).join('\n');
   const ok = await sendGoffEmail(`Goff applicant: ${application.first} ${application.last} — ${application.role}`, html);
   if (!ok) {
@@ -75,6 +78,13 @@ export async function POST(request: NextRequest) {
     const role = String(body?.role || '').trim().slice(0, 160);
     const source = String(body?.source || 'Goff website').trim().slice(0, 80);
     const notes = String(body?.notes || '').trim().slice(0, 4000);
+    const answers: Record<string, string> = {};
+    if (body?.answers && typeof body.answers === 'object' && !Array.isArray(body.answers)) {
+      for (const [k, v] of Object.entries(body.answers).slice(0, 30)) {
+        const val = String(v ?? '').trim().slice(0, 1200);
+        if (val) answers[String(k).slice(0, 120)] = val;
+      }
+    }
 
     if (!first || !email || !role) {
       return NextResponse.json({ error: 'Missing required fields (first name, email, role).' }, { status: 400 });
@@ -85,14 +95,14 @@ export async function POST(request: NextRequest) {
     // Await both before responding: Vercel freezes the function once the
     // response returns, so fire-and-forget work silently never completes.
     // Failures log but never bubble to the applicant.
-    const pipelineResult = await addPipelineCandidate(saved).catch((err) => {
+    const pipelineResult = await addPipelineCandidate(saved, answers).catch((err) => {
       console.error('[goff-recruiting] pipeline insert failed:', err);
       return 'skipped' as const;
     });
     if (pipelineResult === 'repeat') {
       saved.notes = `REPEAT APPLICANT — existing pipeline card updated.\n${saved.notes}`;
     }
-    await notifyGoffIntake(saved).catch((err) =>
+    await notifyGoffIntake(Object.assign(saved, Object.keys(answers).length ? { answers } : {})).catch((err) =>
       console.error('[goff-recruiting] email fan-out failed:', err),
     );
 
