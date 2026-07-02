@@ -322,3 +322,9 @@ button.inline-link:hover{background:none;color:#9e1320}
 /* Action buttons inside FAQ answers */
 .faq-act{margin:0 16px 14px;background:#111;box-shadow:none;padding:10px 16px;font-size:13px}
 .faq-act:hover{background:var(--red)}
+
+/* FAQ action rows: buttons and external links styled alike */
+.faq-acts{display:flex;flex-wrap:wrap;gap:8px;margin:0 16px 14px}
+a.faq-act{display:inline-flex;align-items:center;text-decoration:none;color:#fff;background:#111;border-radius:4px;padding:10px 16px;font-size:13px;font-weight:900;margin:0}
+a.faq-act:hover{background:var(--red)}
+button.faq-act{margin:0}

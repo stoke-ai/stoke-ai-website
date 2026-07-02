@@ -385,15 +385,21 @@ const pageContent = {
   }
 };
 
+
+// Verified external links (Goff's Drive docs require a Goff Google login —
+// same as today's Company Links behavior; flagged for Austin's visibility pass).
+const LINK_WORK_SCHEDULE = 'https://docs.google.com/spreadsheets/d/1LdWl0x6vSNIpuojJMGmfbZ4oMFrhhXfl/edit';
+const LINK_HANDBOOK_PDF = 'https://drive.google.com/file/d/1hMWLSLWO7bGRH6tK3pwYbbbflyRVWh9w/view';
+const LINK_MYBBSI = 'https://www.bbsi.com/login';
 // FAQ content sourced from "Goff Welding FAQs.pdf" (Drive > Goff Forms, added 2026-07-01).
 const FAQ_DATA = [
   { category:'General', items:[
-    ['Where can I see who to report to or how the company is structured?','In the Work Schedule under the organizational chart tab.'],
-    ['Where can I find the Work Schedule?','The Work Schedule is in Google Sheets. Log in with your company email and use the Google Sheets app on your phone. Look for the document labeled “Work Schedule.” If you don’t have a company email, a link will be provided.'],
-    ['What does the Work Schedule include?','Your weekly schedule (by date tab), organizational chart, job duties, employee contact list, group email directory, and the Company Links page with documents and tools you use daily.'],
-    ['Where can I find company documents and forms?','Most forms and policies are right here in the portal — damage, incident, and near-miss reports can be filled out directly. Goff’s originals live in the Work Schedule under Company Links.',{label:'Open the forms hub',on:"nav('forms')"}],
-    ['Where can I find the Employee Handbook?','The handbook course is right here in the portal under Policies (with the rules explained slide by slide). The official PDF also lives in Work Schedule → Company Links.',{label:'Open the handbook course',on:"nav('policies')"}],
-    ['Where can I find the Safety Manual?','Safety training lives right here in the portal — sections with knowledge checks. The original Safety Manual document also lives in Work Schedule → Company Links.',{label:'Open safety training',on:"nav('safety')"}],
+    ['Where can I see who to report to or how the company is structured?','In the Work Schedule under the organizational chart tab.',{label:'Open the Work Schedule',href:LINK_WORK_SCHEDULE}],
+    ['Where can I find the Work Schedule?','Right here — tap below (log in with your company email). Keep the Google Sheets app on your phone for quick access.',{label:'Open the Work Schedule',href:LINK_WORK_SCHEDULE}],
+    ['What does the Work Schedule include?','Your weekly schedule (by date tab), organizational chart, job duties, employee contact list, group email directory, and the Company Links page with documents and tools you use daily.',{label:'Open the Work Schedule',href:LINK_WORK_SCHEDULE}],
+    ['Where can I find company documents and forms?','Most forms and policies are right here in the portal — damage, incident, and near-miss reports can be filled out directly. Goff’s originals are in Company Links.',[{label:'Open the forms hub',on:"nav('forms')"},{label:'Company Links (Work Schedule)',href:LINK_WORK_SCHEDULE}]],
+    ['Where can I find the Employee Handbook?','The handbook course is right here in the portal — and the official PDF is one tap away.',[{label:'Open the handbook course',on:"nav('policies')"},{label:'Official handbook PDF',href:LINK_HANDBOOK_PDF}]],
+    ['Where can I find the Safety Manual?','Safety training lives right here in the portal — sections with knowledge checks. The original Safety Manual document is in Company Links.',[{label:'Open safety training',on:"nav('safety')"},{label:'Company Links (Work Schedule)',href:LINK_WORK_SCHEDULE}]],
     ['Who do I contact if I lose access to the Work Schedule?','Contact the Scheduler.'],
   ]},
   { category:'First day & facility', items:[
@@ -411,18 +417,18 @@ const FAQ_DATA = [
     ['What if I didn’t take a lunch break?','Add a note in the ExakTime app.'],
     ['When do timecards need to be approved?','Every Monday in the ExakTime app.'],
     ['Where do I request time off?','In the ExakTime app, at least two weeks in advance.'],
-    ['Where can I see my paystub?','In your MyBBSI login.'],
-    ['How do I update my tax information?','Through your MyBBSI login.'],
+    ['Where can I see my paystub?','In myBBSI — log in below.',{label:'Log in to myBBSI',href:LINK_MYBBSI}],
+    ['How do I update my tax information?','Through myBBSI — log in below.',{label:'Log in to myBBSI',href:LINK_MYBBSI}],
   ]},
   { category:'Materials & purchasing', items:[
     ['What if I need materials for a job?','Notify your supervisor first. If directed, submit a Purchase Request.'],
-    ['Where is the Purchase Request Form?','Work Schedule → Company Links → Purchase Request Form.'],
+    ['Where is the Purchase Request Form?','In Company Links on the Work Schedule — one tap below.',{label:'Open the Work Schedule',href:LINK_WORK_SCHEDULE}],
     ['Who orders materials?','The inventory/procurement team. Only order or pick up materials yourself if directed by your supervisor.'],
     ['What if materials are missing or run out during a job?','Communicate it immediately to your supervisor.'],
     ['What if I notice inventory is low on common items?','Report it to your supervisor or inventory.'],
   ]},
   { category:'Safety & incident reporting', items:[
-    ['Do I need a hazard assessment before starting work?','Yes. A Pre-Job Hazard Assessment is required before starting any job (form in Company Links).'],
+    ['Do I need a hazard assessment before starting work?','Yes. A Pre-Job Hazard Assessment is required before starting any job — the form is in Company Links.',{label:'Company Links (Work Schedule)',href:LINK_WORK_SCHEDULE}],
     ['Is PPE required?','Yes — required PPE must be worn at all times based on the task. If you don’t have proper PPE, do not start work and report it immediately.'],
     ['What if I see an unsafe condition?','Stop work and report it immediately.'],
     ['What is a near miss and how do I report it?','A situation that could have caused injury or damage. Report it right here in the portal (anonymous is allowed) — Goff’s original form also lives in Company Links.',{label:'Report a near miss now',on:"openFormFill('nearmiss')"}],
@@ -432,8 +438,8 @@ const FAQ_DATA = [
     ['Where can I share safety concerns or suggestions?','Use the Safety and Suggestion Box at the north entrance of the east set of shops.'],
   ]},
   { category:'Vehicles & equipment', items:[
-    ['How do I check out a company truck?','Complete the Truck Check Out form in Company Links, and confirm with your supervisor that you are an authorized driver.'],
-    ['What do I do when returning a company truck?','Complete the Truck Check In form in Company Links.'],
+    ['How do I check out a company truck?','Confirm with your supervisor that you are an authorized driver, then complete the Truck Check Out form in Company Links.',{label:'Company Links (Work Schedule)',href:LINK_WORK_SCHEDULE}],
+    ['What do I do when returning a company truck?','Complete the Truck Check In form in Company Links.',{label:'Company Links (Work Schedule)',href:LINK_WORK_SCHEDULE}],
     ['What if a truck or equipment is damaged?','Report it immediately and complete a Company Damage Report in Company Links.'],
     ['Am I responsible for keeping my truck clean?','Yes — maintain cleanliness and organization at all times.'],
   ]},
@@ -446,7 +452,7 @@ const FAQ_DATA = [
   ]},
   { category:'Company cards & expenses', items:[
     ['How do I manage a company card?','Through the Travel Bank app. Receipts must be submitted every Friday.'],
-    ['Where can I learn to submit receipts?','Watch the Travel Bank How To in Company Links.'],
+    ['Where can I learn to submit receipts?','Watch the Travel Bank How To in Company Links.',{label:'Company Links (Work Schedule)',href:LINK_WORK_SCHEDULE}],
     ['Who can help with company cards?','Accounts Payable or the Office Manager.'],
   ]},
   { category:'Travel & jobsites', items:[
@@ -460,7 +466,7 @@ const FAQ_DATA = [
     ['What if I can’t reach my supervisor?','Call the main office line.'],
     ['What is expected during downtime?','Stay productive, take initiative, and ask for additional tasks if needed.'],
     ['What if I make a mistake?','Notify your supervisor. Ask instead of guessing.'],
-    ['How can I recognize a coworker?','Submit a Spark Award Nomination in Company Links.'],
+    ['How can I recognize a coworker?','Submit a Spark Award Nomination in Company Links.',{label:'Company Links (Work Schedule)',href:LINK_WORK_SCHEDULE}],
     ['What if I feel I am being treated unfairly?','Notify your supervisor, move up the chain of command, or contact HR.'],
   ]},
 ];
@@ -1786,6 +1792,13 @@ function adminSection(){ return `<section class="panel"><p class="eyebrow">Austi
   <div class="table-list">${POLICY_LIST.map(x=>`<article><div><b>${esc(x.name)}</b>${x.note?`<small>${esc(x.note)}</small>`:''}</div><span>${esc(x.who)}</span><em>${esc(x.type)}</em></article>`).join('')}</div>
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${pageContent.policies.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section><section class="panel"><p class="eyebrow">Source material crosswalk</p><h2>What goes where</h2><div class="recon-table">${reconciliationRows.map(r=>`<article><div><span>Source</span><b>${esc(r.source)}</b></div><div><span>Use in portal</span><p>${esc(r.use)}</p></div><div><span>Audience</span><p>${esc(r.audience)}</p></div><div><span>Status</span><em>${esc(r.status)}</em></div><div><span>Decision needed</span><p>${esc(r.decision)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Human input needed</p><h2>What Jeff/Austin/BBSI need to answer</h2><div class="question-list">${humanNeeds.map(([topic,q])=>`<article><span>${esc(topic)}</span><b>${esc(q)}</b></article>`).join('')}</div></article><article class="panel"><p class="eyebrow">Walkthrough questions</p><h2>Questions for Goff/BBSI</h2><div class="question-list single">${adminQuestions.map(([topic,q])=>`<article><span>${esc(topic)}</span><b>${esc(q)}</b></article>`).join('')}</div><p class="note"><strong>Phase 1 rule:</strong> build the reviewable structure now; save real employee records, quiz results, acknowledgements, reminders, and signatures for backend work after Goff approves the flow.</p></article></section>`; }
 
+function faqActs(acts){
+  if(!acts) return '';
+  const list = Array.isArray(acts) ? acts : [acts];
+  return `<p class="faq-acts">${list.map(a => a.href
+    ? `<a class="faq-act" href="${esc(a.href)}" target="_blank" rel="noopener">${esc(a.label)} ↗</a>`
+    : `<button class="faq-act" onclick="${a.on}">${esc(a.label)} →</button>`).join('')}</p>`;
+}
 function setFaqSearch(value){ faqSearch = String(value || '').toLowerCase(); const target = document.getElementById('faq-results'); if(target) target.innerHTML = faqResults(); }
 // Search normalization: lowercase, strip punctuation, squash repeated letters —
 // so "acccident" and "accident" both become "acident" and typos still match.
@@ -1841,7 +1854,7 @@ function faqTokenMatches(normText, token){
 function faqResults(){
   const s = faqSearch.trim();
   if(!s){
-    return FAQ_DATA.map(g => `<div class="faq-group"><h3>${esc(g.category)}</h3>${g.items.map(([q,a,act]) => `<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(a)}</p>${act?`<p><button class="faq-act" onclick="${act.on}">${esc(act.label)} →</button></p>`:''}</details>`).join('')}</div>`).join('');
+    return FAQ_DATA.map(g => `<div class="faq-group"><h3>${esc(g.category)}</h3>${g.items.map(([q,a,act]) => `<details class="faq-item"><summary>${esc(q)}</summary><p>${esc(a)}</p>${faqActs(act)}</details>`).join('')}</div>`).join('');
   }
   const tokens = faqNorm(s).split(/\s+/).filter(t => t.length > 1);
   const scored = [];
@@ -1856,7 +1869,7 @@ function faqResults(){
   const banner = full.length ? '' : `<p class="summary" style="padding-top:10px">No exact match for “${esc(faqSearch)}” — closest answers:</p>`;
   const byCat = {};
   show.forEach(x => { (byCat[x.category] ||= []).push(x); });
-  return banner + Object.entries(byCat).map(([cat, items]) => `<div class="faq-group"><h3>${esc(cat)}</h3>${items.map(x => `<details class="faq-item" open><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p>${x.act?`<p><button class="faq-act" onclick="${x.act.on}">${esc(x.act.label)} →</button></p>`:''}</details>`).join('')}</div>`).join('');
+  return banner + Object.entries(byCat).map(([cat, items]) => `<div class="faq-group"><h3>${esc(cat)}</h3>${items.map(x => `<details class="faq-item" open><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p>${faqActs(x.act)}</details>`).join('')}</div>`).join('');
 }
 function faqSection(){
   const total = FAQ_DATA.reduce((n,g)=>n+g.items.length,0);
