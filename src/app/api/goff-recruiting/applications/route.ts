@@ -1,58 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addApplication, type GoffApplication } from '@/lib/goff-recruiting/store';
+import { sendGoffEmail, escapeHtml } from '@/lib/goff-portal/notify';
 
-// Goff-specific Telegram credentials with a portal fall-back. Either set of
-// env vars works; Goff-specific wins when both are present.
-const TELEGRAM_BOT_TOKEN = process.env.GOFF_RECRUITING_TELEGRAM_BOT_TOKEN || process.env.PORTAL_TELEGRAM_BOT_TOKEN;
-const TELEGRAM_CHAT_ID = process.env.GOFF_RECRUITING_TELEGRAM_CHAT_ID || process.env.PORTAL_TELEGRAM_CHAT_ID;
-const TELEGRAM_THREAD_ID = process.env.GOFF_RECRUITING_TELEGRAM_THREAD_ID;
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
+// Applicant alerts go out by email (Resend). The previous Telegram wiring was
+// never set up, so applications were alerting nobody.
 async function notifyGoffIntake(application: GoffApplication) {
-  if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
-    console.log('[goff-recruiting] application saved (no telegram configured):', {
+  const html = [
+    `<h2 style="margin:0 0 12px">🔔 New Goff applicant</h2>`,
+    `<p><b>Name:</b> ${escapeHtml(`${application.first} ${application.last}`)}</p>`,
+    `<p><b>Role:</b> ${escapeHtml(application.role)}</p>`,
+    `<p><b>Source:</b> ${escapeHtml(application.source)}</p>`,
+    `<p><b>Email:</b> ${escapeHtml(application.email)}</p>`,
+    application.phone ? `<p><b>Phone:</b> ${escapeHtml(application.phone)}</p>` : '',
+    `<blockquote style="border-left:4px solid #c0182b;margin:16px 0;padding:8px 14px;background:#f7f7f7">${application.notes ? escapeHtml(application.notes.slice(0, 800)) : '<i>No notes provided.</i>'}</blockquote>`,
+  ].filter(Boolean).join('\n');
+  const ok = await sendGoffEmail(`Goff applicant: ${application.first} ${application.last} — ${application.role}`, html);
+  if (!ok) {
+    console.log('[goff-recruiting] application saved (email notify unavailable):', {
       id: application.id,
       name: `${application.first} ${application.last}`,
       role: application.role,
     });
-    return;
-  }
-
-  const text = [
-    '🔔 <b>New Goff applicant</b>',
-    '',
-    `<b>Name:</b> ${escapeHtml(`${application.first} ${application.last}`)}`,
-    `<b>Role:</b> ${escapeHtml(application.role)}`,
-    `<b>Source:</b> ${escapeHtml(application.source)}`,
-    `<b>Email:</b> ${escapeHtml(application.email)}`,
-    application.phone ? `<b>Phone:</b> ${escapeHtml(application.phone)}` : '',
-    '',
-    application.notes ? escapeHtml(application.notes.slice(0, 800)) : '<i>No notes provided.</i>',
-  ]
-    .filter(Boolean)
-    .join('\n');
-
-  const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      chat_id: TELEGRAM_CHAT_ID,
-      message_thread_id: TELEGRAM_THREAD_ID ? Number(TELEGRAM_THREAD_ID) : undefined,
-      text,
-      parse_mode: 'HTML',
-    }),
-  });
-
-  if (!response.ok) {
-    const body = await response.text().catch(() => '');
-    console.error('[goff-recruiting] Telegram notify failed:', { status: response.status, body: body.slice(0, 400) });
   }
 }
 
