@@ -1634,6 +1634,7 @@ function courseSlideCanvas(item){
   }).join('')}</div>` : '';
   const quiz = item.quiz ? `<div class="slide-quiz">${item.quiz.map((id,i)=>kcCard(id, `Question ${i+1} of ${item.quiz.length}`)).join('')}</div>` : '';
   return `<article class="slide-canvas theme-${theme}">
+    <img class="slide-logo" src="/goff-welding-logo.png" alt="" aria-hidden="true" />
     <span class="g-mark" aria-hidden="true">G</span>
     <div class="slide-inner">
       ${item.austin?`<div class="austin-badge">Austin Goff • CEO</div>`:''}

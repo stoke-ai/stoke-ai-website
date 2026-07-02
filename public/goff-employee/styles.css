@@ -258,3 +258,18 @@ button.inline-link:hover{background:none;color:#9e1320}
 .progress-parts span.done{background:rgba(31,138,76,.12);color:var(--green)}
 .progress-parts b{color:#111}
 .progress-parts span.done b{color:var(--green)}
+
+/* Colorblind-accessibility pass: no red content on black backgrounds.
+   Red stays on white surfaces; dark surfaces get white accents + white logo. */
+.slide-logo{position:absolute;top:18px;right:20px;width:104px;height:auto;z-index:2;opacity:.95}
+.theme-dark .slide-logo,.theme-red .slide-logo{filter:brightness(0) invert(1)}
+.theme-dark .slide-eyebrow{color:#fff}
+.theme-dark .slide-headline .rp{color:#fff}
+.slide-canvas.theme-dark{background:radial-gradient(circle at 82% 8%,rgba(255,255,255,.10),transparent 42%),linear-gradient(155deg,#141414,#080808);border-top-color:#fff}
+.theme-dark .slide-quote{border-left-color:rgba(255,255,255,.75)}
+.theme-light .slide-quote{border-left-color:#fff}
+.hero{background:radial-gradient(circle at 78% 10%,rgba(255,255,255,.10),transparent 32%),linear-gradient(90deg,rgba(10,10,10,.96),rgba(10,10,10,.82)),#0b0b0b}
+.hero .eyebrow{color:#fff}
+.metric-grid article{border-top-color:rgba(255,255,255,.85)}
+.austin-badge{border:1px solid rgba(255,255,255,.35)}
+@media(max-width:640px){.slide-logo{width:76px;top:12px;right:12px}}
