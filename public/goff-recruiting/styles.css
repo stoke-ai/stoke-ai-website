@@ -536,3 +536,7 @@ img,svg,canvas,iframe{max-width:100%}
 .public-brand strong:after{color:#fff}
 .public-hero .eyebrow{color:#fff}
 .footer-band{border-top-color:#fff}
+
+/* Colorblind rule: the red logo becomes white on the dark careers hero.
+   (The application page shows the brand on a light surface — original logo there.) */
+.public-hero .public-brand-logo{filter:brightness(0) invert(1) drop-shadow(0 2px 8px rgba(0,0,0,.45))}
