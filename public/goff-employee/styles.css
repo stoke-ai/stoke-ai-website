@@ -273,3 +273,18 @@ button.inline-link:hover{background:none;color:#9e1320}
 .metric-grid article{border-top-color:rgba(255,255,255,.85)}
 .austin-badge{border:1px solid rgba(255,255,255,.35)}
 @media(max-width:640px){.slide-logo{width:76px;top:12px;right:12px}}
+
+/* Everyday employee home (post-training) */
+.home-hero-in{max-width:1180px;margin:auto;padding-bottom:8px}
+.home-hero .home-lead{margin-top:18px;font-size:15px;color:#bbb}
+.home-search{display:flex;gap:10px;max-width:640px;margin-top:8px}
+.home-search input{flex:1;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:15px 22px;font:inherit;font-size:16px}
+.home-search input::placeholder{color:#999}
+.home-search input:focus{outline:none;border-color:#fff;background:rgba(255,255,255,.14)}
+.home-search button{border-radius:999px;padding:0 26px}
+.home-actions{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:18px}
+.home-action{display:flex;flex-direction:column;align-items:flex-start;text-align:left;background:#fff;color:#111;border:1px solid var(--line);border-left:5px solid var(--red);border-radius:10px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.home-action:hover{background:#fff7f8;color:#111;border-color:var(--red)}
+.home-action b{font-size:15.5px;margin-bottom:4px}
+.home-action small{color:#777;font-weight:400;font-size:12.5px;line-height:1.35}
+@media(max-width:640px){.home-search{flex-direction:column}.home-search button{padding:13px}}
