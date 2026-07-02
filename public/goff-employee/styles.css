@@ -200,3 +200,8 @@ button.inline-link:hover{background:none;color:#9e1320}
 /* Orientation wrap-up quiz inside the slide canvas */
 .slide-quiz{display:grid;gap:14px;margin-top:24px}
 .slide-quiz .kc-card{margin-top:0}
+
+/* Path-step completion bar on content pages */
+.path-mark{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:#fff;border:2px solid var(--red);border-radius:10px;padding:16px 18px;margin-top:20px}
+.path-mark.done{border-color:var(--green);background:#f4fff8}
+.path-mark p{margin:0;font-weight:900;color:#222}
