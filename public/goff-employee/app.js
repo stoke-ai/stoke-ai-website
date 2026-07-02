@@ -908,7 +908,7 @@ let policyCourseOpen = null;
 let policySlideIdx = (() => { try { return JSON.parse(safeGetEarly('goffPolicySlidesV1') || '{}'); } catch(_) { return {}; } })();
 function openPolicyCourse(id){ policyCourseOpen = id; render(); window.scrollTo({top:0, behavior:'smooth'}); }
 function closePolicyCourse(){ policyCourseOpen = null; render(); window.scrollTo({top:0, behavior:'smooth'}); }
-function setPolicySlide(id, i){ const c = POLICY_COURSES.find(x=>x.id===id); if(!c) return; policySlideIdx[id] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffPolicySlidesV1', JSON.stringify(policySlideIdx)); render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function setPolicySlide(id, i){ const c = POLICY_COURSES.find(x=>x.id===id); if(!c) return; policySlideIdx[id] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffPolicySlidesV1', JSON.stringify(policySlideIdx)); render(); scrollToSlide(); }
 function finishPolicyCourse(id){ completed[`polcourse-${id}`] = true; save(); policyCourseOpen = null; render(); window.scrollTo({top:0, behavior:'smooth'}); }
 function slideQuizGated(item){ return !!(item && item.quiz && !item.quiz.every(id => kcState[id]?.correct)); }
 function policyCourseComplete(c){ return completed[`polcourse-${c.id}`] === true; }
@@ -1153,7 +1153,14 @@ function startSection(){
   return `<section class="panel employee-path"><p class="eyebrow">My onboarding path</p><h2>Start with first-day orientation. Then keep going in order.</h2><p class="summary">Before you begin: confirm your arrival time, location, and supervisor in the card above. Then work through the steps below with your supervisor or on your own.</p><div class="path-steps">${(()=>{ const firstOpen = steps.findIndex((_,i)=>!stepDone(i)); return steps.map((step,i)=>{ const done=stepDone(i); return `<article class="path-step ${done?'complete':i===firstOpen?'current':''}"><span>${done?'Complete':`Step ${i+1}`}</span><h3>${esc(step[1])}</h3><p>${esc(step[2])}</p><button class="${done?'secondary':''}" onclick="nav('${step[0]}')">${done?'Completed ✓':esc(step[3])}</button></article>`; }).join(''); })()}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Progress</p><h2>${coursePct()}% orientation • ${pct()}% checklist</h2><div class="bar"><i style="width:${Math.max(coursePct(), pct())}%"></i></div><p>Production will save this to the employee record. For this review version, progress is saved on this device.</p></article><article class="panel"><p class="eyebrow">After onboarding</p><h2>This becomes your employee home.</h2><p>Once onboarding is complete, the portal should open to resources, policies, forms, and training refreshers — not this first-day path.</p><button class="secondary" onclick="nav('resources')">Preview resources</button></article></section>`;
 }
 
-function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(ORIENTATION_STEPS.length-1, i)); safeSet('goffCourseIndex', courseIndex); render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function scrollToSlide(){
+  const el = document.querySelector('.slide-canvas');
+  if(!el){ window.scrollTo({top:0, behavior:'smooth'}); return; }
+  const r = el.getBoundingClientRect();
+  // Only move if the slide isn't already fully in view — keeps the Next button under the cursor on desktop.
+  if(r.top < 0 || r.top > 160) window.scrollTo({ top: r.top + (window.pageYOffset || 0) - 84, behavior:'smooth' });
+}
+function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(ORIENTATION_STEPS.length-1, i)); safeSet('goffCourseIndex', courseIndex); render(); scrollToSlide(); }
 function toggleCourseSlide(i){ completed[`course-${i}`] = !completed[`course-${i}`]; save(); render(); }
 function completeAndNextCourseSlide(i){
   completed[`course-${i}`] = true;
