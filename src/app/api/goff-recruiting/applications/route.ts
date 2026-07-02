@@ -1,6 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { addApplication, type GoffApplication } from '@/lib/goff-recruiting/store';
 import { sendGoffEmail, escapeHtml } from '@/lib/goff-portal/notify';
+import { goffDb } from '@/lib/goff-portal/db';
+
+// A website application immediately becomes a live pipeline candidate so it
+// shows up on Quinton's dashboard without any import step.
+async function addPipelineCandidate(application: GoffApplication) {
+  const sql = goffDb();
+  if (!sql) return;
+  const id = Date.now();
+  const isWelderPath = /weld|fitter/i.test(application.role);
+  const data = {
+    due: 'Today',
+    summary: application.notes ? `Website application. Notes: ${application.notes.slice(0, 500)}` : 'Website application — queued for review.',
+    concerns: '',
+    timeline: ['Submitted from Goff careers page'],
+    notes: [],
+  };
+  await sql`
+    INSERT INTO goff_candidates (id, first_name, last_name, role, source, path, stage, owner, priority, email, phone, location, data)
+    VALUES (${id}, ${application.first}, ${application.last}, ${application.role}, ${'Website'},
+      ${isWelderPath ? 'Welder path' : 'Other path'}, ${'Application received'}, ${'Quinton'}, ${'Normal'},
+      ${application.email}, ${application.phone}, ${''}, ${sql.json(data as never)})
+    ON CONFLICT (id) DO NOTHING`;
+}
 
 // Applicant alerts go out by email (Resend). The previous Telegram wiring was
 // never set up, so applications were alerting nobody.
@@ -41,10 +64,13 @@ export async function POST(request: NextRequest) {
 
     const saved = await addApplication({ first, last, email, phone, role, source, notes });
 
-    // Fire-and-forget Telegram fan-out so the apply-form response stays fast.
-    // Any failure logs but does not bubble to the applicant.
+    // Candidate row + email alert are fire-and-forget so the apply-form
+    // response stays fast; failures log but never bubble to the applicant.
+    addPipelineCandidate(saved).catch((err) =>
+      console.error('[goff-recruiting] pipeline insert crashed:', err),
+    );
     notifyGoffIntake(saved).catch((err) =>
-      console.error('[goff-recruiting] Telegram fan-out crashed:', err),
+      console.error('[goff-recruiting] email fan-out crashed:', err),
     );
 
     return NextResponse.json({ ok: true, id: saved.id });

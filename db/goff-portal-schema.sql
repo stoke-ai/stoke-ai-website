@@ -91,3 +91,25 @@ CREATE TABLE IF NOT EXISTS goff_form_submissions (
   status        TEXT NOT NULL DEFAULT 'new'  -- new | reviewed | closed
 );
 CREATE INDEX IF NOT EXISTS goff_form_submissions_idx ON goff_form_submissions (form_id, created_at DESC);
+
+-- ── Recruiting: candidates (source of truth for the ATS pipeline) ─────────
+CREATE TABLE IF NOT EXISTS goff_candidates (
+  id          BIGINT PRIMARY KEY,        -- client-generated (Date.now()) to match the app
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  first_name  TEXT NOT NULL,
+  last_name   TEXT NOT NULL DEFAULT '',
+  role        TEXT NOT NULL DEFAULT '',
+  source      TEXT NOT NULL DEFAULT '',
+  path        TEXT NOT NULL DEFAULT 'Other path',
+  stage       TEXT NOT NULL DEFAULT 'Application received',
+  owner       TEXT NOT NULL DEFAULT 'Quinton',
+  priority    TEXT NOT NULL DEFAULT 'Normal',
+  email       TEXT NOT NULL DEFAULT '',
+  phone       TEXT NOT NULL DEFAULT '',
+  location    TEXT NOT NULL DEFAULT '',
+  pinned      BOOLEAN NOT NULL DEFAULT FALSE,
+  stage_updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  data        JSONB NOT NULL DEFAULT '{}'::jsonb   -- summary, concerns, evidence, clearance, offer, timeline, notes, due
+);
+CREATE INDEX IF NOT EXISTS goff_candidates_stage_idx ON goff_candidates (stage, stage_updated_at DESC);

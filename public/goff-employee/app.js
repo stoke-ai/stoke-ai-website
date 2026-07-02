@@ -1544,7 +1544,9 @@ window.addEventListener('popstate', () => {
   window.scrollTo({top:0, behavior:'smooth'});
 });
 function copyLink(){
-  navigator.clipboard?.writeText('https://portal.goffwelding.com/onboarding');
+  // Copy the live URL we're actually served from — correct today on
+  // stoke-ai.com and automatically correct after the goffwelding.com DNS move.
+  navigator.clipboard?.writeText(`${window.location.origin}/goff-employee/`);
   const old=document.querySelector('.toast'); if(old) old.remove();
   const t=document.createElement('div'); t.className='toast'; t.textContent='Employee portal link copied'; document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
 }

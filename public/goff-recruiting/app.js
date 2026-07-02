@@ -223,6 +223,51 @@ function safeSet(key, value){ try { window.localStorage.setItem(key, value); } c
 function safeJSON(key, fallback){ try { return JSON.parse(safeGet(key) || 'null') || fallback; } catch(_) { return fallback; } }
 let candidates = (safeJSON('goffCandidatesV2', null) || safeJSON('goffCandidates', null) || seed).map(normalizeCandidate);
 let selectedId = candidates[0]?.id || 1;
+
+// --- Server sync (Neon via /api/goff-recruiting/candidates) ---------------
+// The server is the source of truth so Quinton's pipeline is shared across
+// devices and website applications appear automatically. localStorage stays
+// as the offline cache. The public careers view never touches the API.
+let syncTimer = null;
+let syncPaused = false;
+function pushCandidates(){
+  if(syncPaused) return;
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(async () => {
+    try{
+      const res = await fetch('/api/goff-recruiting/candidates', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ candidates })
+      });
+      if(!res.ok) throw new Error('status ' + res.status);
+    }catch(err){
+      console.warn('[sync] push failed — changes are saved on this device only:', err);
+      showToast('Cloud sync failed — saved locally');
+    }
+  }, 800);
+}
+async function initCandidateSync(){
+  if(view === 'career' || view === 'thanks') return;
+  try{
+    const res = await fetch('/api/goff-recruiting/candidates');
+    if(!res.ok) throw new Error('status ' + res.status);
+    const data = await res.json();
+    const remote = Array.isArray(data.candidates) ? data.candidates : [];
+    if(remote.length){
+      syncPaused = true;
+      candidates = remote.map(normalizeCandidate);
+      if(!candidates.find(x => x.id === selectedId)) selectedId = candidates[0]?.id || 1;
+      safeSet('goffCandidatesV2', JSON.stringify(candidates));
+      syncPaused = false;
+      render();
+    } else if(candidates.length){
+      // Empty database, local data exists (first boot): seed the server.
+      pushCandidates();
+    }
+  }catch(err){
+    console.warn('[sync] load failed — using local data:', err);
+  }
+}
 function initialRecruitingView(){
   const path = window.location.pathname.toLowerCase();
   const params = new URLSearchParams(window.location.search);
@@ -233,7 +278,7 @@ function initialRecruitingView(){
 }
 let view = initialRecruitingView();
 let selectedStage = 'Interview completed';
-function save(){ safeSet('goffCandidatesV2', JSON.stringify(candidates)); }
+function save(){ safeSet('goffCandidatesV2', JSON.stringify(candidates)); pushCandidates(); }
 function c(){ return candidates.find(x=>x.id===selectedId) || candidates[0]; }
 function parseSharedQueue(){ try { return JSON.parse(safeGet('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
 function saveSharedQueue(list){ safeSet('goffOnboardingQueueV1', JSON.stringify(list)); }
@@ -1262,3 +1307,4 @@ function howItWorks(){
 }
 
 render();
+initCandidateSync();
