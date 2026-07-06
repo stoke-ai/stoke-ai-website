@@ -107,6 +107,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.rewrite(new URL('/goff-employee/index.html', request.url));
   }
   if (pathname === '/goff-recruiting' || pathname === '/goff-recruiting/') {
+    const publicViewEarly = ['career', 'apply', 'thanks'].includes(request.nextUrl.searchParams.get('view') || '');
+    if (process.env.GOFF_RECRUITING_REQUIRE_AUTH === 'true' && !publicViewEarly) {
+      const token = request.cookies.get(PORTAL_COOKIE)?.value;
+      const clientId = await clientIdFromCookie(token);
+      if (clientId !== GOFF_ADMIN_CLIENT_ID) {
+        const loginUrl = request.nextUrl.clone();
+        loginUrl.pathname = '/goff-recruiting/login';
+        loginUrl.search = `?next=${encodeURIComponent(pathname + request.nextUrl.search)}`;
+        return NextResponse.redirect(loginUrl);
+      }
+    }
     return NextResponse.rewrite(new URL('/goff-recruiting/index.html', request.url));
   }
   // The standalone goff-careers app was removed (duplicate implementation);
