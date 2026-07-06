@@ -12,11 +12,29 @@ const customerStatus = {
   customer: 'Jeff Stoker',
   boat: '1987 Four Winns',
   ticket: 'BMG-0417',
-  status: 'Checked in for inspection',
-  note: 'Your boat is in the shop queue. Michael will add the next update after the first inspection and repair plan are confirmed.',
-  next: 'Next update: after inspection',
-  updated: 'Updated today',
+  status: 'Starter received — waiting for install / next shop update',
+  note: 'Your gas tank repair has been pressure tested and the replacement starter arrived Friday. The next step is installing the starter, confirming the boat starts correctly, and completing the water/leak check.',
+  next: 'Next expected update: starter install + river test schedule',
+  updated: 'July 6',
+  shopDays: '42 days since first call',
 };
+
+const statusTimeline = [
+  { date: 'May 12', label: 'Initial call', detail: 'Customer called about the 1987 Four Winns. Boat Man Garage scheduled shop drop-off for May 26.', type: 'scheduled' },
+  { date: 'May 22', label: 'Early drop-off requested', detail: 'Customer asked if the boat could be dropped off early. Shop said that would not work.', type: 'message' },
+  { date: 'May 22', label: 'Gas tank issue disclosed', detail: 'Customer texted that a screw punctured the gas tank. Shop replied: “That’s okay, I fix everything.”', type: 'issue' },
+  { date: 'May 25', label: 'Drop-off time confirmed', detail: 'Customer asked what time to drop off. Shop said between 9:00 and 9:30.', type: 'scheduled' },
+  { date: 'May 26', label: 'Boat dropped off', detail: 'Shop directed customer to pull next to the stock trailer on the west end because the front of the shop was full.', type: 'done' },
+  { date: 'May 28', label: 'Customer asked for tank update', detail: 'Customer asked: “Any thoughts about the gas tank yet?” No response recorded.', type: 'no-response' },
+  { date: 'June 1', label: 'JB Weld plan', detail: 'Shop said JB Weld had come in, hoped to apply it late that night, let it set 24–48 hours, then pressure test.', type: 'update' },
+  { date: 'June 5', label: 'First tank repair failed', detail: 'Customer asked about pressure testing. Shop said it did not stick and planned to prep one more time with a new cleaning method.', type: 'issue' },
+  { date: 'June 10', label: 'Pressure test looked good', detail: 'Shop said the tank was pressure testing and appeared to be holding fuel. Customer approved going through everything else.', type: 'update' },
+  { date: 'June 10', label: 'Water leak / river test added', detail: 'Customer was worried about how much water the boat took on. Shop said he would run it to the river and see where and why.', type: 'scheduled' },
+  { date: 'June 17', label: 'River test delayed', detail: 'Customer asked for updates. Shop apologized, said wind and other boats put him behind, and planned to try the river test the next morning.', type: 'delay' },
+  { date: 'June 19', label: 'River test not completed', detail: 'Customer asked if the boat was taken out. Shop said it was not.', type: 'delay' },
+  { date: 'June 23', label: 'Starter problem found', detail: 'Shop took the boat out but it would not start. Customer approved finding a replacement starter by phone.', type: 'issue' },
+  { date: 'July 6', label: 'Starter arrived', detail: 'Customer asked if there was any luck finding a starter. Shop said yes — it came in Friday.', type: 'current' },
+];
 
 const services = [
   ['Fiberglass + gelcoat', 'Dock rash, rock damage, color match, campers, jet skis, and semi hoods.'],
@@ -229,26 +247,93 @@ export default function BoatmanGarageClient() {
 }
 
 function StatusCard() {
+  const currentIndex = statusTimeline.length - 1;
+
   return (
-    <article className="h-full rounded-[2.2rem] border border-[#111b1f]/10 bg-[#f6f1e6] p-5 shadow-2xl shadow-[#111b1f]/12 sm:p-7">
-      <div className="rounded-[1.6rem] bg-white p-6 shadow-sm ring-1 ring-[#111b1f]/8">
+    <article className="h-full rounded-[2.2rem] border border-[#111b1f]/10 bg-[#f6f1e6] p-4 shadow-2xl shadow-[#111b1f]/12 sm:p-6">
+      <div className="rounded-[1.6rem] bg-white p-5 shadow-sm ring-1 ring-[#111b1f]/8 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.24em] text-[#165f77]">Status found</p>
-            <h3 className="mt-2 text-5xl font-black leading-none tracking-[-0.06em]">{customerStatus.boat}</h3>
+            <h3 className="mt-2 text-4xl font-black leading-none tracking-[-0.06em] sm:text-5xl">{customerStatus.boat}</h3>
             <p className="mt-2 font-black text-[#66716d]">{customerStatus.customer} • {customerStatus.ticket}</p>
           </div>
-          <span className="rounded-full bg-[#e8f4ed] px-4 py-2 text-xs font-black text-[#2f704e]">{customerStatus.updated}</span>
+          <div className="rounded-[1.2rem] bg-[#111b1f] px-4 py-3 text-right text-white">
+            <p className="text-[0.65rem] font-black uppercase tracking-[0.2em] text-[#f3b159]">Last update</p>
+            <p className="text-lg font-black">{customerStatus.updated}</p>
+          </div>
         </div>
-        <div className="mt-7 rounded-[1.4rem] bg-[#111b1f] p-5 text-white">
+
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="rounded-[1.2rem] bg-[#e8f2f3] p-4">
+            <p className="text-[0.68rem] font-black uppercase tracking-[0.18em] text-[#165f77]">Current stage</p>
+            <p className="mt-2 text-xl font-black leading-tight">Starter / final test</p>
+          </div>
+          <div className="rounded-[1.2rem] bg-[#fff3dd] p-4">
+            <p className="text-[0.68rem] font-black uppercase tracking-[0.18em] text-[#9a5e17]">Timeline</p>
+            <p className="mt-2 text-xl font-black leading-tight">{customerStatus.shopDays}</p>
+          </div>
+          <div className="rounded-[1.2rem] bg-[#e8f4ed] p-4">
+            <p className="text-[0.68rem] font-black uppercase tracking-[0.18em] text-[#2f704e]">Next step</p>
+            <p className="mt-2 text-xl font-black leading-tight">Install + test</p>
+          </div>
+        </div>
+
+        <div className="mt-4 rounded-[1.4rem] bg-[#111b1f] p-5 text-white">
           <p className="text-xs font-black uppercase tracking-[0.22em] text-[#f3b159]">Current status</p>
-          <p className="mt-2 text-3xl font-black leading-tight">{customerStatus.status}</p>
+          <p className="mt-2 text-2xl font-black leading-tight sm:text-3xl">{customerStatus.status}</p>
           <p className="mt-4 leading-8 text-white/70">{customerStatus.note}</p>
         </div>
         <div className="mt-4 rounded-[1.4rem] bg-[#e8f2f3] p-5 font-black text-[#165f77]">{customerStatus.next}</div>
       </div>
+
+      <div className="mt-5 rounded-[1.6rem] bg-white p-5 shadow-sm ring-1 ring-[#111b1f]/8 sm:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.24em] text-[#165f77]">Repair history</p>
+            <h4 className="mt-2 text-3xl font-black leading-none tracking-[-0.05em]">What has happened so far</h4>
+          </div>
+          <p className="rounded-full bg-[#f6f1e6] px-4 py-2 text-xs font-black text-[#5d6764]">May 12 → July 6</p>
+        </div>
+
+        <div className="mt-6 space-y-3">
+          {statusTimeline.map((item, index) => (
+            <div key={`${item.date}-${item.label}`} className="grid gap-3 rounded-[1.25rem] border border-[#111b1f]/8 bg-[#fbfaf6] p-4 sm:grid-cols-[6.5rem_1fr]">
+              <div>
+                <p className="text-sm font-black text-[#111b1f]">{item.date}</p>
+                <span className={`mt-2 inline-flex rounded-full px-2.5 py-1 text-[0.63rem] font-black uppercase tracking-[0.14em] ${badgeClass(item.type)}`}>
+                  {index === currentIndex ? 'Current' : item.type.replace('-', ' ')}
+                </span>
+              </div>
+              <div className="relative border-l border-[#111b1f]/12 pl-4">
+                <span className={`absolute -left-[5px] top-1 h-2.5 w-2.5 rounded-full ${dotClass(item.type)}`} />
+                <p className="text-lg font-black leading-tight">{item.label}</p>
+                <p className="mt-2 leading-7 text-[#55615d]">{item.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </article>
   );
+}
+
+function badgeClass(type: string) {
+  if (type === 'current') return 'bg-[#111b1f] text-white';
+  if (type === 'no-response') return 'bg-[#f6dfd8] text-[#8a2f21]';
+  if (type === 'delay') return 'bg-[#fff3dd] text-[#8b5a18]';
+  if (type === 'issue') return 'bg-[#eadff8] text-[#53367b]';
+  if (type === 'done' || type === 'update') return 'bg-[#e8f4ed] text-[#2f704e]';
+  return 'bg-[#e8f2f3] text-[#165f77]';
+}
+
+function dotClass(type: string) {
+  if (type === 'current') return 'bg-[#111b1f]';
+  if (type === 'no-response') return 'bg-[#b54835]';
+  if (type === 'delay') return 'bg-[#d98935]';
+  if (type === 'issue') return 'bg-[#7150a0]';
+  if (type === 'done' || type === 'update') return 'bg-[#2f8b5f]';
+  return 'bg-[#165f77]';
 }
 
 function EmptyStatus() {
