@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 export default function GoffAdminLoginForm() {
-  const [username, setUsername] = useState('goffadmin');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,7 +21,7 @@ export default function GoffAdminLoginForm() {
     setError('');
     setLoading(true);
     try {
-      const response = await fetch('/api/portal/login', {
+      const response = await fetch('/api/goff-portal/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
@@ -59,7 +59,7 @@ export default function GoffAdminLoginForm() {
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           style={inputStyle}
-          placeholder="goffadmin"
+          placeholder="your first name (e.g. quinton)"
         />
       </label>
       <label style={{display:'flex',flexDirection:'column',gap:'6px',fontSize:'12px',color:'#aaa',fontWeight:700,letterSpacing:'0.04em',textTransform:'uppercase'}}>

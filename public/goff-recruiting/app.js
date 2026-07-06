@@ -272,6 +272,16 @@ async function pullCandidates(announce){
       : `🔔 ${fresh.length} new candidates on the board`);
   }
 }
+let currentUser = null;
+async function loadCurrentUser(){
+  try{
+    const res = await fetch('/api/goff-portal/me');
+    if(!res.ok) return;
+    const data = await res.json();
+    currentUser = data.user || null;
+    if(currentUser) render();
+  }catch(_){ /* shared login or offline: stays null */ }
+}
 async function initCandidateSync(){
   if(view === 'career' || view === 'thanks' || view === 'apply') return;
   try{ await pullCandidates(false); }
@@ -350,7 +360,7 @@ function upsertOnboardingRecord(x){
 }
 function alreadyMovedToOnboarding(x){ return parseSharedQueue().some(item => item.id === `candidate-${x.id}` || item.candidateId === x.id); }
 async function signOut(){
-  try { await fetch('/api/portal/logout', { method:'POST' }); } catch(_){}
+  try { await fetch('/api/goff-portal/logout', { method:'POST' }); } catch(_){}
   window.location.href = '/goff-recruiting/login';
 }
 
@@ -394,7 +404,7 @@ function addNote(){
   const text = input.value.trim();
   if (!text) return;
   x.notes = x.notes || [];
-  x.notes.push({ id: Date.now(), author: 'Recruiter', text, createdAt: nowISO() });
+  x.notes.push({ id: Date.now(), author: (currentUser && currentUser.name) || 'Recruiter', text, createdAt: nowISO() });
   x.timeline.push(`Note: ${text.slice(0, 80)}${text.length > 80 ? '…' : ''}`);
   save();
   render();
@@ -593,7 +603,7 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div><button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
@@ -1515,3 +1525,4 @@ function howItWorks(){
 
 render();
 initCandidateSync();
+loadCurrentUser();

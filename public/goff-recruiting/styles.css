@@ -543,3 +543,10 @@ img,svg,canvas,iframe{max-width:100%}
 
 /* Colorblind rule: white logo on the dark recruiting sidebar */
 .sidebar .brand-logo{filter:brightness(0) invert(1) drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+
+/* Signed-in-as identity block in the sidebar */
+.signed-as{margin:0 18px 10px;padding:12px 14px;background:#161616;border:1px solid rgba(255,255,255,.12);border-radius:var(--radius);color:#ddd}
+.signed-as span{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:#8a8a8a;font-weight:900}
+.signed-as b{display:block;color:#fff;font-size:15px;margin-top:2px}
+.signed-as em{display:block;font-style:normal;font-size:11px;color:#9a9a9a;margin-top:2px;text-transform:capitalize}
+.signed-as.shared em{color:var(--brand)}

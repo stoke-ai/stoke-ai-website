@@ -113,3 +113,21 @@ CREATE TABLE IF NOT EXISTS goff_candidates (
   data        JSONB NOT NULL DEFAULT '{}'::jsonb   -- summary, concerns, evidence, clearance, offer, timeline, notes, due
 );
 CREATE INDEX IF NOT EXISTS goff_candidates_stage_idx ON goff_candidates (stage, stage_updated_at DESC);
+
+-- ── Real per-person users (one identity across recruiting + employee portal) ─
+-- Login methods coexist: office staff use username+password, shop crew use
+-- phone+PIN (added at employee rollout). Secrets are scrypt-hashed, never raw.
+CREATE TABLE IF NOT EXISTS goff_users (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  name          TEXT NOT NULL,
+  username      TEXT UNIQUE,              -- staff password login
+  phone         TEXT UNIQUE,              -- crew PIN login (later)
+  secret_hash   TEXT,                     -- scrypt hash of password or PIN
+  roles         TEXT[] NOT NULL DEFAULT '{}',  -- recruiter | manager | admin | employee
+  supervisor    TEXT,
+  status        TEXT NOT NULL DEFAULT 'active',
+  last_login_at TIMESTAMPTZ
+);
+CREATE INDEX IF NOT EXISTS goff_users_username_idx ON goff_users (lower(username));
+CREATE INDEX IF NOT EXISTS goff_users_phone_idx ON goff_users (phone);
