@@ -125,7 +125,13 @@ export async function middleware(request: NextRequest) {
   // To lock it down later, set GOFF_RECRUITING_REQUIRE_AUTH=true in Vercel
   // along with PORTAL_SESSION_SECRET + PORTAL_ACCESS_CODES.
   const authRequired = process.env.GOFF_RECRUITING_REQUIRE_AUTH === 'true';
-  if (authRequired && pathname.startsWith('/goff-recruiting') && !isPublicAdminPath(pathname)) {
+  // The public careers experience stays reachable when the admin gate is on:
+  // ?view=career|apply|thanks loads without a session (candidate data is
+  // separately protected by the API's own auth), and static assets must load
+  // so the careers SPA can render at all.
+  const publicView = ['career', 'apply', 'thanks'].includes(request.nextUrl.searchParams.get('view') || '');
+  const isStaticAsset = /\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?)$/i.test(pathname);
+  if (authRequired && pathname.startsWith('/goff-recruiting') && !isPublicAdminPath(pathname) && !publicView && !isStaticAsset) {
     const token = request.cookies.get(PORTAL_COOKIE)?.value;
     const clientId = await clientIdFromCookie(token);
     if (clientId !== GOFF_ADMIN_CLIENT_ID) {

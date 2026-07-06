@@ -578,6 +578,9 @@ async function sendFeedback(){
   }
 }
 function feedbackWidget(){
+  // Real applicants on the public careers hosts never see the internal
+  // review tool; the main-domain review URL keeps it for the leadership pass.
+  if(isPublicCareersHost()) return '';
   const ctx = feedbackContext();
   if(!feedbackOpen) return `<button class="fb-fab" onclick="toggleFeedback()" title="Leave a review comment">📝 Feedback</button>`;
   return `<div class="fb-panel"><div class="fb-head"><b>Review comment</b><button class="fb-x" onclick="toggleFeedback()">✕</button></div>
