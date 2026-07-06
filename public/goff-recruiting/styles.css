@@ -540,3 +540,6 @@ img,svg,canvas,iframe{max-width:100%}
 /* Colorblind rule: the red logo becomes white on the dark careers hero.
    (The application page shows the brand on a light surface — original logo there.) */
 .public-hero .public-brand-logo{filter:brightness(0) invert(1) drop-shadow(0 2px 8px rgba(0,0,0,.45))}
+
+/* Colorblind rule: white logo on the dark recruiting sidebar */
+.sidebar .brand-logo{filter:brightness(0) invert(1) drop-shadow(0 2px 6px rgba(0,0,0,.5))}
