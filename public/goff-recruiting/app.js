@@ -1122,12 +1122,37 @@ function candidate(){
 function setStage(s){ let x=c(); if((s==='BBSI documents invite' || s==='Transition to onboarding workflow') && !clearanceReady(x)){ x.timeline.push('Blocked onboarding handoff: pre-employment clearance incomplete'); save(); showGuardrail(); return; } if(s==='Transition to onboarding workflow'){ moveToOnboarding(); return; } if(x.stage !== s) x.stageUpdatedAt = nowISO(); x.stage=s; const meta=stageMeta(s); x.owner=meta.owner; x.due=meta.due; x.timeline.push('Stage changed to '+s); save(); render(); }
 function advance(){ let x=c(); const next = NEXT[x.stage] || 'Manager review packet'; setStage(next); }
 function setClearance(k,v){ let x=c(); x.clearance[k]=v; x.timeline.push(`Clearance updated: ${k} = ${v}`); save(); render(); }
+// Turn a merged template into a one-click send. Gmail compose (Goff uses
+// Google Workspace) opens pre-filled from the recruiter's careers@ account —
+// real deliverability and replies, zero infrastructure. Mailto covers other
+// clients. True in-portal Resend send is the fast-follow once goffwelding.com
+// is domain-verified.
+function parseTemplate(text){
+  const m = String(text).match(/^Subject:\s*(.+?)\n\n?([\s\S]*)$/);
+  return m ? { subject: m[1].trim(), body: m[2] } : { subject: 'Goff Welding', body: String(text) };
+}
+function openUrl(url, newTab){ const a=document.createElement('a'); a.href=url; if(newTab){ a.target='_blank'; a.rel='noopener'; } document.body.appendChild(a); a.click(); a.remove(); }
+function sendCandidateEmail(via){
+  const x=c();
+  const ta=document.querySelector('.modal-card textarea');
+  const { subject, body } = parseTemplate(ta ? ta.value : '');
+  const to = x.email || '';
+  if(!to){ showToast('No email on file for this candidate'); return; }
+  const url = via==='gmail'
+    ? 'https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(to)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body)
+    : 'mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+  openUrl(url, via==='gmail');
+  x.timeline.push('Emailed candidate ('+(via==='gmail'?'Gmail':'mail app')+'): '+subject);
+  save();
+  document.getElementById('modal').className='modal'; render();
+  showToast(via==='gmail' ? 'Opening Gmail — just hit Send' : 'Opening your mail app');
+}
 function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; const body=TEMPLATE_TEXT[key] || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',x.concerns).replaceAll('{{roleFit}}',roleFit(x)); }
-function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. For now, this creates a human-reviewed draft in the platform for copy/paste or manual sending.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn brand" onclick="markDraft()">Mark email draft created</button></div></div>`; }
+function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. Review or edit it, then open it pre-filled in Gmail (or your mail app) and hit Send. It sends from your own careers@ account — replies come back to you.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy</button><button class="btn" onclick="sendCandidateEmail('mailto')">Open in email app</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
 function showGuardrail(){ document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>BBSI handoff blocked</h3><p>Goff’s BBSI ATS SOP says <strong>Offer Accepted = not cleared</strong> and <strong>Onboarding = fully cleared</strong>. Complete drug screen, background, and start date before BBSI onboarding.</p><div class="modal-actions"><button class="btn brand" onclick="document.getElementById('modal').className='modal';render()">Review clearance checklist</button></div></div>`; }
 function employeeWelcomeDraft(x=c()){ const url='https://portal.goffwelding.com/onboarding'; return `Subject: Welcome to Goff Welding — Start Here\n\nHi ${x.first},\n\nWelcome to Goff Welding. We’re excited to have you moving forward with us.\n\nYour next step is to complete your BBSI/myBBSI onboarding invite and use the Goff employee portal below for your first-day details, required resources, ExakTime/timekeeping instructions, safety orientation, tool list, and company links.\n\nEmployee portal: ${url}\n\nFirst day: ${x.offer?.startDate || '[confirm start date]'}\nSchedule: ${x.offer?.schedule || '[confirm schedule]'}\nSupervisor: ${x.offer?.supervisor || '[confirm supervisor]'}\n\nIf your myBBSI invite expires or you have questions, reply here or email careers@goffwelding.com.\n\nThank you,\nGoff Welding Hiring Team`; }
-function showEmployeeWelcomeDraft(){ const x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Employee portal welcome message</h3><p>Send after clearance is complete and the BBSI invite is ready. This is the handoff from recruiting into the employee site.</p><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn brand" onclick="generateEmployeePortalAccess()">Mark portal access generated</button></div></div>`; }
+function showEmployeeWelcomeDraft(){ const x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Employee portal welcome message</h3><p>Send after clearance is complete and the BBSI invite is ready. This is the handoff from recruiting into the employee site.</p><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="sendCandidateEmail('mailto')">Open in email app</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function moveToOnboarding(){
   const x=c();
   if(!clearanceReady(x)){ showGuardrail(); return; }
