@@ -194,16 +194,11 @@ const jobs = [
   roleFit:'Material strategist, cost controller, vendor communication, job-flow enabler.'}
 ];
 
-let seed = [
- {id:1, first:'Tyler', last:'Rasmussen', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Weld test invitation', owner:'Candidate', due:'Today', priority:'Hot', email:'tyler@example.com', phone:'208-555-0198', location:'Twin Falls, ID', stageUpdatedAt:daysAgoISO(4), summary:'Good tenure, relevant stainless fabrication experience, local and responsive. Needs weld test scheduled and confirmed.', concerns:'Validate craftsmanship, fit-up quality, pace, and safety habits in weld test.', evidence:{phone:'Not needed yet', weld:'Needs scheduling', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Imported from Indeed shortlist','Quinton marked strong potential','System recommends weld test invite']},
- {id:2, first:'Maria', last:'Lopez', role:jobs[4].title, source:'Website', path:'Other path', stage:'Schedule interview', owner:'Candidate', due:'Tomorrow', priority:'Normal', email:'maria@example.com', phone:'208-555-0151', location:'Burley, ID', stageUpdatedAt:daysAgoISO(1), summary:'Applied for shop role but appears better aligned with inventory control. Stable work history and strong organization notes.', concerns:'Confirm role fit with hiring manager and whether she understands inventory/warehouse expectations.', evidence:{phone:'Complete', weld:'N/A', interview:'Needs scheduling', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Website application received','Role-mismatch flagged as positive','Needs interview slots']},
- {id:3, first:'Caleb', last:'Miller', role:jobs[3].title, source:'Indeed', path:'Other path', stage:'Manager review packet', owner:'Hiring Manager', due:'1 day overdue', priority:'Hot', email:'caleb@example.com', phone:'208-555-0132', location:'Pocatello, ID', stageUpdatedAt:daysAgoISO(2), summary:'Foreman candidate with leadership background. First interview complete; decision needed on second interview or offer path.', concerns:'Commute/relocation motivation needs clarity before offer.', evidence:{phone:'Complete', weld:'N/A', interview:'Complete', references:'Waiting', crystal:'Sent', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Indeed applicant moved into Goff recruiting','Phone screen and interview complete','Manager packet generated']},
- {id:4, first:'Evan', last:'Brooks', role:'Entry-level Welder', source:'Walk-in', path:'Other path', stage:'Needs more experience', owner:'Quinton', due:'Next week', priority:'Low', email:'evan@example.com', phone:'208-555-0119', location:'Jerome, ID', stageUpdatedAt:daysAgoISO(8), summary:'Strong attitude, not enough experience for immediate opening. Good future callback.', concerns:'Needs more welding experience before an active opening.', evidence:{phone:'Complete', weld:'Not started', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Walk-in candidate','Reviewed as future potential','Keep-warm / more-experience draft recommended']},
- {id:5, first:'Jordan', last:'Kim', role:'Designer', source:'Website', path:'Other path', stage:'Location / relocation check', owner:'Candidate', due:'2 days', priority:'Normal', email:'jordan@example.com', phone:'208-555-0144', location:'Boise, ID', stageUpdatedAt:daysAgoISO(2), summary:'Designer candidate from website. Needs location clarity before spending manager time.', concerns:'Boise location; confirm relocation/commute intent.', evidence:{phone:'Not started', weld:'N/A', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Website application','Location inquiry recommended']},
- {id:6, first:'Hannah', last:'Reyes', role:jobs[1].title, source:'Website', path:'Welder path', stage:'Application received', owner:'Quinton', due:'Today', priority:'Normal', email:'hannah@example.com', phone:'208-555-0163', location:'Burley, ID', stageUpdatedAt:daysAgoISO(0), summary:'New website application — fitter background, says she has stainless experience and a weld test ready portfolio.', concerns:'Verify stainless and fit-up experience before scheduling weld test.', evidence:{phone:'Not started', weld:'Not started', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Submitted from Goff careers page','Queued for Quinton review']},
- {id:7, first:'James', last:'Whitley', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Phone screen invitation', owner:'Candidate', due:'2 days', priority:'Normal', email:'james@example.com', phone:'208-555-0177', location:'Idaho Falls, ID', stageUpdatedAt:daysAgoISO(1), summary:'5 years stainless and sanitary pipe — invited to phone screen, waiting on time confirmation.', concerns:'Sanitary pipe background good signal; verify pace and food/dairy familiarity in screen.', evidence:{phone:'Invited', weld:'Not started', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{pay:'', startDate:'', schedule:'', approvers:'', notes:''}, timeline:['Indeed applicant added','Phone screen invitation sent']},
- {id:8, first:'Brandon', last:'Park', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Offer sent / follow-up', owner:'Candidate', due:'24 hours', priority:'Hot', email:'brandon@example.com', phone:'208-555-0182', location:'Twin Falls, ID', stageUpdatedAt:daysAgoISO(1), summary:'Strong weld test, smooth interview, references clean. Offer sent yesterday at $28/hr, awaiting candidate response.', concerns:'Follow up before 48-hour mark so the offer does not go cold.', evidence:{phone:'Complete', weld:'Complete', interview:'Complete', references:'Complete', crystal:'Complete', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{date:daysAgoISO(1).slice(0,10), pay:'$28.00/hr', startDate:daysAgoISO(-14).slice(0,10), schedule:'6:00 AM–2:30 PM', supervisor:'Quinton Goff', employmentType:'Full-Time', minHours:'40', approvers:'', coreMember1:'Austin Goff', coreMember2:'Quinton Goff', validityDays:'30', notes:'Standard offer per SOP.'}, timeline:['Indeed applicant moved into Goff recruiting','Weld test passed','Interview complete','Offer sent']},
- {id:9, first:'Ricky', last:'Lambert', role:jobs[0].title, source:'Referral', path:'Welder path', stage:'Schedule first day', owner:'Admin', due:'Today', priority:'Normal', email:'ricky@example.com', phone:'208-555-0145', location:'Paul, ID', stageUpdatedAt:daysAgoISO(0), summary:'Accepted offer, drug screen + background cleared. Scheduling first day with BBSI onboarding handoff to follow.', concerns:'None — ready for first day coordination and onboarding handoff.', evidence:{phone:'Complete', weld:'Complete', interview:'Complete', references:'Complete', crystal:'Complete', background:'Complete'}, clearance:{drug:'Passed', background:'Cleared', startDate:'Confirmed'}, offer:{date:daysAgoISO(7).slice(0,10), pay:'$26.50/hr', startDate:daysAgoISO(-7).slice(0,10), schedule:'6:00 AM–2:30 PM', supervisor:'Quinton Goff', employmentType:'Full-Time', minHours:'40', approvers:'', coreMember1:'Austin Goff', coreMember2:'Quinton Goff', validityDays:'30', notes:''}, timeline:['Referral candidate','Offer accepted','Clearance complete','Scheduling first day']}
+let seed = [];
+
+const DEMO_CANDIDATES = [
+ {id:1, first:'Tyler', last:'Rasmussen', role:jobs[0].title, source:'Indeed', path:'Welder path', stage:'Weld test invitation', owner:'Candidate', due:'Today', priority:'Hot', email:'tyler@example.com', phone:'208-555-0198', location:'Twin Falls, ID', stageUpdatedAt:daysAgoISO(4), summary:'Demo candidate — use only for sample walkthroughs.', concerns:'Demo only.', evidence:{phone:'Not needed yet', weld:'Needs scheduling', interview:'Not started', references:'Not started', crystal:'Not started', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{}, timeline:['Demo record']},
+ {id:2, first:'Caleb', last:'Miller', role:jobs[3].title, source:'Indeed', path:'Other path', stage:'Manager review packet', owner:'Hiring Manager', due:'1 day overdue', priority:'Hot', email:'caleb@example.com', phone:'208-555-0132', location:'Pocatello, ID', stageUpdatedAt:daysAgoISO(2), summary:'Demo candidate — use only for sample walkthroughs.', concerns:'Demo only.', evidence:{phone:'Complete', weld:'N/A', interview:'Complete', references:'Waiting', crystal:'Sent', background:'Not started'}, clearance:{drug:'Not scheduled', background:'Not started', startDate:'Not confirmed'}, offer:{}, timeline:['Demo record']}
 ];
 
 function normalizeCandidate(x){
@@ -254,7 +249,12 @@ async function pullCandidates(announce){
   const data = await res.json();
   const remote = Array.isArray(data.candidates) ? data.candidates : [];
   if(!remote.length){
-    if(candidates.length) pushCandidates(); // empty DB + local data = first boot: seed the server
+    // Server is source of truth. If the live queue is empty, keep it empty — do
+    // not re-seed demo/localStorage candidates into Quinton's real pipeline.
+    candidates = [];
+    selectedId = null;
+    safeSet('goffCandidatesV2', JSON.stringify(candidates));
+    render();
     return;
   }
   const knownIds = new Set(candidates.map(x => x.id));
@@ -607,7 +607,14 @@ function render(){
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
-function page(){ if(isPublicCareersHost()) view = publicSafeView(view); return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)(); }
+function emptyPipeline(){ return `${head('No candidates yet','Your pipeline is empty — add your first candidate to get started.','<button class=\"btn primary\" onclick="view=\'intake\';render()">Add candidate</button>')}<section class="panel"><div class="notice"><strong>Nothing here yet.</strong><br>Applications from the careers page land here automatically, or add someone manually with the button above. Once you have a candidate, their profile, manager review, and offer workflow open from the Candidates list.</div></section>`; }
+function page(){
+  if(isPublicCareersHost()) view = publicSafeView(view);
+  // Candidate-detail views need a selected candidate; on an empty pipeline show
+  // a friendly empty state instead of crashing.
+  if(['candidate','manager','offer'].includes(view) && !c()) return emptyPipeline();
+  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)();
+}
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
   const austinDecisions = candidates.filter(needsHiringManager);
@@ -807,7 +814,7 @@ const APP_CORE_FIELDS = [
 const APP_QUESTIONS = {
   welder: [
     { k:'Years of welding experience', type:'select', options:['Less than 1','1–3','3–5','5–10','10+'], req:true },
-    { k:'Processes you run', type:'checks', options:['TIG','MIG','Stick','Flux-core'] },
+    { k:'Processes you run', type:'checks', options:['TIG','MIG','Stick','Flux-core'], id:'processes' },
     { k:'Sanitary / food-grade stainless experience?', type:'yesno', req:true },
     { k:'Certifications (AWS or equivalent)', type:'text' },
     { k:'Can you read blueprints and drawings?', type:'yesno' },
@@ -861,8 +868,15 @@ function appFieldHtml(f, idx, prefix){
   if(f.type==='textarea') return `${label}<textarea id="${id}" rows="4"></textarea></label>`;
   if(f.type==='yesno') return `${label}<select id="${id}"><option value=""></option><option>Yes</option><option>No</option></select></label>`;
   if(f.type==='select') return `${label}<select id="${id}"><option value=""></option>${f.options.map(o=>`<option>${esc(o)}</option>`).join('')}</select></label>`;
-  if(f.type==='checks') return `${label}<div class="app-checks" id="${id}">${f.options.map(o=>`<label class="app-check"><input type="checkbox" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div></label>`;
+  if(f.type==='checks') return `${label}<div class="app-checks" id="${id}" data-field="${esc(f.id||f.k)}" onchange="handleAppChecksChange('${id}')">${f.options.map(o=>`<label class="app-check"><input type="checkbox" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>${f.id==='processes'?'<div id="tig-warning" class="notice warn" style="display:none;margin-top:10px"><strong>Heads up:</strong> Goff primarily uses TIG welding. Weld tests are usually on TIG equipment. If you do not run TIG or Stick yet, be ready to talk through whether you can transition.</div>':''}</label>`;
   return `${label}<input id="${id}" type="${f.type||'text'}"></label>`;
+}
+function handleAppChecksChange(id){
+  const box = document.getElementById(id);
+  if(!box || box.dataset.field !== 'processes') return;
+  const selected = Array.from(box.querySelectorAll('input:checked')).map(x=>String(x.value).toLowerCase());
+  const warn = document.getElementById('tig-warning');
+  if(warn) warn.style.display = selected.length && !selected.includes('tig') && !selected.includes('stick') ? 'block' : 'none';
 }
 function readAppField(f, idx, prefix){
   const el = document.getElementById(`${prefix}-${idx}`);
@@ -904,6 +918,7 @@ async function submitRoleApplication(){
   if(core.city) answers['City / town'] = core.city;
   if(core.start) answers['Soonest start'] = core.start;
   if(core.heard) answers['Heard about us via'] = core.heard;
+  if(j.id === 'welder'){ const processes = String(answers['Processes you run'] || ''); if(processes && !/TIG|Stick/i.test(processes)) answers['TIG / Stick weld-test notice'] = 'Applicant selected neither TIG nor Stick; portal displayed TIG weld-test warning.'; }
   if(extra) answers['Anything else'] = extra;
   const btn = document.getElementById('ra-submit'); if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
   const notes = Object.entries(answers).filter(([,v])=>v).map(([k,v])=>`${k}: ${v}`).join('\n');

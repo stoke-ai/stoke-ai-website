@@ -2,12 +2,12 @@ const PROFILE = {
   employeeName: 'Ricky Lambert',
   firstName: 'Ricky',
   role: 'Sanitary Stainless Steel Welder / Fabricator',
-  supervisor: 'Quinton Goff',
+  supervisor: 'Assigned supervisor',
   startDate: 'Monday, July 8',
   startTime: '6:00 AM',
   location: 'Goff Welding • 531 W 100 S #24, Paul, ID',
   status: 'Cleared for onboarding',
-  contact: 'Goff admin / supervisor',
+  contact: 'Quinton Evans — onboarding contact',
 };
 
 const pages = [
@@ -175,19 +175,29 @@ const KNOWLEDGE_CHECKS = {
   kc32:{ q:'How many forgotten weekly timecard approvals are you allowed before consequences (like a delayed paycheck)?', options:['One','Five','Three','Unlimited'], correct:2 },
   kc33:{ q:'The person harassing you IS your supervisor. What does the handbook say to do?', options:['Wait and document it for three incidents first','Tell your coworkers so they can back you up','Nothing can be done','Go directly to HR or any member of management — reports are investigated without reprisal'], correct:3 },
   // Work-basics course checks (from the ExakTime SOPs + FAQ).
-  kc34:{ q:'Your Tuesday time entry is wrong. What is the deadline to fix it?', options:['Fix it whenever you notice','Get the correction to Andrea no later than Monday at noon','By the end of the pay year','Corrections are not allowed'], correct:1 },
+  kc34:{ q:'Your Tuesday time entry is wrong. What is the deadline to fix it?', options:['Fix it whenever you notice','Get the correction to Monty no later than Monday at noon','By the end of the pay year','Corrections are not allowed'], correct:1 },
   kc35:{ q:'Your supervisor approved your timecard Monday afternoon — then you spot an error. What now?', options:['Tap Unapprove and fix it yourself','Edit the entry directly','Let it go — it is locked forever','You cannot un-approve it yourself — speak with your supervisor or an administrator'], correct:3 },
   kc36:{ q:'What do you use for work-related phone calls?', options:['The QUO app with your assigned company number','Your personal cell number','Any messaging app you like','Calls are not allowed during work'], correct:0 },
+  kc37:{ q:'When is it appropriate to bring up a concern about a coworker?', options:['When the coworker is not present and the crew already agrees','Only as a joke during lunch or breaks','To your supervisor, HR, or management so it can be handled directly','Never — concerns should be ignored'], correct:2 },
 };
 const ORIENTATION_QUIZ = ['kc10','kc11','kc12','kc13'];
 function orientationQuizDone(){ return ORIENTATION_QUIZ.every(id => kcState[id]?.correct); }
 let kcState = (() => { try { return JSON.parse(safeGetEarly('goffKCv1') || '{}'); } catch(_) { return {}; } })();
 function answerKC(id, idx){
   const kc = KNOWLEDGE_CHECKS[id]; if(!kc) return;
-  const s = kcState[id] || { attempts:0, correct:false, picked:null };
-  if(s.correct) return;
+  const s = kcState[id] || { attempts:0, correct:false, picked:null, locked:false };
+  if(s.correct || s.locked) return;
   s.attempts++; s.picked = idx; s.correct = idx === kc.correct;
+  if(!s.correct && s.attempts >= 2) s.locked = true;
   kcState[id] = s;
+  safeSet('goffKCv1', JSON.stringify(kcState));
+  render();
+}
+function reviewKC(id){
+  const s = kcState[id];
+  if(!s) return;
+  s.locked = false;
+  s.picked = null;
   safeSet('goffKCv1', JSON.stringify(kcState));
   render();
 }
@@ -198,9 +208,9 @@ function kcCard(id, label){
   return `<div class="kc-card ${s.correct?'kc-done':''}"><p class="eyebrow">${esc(label || 'Knowledge check')}</p><h4>${esc(kc.q)}</h4>
   <div class="kc-options">${kc.options.map((opt,i)=>{
     const cls = s.correct && i===kc.correct ? 'kc-right' : (!s.correct && s.picked===i ? 'kc-wrong' : '');
-    return `<button class="kc-opt ${cls}" onclick="answerKC('${id}',${i})" ${s.correct?'disabled':''}><span>${letters[i]}</span>${esc(opt)}</button>`;
+    return `<button class="kc-opt ${cls}" onclick="answerKC('${id}',${i})" ${s.correct||s.locked?'disabled':''}><span>${letters[i]}</span>${esc(opt)}</button>`;
   }).join('')}</div>
-  ${s.correct ? `<p class="kc-feedback ok">✓ Correct${s.attempts===1?' — first try':` — after ${s.attempts} attempts (tracked for your record)`}</p>` : s.attempts>0 ? `<p class="kc-feedback no">✗ Not quite — re-read the section above and try again. Attempts are tracked.</p>` : `<p class="kc-feedback">Select an answer to continue.</p>`}</div>`;
+  ${s.correct ? `<p class="kc-feedback ok">✓ Correct${s.attempts===1?' — first try':` — after ${s.attempts} attempts (tracked for your record)`}</p>` : s.locked ? `<div class="kc-feedback no"><strong>Pause and review.</strong><br>You missed this twice. Re-read the section above, then tap below to try again.<br><button class="secondary" onclick="reviewKC('${id}')" style="margin-top:8px">I reviewed it — try again</button></div>` : s.attempts>0 ? `<p class="kc-feedback no">✗ Not quite — re-read the section above and try again. After two misses, you’ll pause to review.</p>` : `<p class="kc-feedback">Select an answer to continue.</p>`}</div>`;
 }
 function kcStats(){
   const all = Object.keys(KNOWLEDGE_CHECKS);
@@ -305,7 +315,7 @@ const pageContent = {
     summary:'This is the employee-facing version of the new-hire checklist. The goal is one clear path before the employee arrives, not scattered PDFs and texts.',
     blocks:[
       ['Complete myBBSI onboarding','Watch for the BBSI/myBBSI invite and complete required payroll/HR steps before your first day. If the link expires or does not work, contact Goff Welding.'],
-      ['Confirm where and when to arrive',`First day: ${PROFILE.startDate}. Start time: ${PROFILE.startTime}. Location: ${PROFILE.location}. Supervisor: ${PROFILE.supervisor}.`],
+      ['Confirm where and when to arrive',`First day: ${PROFILE.startDate}. Start time: ${PROFILE.startTime}. Location: ${PROFILE.location}. Assigned supervisor: ${PROFILE.supervisor}. Onboarding contact: ${PROFILE.contact}.`],
       ['When you get here','Park along the east side of the east shop buildings, then follow your supervisor’s direction or report to the shop. The breakroom (fridge and microwave) is in the west shops, immediately as you walk in. PPE is available in the parts room, at each shop entrance, and in work trailers.'],
       ['Your first paycheck','Payday is weekly on Fridays. Your first paycheck will be a paper check while direct deposit is being processed, which can take up to two weeks.'],
       ['Review the training path','Before day one, review timekeeping, safety basics, tools/apparel, and company forms so the first day is not a fire hose.'],
@@ -373,7 +383,7 @@ const pageContent = {
     title:'Manager handoff',
     summary:'Once the employee has completed the basics, the supervisor turns onboarding into the first real work assignment and expectations.',
     blocks:[
-      ['Meet your supervisor',`Default supervisor shown here: ${PROFILE.supervisor}. Confirm the real first-day contact and who owns the handoff.`],
+      ['Meet your supervisor',`Assigned supervisor shown here: ${PROFILE.supervisor}. Quinton Evans is the onboarding contact unless Goff assigns a different coordinator.`],
       ['Review first assignment','Supervisor explains the first assignment, work area/jobsite, expected pace, quality standard, and who to ask for help.'],
       ['Confirm training complete','Supervisor confirms ExakTime, safety basics, tools/apparel, company forms, and any role-specific requirements.'],
       ['Capture open questions','Any confusion from day one should be written down so it can be answered before the 30-day check-in.'],
@@ -855,7 +865,7 @@ const POLICY_COURSES = [
     { theme:'dark', eyebrow:'Policy course · Communication', title:'Praise down. Send problems up.',
       body:'Gossip kills trust and divides crews. The rule is simple: recognition flows freely to teammates and leadership; concerns about people go UP to a supervisor — not sideways to the crew.',
       prompt:'Complaining about someone to coworkers instead of leadership is the definition of gossip here.' },
-    { eyebrow:'How it works', title:'The one-of-two rule', quiz:['kc8'],
+    { eyebrow:'How it works', title:'The one-of-two rule', quiz:['kc37'],
       cards:[
         ['What counts as gossip','Talking negatively about someone who isn’t present, discussing others’ mistakes or discipline, speculating about company decisions.','chat'],
         ['The rule','A concern about another employee belongs in a conversation that includes either that person or a supervisor who can fix it. One of the two — always.','users'],
@@ -1312,7 +1322,7 @@ const WORKBASICS_COURSES = [
     { eyebrow:'Approval week', title:'How a timecard becomes a paycheck', numbered:true,
       cards:[
         ['Review daily','Three-lines menu → Approvals. Check your time every day — entries follow the six questions from the Timecards policy.'],
-        ['Corrections by Monday noon','Any fix goes to Andrea no later than Monday at noon for the prior Monday–Sunday period. Then tap APPROVE.'],
+        ['Corrections by Monday noon','Any fix goes to Monty no later than Monday at noon for the prior Monday–Sunday period. Then tap APPROVE.'],
         ['Locked after sign-off','Supervisors approve crews Monday afternoon. Once approved by your supervisor or an administrator you cannot un-approve it yourself — and three forgotten approvals brings consequences, including a delayed paycheck.'],
       ] },
     { eyebrow:'Beyond the clock', title:'The other tools you’ll touch',
@@ -1348,6 +1358,16 @@ function courseStatus(set, c){ if(courseComplete(set, c)) return 'Complete'; if(
 function policyCourseStatus(c){ return courseStatus('policy', c); }
 function allPolicyCoursesDone(){ return POLICY_COURSES.every(c => courseComplete('policy', c)); }
 function allSafetyCoursesDone(){ return SAFETY_COURSES.every(c => courseComplete('safety', c)); }
+
+function nextCourseLabel(set, c, idx){
+  if(set === 'policy' && idx === c.slides.length - 2){
+    const list = courseListFor(set);
+    const next = list[list.findIndex(x => x.id === c.id) + 1];
+    return next ? `Next: ${esc(next.title)} →` : 'Next: complete policy →';
+  }
+  return 'Next →';
+}
+
 function coursePlayer(set, c){
   const idx = courseSlidePos[`${set}:${c.id}`] || 0;
   const item = c.slides[idx];
@@ -1370,7 +1390,7 @@ function coursePlayer(set, c){
   ${courseSlideCanvas(item)}
   <div class="course-actions"><button class="secondary" onclick="setCoursePos('${set}','${c.id}',${idx-1})" ${idx===0?'disabled':''}>← Previous</button>${last
     ? (isDone ? `<button class="complete-btn done" disabled>Completed ✓</button>` : !allQuizzesDone ? `<button class="complete-btn" disabled title="Answer every question in this course first">Answer the questions in this course</button>` : `<button class="complete-btn" disabled title="Complete below">${signs?'Sign below to complete ↓':'Complete below ↓'}</button>`)
-    : `<button ${gated?'disabled title="Answer the questions above to continue"':''} onclick="setCoursePos('${set}','${c.id}',${idx+1})">${gated?'Answer to continue':'Next →'}</button>`}</div>
+    : `<button ${gated?'disabled title="Answer the questions above to continue"':''} onclick="setCoursePos('${set}','${c.id}',${idx+1})">${gated?'Answer to continue': nextCourseLabel(set, c, idx)}</button>`}</div>
   ${ackPanel}
   <div class="course-rail">${c.slides.map((s,i)=>`<button class="rail-dot ${i===idx?'active':''}" onclick="setCoursePos('${set}','${c.id}',${i})" title="Slide ${i+1}">${i+1}</button>`).join('')}</div></section>`;
 }
@@ -1403,7 +1423,7 @@ const checkinItems = [
 ];
 
 const demoOnboardingQueue = [
-  { id:'demo-ricky', name:'Ricky Lambert', role:'Sanitary Stainless Steel Welder / Fabricator', supervisor:'Quinton Goff', stage:'Training path', status:'In progress', start:'Jul 8', progress:62, blocked:'BBSI completion needs confirmation', next:'Confirm myBBSI complete, then schedule manager handoff' },
+  { id:'demo-ricky', name:'Ricky Lambert', role:'Sanitary Stainless Steel Welder / Fabricator', supervisor:'Quinton Evans', stage:'Training path', status:'In progress', start:'Jul 8', progress:62, blocked:'BBSI completion needs confirmation', next:'Confirm myBBSI complete, then schedule manager handoff' },
   { id:'next-helper', name:'Next helper hire', role:'Shop / field helper', supervisor:'Supervisor to confirm', stage:'Clearance hold', status:'Waiting', start:'Pending', progress:18, blocked:'Drug screen/background/start date not confirmed', next:'Do not send employee portal until clearance is confirmed' },
   { id:'vehicle-checkin', name:'Vehicle-user check-in', role:'Driver / assigned vehicle user', supervisor:'Supervisor to confirm', stage:'30-day check-in', status:'Due soon', start:'Started', progress:84, blocked:'Truck check-in routing needs owner', next:'Run 30-day check-in and confirm vehicle/form training' },
 ];
@@ -1497,7 +1517,7 @@ const phaseOneStatus = [
   { area:'Master Welcome packet adopted (7/6)', status:'Resolved by Austin', detail:'The new-version master Welcome packet is now the source of truth for the orientation: vision (“adding value — always”), mission, exact values wording, the nine ways to live them, and the five expectations. Its checklist also marks which signatures the BBSI onboarding link collects (drug/alcohol, vehicle, vacation, NDA, handbook receipt, unexcused absences, video release) — the portal will track status for those rather than duplicate the signature. Insurance eligibility reconfirmed at 60 days.' },
   { area:'CONTENT CONFLICTS', status:'6 remain — 1 resolved', detail:'(1) RESOLVED 7/6: mission/vision — master Welcome packet version adopted. (2) Always-on PPE: deck says glasses + steel-toe; V3 safety handbook says glasses + hearing protection — portal shows the union. (3) Vehicle Policy docx says on-call runs through “ADP”; the PDF says Exak — portal says “the time app.” (4) Time-off requests: FAQ says the ExakTime app; Unexcused Absences policy says a “Request Days Off” form. (5) VACATION ACCRUAL: the standalone Vacation Policy says hourly weekly accrual (0.77/1.54/2.31 hrs) with a 1.5× carryover cap; the handbook (rev 3/2025) says 5/10/15 days per year with different carryover language. Portal teaches the standalone policy. (6) INSURANCE ELIGIBILITY: New Hire Checklist says after 60 days; handbook says Sterling membership after 3 months. (7) DRESS CODE: the handbook prohibits T-shirts and jeans as inappropriate attire — while the apparel program issues every new hire five Goff T-shirts. Handbook dress code likely template language needing a Goff rewrite.' },
   { area:'Document standardization', status:'Planned', detail:'Austin asked for tidied, consistently-branded documents and AI flagging of conflicting policy facts (e.g., observed holidays). The two conflicts above are the first output of that process.' },
-  { area:'Work basics (step 4)', status:'Now a slide course', detail:'Rebuilt from the two real ExakTime SOPs: install steps, review-daily habit, corrections to Andrea by Monday noon, locked-after-supervisor-sign-off rule, plus QUO/Travel Bank/purchasing/Work Schedule basics from the FAQ. Replaces the old static page and self-attested completion; step 4 now completes via 3 tracked questions.' },
+  { area:'Work basics (step 4)', status:'Now a slide course', detail:'Rebuilt from the two real ExakTime SOPs: install steps, review-daily habit, corrections to Monty by Monday noon, locked-after-supervisor-sign-off rule, plus QUO/Travel Bank/purchasing/Work Schedule basics from the FAQ. Replaces the old static page and self-attested completion; step 4 now completes via 3 tracked questions.' },
   { area:'Supervisor handoff (step 5)', status:'Now the in-person checklist', detail:'Built from the New Hire Checklist’s physical items: apparel issue + form, tool/material sign-out, PPE walk, hands-on LOTO demo, Hyster & scissor-lift tests, emergency walk with FROI, personal info/emergency contact, receipts, first assignment, open questions. In production this becomes the supervisor’s signed checklist.' },
   { area:'Training structure', status:'Ready for review', detail:'General onboarding, safety, policies, tools, links, role expectations, and milestones are separated.' },
   { area:'Safety', status:'Drafted — confirm with BBSI safety', detail:'The real 10-question quiz from Safety Training & Quiz V3 is now live in the portal with instant feedback and the acknowledgement text. BBSI safety confirms pass/fail, retakes, timing, and hands-on signoff.' },
@@ -1913,7 +1933,7 @@ function faqResults(){
   const banner = full.length ? '' : `<p class="summary" style="padding-top:10px">No exact match for “${esc(faqSearch)}” — closest answers:</p>`;
   const byCat = {};
   show.forEach(x => { (byCat[x.category] ||= []).push(x); });
-  return banner + Object.entries(byCat).map(([cat, items]) => `<div class="faq-group"><h3>${esc(cat)}</h3>${items.map(x => `<details class="faq-item" open><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p>${faqActs(x.act)}</details>`).join('')}</div>`).join('');
+  return banner + Object.entries(byCat).map(([cat, items]) => `<div class="faq-group"><h3>${esc(cat)}</h3>${items.map(x => `<details class="faq-item"><summary>${esc(x.q)}</summary><p>${esc(x.a)}</p>${faqActs(x.act)}</details>`).join('')}</div>`).join('');
 }
 function faqSection(){
   const total = FAQ_DATA.reduce((n,g)=>n+g.items.length,0);
