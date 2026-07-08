@@ -572,11 +572,11 @@ img,svg,canvas,iframe{max-width:100%}
 @media(max-width:700px){.pos-form{grid-template-columns:1fr}.pos-row{flex-direction:column;align-items:flex-start}}
 
 /* Collapsible correction tools on the candidate page (de-clutter secondary actions) */
-details.correction-tools > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
-details.correction-tools > summary::-webkit-details-marker{display:none}
-details.correction-tools > summary::before{content:"▸";color:var(--brand);font-size:13px}
-details.correction-tools[open] > summary::before{content:"▾"}
-details.correction-tools > summary h3{margin:0}
+details.collapse-panel > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+details.collapse-panel > summary::-webkit-details-marker{display:none}
+details.collapse-panel > summary::before{content:"▸";color:var(--brand);font-size:13px}
+details.collapse-panel[open] > summary::before{content:"▾"}
+details.collapse-panel > summary h3{margin:0}
 
 /* Contact strip inside the candidate hero — email/phone/location at a glance,
    right under the name instead of buried mid-page. */

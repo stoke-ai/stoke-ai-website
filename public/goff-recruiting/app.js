@@ -1271,7 +1271,7 @@ function candidate(){
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
   </section>
-  ${x.application && Object.keys(x.application).length ? `<section class="panel" style="margin-top:16px"><h3>Application answers</h3><div class="app-answers">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></section>` : ''}
+  ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
   ${phoneScreenPanel(x)}
   <div class="grid two" style="margin-top:16px">
     <section class="panel">
@@ -1284,7 +1284,7 @@ function candidate(){
       <p class="muted">${esc(roleFit(x))}</p>
     </section>
   </div>
-  <details class="panel correction-tools" style="margin-top:16px">
+  <details class="panel collapse-panel" style="margin-top:16px">
     <summary><h3 style="display:inline">Correct stage or change role</h3></summary>
     <p class="muted small" style="margin-top:10px">Only use these if someone clicked the wrong step, or the candidate should be considered for a different opening. Either change is logged in the timeline.</p>
     <label class="muted small" style="display:block;margin-top:14px;font-weight:700">Stage</label>
