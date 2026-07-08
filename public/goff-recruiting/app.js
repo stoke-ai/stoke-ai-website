@@ -447,11 +447,20 @@ function addNote(){
   if (!input) return;
   const text = input.value.trim();
   if (!text) return;
+  // During phone-screen stages the notes panel IS the call-capture surface:
+  // prefix the note, tick the evidence, and clear the screening concern.
+  const phone = isPhoneScreenStage(x.stage);
   x.notes = x.notes || [];
-  x.notes.push({ id: Date.now(), author: (currentUser && currentUser.name) || 'Recruiter', text, createdAt: nowISO() });
-  x.timeline.push(`Note: ${text.slice(0, 80)}${text.length > 80 ? '…' : ''}`);
+  x.notes.push({ id: Date.now(), author: (currentUser && currentUser.name) || 'Recruiter', text: phone ? `Phone screen: ${text}` : text, createdAt: nowISO() });
+  x.timeline.push(phone ? `Phone screen notes saved: ${text.slice(0, 70)}${text.length > 70 ? '…' : ''}` : `Note: ${text.slice(0, 80)}${text.length > 80 ? '…' : ''}`);
+  if (phone) {
+    x.evidence = x.evidence || {};
+    x.evidence.phone = 'Complete';
+    clearScreeningConcern(x);
+  }
   save();
   render();
+  if (phone) showToast('Phone screen notes saved — marked complete');
 }
 function togglePin(id){
   const x = candidates.find(item => item.id === id) || c();
@@ -719,7 +728,7 @@ function decisionCard(x){
       <span class="tag red">${esc(x.stage)}</span>
     </div>
     <p class="decision-card-summary">${esc(x.summary)}</p>
-    ${x.concerns ? `<div class="decision-card-concern"><strong>Concern:</strong> ${esc(x.concerns)}</div>` : ''}
+    ${realConcern(x) ? `<div class="decision-card-concern"><strong>Concern:</strong> ${esc(realConcern(x))}</div>` : ''}
     <div class="decision-card-actions">
       ${actions.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="selectedId=${x.id};${a.action}">${esc(a.label)}</button>`).join('')}
       <button class="btn ghost" onclick="selectedId=${x.id};view='candidate';render()">Open candidate →</button>
@@ -824,7 +833,7 @@ function intake(){
   </div>
   <section class="panel" style="margin-top:16px"><h3>Import preview / result</h3><div id="importResult" class="notice">Choose a link template, quick-add a fallback lead, paste one applicant, or preview a CSV import.</div></section>`;
 }
-function quickAdd(){ let [first,...rest]=(document.getElementById('qaName').value||'New Candidate').split(' '); let role=document.getElementById('qaRole').value; let source=document.getElementById('qaSource').value; let item=normalizeCandidate({id:Date.now(),first,last:rest.join(' ')||'Applicant',email:document.getElementById('qaEmail').value||'unknown@example.com',phone:document.getElementById('qaPhone')?.value||'',role,source,path:role.toLowerCase().includes('welder')||role.toLowerCase().includes('fitter')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:`Fallback intake lead from ${source}. Prefer sending the application link so the candidate can complete the full Goff application path.`,concerns:'Fallback entry: verify contact info, role fit, availability, and whether the candidate completed the official application link.',timeline:[`Added through ${source} fallback quick-add`,'Needs official application link or recruiter review']}); candidates.unshift(item); selectedId=item.id; save(); view='candidate'; render(); }
+function quickAdd(){ let [first,...rest]=(document.getElementById('qaName').value||'New Candidate').split(' '); let role=document.getElementById('qaRole').value; let source=document.getElementById('qaSource').value; let item=normalizeCandidate({id:Date.now(),first,last:rest.join(' ')||'Applicant',email:document.getElementById('qaEmail').value||'unknown@example.com',phone:document.getElementById('qaPhone')?.value||'',role,source,path:role.toLowerCase().includes('welder')||role.toLowerCase().includes('fitter')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:`Fallback intake lead from ${source}. Prefer sending the application link so the candidate can complete the full Goff application path.`,concerns:'',timeline:[`Added through ${source} fallback quick-add`,'Needs official application link or recruiter review']}); candidates.unshift(item); selectedId=item.id; save(); view='candidate'; render(); }
 function showApplicationLinkDraft(source='Indeed'){
   const tpl = APPLICATION_LINK_TEMPLATES[source] || APPLICATION_LINK_TEMPLATES['Indeed'];
   const text = tpl.text.replaceAll('{{name}}','there').replaceAll('{{link}}',CAREERS_URL);
@@ -832,11 +841,11 @@ function showApplicationLinkDraft(source='Indeed'){
   document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>${esc(tpl.title)}</h3><p>This is the message to paste into Indeed, a text, email, or a front-desk script. It includes the application link so the candidate enters the same Goff queue as everyone else.</p><textarea>${esc(text)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(CAREERS_URL)">Copy raw link</button><button class="btn brand" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy message</button></div></div>`;
 }
 function demoImport(){ view='intake'; render(); document.getElementById('pasteBox').value='Name: Jason Harper\nEmail: jason.harper@example.com\nPhone: 208-555-0188\nSource: Indeed\nRole: Sanitary Stainless Steel Welder/Fabricator\nNotes: 5 years stainless, currently in Idaho Falls, available for weld test next week.'; parseImport(); }
-function parseImport(){ let t=document.getElementById('pasteBox').value||''; let email=(t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[''])[0]; let phone=(t.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)||[''])[0]; let name=(t.match(/Name:\s*([^\n,]+)/i)||t.match(/^([^,\n]+)/)||['','Imported Candidate'])[1].trim(); let source=(t.match(/Source:\s*([^\n,]+)/i)||['','Indeed'])[1].trim(); let role=(t.match(/Role:\s*([^\n]+)/i)||t.match(/Job(?: Title)?:\s*([^\n]+)/i)||['',jobs[0].title])[1].trim(); let notes=(t.match(/Notes?:\s*([^]+)/i)||['','Imported applicant. System recommends Quinton review and choose first action.'])[1].trim(); let [first,...rest]=name.split(' '); let item=normalizeCandidate({id:Date.now(),first:first||'Imported',last:rest.join(' ')||'Candidate',email:email||'unknown@example.com',phone,role,source,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:notes.slice(0,260),concerns:'Imported data needs verification.',timeline:['Parsed from paste/import center','Queued for Quinton review']}); candidates.unshift(item); selectedId=item.id; save(); document.getElementById('importResult').innerHTML=`<strong>Imported:</strong> ${item.first} ${item.last} • ${item.role} • ${item.source}<br><button class="btn primary" onclick="view='candidate';render()">Open candidate</button>`; }
+function parseImport(){ let t=document.getElementById('pasteBox').value||''; let email=(t.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i)||[''])[0]; let phone=(t.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)||[''])[0]; let name=(t.match(/Name:\s*([^\n,]+)/i)||t.match(/^([^,\n]+)/)||['','Imported Candidate'])[1].trim(); let source=(t.match(/Source:\s*([^\n,]+)/i)||['','Indeed'])[1].trim(); let role=(t.match(/Role:\s*([^\n]+)/i)||t.match(/Job(?: Title)?:\s*([^\n]+)/i)||['',jobs[0].title])[1].trim(); let notes=(t.match(/Notes?:\s*([^]+)/i)||['','Imported applicant. System recommends Quinton review and choose first action.'])[1].trim(); let [first,...rest]=name.split(' '); let item=normalizeCandidate({id:Date.now(),first:first||'Imported',last:rest.join(' ')||'Candidate',email:email||'unknown@example.com',phone,role,source,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location:'',summary:notes.slice(0,260),concerns:'',timeline:['Parsed from paste/import center','Queued for Quinton review']}); candidates.unshift(item); selectedId=item.id; save(); document.getElementById('importResult').innerHTML=`<strong>Imported:</strong> ${item.first} ${item.last} • ${item.role} • ${item.source}<br><button class="btn primary" onclick="view='candidate';render()">Open candidate</button>`; }
 function parseCSV(text){ const rows=[]; let row=[], cell='', inQuotes=false; for(let i=0;i<text.length;i++){ const ch=text[i], next=text[i+1]; if(ch==='"' && inQuotes && next==='"'){ cell+='"'; i++; } else if(ch==='"'){ inQuotes=!inQuotes; } else if(ch===',' && !inQuotes){ row.push(cell); cell=''; } else if((ch==='\n'||ch==='\r') && !inQuotes){ if(ch==='\r' && next==='\n') i++; row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); row=[]; cell=''; } else cell+=ch; } row.push(cell); if(row.some(v=>String(v).trim())) rows.push(row); return rows; }
 function canonicalHeader(h){ return String(h||'').toLowerCase().replace(/[^a-z0-9]+/g,''); }
 function pick(row, headers, aliases){ for(const a of aliases){ const i=headers.indexOf(canonicalHeader(a)); if(i>=0 && row[i]) return String(row[i]).trim(); } return ''; }
-function candidateFromCSVRow(row, headers, idx){ let full=pick(row,headers,['name','candidate name','full name','applicant name']); let first=pick(row,headers,['first name','firstname','first']); let last=pick(row,headers,['last name','lastname','last']); if(!full && (first||last)) full=`${first} ${last}`.trim(); if(!first){ const parts=(full||`Indeed Candidate ${idx+1}`).trim().split(/\s+/); first=parts.shift()||'Indeed'; last=last||parts.join(' ')||'Candidate'; } let role=pick(row,headers,['job title','job','position','applied job','applied position','job applied','role']) || jobs[0].title; let email=pick(row,headers,['email','email address','candidate email']); let phone=pick(row,headers,['phone','phone number','mobile','mobile phone','candidate phone']); let location=pick(row,headers,['location','city','candidate location','address']); let status=pick(row,headers,['status','candidate status','indeed status']); let resume=pick(row,headers,['resume','resume text','cover letter','experience','qualifications']); let notes=pick(row,headers,['notes','note','comments','screening answers','questions','answers']); let source=pick(row,headers,['source']) || 'Indeed CSV'; const combined=[status && `Indeed status: ${status}`, resume, notes].filter(Boolean).join(' | '); return normalizeCandidate({id:Date.now()+idx,first,last:last||'Candidate',email:email||'unknown@example.com',phone,role,source,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location,summary:(combined||'Imported from Indeed CSV. Needs Goff review and path selection.').slice(0,500),concerns:'CSV import: verify candidate details, fit, availability, and source status before outreach.',timeline:['Imported from Indeed CSV','Queued for Quinton review']}); }
+function candidateFromCSVRow(row, headers, idx){ let full=pick(row,headers,['name','candidate name','full name','applicant name']); let first=pick(row,headers,['first name','firstname','first']); let last=pick(row,headers,['last name','lastname','last']); if(!full && (first||last)) full=`${first} ${last}`.trim(); if(!first){ const parts=(full||`Indeed Candidate ${idx+1}`).trim().split(/\s+/); first=parts.shift()||'Indeed'; last=last||parts.join(' ')||'Candidate'; } let role=pick(row,headers,['job title','job','position','applied job','applied position','job applied','role']) || jobs[0].title; let email=pick(row,headers,['email','email address','candidate email']); let phone=pick(row,headers,['phone','phone number','mobile','mobile phone','candidate phone']); let location=pick(row,headers,['location','city','candidate location','address']); let status=pick(row,headers,['status','candidate status','indeed status']); let resume=pick(row,headers,['resume','resume text','cover letter','experience','qualifications']); let notes=pick(row,headers,['notes','note','comments','screening answers','questions','answers']); let source=pick(row,headers,['source']) || 'Indeed CSV'; const combined=[status && `Indeed status: ${status}`, resume, notes].filter(Boolean).join(' | '); return normalizeCandidate({id:Date.now()+idx,first,last:last||'Candidate',email:email||'unknown@example.com',phone,role,source,path:role.toLowerCase().includes('welder')?'Welder path':'Other path',stage:'Application received',owner:'Quinton',due:'Today',priority:'Normal',location,summary:(combined||'Imported from Indeed CSV. Needs Goff review and path selection.').slice(0,500),concerns:'',timeline:['Imported from Indeed CSV','Queued for Quinton review']}); }
 function parseIndeedCSV(text){ if(!text || !text.trim()){ document.getElementById('importResult').innerHTML='<strong>No CSV found.</strong> Upload a file or paste CSV rows first.'; return; } const rows=parseCSV(text.trim()); if(rows.length<2){ document.getElementById('importResult').innerHTML='<strong>Need header row plus at least one candidate row.</strong>'; return; } const headers=rows[0].map(canonicalHeader); const imported=rows.slice(1).filter(r=>r.some(v=>String(v).trim())).map((r,i)=>candidateFromCSVRow(r,headers,i)); window.pendingIndeedImport=imported; document.getElementById('importResult').innerHTML=`<strong>Previewed ${imported.length} Indeed candidate${imported.length===1?'':'s'}.</strong><div class="import-preview">${imported.slice(0,8).map(x=>`<div class="template-row"><b>${esc(x.first)} ${esc(x.last)}</b><span>${esc(x.role)}</span><span class="tag blue">${esc(x.source)}</span></div>`).join('')}${imported.length>8?`<p class="muted">+ ${imported.length-8} more</p>`:''}</div><div class="modal-actions" style="justify-content:flex-start"><button class="btn primary" onclick="commitIndeedImport()">Import ${imported.length} to Goff queue</button><button class="btn" onclick="window.pendingIndeedImport=[];document.getElementById('importResult').innerHTML='Import cancelled.'">Cancel</button></div>`; }
 function handleCSVFile(evt){ const file=evt.target.files?.[0]; if(!file) return; const reader=new FileReader(); reader.onload=()=>{ document.getElementById('csvPasteBox').value=reader.result; parseIndeedCSV(reader.result); }; reader.readAsText(file); }
 function commitIndeedImport(){ const imported=window.pendingIndeedImport||[]; if(!imported.length){ document.getElementById('importResult').innerHTML='No pending CSV import.'; return; } candidates=[...imported,...candidates]; selectedId=imported[0].id; save(); document.getElementById('importResult').innerHTML=`<strong>Imported ${imported.length} Indeed candidate${imported.length===1?'':'s'} into the Goff queue.</strong><br><button class="btn primary" onclick="view='candidate';render()">Open first imported candidate</button>`; window.pendingIndeedImport=[]; }
@@ -1006,7 +1015,7 @@ async function submitRoleApplication(){
   const item = normalizeCandidate({
     id: Date.now(), first: core.first, last: core.last || 'Applicant', email: core.email, phone: core.phone, role: j.title,
     source:'Goff website', path: j.path, stage:'Application received', owner:'Quinton', due:'Today', priority:'Normal',
-    location: core.city || '', summary:`Website application (role-specific).\n${notes.slice(0,400)}`, concerns:'Needs screening.',
+    location: core.city || '', summary:`Website application (role-specific).\n${notes.slice(0,400)}`, concerns:'',
     application: answers,
     timeline:['Submitted role-specific application from careers page', serverDelivered ? 'Routed to Goff intake — Quinton notified.' : 'Local copy saved — server route unavailable.'],
   });
@@ -1191,7 +1200,7 @@ async function submitApplication(){
     priority:'Normal',
     location:'',
     summary:combinedNotes||'Website application submitted. Needs hiring-team review.',
-    concerns:'Needs screening.',
+    concerns:'',
     timeline:['Submitted from Goff careers page', serverDelivered ? 'Routed to Goff intake — Quinton notified.' : 'Local copy saved — server route unavailable.', 'Queued for Quinton'],
   });
   candidates.unshift(item);
@@ -1241,6 +1250,21 @@ function evidenceTable(x){
 }
 function setEvidence(id,k,v){ const x=candidates.find(c=>c.id===id); if(!x) return; x.evidence=x.evidence||{}; x.evidence[k]=v; x.timeline.push(`Evidence updated: ${k} → ${v}`); save(); render(); }
 function resolveConcern(id){ const x=candidates.find(c=>c.id===id); if(!x || !x.concerns) return; x.timeline.push(`Concern resolved: ${String(x.concerns).slice(0,80)}`); x.concerns=''; save(); render(); showToast('Concern marked resolved'); }
+// A concern is only worth showing if it's specific to THIS candidate. The old
+// intake code stamped the same boilerplate on everyone ('Needs screening.',
+// 'CSV import: verify...') — identical text on every record carries no
+// information, and the stage rail already shows screening status. New intakes
+// no longer stamp these; this filter hides them on records already in the DB.
+const BOILERPLATE_CONCERNS = /^(needs screening\.?|imported data needs verification\.?|csv import: verify|fallback entry: verify|demo only\.?)/i;
+function realConcern(x){ const v=String(x.concerns||'').trim(); return (!v || BOILERPLATE_CONCERNS.test(v)) ? '' : v; }
+function addConcern(id){
+  const x=candidates.find(c=>c.id===id); if(!x) return;
+  const text=window.prompt('Flag a concern about this candidate (pay expectations, commute, reference worry, ...):','');
+  if(!text || !text.trim()) return;
+  x.concerns=text.trim().slice(0,300);
+  x.timeline.push(`Concern flagged: ${x.concerns.slice(0,80)}`);
+  save(); render(); showToast('Concern flagged');
+}
 // Intake concerns are all variations of "verify this person before investing
 // time." Recording the phone screen IS that verification — clear them so the
 // warning doesn't nag forever after it's been handled.
@@ -1325,9 +1349,9 @@ function candidate(){
     ${sideChecks(x)}
   </section>
   ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
-  ${phoneScreenPanel(x)}
+  ${notesPanel(x)}
   <section class="panel" style="margin-top:16px">
-    ${x.concerns ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(x.concerns)}<div style="margin-top:10px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="resolveConcern(${x.id})">✓ Mark resolved</button></div></div><h3 style="margin-top:18px">Role expectations</h3>` : `<h3>Role expectations</h3>`}
+    ${realConcern(x) ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(realConcern(x))}<div style="margin-top:10px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="resolveConcern(${x.id})">✓ Mark resolved</button></div></div><h3 style="margin-top:18px">Role expectations</h3>` : `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h3>Role expectations</h3><button class="btn" style="padding:7px 14px;font-size:13px;flex:0 0 auto" onclick="addConcern(${x.id})">⚑ Flag a concern</button></div>`}
     <p class="muted">${esc(roleFit(x))}</p>
   </section>
   <details class="panel collapse-panel" style="margin-top:16px">
@@ -1338,17 +1362,6 @@ function candidate(){
     <label class="muted small" style="display:block;margin-top:16px;font-weight:700">Position / career path</label>
     ${candidatePositionEditor(x)}
   </details>
-  <section class="panel" style="margin-top:16px">
-    <div class="section-head"><div><div class="eyebrow">Recruiter notes</div><h3>${(x.notes && x.notes.length) ? `${x.notes.length} note${x.notes.length === 1 ? '' : 's'} on file.` : 'No notes yet.'}</h3></div></div>
-    <div class="note-composer">
-      <textarea id="noteInput" rows="3" placeholder="Add a note — what was discussed, next step, anything to remember. Press &quot;Save note&quot; when done."></textarea>
-      <div class="note-composer-actions">
-        <button class="btn brand" onclick="addNote()">Save note</button>
-        <span class="muted small">Notes show up in the timeline below and on the dashboard activity feed.</span>
-      </div>
-    </div>
-    ${(x.notes && x.notes.length) ? `<div class="notes-list">${x.notes.slice().reverse().map(n => `<div class="note-row"><div class="note-row-meta"><strong>${esc(n.author || 'Recruiter')}</strong> · ${esc(formatRelativeShort(n.createdAt))}</div><p>${esc(n.text)}</p></div>`).join('')}</div>` : ''}
-  </section>
   ${showClearance ? `<section class="panel" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>${employeeHandoffPanel(x)}` : ''}
   <section class="panel" style="margin-top:16px">
     <h3>Timeline</h3>
@@ -1397,18 +1410,25 @@ function changeCandidatePath(path){
   render();
   showToast('Candidate career path updated');
 }
-function phoneScreenPanel(x){
-  if(!['Phone screen invitation','Review phone screen'].includes(x.stage)) return '';
+// ONE notes surface. There used to be a separate phone-screen notes box AND a
+// recruiter-notes box on the same page — both wrote to the same list, so the
+// split was pure visual duplication. Now a single panel adapts to the stage:
+// during phone-screen stages it shows the what-to-capture prompt and saving a
+// note ticks the phone-screen evidence + clears the screening concern.
+function isPhoneScreenStage(stage){ return ['Phone screen invitation','Review phone screen'].includes(stage); }
+function notesPanel(x){
+  const phone = isPhoneScreenStage(x.stage);
   return `<section class="panel" style="margin-top:16px">
-    <div class="section-head"><div><div class="eyebrow">Phone screen</div><h3>Record the call notes.</h3></div><span class="tag amber">Active step</span></div>
-    <div class="notice"><strong>What to capture:</strong><br>Availability, commute/location, relevant experience, pay/schedule fit, attitude/reliability notes, and any red flags.</div>
-    <div class="note-composer" style="margin-top:14px">
-      <textarea id="phoneScreenNotes" rows="4" placeholder="Phone screen notes — what did they say, what concerns came up, and what should happen next?"></textarea>
+    <div class="section-head"><div><div class="eyebrow">Notes</div><h3>${(x.notes && x.notes.length) ? `${x.notes.length} note${x.notes.length === 1 ? '' : 's'} on file.` : 'No notes yet.'}</h3></div>${phone ? '<span class="tag amber">Phone screen — capture the call here</span>' : ''}</div>
+    ${phone ? `<div class="notice"><strong>What to capture:</strong><br>Availability, commute/location, relevant experience, pay/schedule fit, attitude/reliability notes, and any red flags.</div>` : ''}
+    <div class="note-composer"${phone ? ' style="margin-top:14px"' : ''}>
+      <textarea id="noteInput" rows="${phone ? 4 : 3}" placeholder="${phone ? 'Phone screen notes — what did they say, what concerns came up, and what should happen next?' : 'Add a note — what was discussed, next step, anything to remember.'}"></textarea>
       <div class="note-composer-actions">
-        <button class="btn brand" onclick="savePhoneScreenNote()">Save phone screen notes</button>
-        <span class="muted small">Saves to recruiter notes and timeline. Pick the outcome from the buttons up top when you're done.</span>
+        <button class="btn brand" onclick="addNote()">Save note</button>
+        <span class="muted small">${phone ? 'Saving marks the phone screen complete. Pick the outcome from the buttons up top when you’re done.' : 'Notes show up in the timeline and on the dashboard activity feed.'}</span>
       </div>
     </div>
+    ${(x.notes && x.notes.length) ? `<div class="notes-list">${x.notes.slice().reverse().map(n => `<div class="note-row"><div class="note-row-meta"><strong>${esc(n.author || 'Recruiter')}</strong> · ${esc(formatRelativeShort(n.createdAt))}</div><p>${esc(n.text)}</p></div>`).join('')}</div>` : ''}
   </section>`;
 }
 // Single source of truth for the "what happens next" buttons shown in the hero.
@@ -1425,24 +1445,6 @@ function stageDecisionButtons(x){
   const custom = decisionActionsForStage(x.stage);
   if(custom.length) return custom.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('');
   return `<button class="btn primary" onclick="advance()">Move to next stage</button>`;
-}
-function savePhoneScreenNote(){
-  const x = c();
-  const input = document.getElementById('phoneScreenNotes');
-  if(!input) return;
-  const text = input.value.trim();
-  if(!text){ showToast('Add phone screen notes first'); return; }
-  x.notes = x.notes || [];
-  x.notes.push({ id: Date.now(), author: (currentUser && currentUser.name) || 'Recruiter', text: `Phone screen: ${text}`, createdAt: nowISO() });
-  x.timeline.push(`Phone screen notes saved: ${text.slice(0, 70)}${text.length > 70 ? '…' : ''}`);
-  // Saving phone-screen notes IS the record the screen happened — tick the
-  // evidence checklist so the recruiter doesn't have to mark it separately.
-  x.evidence = x.evidence || {};
-  x.evidence.phone = 'Complete';
-  clearScreeningConcern(x);
-  save();
-  render();
-  showToast('Phone screen notes saved — marked complete on the checklist');
 }
 function phoneScreenOutcome(choice){
   const x = c();
@@ -1548,7 +1550,7 @@ function sendCandidateEmail(via){
   document.getElementById('modal').className='modal'; render();
   showToast(via==='gmail' ? 'Opening Gmail — just hit Send' : 'Opening your mail app');
 }
-function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; const body=TEMPLATE_TEXT[key] || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',x.concerns).replaceAll('{{roleFit}}',roleFit(x)); }
+function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; const body=TEMPLATE_TEXT[key] || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',realConcern(x) || 'None noted').replaceAll('{{roleFit}}',roleFit(x)); }
 function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. Review or edit it, then open it pre-filled in Gmail (or your mail app) and hit Send. It sends from your own careers@ account — replies come back to you.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy</button><button class="btn" onclick="sendCandidateEmail('mailto')">Open in email app</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
 function showGuardrail(){ document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>BBSI handoff blocked</h3><p>Goff’s BBSI ATS SOP says <strong>Offer Accepted = not cleared</strong> and <strong>Onboarding = fully cleared</strong>. Complete drug screen, background, and start date before BBSI onboarding.</p><div class="modal-actions"><button class="btn brand" onclick="document.getElementById('modal').className='modal';render()">Review clearance checklist</button></div></div>`; }
@@ -1616,7 +1618,7 @@ function manager(){
       <p>${esc(roleFit(active))}</p>
       <h4>Summary</h4>
       <p>${esc(active.summary)}</p>
-      ${active.concerns ? `<div class="notice warning"><strong>Concern to resolve:</strong> ${esc(active.concerns)}</div>` : ''}
+      ${realConcern(active) ? `<div class="notice warning"><strong>Concern to resolve:</strong> ${esc(realConcern(active))}</div>` : ''}
       <h4>Evidence checklist</h4>
       ${evidenceTable(active)}
       <h4 style="margin-top:18px">Decision</h4>
