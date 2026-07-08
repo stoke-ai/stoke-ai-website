@@ -293,10 +293,10 @@ img,svg,canvas,iframe{max-width:100%}
 .offer-form{gap:18px}
 .offer-fieldset{border:1px solid #e6e6e6;border-radius:var(--radius);padding:16px 18px;margin:0;background:#fafafa}
 .offer-fieldset legend{padding:0 8px;font-size:11px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--brand)}
-.field-label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:#333;margin-bottom:12px}
+.field-label{display:block;font-size:13px;font-weight:700;color:#333;margin-bottom:12px}
 .field-label:last-child{margin-bottom:0}
-.field-label .req{font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);background:rgba(192,24,43,.1);padding:2px 7px;border-radius:999px;margin-left:8px;display:inline-block}
-.field-label input,.field-label select,.field-label textarea{margin-top:0;font-weight:400;font-size:14px}
+.field-label .req{color:var(--brand);font-style:normal;font-size:14px;font-weight:800;letter-spacing:0;text-transform:none;background:transparent;padding:0;border-radius:0;margin-left:4px;display:inline}
+.field-label input,.field-label select,.field-label textarea{display:block;width:100%;margin-top:6px;font-weight:400;font-size:14px}
 .offer-actions{display:flex;flex-direction:column;gap:12px}
 .offer-actions-row{display:flex;gap:10px;flex-wrap:wrap}
 .btn.big{padding:16px 22px;font-size:16px}
@@ -513,7 +513,7 @@ img,svg,canvas,iframe{max-width:100%}
 .apply-page{padding-top:36px}
 .apply-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
 .apply-h{grid-column:1/-1;font-family:'Playfair Display',serif;font-size:22px;margin:12px 0 0;border-bottom:2px solid var(--brand);padding-bottom:6px}
-.apply-grid .field-label{display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px;color:#333}
+.apply-grid .field-label{display:block;font-weight:700;font-size:13px;color:#333}
 .field-label .req{color:var(--brand);font-style:normal}
 .app-checks{display:flex;flex-wrap:wrap;gap:8px}
 .app-check{display:inline-flex;align-items:center;gap:7px;border:1.5px solid #d5d5d5;border-radius:999px;padding:9px 14px;background:#fafafa;font-weight:700;font-size:13px;cursor:pointer}
@@ -550,3 +550,21 @@ img,svg,canvas,iframe{max-width:100%}
 .signed-as b{display:block;color:#fff;font-size:15px;margin-top:2px}
 .signed-as em{display:block;font-style:normal;font-size:11px;color:#9a9a9a;margin-top:2px;text-transform:capitalize}
 .signed-as.shared em{color:var(--brand)}
+
+/* Admin Open Positions manager */
+.pos-list{display:flex;flex-direction:column;gap:12px}
+.pos-row{display:flex;justify-content:space-between;align-items:center;gap:16px;border:1px solid #e0e0e0;border-left:4px solid var(--brand);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow-card);flex-wrap:wrap}
+.pos-row.closed{border-left-color:#b0b0b0;opacity:.72}
+.pos-row-main{min-width:0;flex:1}
+.pos-row-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pos-row-title strong{font-size:16px}
+.pos-badge{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:999px}
+.pos-badge.on{background:rgba(31,138,76,.12);color:var(--green)}
+.pos-badge.off{background:#eaeaea;color:#777}
+.pos-row-meta{color:var(--steel);font-size:13px;margin-top:5px}
+.pos-row-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pos-row-actions .btn{padding:9px 14px;font-size:13px}
+.pos-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 18px}
+.pos-form .field-label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:#333}
+.pos-form .pos-full{grid-column:1/-1}
+@media(max-width:700px){.pos-form{grid-template-columns:1fr}.pos-row{flex-direction:column;align-items:flex-start}}

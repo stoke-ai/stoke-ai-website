@@ -1,6 +1,13 @@
 const WORKFLOW_STAGES = [
   { id:'Application received', group:'Intake', next:'Review candidate / choose path', owner:'Quinton', due:'Today', template:'Candidate Under Review' },
   { id:'Review candidate / choose path', group:'Intake', next:'Phone screen or weld test', owner:'Quinton', due:'1 day', template:'Candidate Under Review' },
+  // Quinton preference: keep the common "not moving forward" outcomes near the
+  // top of the stage picker so he can quickly disposition early applicants.
+  { id:'Keep on file', group:'Disposition', next:null, owner:'Quinton', due:'Later', template:'Position Filled / Keep on File' },
+  { id:'Not selected', group:'Disposition', next:null, owner:'Quinton', due:'Done', template:'General Rejection Letter' },
+  { id:'Needs more experience', group:'Disposition', next:null, owner:'Quinton', due:'Later', template:'Good Potential, But Needs More Experience' },
+  { id:'Entry-level unavailable', group:'Disposition', next:null, owner:'Quinton', due:'Later', template:'Entry-Level Position Not Currently Available' },
+  { id:'Relocation mismatch', group:'Disposition', next:null, owner:'Quinton', due:'Done', template:'Relocation for the Wrong Reasons' },
   { id:'Needs more experience info', group:'Clarify', next:'Review candidate / choose path', owner:'Candidate', due:'2 days', template:'Request for More Relevant Experience Information' },
   { id:'Location / relocation check', group:'Clarify', next:'Phone screen or weld test', owner:'Candidate', due:'2 days', template:'Location Inquiry' },
   { id:'Phone screen invitation', group:'Screen', next:'Review phone screen', owner:'Candidate', due:'2 days', template:'AI Phone Screening Invitation' },
@@ -28,12 +35,7 @@ const WORKFLOW_STAGES = [
   { id:'BBSI documents invite', group:'BBSI', next:'Schedule first day', owner:'Candidate / BBSI', due:'Today', template:'BBSI Check In' },
   { id:'Schedule first day', group:'Onboarding', next:'Transition to onboarding workflow', owner:'Admin', due:'Today', template:'Welcome / First Day Coordination' },
   { id:'Transition to onboarding workflow', group:'Onboarding', next:null, owner:'Admin', due:'Done', template:'Onboarding Handoff Summary' },
-  { id:'Keep on file', group:'Disposition', next:null, owner:'Quinton', due:'Later', template:'Position Filled / Keep on File' },
-  { id:'Not selected', group:'Disposition', next:null, owner:'Quinton', due:'Done', template:'General Rejection Letter' },
-  { id:'Needs more experience', group:'Disposition', next:null, owner:'Quinton', due:'Later', template:'Good Potential, But Needs More Experience' },
-  { id:'Entry-level unavailable', group:'Disposition', next:null, owner:'Quinton', due:'Later', template:'Entry-Level Position Not Currently Available' },
   { id:'Rejected after interview / weld test', group:'Disposition', next:null, owner:'Quinton', due:'Done', template:'Rejection After Interview or Weld Test' },
-  { id:'Relocation mismatch', group:'Disposition', next:null, owner:'Quinton', due:'Done', template:'Relocation for the Wrong Reasons' },
 ];
 
 const STAGES = WORKFLOW_STAGES.map(s => s.id);
@@ -193,6 +195,45 @@ const jobs = [
   certifications:'Procurement or buyer experience in fabrication, manufacturing, or industrial trades.',
   roleFit:'Material strategist, cost controller, vendor communication, job-flow enabler.'}
 ];
+
+// ── Admin-managed open positions ───────────────────────────────────────────
+// `jobs` above is the immutable seed/fallback. `positions` is the editable
+// runtime list (server = source of truth, localStorage = cache). Public reads
+// (careers cards, dropdowns, apply) use openJobs()/jobById(); the admin
+// Positions screen edits the full list.
+function loadJobs(){
+  try{
+    const saved = JSON.parse(safeGet('goffOpenPositionsV1') || 'null');
+    if(Array.isArray(saved) && saved.length) return saved.map(normalizeJob);
+  }catch(_){}
+  return jobs.map(j => normalizeJob(Object.assign({}, j)));
+}
+function normalizeJob(j){
+  j.perks = Array.isArray(j.perks) ? j.perks : [];
+  j.status = j.status === 'closed' ? 'closed' : 'open';
+  return j;
+}
+let positions = loadJobs();
+function saveJobs(list){
+  positions = list.map(normalizeJob);
+  safeSet('goffOpenPositionsV1', JSON.stringify(positions));
+  pushPositions();
+}
+function openJobs(){ return positions.filter(p => p.status !== 'closed'); }
+function jobById(id){ return positions.find(p => p.id === id) || null; }
+function upsertJob(job){
+  const i = positions.findIndex(p => p.id === job.id);
+  const next = positions.slice();
+  if(i >= 0) next[i] = job; else next.push(job);
+  saveJobs(next);
+}
+function deleteJob(id){ saveJobs(positions.filter(p => p.id !== id)); }
+function newJobId(title){
+  const base = (title || 'role').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,32) || 'role';
+  let id = base, n = 2;
+  while(positions.some(p => p.id === id)){ id = base + '-' + n; n++; }
+  return id;
+}
 
 let seed = [];
 
@@ -552,7 +593,7 @@ function candidateList(){
   </section>`;
 }
 function stageMeta(stage){ return STAGE[stage] || WORKFLOW_STAGES[0]; }
-function jobFor(role){ return jobs.find(j => role && role.toLowerCase().includes(j.title.toLowerCase().split(' ')[0])) || jobs.find(j => role && j.title===role) || jobs[0]; }
+function jobFor(role){ const list = positions.length ? positions : jobs; return list.find(j => role && role.toLowerCase().includes(j.title.toLowerCase().split(' ')[0])) || list.find(j => role && j.title===role) || list[0] || jobs[0]; }
 function roleFit(x){ return jobFor(x.role).roleFit; }
 function esc(s){ return String(s ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 function tag(v){ if(v==='Hot'||String(v).includes('overdue')) return 'red'; if(String(v).includes('Today')||String(v).includes('Tomorrow')||String(v).includes('24')) return 'amber'; if(String(v).includes('Website')) return 'green'; if(String(v).includes('Indeed')) return 'blue'; return 'violet'; }
@@ -603,7 +644,7 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('positions','Open Positions')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
@@ -613,7 +654,7 @@ function page(){
   // Candidate-detail views need a selected candidate; on an empty pipeline show
   // a friendly empty state instead of crashing.
   if(['candidate','manager','offer'].includes(view) && !c()) return emptyPipeline();
-  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)();
+  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,positions:positionsView,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)();
 }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
@@ -756,7 +797,7 @@ function intake(){
   </section>
   <div class="grid two" style="margin-top:16px">
     <section class="panel"><h3>Send application link</h3><p class="muted">Choose the source and copy the ready-to-send message. This is the v1 replacement for chasing Indeed/API sync first.</p><div class="intake-template-list">${Object.keys(APPLICATION_LINK_TEMPLATES).map(k => `<button class="template-row clickable" onclick="showApplicationLinkDraft('${esc(k).replace(/'/g,"\\'")}')"><b>${esc(APPLICATION_LINK_TEMPLATES[k].title)}</b><span class="tag ${tag(k)}">${esc(k)}</span></button>`).join('')}</div><div class="notice success"><strong>Shop/front-desk version:</strong><br>Print or display the QR to the careers link. Walk-ins scan it before they leave so the application is complete and legible.</div></section>
-    <section class="panel"><h3>Manual fallback quick add</h3><p>Use this only when the applicant cannot fill out the link or the recruiter needs to preserve a lead immediately.</p><div class="form"><input id="qaName" placeholder="Candidate name"><input id="qaEmail" placeholder="Email"><input id="qaPhone" placeholder="Phone"><select id="qaRole">${jobs.map(j=>`<option>${j.title}</option>`).join('')}</select><select id="qaSource">${INTAKE_SOURCES.map(src=>`<option>${esc(src.id)}</option>`).join('')}</select><button class="btn primary" onclick="quickAdd()">Add fallback lead to Goff queue</button></div></section>
+    <section class="panel"><h3>Manual fallback quick add</h3><p>Use this only when the applicant cannot fill out the link or the recruiter needs to preserve a lead immediately.</p><div class="form"><input id="qaName" placeholder="Candidate name"><input id="qaEmail" placeholder="Email"><input id="qaPhone" placeholder="Phone"><select id="qaRole">${openJobs().map(j=>`<option>${esc(j.title)}</option>`).join('')}</select><select id="qaSource">${INTAKE_SOURCES.map(src=>`<option>${esc(src.id)}</option>`).join('')}</select><button class="btn primary" onclick="quickAdd()">Add fallback lead to Goff queue</button></div></section>
   </div>
   <div class="grid two" style="margin-top:16px">
     <section class="panel"><h3>Indeed CSV import</h3><p>Use CSV only for candidates Goff actually wants to work. Do not recreate Indeed inside Goff — shortlist first, then import.</p><div class="form"><input id="csvFile" type="file" accept=".csv,text/csv" onchange="handleCSVFile(event)"><textarea id="csvPasteBox" class="importbox" placeholder="Or paste Indeed CSV rows here..."></textarea><div class="actions tight"><button class="btn brand" onclick="parseIndeedCSV(document.getElementById('csvPasteBox').value)">Preview CSV import</button><button class="btn" onclick="downloadIndeedSampleCSV()">Download sample CSV</button></div></div></section>
@@ -806,68 +847,72 @@ const APP_CORE_FIELDS = [
   { k:'First name', type:'text', req:true, id:'first' },
   { k:'Last name', type:'text', req:true, id:'last' },
   { k:'Email', type:'email', req:true, id:'email' },
-  { k:'Phone', type:'tel', id:'phone' },
-  { k:'City / town you live in', type:'text', id:'city' },
-  { k:'Soonest you could start', type:'select', options:['Within 2 weeks','Within 30 days','30–60 days','Just exploring for now'], id:'start' },
-  { k:'How did you hear about us?', type:'select', options:['Indeed','Referral from a Goff employee','Drove by / local','Social media','Other'], id:'heard' },
+  { k:'Phone', type:'tel', req:true, id:'phone' },
+  { k:'City / town you live in', type:'text', req:true, id:'city' },
+  { k:'Soonest you could start', type:'select', req:true, options:['Within 2 weeks','Within 30 days','30–60 days','Just exploring for now'], id:'start' },
+  { k:'How did you hear about us?', type:'select', req:true, options:['Indeed','Referral from a Goff employee','Drove by / local','Social media','Other'], id:'heard' },
 ];
 const APP_QUESTIONS = {
   welder: [
     { k:'Years of welding experience', type:'select', options:['Less than 1','1–3','3–5','5–10','10+'], req:true },
-    { k:'Processes you run', type:'checks', options:['TIG','MIG','Stick','Flux-core'], id:'processes' },
+    { k:'Processes you run', type:'checks', req:true, options:['TIG','MIG','Stick','Flux-core'], id:'processes' },
     { k:'Sanitary / food-grade stainless experience?', type:'yesno', req:true },
-    { k:'Certifications (AWS or equivalent)', type:'text' },
-    { k:'Can you read blueprints and drawings?', type:'yesno' },
+    { k:'Certifications (AWS or equivalent — write N/A if none)', type:'text', req:true },
+    { k:'Can you read blueprints and drawings?', type:'yesno', req:true },
     { k:'Ready to take a weld test at our Paul shop?', type:'select', options:['This week','Within 2 weeks','I need more time'], req:true },
-    { k:'Tell us about the best stainless work you have done', type:'textarea' },
+    { k:'Tell us about the best stainless work you have done', type:'textarea', req:true },
   ],
   fitter: [
     { k:'Years of fit-up / layout experience', type:'select', options:['Less than 1','1–3','3–5','5+'], req:true },
     { k:'Can you read blueprints and drawings?', type:'yesno', req:true },
-    { k:'Materials you have fit', type:'checks', options:['Sanitary stainless','Structural','Pipe'] },
-    { k:'Layout tools you use (2-hole pins, center finder, plumb/laser…)', type:'text' },
+    { k:'Materials you have fit', type:'checks', req:true, options:['Sanitary stainless','Structural','Pipe'] },
+    { k:'Layout tools you use (2-hole pins, center finder, plumb/laser…)', type:'text', req:true },
     { k:'Ready for a fit-up / weld test at our Paul shop?', type:'select', options:['This week','Within 2 weeks','I need more time'], req:true },
-    { k:'Tell us about a recent fit-up job you are proud of', type:'textarea' },
+    { k:'Tell us about a recent fit-up job you are proud of', type:'textarea', req:true },
   ],
   helper: [
     { k:'Any shop, trade, farm, or physical work so far?', type:'textarea', req:true },
     { k:'Reliable transportation to Paul?', type:'yesno', req:true },
-    { k:'Full-time or part-time?', type:'select', options:['Full-time','Part-time','Either'] },
-    { k:'Comfortable on your feet all day and lifting 50 lbs?', type:'yesno' },
-    { k:'What do you want to learn or become here?', type:'textarea' },
+    { k:'Full-time or part-time?', type:'select', req:true, options:['Full-time','Part-time','Either'] },
+    { k:'Comfortable on your feet all day and lifting 50 lbs?', type:'yesno', req:true },
+    { k:'What do you want to learn or become here?', type:'textarea', req:true },
   ],
   foreman: [
     { k:'Years leading crews', type:'select', options:['1–2','3–5','5–10','10+'], req:true },
-    { k:'Largest crew you have run', type:'select', options:['2–3','4–6','7–10','10+'] },
-    { k:'Trades background', type:'checks', options:['Welding','Millwright','Fabrication','General construction'] },
-    { k:'Have you managed labor hours against an estimate?', type:'yesno' },
+    { k:'Largest crew you have run', type:'select', req:true, options:['2–3','4–6','7–10','10+'] },
+    { k:'Trades background', type:'checks', req:true, options:['Welding','Millwright','Fabrication','General construction'] },
+    { k:'Have you managed labor hours against an estimate?', type:'yesno', req:true },
     { k:'Walk us through a job you owned end to end', type:'textarea', req:true },
-    { k:'Willing to travel for installs?', type:'yesno' },
+    { k:'Willing to travel for installs?', type:'yesno', req:true },
   ],
   inventory: [
     { k:'Years of warehouse / inventory experience', type:'select', options:['Less than 1','1–3','3–5','5+'], req:true },
-    { k:'Systems you have used', type:'checks', options:['SAP','Other ERP','Spreadsheets','Barcode / scanners'] },
-    { k:'Cycle count experience?', type:'yesno' },
+    { k:'Systems you have used', type:'checks', req:true, options:['SAP','Other ERP','Spreadsheets','Barcode / scanners'] },
+    { k:'Cycle count experience?', type:'yesno', req:true },
     { k:'Forklift certified?', type:'yesno', req:true },
-    { k:'Familiar with sanitary stainless fittings and parts?', type:'yesno' },
-    { k:'Tell us about an inventory mess you cleaned up', type:'textarea' },
+    { k:'Familiar with sanitary stainless fittings and parts?', type:'yesno', req:true },
+    { k:'Tell us about an inventory mess you cleaned up', type:'textarea', req:true },
   ],
   procurement: [
     { k:'Years in purchasing / procurement', type:'select', options:['1–3','3–5','5–10','10+'], req:true },
-    { k:'Industry background', type:'text' },
-    { k:'Systems you have used', type:'checks', options:['SAP Business One','Other ERP','Spreadsheets'] },
-    { k:'Approximate annual spend you have managed', type:'select', options:['Under $250K','$250K–$1M','$1M–$5M','$5M+'] },
+    { k:'Industry background', type:'text', req:true },
+    { k:'Systems you have used', type:'checks', req:true, options:['SAP Business One','Other ERP','Spreadsheets'] },
+    { k:'Approximate annual spend you have managed', type:'select', req:true, options:['Under $250K','$250K–$1M','$1M–$5M','$5M+'] },
     { k:'Tell us about a vendor negotiation win', type:'textarea', req:true },
   ],
 };
-let applyJobId = null;
+let applyJobId = new URLSearchParams(window.location.search).get('job');
 function openApply(jobId){ applyJobId = jobId; view='apply'; render(); window.scrollTo({top:0,behavior:'smooth'}); }
 function appFieldHtml(f, idx, prefix){
   const id = `${prefix}-${idx}`;
   const label = `<label class="field-label" for="${id}">${esc(f.k)}${f.req?' <em class="req">*</em>':''}`;
   if(f.type==='textarea') return `${label}<textarea id="${id}" rows="4"></textarea></label>`;
   if(f.type==='yesno') return `${label}<select id="${id}"><option value=""></option><option>Yes</option><option>No</option></select></label>`;
-  if(f.type==='select') return `${label}<select id="${id}"><option value=""></option>${f.options.map(o=>`<option>${esc(o)}</option>`).join('')}</select></label>`;
+  if(f.type==='select'){
+    const change = f.id === 'heard' ? ` onchange="handleHeardChange('${id}')"` : '';
+    const other = f.id === 'heard' ? `<input id="${id}-other" class="other-source" type="text" placeholder="Tell us where you heard about Goff" style="display:none">` : '';
+    return `${label}<select id="${id}"${change}><option value=""></option>${f.options.map(o=>`<option>${esc(o)}</option>`).join('')}</select>${other}</label>`;
+  }
   if(f.type==='checks') return `${label}<div class="app-checks" id="${id}" data-field="${esc(f.id||f.k)}" onchange="handleAppChecksChange('${id}')">${f.options.map(o=>`<label class="app-check"><input type="checkbox" value="${esc(o)}"> ${esc(o)}</label>`).join('')}</div>${f.id==='processes'?'<div id="tig-warning" class="notice warn" style="display:none;margin-top:10px"><strong>Heads up:</strong> Goff primarily uses TIG welding. Weld tests are usually on TIG equipment. If you do not run TIG or Stick yet, be ready to talk through whether you can transition.</div>':''}</label>`;
   return `${label}<input id="${id}" type="${f.type||'text'}"></label>`;
 }
@@ -878,15 +923,24 @@ function handleAppChecksChange(id){
   const warn = document.getElementById('tig-warning');
   if(warn) warn.style.display = selected.length && !selected.includes('tig') && !selected.includes('stick') ? 'block' : 'none';
 }
+function handleHeardChange(id){
+  const sel = document.getElementById(id);
+  const other = document.getElementById(`${id}-other`);
+  if(other) other.style.display = sel?.value === 'Other' ? 'block' : 'none';
+}
 function readAppField(f, idx, prefix){
   const el = document.getElementById(`${prefix}-${idx}`);
   if(!el) return '';
   if(f.type==='checks') return Array.from(el.querySelectorAll('input:checked')).map(x=>x.value).join(', ');
+  if(f.id === 'heard' && el.value === 'Other'){
+    const other = String(document.getElementById(`${prefix}-${idx}-other`)?.value || '').trim();
+    return other ? `Other: ${other}` : '';
+  }
   return String(el.value || '').trim();
 }
 function applyView(){
-  const j = jobs.find(x=>x.id===applyJobId);
-  if(!j) return career();
+  const j = jobById(applyJobId);
+  if(!j || j.status==='closed') return positionClosedView();
   const qs = APP_QUESTIONS[j.id] || [];
   return `<main class="public-careers"><section class="public-body apply-page">
     <div class="public-brand" style="margin-bottom:18px"><img src="/goff-welding-logo.png" alt="Goff Welding" class="public-brand-logo"><span class="public-brand-tag">Application</span></div>
@@ -908,7 +962,7 @@ function applyView(){
   </section></main>`;
 }
 async function submitRoleApplication(){
-  const j = jobs.find(x=>x.id===applyJobId); if(!j) return;
+  const j = jobById(applyJobId); if(!j || j.status==='closed'){ showToast('That position is closed'); view='career'; render(); return; }
   const qs = APP_QUESTIONS[j.id] || [];
   const core = {}; const answers = {}; let missing = null;
   APP_CORE_FIELDS.forEach((f,i)=>{ const v = readAppField(f,i,'rc'); core[f.id] = v; if(f.req && !v && !missing) missing = f.k; });
@@ -941,6 +995,103 @@ async function submitRoleApplication(){
   view='thanks'; render();
 }
 
+// ── Positions: server sync + admin screen ─────────────────────────────────
+let posSyncTimer = null, posSyncPaused = false;
+function pushPositions(){
+  if(posSyncPaused) return;
+  clearTimeout(posSyncTimer);
+  posSyncTimer = setTimeout(async () => {
+    try{
+      const res = await fetch('/api/goff-recruiting/positions', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ positions }) });
+      if(!res.ok) throw new Error('status '+res.status);
+    }catch(err){ console.warn('[positions] push failed:', err); showToast('Positions saved locally — cloud sync failed'); }
+  }, 700);
+}
+async function initPositionsSync(){
+  try{
+    const res = await fetch('/api/goff-recruiting/positions');
+    if(!res.ok) return;
+    const data = await res.json();
+    const remote = Array.isArray(data.positions) ? data.positions : [];
+    if(remote.length){
+      posSyncPaused = true;
+      positions = remote.map(normalizeJob);
+      safeSet('goffOpenPositionsV1', JSON.stringify(positions));
+      posSyncPaused = false;
+      render();
+    } else if(!isPublicCareersHost() && positions.length){
+      pushPositions(); // empty server + admin: seed it from the defaults/local
+    }
+  }catch(err){ console.warn('[positions] load failed:', err); }
+}
+function positionClosedView(){
+  return `<main class="public-careers"><section class="public-body apply-page"><div class="public-brand" style="margin-bottom:18px"><img src="/goff-welding-logo.png" alt="Goff Welding" class="public-brand-logo"><span class="public-brand-tag">Careers</span></div><section class="panel"><h2>That position is closed</h2><p class="muted">This role isn\'t accepting applications right now. Take a look at what else Goff Welding is hiring for.</p><button class="btn brand" onclick="applyJobId=null;view=\'career\';render()">View open positions →</button></section></section></main>`;
+}
+
+// Admin Positions manager
+let editingPosition = null;
+const POSITION_FIELDS = [
+  { k:'title', label:'Job title', type:'text', full:true },
+  { k:'type', label:'Employment type', type:'text', ph:'Full-time' },
+  { k:'path', label:'Hiring path', type:'select', options:['Welder path','Other path'] },
+  { k:'payRange', label:'Pay range', type:'text', ph:'$25–$32/hr DOE' },
+  { k:'schedule', label:'Schedule', type:'text', ph:'Mon–Fri, 6:00 AM–2:30 PM' },
+  { k:'location', label:'Location', type:'text', ph:'On-site • Paul, ID' },
+  { k:'certifications', label:'Certifications', type:'text', full:true },
+  { k:'summary', label:'Summary (shown on the careers card)', type:'textarea', full:true },
+  { k:'roleFit', label:'Role fit (internal — used in candidate review)', type:'textarea', full:true },
+  { k:'perks', label:'Perks (one per line)', type:'perks', full:true },
+];
+function blankPosition(){ return { id:'', title:'', type:'Full-time', path:'Other path', summary:'', payRange:'', schedule:'', location:'On-site • Paul, ID', perks:[], certifications:'', roleFit:'', status:'open' }; }
+function addPosition(){ editingPosition = blankPosition(); view='positions'; render(); }
+function editPosition(id){ const j = jobById(id); if(j){ editingPosition = JSON.parse(JSON.stringify(j)); render(); } }
+function cancelPositionEdit(){ editingPosition = null; render(); }
+function duplicatePosition(id){ const j = jobById(id); if(!j) return; const copy = JSON.parse(JSON.stringify(j)); copy.title = j.title + ' (copy)'; copy.id = newJobId(copy.title); copy.status='open'; upsertJob(copy); showToast('Position duplicated'); render(); }
+function togglePositionStatus(id){ const j = jobById(id); if(!j) return; j.status = j.status==='closed' ? 'open' : 'closed'; upsertJob(j); render(); }
+function confirmDeletePosition(id){ const j = jobById(id); if(!j) return; if(confirm(`Delete "${j.title}"? This removes it from the careers page and cannot be undone.`)){ deleteJob(id); showToast('Position deleted'); render(); } }
+function savePositionForm(){
+  const p = editingPosition; if(!p) return;
+  POSITION_FIELDS.forEach(f => {
+    const el = document.getElementById('pf-'+f.k);
+    if(!el) return;
+    if(f.type==='perks') p.perks = el.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    else p[f.k] = el.value.trim();
+  });
+  const statusEl = document.getElementById('pf-status'); if(statusEl) p.status = statusEl.value;
+  if(!p.title){ showToast('Job title is required'); return; }
+  if(!p.id) p.id = newJobId(p.title);
+  upsertJob(p);
+  editingPosition = null;
+  showToast('Position saved');
+  render();
+}
+function positionEditor(p){
+  const isNew = !positions.some(x => x.id === p.id);
+  return `<section class="panel"><div class="section-head"><div><div class="eyebrow">${isNew?'New position':'Edit position'}</div><h3>${esc(p.title || 'Untitled role')}</h3></div></div>
+  <div class="form pos-form">${POSITION_FIELDS.map(f => {
+    const val = f.type==='perks' ? (p.perks||[]).join('\n') : (p[f.k]||'');
+    const inner = f.type==='textarea' ? `<textarea id="pf-${f.k}" rows="3">${esc(val)}</textarea>`
+      : f.type==='perks' ? `<textarea id="pf-${f.k}" rows="4">${esc(val)}</textarea>`
+      : f.type==='select' ? `<select id="pf-${f.k}">${f.options.map(o=>`<option ${o===val?'selected':''}>${esc(o)}</option>`).join('')}</select>`
+      : `<input id="pf-${f.k}" type="text" value="${esc(val)}"${f.ph?` placeholder="${esc(f.ph)}"`:''}>`;
+    return `<label class="field-label ${f.full?'pos-full':''}">${esc(f.label)}${inner}</label>`;
+  }).join('')}
+  <label class="field-label">Status<select id="pf-status"><option value="open" ${p.status!=='closed'?'selected':''}>Open (shown on careers page)</option><option value="closed" ${p.status==='closed'?'selected':''}>Closed (hidden)</option></select></label>
+  </div>
+  <div class="modal-actions" style="justify-content:flex-start;padding:18px 0 0"><button class="btn brand" onclick="savePositionForm()">Save position</button><button class="btn" onclick="cancelPositionEdit()">Cancel</button></div></section>`;
+}
+function positionsView(){
+  if(editingPosition) return `${head('Open Positions','Add, edit, or close the roles that show on your careers page.','')}${positionEditor(editingPosition)}`;
+  const open = positions.filter(p=>p.status!=='closed').length;
+  return `${head('Open Positions', `${positions.length} role${positions.length===1?'':'s'} · ${open} open · shown live on your careers page`, '<button class="btn primary" onclick="addPosition()">Add position</button>')}
+  <section class="panel"><div class="pos-list">${positions.length ? positions.map(p => `
+    <article class="pos-row ${p.status==='closed'?'closed':''}">
+      <div class="pos-row-main"><div class="pos-row-title"><strong>${esc(p.title)}</strong><span class="pos-badge ${p.status==='closed'?'off':'on'}">${p.status==='closed'?'Closed':'Open'}</span></div>
+      <div class="pos-row-meta">${esc(p.type||'')}${p.path?` · ${esc(p.path)}`:''}${p.payRange?` · ${esc(p.payRange)}`:''}${p.location?` · ${esc(p.location)}`:''}</div></div>
+      <div class="pos-row-actions"><button class="btn" onclick="editPosition('${esc(p.id)}')">Edit</button><button class="btn" onclick="duplicatePosition('${esc(p.id)}')">Duplicate</button><button class="btn" onclick="togglePositionStatus('${esc(p.id)}')">${p.status==='closed'?'Reopen':'Close'}</button><button class="btn ghost" onclick="confirmDeletePosition('${esc(p.id)}')">Delete</button></div>
+    </article>`).join('') : '<div class="notice">No positions yet. Click “Add position” to create your first open role.</div>'}</div></section>`;
+}
+
 function career(){
   return `<main class="public-careers">
     <section class="career-hero public-hero">
@@ -956,8 +1107,8 @@ function career(){
     <section class="public-body">
       <div class="grid two careers-grid">
         <div id="jobs-list">
-          <div class="careers-section-head"><h2>Open positions</h2><span class="muted">${jobs.length} role${jobs.length===1?'':'s'} hiring</span></div>
-          ${jobs.map(jobCardHTML).join('')}
+          <div class="careers-section-head"><h2>Open positions</h2><span class="muted">${openJobs().length} role${openJobs().length===1?'':'s'} hiring</span></div>
+          ${openJobs().length ? openJobs().map(jobCardHTML).join('') : '<div class="notice">No open positions right now. Check back soon.</div>'}
         </div>
         <aside class="apply-panel panel" id="apply">
           <h3>Not sure which role?</h3>
@@ -966,7 +1117,7 @@ function career(){
             <label class="field-label">Full name<input id="appName" placeholder="First and last" required></label>
             <label class="field-label">Email<input id="appEmail" type="email" placeholder="you@example.com" required></label>
             <label class="field-label">Phone<input id="appPhone" type="tel" placeholder="208-555-0100"></label>
-            <label class="field-label">Role<select id="appRole">${jobs.map(j=>`<option>${esc(j.title)}</option>`).join('')}</select></label>
+            <label class="field-label">Role<select id="appRole">${openJobs().map(j=>`<option>${esc(j.title)}</option>`).join('')}</select></label>
             <label class="field-label">Soonest you could start<select id="appAvailability"><option>Within 2 weeks</option><option>Within 30 days</option><option>30–60 days</option><option>Just exploring for now</option></select></label>
             <label class="field-label">Experience, certifications, and anything Goff should know<textarea id="appNotes" rows="6" placeholder="Years of stainless experience, weld test you have passed, certifications, location, schedule needs."></textarea></label>
             <button class="btn primary" onclick="submitApplication()">Submit application</button>
@@ -979,12 +1130,12 @@ function career(){
       <div class="public-footer-grid">
         <div><strong>Goff Welding, LLC</strong><br><span>531 W 100 S #22<br>Paul, Idaho 83347</span></div>
         <div><strong>Get in touch</strong><br><span>(208) 647-2488<br>info@goffwelding.com</span></div>
-        <div><strong>Open positions</strong><br><span>${jobs.length} role${jobs.length===1?'':'s'} hiring</span></div>
+        <div><strong>Open positions</strong><br><span>${openJobs().length} role${openJobs().length===1?'':'s'} hiring</span></div>
       </div>
     </footer>
   </main>`;
 }
-function prefillApply(id){ const j=jobs.find(x=>x.id===id); if(!j) return; const sel=document.getElementById('appRole'); if(sel) sel.value=j.title; document.getElementById('apply')?.scrollIntoView({behavior:'smooth'}); document.getElementById('appName')?.focus(); }
+function prefillApply(id){ const j=jobById(id); if(!j) return; const sel=document.getElementById('appRole'); if(sel) sel.value=j.title; document.getElementById('apply')?.scrollIntoView({behavior:'smooth'}); document.getElementById('appName')?.focus(); }
 async function submitApplication(){
   const name=document.getElementById('appName').value||'New Applicant';
   const email=document.getElementById('appEmail').value||'unknown@example.com';
@@ -1056,8 +1207,18 @@ function field(k,v){ return `<div class="field"><span>${k}</span><strong>${v || 
 function evidenceTable(x){ const e=x.evidence||{}; return `<div class="mini-grid">${field('Phone screen', e.phone)}${field('Weld test', e.weld)}${field('Interview', e.interview)}${field('References', e.references)}${field('Crystal Knows', e.crystal)}${field('Background', e.background)}</div>`; }
 function clearanceReady(x){ return x.clearance?.drug==='Passed' && ['Cleared','N/A'].includes(x.clearance?.background) && x.clearance?.startDate==='Confirmed'; }
 function clearancePanel(x){ const ready=clearanceReady(x); return `<div class="notice ${ready?'success':'warning'}"><strong>${ready?'Clearance complete':'BBSI guardrail active'}</strong><br>Offer Accepted is a hold stage. Do not move to BBSI onboarding until drug screen, background, and start date are complete.</div><div class="mini-grid">${field('Drug screen',x.clearance.drug)}${field('Background',x.clearance.background)}${field('Start date',x.clearance.startDate)}</div><div class="actions tight"><button class="btn" onclick="setClearance('drug','Scheduled')">Drug scheduled</button><button class="btn" onclick="setClearance('drug','Passed')">Drug passed</button><button class="btn" onclick="setClearance('background','Cleared')">Background cleared</button><button class="btn" onclick="setClearance('background','N/A')">Background N/A</button><button class="btn" onclick="setClearance('startDate','Confirmed')">Start confirmed</button></div>`; }
-function employeePortalUrl(x){ return `/goff-employee/?employee=${encodeURIComponent(`${x.first} ${x.last}`)}&role=${encodeURIComponent(x.role)}`; }
-function employeeHandoffPanel(x){ const ready=clearanceReady(x); const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee site</span><strong>portal.goffwelding.com/onboarding</strong><small>Temporary review path: <code>/goff-employee/</code></small></div><div><span>Access method</span><strong>Private link / magic code</strong><small>No employee password in v1.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Shared queue for launch review; production database is the next hardening step.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and leaves the BBSI/myBBSI completion item visible for admin follow-up.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
+function employeePortalUrl(x){
+  const p=new URLSearchParams();
+  p.set('id', `candidate-${x.id}`);
+  p.set('employee',`${x.first} ${x.last}`.trim());
+  if(x.email) p.set('email', x.email);
+  if(x.role) p.set('role',x.role);
+  const sup=x.offer?.supervisor; if(sup) p.set('supervisor',sup);
+  const start=x.offer?.startDate; if(start) p.set('start',start);
+  return `/goff-employee/?${p.toString()}`;
+}
+function fullEmployeePortalUrl(x){ return employeePortalLink()+employeePortalUrl(x).replace(/^\/goff-employee\//,''); }
+function employeeHandoffPanel(x){ const ready=clearanceReady(x); const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); const fullUrl=fullEmployeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee link</span><strong>${esc(`${x.first} ${x.last}`.trim() || 'New hire')}</strong><small class="link-break">${esc(fullUrl)}</small></div><div><span>Access method</span><strong>Private link</strong><small>Unique per candidate. Progress is kept separate by candidate ID.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Once moved, Quinton can track this hire from Admin control.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and keeps this employee’s progress tied to the unique link.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="copyToClipboard('${esc(fullUrl)}')">Copy exact employee link</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
 function candidate(){
   const x=c();
   const meta=stageMeta(x.stage);
@@ -1166,7 +1327,15 @@ function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; c
 function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. Review or edit it, then open it pre-filled in Gmail (or your mail app) and hit Send. It sends from your own careers@ account — replies come back to you.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy</button><button class="btn" onclick="sendCandidateEmail('mailto')">Open in email app</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
 function showGuardrail(){ document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>BBSI handoff blocked</h3><p>Goff’s BBSI ATS SOP says <strong>Offer Accepted = not cleared</strong> and <strong>Onboarding = fully cleared</strong>. Complete drug screen, background, and start date before BBSI onboarding.</p><div class="modal-actions"><button class="btn brand" onclick="document.getElementById('modal').className='modal';render()">Review clearance checklist</button></div></div>`; }
-function employeeWelcomeDraft(x=c()){ const url='https://portal.goffwelding.com/onboarding'; return `Subject: Welcome to Goff Welding — Start Here\n\nHi ${x.first},\n\nWelcome to Goff Welding. We’re excited to have you moving forward with us.\n\nYour next step is to complete your BBSI/myBBSI onboarding invite and use the Goff employee portal below for your first-day details, required resources, ExakTime/timekeeping instructions, safety orientation, tool list, and company links.\n\nEmployee portal: ${url}\n\nFirst day: ${x.offer?.startDate || '[confirm start date]'}\nSchedule: ${x.offer?.schedule || '[confirm schedule]'}\nSupervisor: ${x.offer?.supervisor || '[confirm supervisor]'}\n\nIf your myBBSI invite expires or you have questions, reply here or email careers@goffwelding.com.\n\nThank you,\nGoff Welding Hiring Team`; }
+function employeePortalLink(){
+  // Live employee portal. portal.goffwelding.com is NOT connected yet (DNS still
+  // on LinkNow), so build the working link from the current origin. On
+  // stoke-ai.com this yields https://stoke-ai.com/goff-employee/.
+  const origin = (typeof window !== 'undefined' && window.location && window.location.origin && !window.location.origin.startsWith('file'))
+    ? window.location.origin : 'https://stoke-ai.com';
+  return `${origin}/goff-employee/`;
+}
+function employeeWelcomeDraft(x=c()){ const url=fullEmployeePortalUrl(x); return `Subject: Welcome to Goff Welding — Start Here\n\nHi ${x.first},\n\nWelcome to Goff Welding. We’re excited to have you moving forward with us.\n\nYour next step is to complete your BBSI/myBBSI onboarding invite and use the Goff employee portal below for your first-day details, required resources, ExakTime/timekeeping instructions, safety orientation, tool list, and company links.\n\nEmployee portal: ${url}\n\nFirst day: ${x.offer?.startDate || '[confirm start date]'}\nSchedule: ${x.offer?.schedule || '[confirm schedule]'}\nSupervisor: ${x.offer?.supervisor || '[confirm supervisor]'}\n\nIf your myBBSI invite expires or you have questions, reply here or email careers@goffwelding.com.\n\nThank you,\nGoff Welding Hiring Team`; }
 function showEmployeeWelcomeDraft(){ const x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Employee portal welcome message</h3><p>Send after clearance is complete and the BBSI invite is ready. This is the handoff from recruiting into the employee site.</p><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="sendCandidateEmail('mailto')">Open in email app</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function moveToOnboarding(){
   const x=c();
@@ -1180,7 +1349,7 @@ function moveToOnboarding(){
   x.timeline.push(`Moved to onboarding queue: ${record.name}`);
   save();
   document.getElementById('modal').className='modal open';
-  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Moved to onboarding</h3><p>${esc(record.name)} is now visible in the employee portal Admin control queue.</p><div class="notice success"><strong>Next action:</strong><br>${esc(record.next)}</div><div class="handoff-grid"><div><span>Stage</span><strong>${esc(record.stage)}</strong></div><div><span>Supervisor</span><strong>${esc(record.supervisor)}</strong></div><div><span>Start</span><strong>${esc(record.start)}</strong></div></div><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal';render()">Done</button><button class="btn" onclick="window.open('/goff-employee/?admin=1','_blank','noopener')">Open admin queue</button><button class="btn brand" onclick="copyToClipboard('https://portal.goffwelding.com/onboarding')">Copy employee link</button></div></div>`;
+  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Moved to onboarding</h3><p>${esc(record.name)} is now visible in the employee portal Admin control queue.</p><div class="notice success"><strong>Next action:</strong><br>${esc(record.next)}</div><div class="handoff-grid"><div><span>Stage</span><strong>${esc(record.stage)}</strong></div><div><span>Supervisor</span><strong>${esc(record.supervisor)}</strong></div><div><span>Start</span><strong>${esc(record.start)}</strong></div></div><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal';render()">Done</button><button class="btn" onclick="window.open('/goff-employee/?admin=1','_blank','noopener')">Open admin queue</button><button class="btn brand" onclick="copyToClipboard(employeePortalLink())">Copy employee link</button></div></div>`;
 }
 function generateEmployeePortalAccess(){ moveToOnboarding(); }
 function manager(){
@@ -1566,3 +1735,4 @@ function howItWorks(){
 render();
 initCandidateSync();
 loadCurrentUser();
+initPositionsSync();

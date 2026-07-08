@@ -131,3 +131,12 @@ CREATE TABLE IF NOT EXISTS goff_users (
 );
 CREATE INDEX IF NOT EXISTS goff_users_username_idx ON goff_users (lower(username));
 CREATE INDEX IF NOT EXISTS goff_users_phone_idx ON goff_users (phone);
+
+-- ── Open positions (admin-managed job listings; public careers reads these) ──
+CREATE TABLE IF NOT EXISTS goff_positions (
+  id          TEXT PRIMARY KEY,
+  sort_order  INT NOT NULL DEFAULT 0,
+  status      TEXT NOT NULL DEFAULT 'open',   -- open | closed
+  data        JSONB NOT NULL,                 -- title, type, path, summary, payRange, schedule, location, perks[], certifications, roleFit
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
