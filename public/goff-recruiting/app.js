@@ -1365,7 +1365,6 @@ function candidate(){
       <div class="candidate-hero-meta">
         <div class="hero-stat"><span>In stage</span><strong class="age-${ageLevel}">${esc(ageText)}</strong></div>
         <div class="hero-stat"><span>Waiting on</span><strong>${esc(x.owner)}</strong></div>
-        <div class="hero-stat"><span>Priority</span><strong>${esc(x.priority)}</strong></div>
       </div>
     </div>
     <div class="candidate-hero-actions">
