@@ -1254,6 +1254,31 @@ function employeePortalUrl(x){
 }
 function fullEmployeePortalUrl(x){ return employeePortalLink()+employeePortalUrl(x).replace(/^\/goff-employee\//,''); }
 function employeeHandoffPanel(x){ const ready=clearanceReady(x); const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); const fullUrl=fullEmployeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee link</span><strong>${esc(`${x.first} ${x.last}`.trim() || 'New hire')}</strong><small class="link-break">${esc(fullUrl)}</small></div><div><span>Access method</span><strong>Private link</strong><small>Unique per candidate. Progress is kept separate by candidate ID.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Once moved, Quinton can track this hire from Admin control.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and keeps this employee’s progress tied to the unique link.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="copyToClipboard('${esc(fullUrl)}')">Copy exact employee link</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
+// One progress rail instead of "current stage" + a separate evidence checklist.
+// Reuses the same 6 funnel buckets as the dashboard so both screens speak the
+// same language. Steps left of the current bucket are done (the stage pointer
+// already proves they happened), the current bucket is the active step, and
+// everything right is still to come. Disposition stages (Keep on file, Not
+// selected, ...) sit outside the funnel and show as a hold badge instead.
+function stageRail(x){
+  const idx = FUNNEL_BUCKETS.findIndex(b=>b.stages.includes(x.stage));
+  const off = idx === -1;
+  return `<div class="stage-rail">${FUNNEL_BUCKETS.map((b,i)=>{
+    const state = off ? 'todo' : (i<idx ? 'done' : (i===idx ? 'now' : 'todo'));
+    return `<div class="rail-step ${state}"><span class="rail-dot">${state==='done'?'✓':(state==='now'?'●':'○')}</span><span class="rail-label">${b.label}</span></div>`;
+  }).join('')}${off ? `<span class="tag dark rail-off">${esc(x.stage)}</span>` : ''}</div>`;
+}
+// Checks that run alongside the main funnel rather than on it — the single
+// stage pointer can't show these, which is the one job the old evidence
+// checklist actually had. Click to toggle; logged to the timeline.
+const SIDE_CHECKS = [['references','References'],['background','Background'],['crystal','Crystal Knows']];
+function sideChecks(x){
+  const e=x.evidence||{};
+  return `<div class="side-checks"><span class="side-checks-label">Side checks</span>${SIDE_CHECKS.map(([k,label])=>{
+    const done=evidenceDone(e[k]);
+    return `<button class="side-check${done?' done':''}" title="${done?'Click to un-mark':'Click when this check is complete'}" onclick="setEvidence(${x.id},'${k}','${done?'Not started':'Complete'}')">${done?'✓':'○'} ${label}</button>`;
+  }).join('')}</div>`;
+}
 function candidate(){
   const x=c();
   const meta=stageMeta(x.stage);
@@ -1263,11 +1288,18 @@ function candidate(){
   const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
   return `${head(`${x.pinned ? '★ ' : ''}${esc(x.first)} ${esc(x.last)}`, `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)}`,`<div class="head-actions"><button class="btn pin-toggle ${x.pinned ? 'pinned' : ''}" onclick="togglePin(${x.id})" title="${x.pinned ? 'Unpin' : 'Pin this candidate'}">${x.pinned ? '★ Pinned' : '☆ Pin'}</button><button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button></div>`)}
   <section class="panel candidate-hero">
+    <div class="candidate-hero-contact" style="margin-top:0;padding-top:0;border-top:0">
+      <a href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — ' + x.role)}">✉ ${esc(x.email)}</a>
+      ${x.phone ? `<a href="tel:${esc(x.phone)}">☎ ${esc(x.phone)}</a>` : ''}
+      ${x.location ? `<span>📍 ${esc(x.location)}</span>` : ''}
+      <button class="hero-copy" title="Copy email address" onclick="copyToClipboard('${esc(x.email)}')">⧉ Copy email</button>
+    </div>
+    ${stageRail(x)}
     <div class="candidate-hero-row">
       <div class="candidate-hero-stage">
-        <div class="eyebrow">Current stage</div>
+        <div class="eyebrow">Now</div>
         <h3>${esc(x.stage)}</h3>
-        <p class="muted">${meta.group} group · ${meta.next ? `next: <strong>${esc(meta.next)}</strong>` : 'no automatic next stage'}</p>
+        <p class="muted">${meta.next ? `then: <strong>${esc(meta.next)}</strong>` : 'final step in this track'}</p>
       </div>
       <div class="candidate-hero-meta">
         <div class="hero-stat"><span>In stage</span><strong class="age-${ageLevel}">${esc(ageText)}</strong></div>
@@ -1275,31 +1307,19 @@ function candidate(){
         <div class="hero-stat"><span>Priority</span><strong>${esc(x.priority)}</strong></div>
       </div>
     </div>
-    <div class="candidate-hero-contact">
-      <a href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — ' + x.role)}">✉ ${esc(x.email)}</a>
-      ${x.phone ? `<a href="tel:${esc(x.phone)}">☎ ${esc(x.phone)}</a>` : ''}
-      ${x.location ? `<span>📍 ${esc(x.location)}</span>` : ''}
-      <button class="hero-copy" title="Copy email address" onclick="copyToClipboard('${esc(x.email)}')">⧉ Copy email</button>
-    </div>
     <div class="candidate-hero-actions">
       ${stageDecisionButtons(x)}
       <button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
+    ${sideChecks(x)}
   </section>
   ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
   ${phoneScreenPanel(x)}
-  <div class="grid two" style="margin-top:16px">
-    <section class="panel">
-      <h3>Evidence checklist</h3>
-      <p class="muted small" style="margin:-8px 0 14px">What's been verified so far. Fill these in as the candidate clears each step.</p>
-      ${evidenceTable(x)}
-    </section>
-    <section class="panel">
-      ${x.concerns ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(x.concerns)}</div><h3 style="margin-top:18px">Role expectations</h3>` : `<h3>Role expectations</h3>`}
-      <p class="muted">${esc(roleFit(x))}</p>
-    </section>
-  </div>
+  <section class="panel" style="margin-top:16px">
+    ${x.concerns ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(x.concerns)}</div><h3 style="margin-top:18px">Role expectations</h3>` : `<h3>Role expectations</h3>`}
+    <p class="muted">${esc(roleFit(x))}</p>
+  </section>
   <details class="panel collapse-panel" style="margin-top:16px">
     <summary><h3 style="display:inline">Correct stage or change role</h3></summary>
     <p class="muted small" style="margin-top:10px">Only use these if someone clicked the wrong step, or the candidate should be considered for a different opening. Either change is logged in the timeline.</p>

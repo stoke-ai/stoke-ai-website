@@ -602,3 +602,25 @@ details.collapse-panel > summary h3{margin:0}
 .evidence-row .ev-toggle:hover{border-color:var(--brand);color:var(--brand);transform:none}
 .evidence-row.done .ev-toggle{color:var(--steel)}
 @media(max-width:560px){.evidence-row{grid-template-columns:22px 1fr;row-gap:6px}.evidence-row .ev-status,.evidence-row .ev-toggle{grid-column:2}}
+
+/* Progress rail in the candidate hero — replaces "current stage" text + the
+   separate evidence checklist with one scoreboard. Same 6 buckets as the
+   dashboard funnel. */
+.stage-rail{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:16px;padding:14px 0;border-top:1px solid #ececec;border-bottom:1px solid #ececec}
+.rail-step{display:flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:#fafafa;font-size:13px;font-weight:700;color:var(--steel)}
+.rail-step .rail-dot{font-size:12px;line-height:1}
+.rail-step.done{background:#f0f8f2;border-color:#bfe0cb;color:var(--green)}
+.rail-step.now{background:var(--ink);border-color:var(--ink);color:#fff;box-shadow:var(--shadow-card)}
+.rail-step.now .rail-dot{color:#fff}
+.rail-step+.rail-step{position:relative;margin-left:12px}
+.rail-step+.rail-step:before{content:"";position:absolute;left:-13px;top:50%;width:14px;height:1px;background:var(--line)}
+.rail-off{margin-left:10px}
+
+/* Side checks — off-track verifications (references, background, Crystal).
+   The one job the old evidence checklist had that the rail can't do. */
+.side-checks{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid #ececec}
+.side-checks-label{font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-right:4px}
+.side-check{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 13px;font-size:13px;font-weight:700;color:var(--steel);cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.side-check:hover{border-color:var(--charcoal);color:var(--text)}
+.side-check.done{background:#f0f8f2;border-color:#bfe0cb;color:var(--green)}
+@media(max-width:700px){.rail-step{padding:6px 10px;font-size:12px}.rail-step+.rail-step{margin-left:8px}.rail-step+.rail-step:before{left:-9px;width:10px}}
