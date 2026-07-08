@@ -1345,6 +1345,7 @@ function candidate(){
       ${stageDecisionButtons(x)}
       <button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
+      <button class="btn ghost" title="Wrong stage or wrong opening? Fix it here." onclick="showFixModal()">✎ Fix stage / role</button>
     </div>
     ${sideChecks(x)}
   </section>
@@ -1354,14 +1355,6 @@ function candidate(){
     ${realConcern(x) ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(realConcern(x))}<div style="margin-top:10px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="resolveConcern(${x.id})">✓ Mark resolved</button></div></div><h3 style="margin-top:18px">Role expectations</h3>` : `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h3>Role expectations</h3><button class="btn" style="padding:7px 14px;font-size:13px;flex:0 0 auto" onclick="addConcern(${x.id})">⚑ Flag a concern</button></div>`}
     <p class="muted">${esc(roleFit(x))}</p>
   </section>
-  <details class="panel collapse-panel" style="margin-top:16px">
-    <summary><h3 style="display:inline">Correct stage or change role</h3></summary>
-    <p class="muted small" style="margin-top:10px">Only use these if someone clicked the wrong step, or the candidate should be considered for a different opening. Either change is logged in the timeline.</p>
-    <label class="muted small" style="display:block;margin-top:14px;font-weight:700">Stage</label>
-    <select onchange="setStage(this.value)" class="stage-select">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select>
-    <label class="muted small" style="display:block;margin-top:16px;font-weight:700">Position / career path</label>
-    ${candidatePositionEditor(x)}
-  </details>
   ${showClearance ? `<section class="panel" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>${employeeHandoffPanel(x)}` : ''}
   <section class="panel" style="margin-top:16px">
     <h3>Timeline</h3>
@@ -1553,6 +1546,22 @@ function sendCandidateEmail(via){
 function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; const body=TEMPLATE_TEXT[key] || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',realConcern(x) || 'None noted').replaceAll('{{roleFit}}',roleFit(x)); }
 function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. Review or edit it, then open it pre-filled in Gmail (or your mail app) and hit Send. It sends from your own careers@ account — replies come back to you.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy</button><button class="btn" onclick="sendCandidateEmail('mailto')">Open in email app</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
+// Corrections live in a modal launched from the hero ("✎ Fix stage / role")
+// instead of a section further down the page — the rail is where you notice a
+// wrong stage, so the fix is one click from it. setStage/changeCandidatePosition
+// re-render the page, which closes the modal and updates the rail in one step.
+function showFixModal(){
+  const x=c(); if(!x) return;
+  document.getElementById('modal').className='modal open';
+  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Fix stage or change role</h3>
+    <p>Only use these if someone clicked the wrong step, or the candidate should be considered for a different opening. Either change is logged in the timeline.</p>
+    <label class="muted small" style="display:block;margin-top:6px;font-weight:700">Stage</label>
+    <select onchange="setStage(this.value)" class="stage-select">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select>
+    <label class="muted small" style="display:block;margin-top:16px;font-weight:700">Position / career path</label>
+    ${candidatePositionEditor(x)}
+    <div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button></div>
+  </div>`;
+}
 function showGuardrail(){ document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>BBSI handoff blocked</h3><p>Goff’s BBSI ATS SOP says <strong>Offer Accepted = not cleared</strong> and <strong>Onboarding = fully cleared</strong>. Complete drug screen, background, and start date before BBSI onboarding.</p><div class="modal-actions"><button class="btn brand" onclick="document.getElementById('modal').className='modal';render()">Review clearance checklist</button></div></div>`; }
 function employeePortalLink(){
   // Live employee portal. portal.goffwelding.com is NOT connected yet (DNS still
