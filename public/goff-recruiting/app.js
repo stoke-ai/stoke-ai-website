@@ -989,7 +989,12 @@ function applyView(){
     </section>
   </section></main>`;
 }
+// Guard against double-clicks on Submit: the POST takes ~a second, and a
+// second click in that window created a duplicate candidate (seen live 7/8
+// with two records 1.3s apart). One flag covers both application forms.
+let applicationSubmitting = false;
 async function submitRoleApplication(){
+  if(applicationSubmitting) return;
   const j = jobById(applyJobId); if(!j || j.status==='closed'){ showToast('That position is closed'); view='career'; render(); return; }
   const qs = APP_QUESTIONS[j.id] || [];
   const core = {}; const answers = {}; let missing = null;
@@ -1002,6 +1007,7 @@ async function submitRoleApplication(){
   if(core.heard) answers['Heard about us via'] = core.heard;
   if(j.id === 'welder'){ const processes = String(answers['Processes you run'] || ''); if(processes && !/TIG|Stick/i.test(processes)) answers['TIG / Stick weld-test notice'] = 'Applicant selected neither TIG nor Stick; portal displayed TIG weld-test warning.'; }
   if(extra) answers['Anything else'] = extra;
+  applicationSubmitting = true;
   const btn = document.getElementById('ra-submit'); if(btn){ btn.disabled = true; btn.textContent = 'Submitting…'; }
   const notes = Object.entries(answers).filter(([,v])=>v).map(([k,v])=>`${k}: ${v}`).join('\n');
   let serverDelivered = false;
@@ -1012,14 +1018,21 @@ async function submitRoleApplication(){
     });
     serverDelivered = r.ok;
   }catch(_){ serverDelivered = false; }
-  const item = normalizeCandidate({
-    id: Date.now(), first: core.first, last: core.last || 'Applicant', email: core.email, phone: core.phone, role: j.title,
-    source:'Goff website', path: j.path, stage:'Application received', owner:'Quinton', due:'Today', priority:'Normal',
-    location: core.city || '', summary:`Website application (role-specific).\n${notes.slice(0,400)}`, concerns:'',
-    application: answers,
-    timeline:['Submitted role-specific application from careers page', serverDelivered ? 'Routed to Goff intake — Quinton notified.' : 'Local copy saved — server route unavailable.'],
-  });
-  candidates.unshift(item); selectedId = item.id; save();
+  // The server route already creates the pipeline candidate. Creating a local
+  // copy too gave every applicant TWO records (different ids, same person —
+  // that's where the duplicate Jeffrey Stoker came from). Only keep the local
+  // copy as a fallback when the server couldn't be reached.
+  if(!serverDelivered){
+    const item = normalizeCandidate({
+      id: Date.now(), first: core.first, last: core.last || 'Applicant', email: core.email, phone: core.phone, role: j.title,
+      source:'Goff website', path: j.path, stage:'Application received', owner:'Quinton', due:'Today', priority:'Normal',
+      location: core.city || '', summary:`Website application (role-specific).\n${notes.slice(0,400)}`, concerns:'',
+      application: answers,
+      timeline:['Submitted role-specific application from careers page', 'Local copy saved — server route unavailable.'],
+    });
+    candidates.unshift(item); selectedId = item.id; save();
+  }
+  applicationSubmitting = false;
   view='thanks'; render();
 }
 
@@ -1175,10 +1188,11 @@ async function submitApplication(){
   const last=rest.join(' ')||'Applicant';
   const combinedNotes = availability ? `Availability: ${availability}\n\n${notes}` : notes;
 
-  // Best-effort server delivery. The localStorage record is always created so
-  // the prototype keeps working if the endpoint is unreachable (offline demo,
-  // misconfigured env). The timeline entry tells the recruiter whether the
-  // server saw it or not.
+  // Best-effort server delivery. The server route creates the pipeline
+  // candidate; the local record is ONLY a fallback for when the endpoint is
+  // unreachable — creating both gave every applicant two records.
+  if(applicationSubmitting) return;
+  applicationSubmitting = true;
   let serverDelivered=false;
   try {
     const r=await fetch('/api/goff-recruiting/applications', {
@@ -1189,23 +1203,26 @@ async function submitApplication(){
     serverDelivered=r.ok;
   } catch(_) { serverDelivered=false; }
 
-  const item=normalizeCandidate({
-    id:Date.now(),
-    first, last, email, phone, role,
-    source:'Goff website',
-    path:role.toLowerCase().includes('welder')||role.toLowerCase().includes('fitter')?'Welder path':'Other path',
-    stage:'Application received',
-    owner:'Quinton',
-    due:'Today',
-    priority:'Normal',
-    location:'',
-    summary:combinedNotes||'Website application submitted. Needs hiring-team review.',
-    concerns:'',
-    timeline:['Submitted from Goff careers page', serverDelivered ? 'Routed to Goff intake — Quinton notified.' : 'Local copy saved — server route unavailable.', 'Queued for Quinton'],
-  });
-  candidates.unshift(item);
-  selectedId=item.id;
-  save();
+  if(!serverDelivered){
+    const item=normalizeCandidate({
+      id:Date.now(),
+      first, last, email, phone, role,
+      source:'Goff website',
+      path:role.toLowerCase().includes('welder')||role.toLowerCase().includes('fitter')?'Welder path':'Other path',
+      stage:'Application received',
+      owner:'Quinton',
+      due:'Today',
+      priority:'Normal',
+      location:'',
+      summary:combinedNotes||'Website application submitted. Needs hiring-team review.',
+      concerns:'',
+      timeline:['Submitted from Goff careers page', 'Local copy saved — server route unavailable.', 'Queued for Quinton'],
+    });
+    candidates.unshift(item);
+    selectedId=item.id;
+    save();
+  }
+  applicationSubmitting = false;
   view='thanks';
   render();
 }
@@ -1332,7 +1349,7 @@ function candidate(){
     <div class="candidate-hero-row">
       <div class="candidate-hero-stage">
         <div class="eyebrow">Now</div>
-        <h3>${esc(x.stage)}</h3>
+        <h3>${esc(x.stage)} <button class="stage-fix" title="Wrong stage or wrong opening? Fix it here." onclick="showFixModal()">✎ fix</button></h3>
         <p class="muted">${meta.next ? `then: <strong>${esc(meta.next)}</strong>` : 'final step in this track'}</p>
       </div>
       <div class="candidate-hero-meta">
@@ -1345,7 +1362,6 @@ function candidate(){
       ${stageDecisionButtons(x)}
       <button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
-      <button class="btn ghost" title="Wrong stage or wrong opening? Fix it here." onclick="showFixModal()">✎ Fix stage / role</button>
     </div>
     ${sideChecks(x)}
   </section>

@@ -624,3 +624,8 @@ details.collapse-panel > summary h3{margin:0}
 .side-check:hover{border-color:var(--charcoal);color:var(--text)}
 .side-check.done{background:#f0f8f2;border-color:#bfe0cb;color:var(--green)}
 @media(max-width:700px){.rail-step{padding:6px 10px;font-size:12px}.rail-step+.rail-step{margin-left:8px}.rail-step+.rail-step:before{left:-9px;width:10px}}
+
+/* Small edit affordance on the stage title — corrections are rare, so this
+   reads as metadata (like an edit-pencil) instead of a decision button. */
+.stage-fix{border:0;background:transparent;color:#9a9a9a;font-size:13px;font-weight:700;font-family:'Lato',sans-serif;padding:2px 6px;vertical-align:middle;cursor:pointer;border-radius:3px}
+.stage-fix:hover{color:var(--text);background:#f0f0f0}
