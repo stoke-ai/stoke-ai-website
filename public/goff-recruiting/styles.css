@@ -586,3 +586,19 @@ details.collapse-panel > summary h3{margin:0}
 .candidate-hero-contact a:hover{border-bottom-color:var(--brand);color:var(--brand)}
 .candidate-hero-contact .hero-copy{border:0;background:transparent;color:var(--steel);font-weight:700;font-size:13px;padding:0;cursor:pointer}
 .candidate-hero-contact .hero-copy:hover{color:var(--text)}
+
+/* Interactive evidence checklist — recruiters mark each step done as it happens
+   (or it auto-ticks when they save phone-screen notes / pick an outcome). */
+.evidence-list{display:flex;flex-direction:column;gap:8px}
+.evidence-row{display:grid;grid-template-columns:22px 1fr auto auto;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+.evidence-row .ev-check{font-size:16px;color:var(--steel);text-align:center;line-height:1}
+.evidence-row .ev-label{font-weight:700;color:var(--text)}
+.evidence-row .ev-status{color:var(--steel);font-size:13px;font-weight:700}
+.evidence-row.done{background:#f0f8f2;border-color:#bfe0cb}
+.evidence-row.done .ev-check{color:var(--green)}
+.evidence-row.done .ev-status{color:var(--green)}
+.evidence-row.na{opacity:.6}
+.evidence-row .ev-toggle{padding:6px 12px;font-size:12px;box-shadow:none;border:1px solid var(--line)}
+.evidence-row .ev-toggle:hover{border-color:var(--brand);color:var(--brand);transform:none}
+.evidence-row.done .ev-toggle{color:var(--steel)}
+@media(max-width:560px){.evidence-row{grid-template-columns:22px 1fr;row-gap:6px}.evidence-row .ev-status,.evidence-row .ev-toggle{grid-column:2}}

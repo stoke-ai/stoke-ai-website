@@ -1223,7 +1223,23 @@ function thanks(){
   </main>`;
 }
 function field(k,v){ return `<div class="field"><span>${k}</span><strong>${v || '—'}</strong></div>`; }
-function evidenceTable(x){ const e=x.evidence||{}; return `<div class="mini-grid">${field('Phone screen', e.phone)}${field('Weld test', e.weld)}${field('Interview', e.interview)}${field('References', e.references)}${field('Crystal Knows', e.crystal)}${field('Background', e.background)}</div>`; }
+const EVIDENCE_ITEMS = [['phone','Phone screen'],['weld','Weld test'],['interview','Interview'],['references','References'],['crystal','Crystal Knows'],['background','Background']];
+function evidenceDone(v){ return /complete|done|pass|cleared|scheduled|✓/i.test(String(v||'')); }
+function evidenceTable(x){
+  const e=x.evidence||{};
+  return `<div class="evidence-list">${EVIDENCE_ITEMS.map(([k,label])=>{
+    const val=e[k]||'Not started';
+    const na=/^n\/a$/i.test(val);
+    const done=evidenceDone(val);
+    return `<div class="evidence-row${done?' done':''}${na?' na':''}">
+      <span class="ev-check">${done?'✓':(na?'—':'○')}</span>
+      <span class="ev-label">${label}</span>
+      <span class="ev-status">${esc(val)}</span>
+      ${na?'':`<button class="btn ev-toggle" onclick="setEvidence(${x.id},'${k}','${done?'Not started':'Complete'}')">${done?'Undo':'Mark done'}</button>`}
+    </div>`;
+  }).join('')}</div>`;
+}
+function setEvidence(id,k,v){ const x=candidates.find(c=>c.id===id); if(!x) return; x.evidence=x.evidence||{}; x.evidence[k]=v; x.timeline.push(`Evidence updated: ${k} → ${v}`); save(); render(); }
 function clearanceReady(x){ return x.clearance?.drug==='Passed' && ['Cleared','N/A'].includes(x.clearance?.background) && x.clearance?.startDate==='Confirmed'; }
 function clearancePanel(x){ const ready=clearanceReady(x); return `<div class="notice ${ready?'success':'warning'}"><strong>${ready?'Clearance complete':'BBSI guardrail active'}</strong><br>Offer Accepted is a hold stage. Do not move to BBSI onboarding until drug screen, background, and start date are complete.</div><div class="mini-grid">${field('Drug screen',x.clearance.drug)}${field('Background',x.clearance.background)}${field('Start date',x.clearance.startDate)}</div><div class="actions tight"><button class="btn" onclick="setClearance('drug','Scheduled')">Drug scheduled</button><button class="btn" onclick="setClearance('drug','Passed')">Drug passed</button><button class="btn" onclick="setClearance('background','Cleared')">Background cleared</button><button class="btn" onclick="setClearance('background','N/A')">Background N/A</button><button class="btn" onclick="setClearance('startDate','Confirmed')">Start confirmed</button></div>`; }
 function employeePortalUrl(x){
@@ -1389,9 +1405,13 @@ function savePhoneScreenNote(){
   x.notes = x.notes || [];
   x.notes.push({ id: Date.now(), author: (currentUser && currentUser.name) || 'Recruiter', text: `Phone screen: ${text}`, createdAt: nowISO() });
   x.timeline.push(`Phone screen notes saved: ${text.slice(0, 70)}${text.length > 70 ? '…' : ''}`);
+  // Saving phone-screen notes IS the record the screen happened — tick the
+  // evidence checklist so the recruiter doesn't have to mark it separately.
+  x.evidence = x.evidence || {};
+  x.evidence.phone = 'Complete';
   save();
   render();
-  showToast('Phone screen notes saved');
+  showToast('Phone screen notes saved — marked complete on the checklist');
 }
 function phoneScreenOutcome(choice){
   const x = c();
@@ -1408,6 +1428,9 @@ function phoneScreenOutcome(choice){
   const meta = stageMeta(picked.stage);
   x.owner = meta.owner;
   x.due = meta.due;
+  // Recording an outcome means the phone screen is done — tick the checklist.
+  x.evidence = x.evidence || {};
+  x.evidence.phone = 'Complete';
   x.timeline.push(`Phone screen outcome: ${picked.label} → ${picked.stage}`);
   save();
   render();
