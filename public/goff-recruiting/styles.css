@@ -634,3 +634,8 @@ details.collapse-panel > summary h3{margin:0}
 .inline-stage-edit{display:flex;align-items:center;gap:8px;margin:6px 0}
 .inline-stage-edit .stage-select{max-width:420px}
 .topbar .stage-select.inline-fix{display:inline-block;width:auto;max-width:300px;font-size:14px;padding:8px 10px;vertical-align:middle}
+
+/* Template picker inside the email modal — match the card's 32px content inset */
+.modal-card .draft-tpl-label{display:block;font-weight:700;margin:0 32px 6px}
+.modal-card .stage-select.draft-tpl{width:calc(100% - 64px);margin:0 32px 12px}
+@media(max-width:760px){.modal-card .draft-tpl-label{margin-left:22px;margin-right:22px}.modal-card .stage-select.draft-tpl{width:calc(100% - 44px);margin-left:22px;margin-right:22px}}
