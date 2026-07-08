@@ -620,6 +620,20 @@ function stageMeta(stage){ return STAGE[stage] || WORKFLOW_STAGES[0]; }
 function jobFor(role){ const list = positions.length ? positions : jobs; return list.find(j => role && role.toLowerCase().includes(j.title.toLowerCase().split(' ')[0])) || list.find(j => role && j.title===role) || list[0] || jobs[0]; }
 function roleFit(x){ return jobFor(x.role).roleFit; }
 function esc(s){ return String(s ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+// Display-layer Title Case for stage names and headings. Stage strings are
+// data (workflow keys, stored on candidates) so they stay lowercase in the
+// model; this formats them for display only. Small connector words stay
+// lowercase per standard title-case rules ("Transition to Onboarding", not
+// "Transition To Onboarding").
+const TC_SMALL = new Set(['a','an','and','as','at','but','by','for','in','of','on','or','the','to','via','vs','with']);
+function titleCase(s){
+  const words = String(s||'').split(' ');
+  return words.map((w,i)=>{
+    if(!w) return w;
+    if(i>0 && i<words.length-1 && TC_SMALL.has(w.toLowerCase())) return w.toLowerCase();
+    return w[0].toUpperCase() + w.slice(1);
+  }).join(' ');
+}
 function tag(v){ if(v==='Hot'||String(v).includes('overdue')) return 'red'; if(String(v).includes('Today')||String(v).includes('Tomorrow')||String(v).includes('24')) return 'amber'; if(String(v).includes('Website')) return 'green'; if(String(v).includes('Indeed')) return 'blue'; return 'violet'; }
 
 // --- Review feedback widget (same loop as the employee portal) ---
@@ -1368,8 +1382,8 @@ function candidate(){
         <div class="eyebrow">Now</div>
         ${inlineEdit==='stage'
           ? `<div class="inline-stage-edit"><select class="stage-select" onchange="setStage(this.value)">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select> <button class="stage-fix" onclick="inlineEdit=null;render()">✕ cancel</button></div>`
-          : `<h3>${esc(x.stage)} <button class="stage-fix" title="Wrong stage? Change it right here." onclick="inlineEdit='stage';render()">✎</button></h3>`}
-        <p class="muted">${meta.next ? `then: <strong>${esc(meta.next)}</strong>` : 'final step in this track'}</p>
+          : `<h3>${esc(titleCase(x.stage))} <button class="stage-fix" title="Wrong stage? Change it right here." onclick="inlineEdit='stage';render()">✎</button></h3>`}
+        <p class="muted">${meta.next ? `then: <strong>${esc(titleCase(meta.next))}</strong>` : 'final step in this track'}</p>
       </div>
       <div class="candidate-hero-meta">
         <div class="hero-stat"><span>In stage</span><strong class="age-${ageLevel}">${esc(ageText)}</strong></div>
@@ -1435,7 +1449,7 @@ function isPhoneScreenStage(stage){ return ['Phone screen invitation','Review ph
 function notesPanel(x){
   const phone = isPhoneScreenStage(x.stage);
   return `<section class="panel" style="margin-top:16px">
-    <div class="section-head"><div><div class="eyebrow">Notes</div><h3>${(x.notes && x.notes.length) ? `${x.notes.length} note${x.notes.length === 1 ? '' : 's'} on file.` : 'No notes yet.'}</h3></div>${phone ? '<span class="tag amber">Phone screen — capture the call here</span>' : ''}</div>
+    <div class="section-head"><div><div class="eyebrow">Notes</div><h3>${(x.notes && x.notes.length) ? `${x.notes.length} Note${x.notes.length === 1 ? '' : 's'} on File` : 'No Notes Yet'}</h3></div>${phone ? '<span class="tag amber">Phone screen — capture the call here</span>' : ''}</div>
     ${phone ? `<div class="notice"><strong>What to capture:</strong><br>Availability, commute/location, relevant experience, pay/schedule fit, attitude/reliability notes, and any red flags.</div>` : ''}
     <div class="note-composer"${phone ? ' style="margin-top:14px"' : ''}>
       <textarea id="noteInput" rows="${phone ? 4 : 3}" placeholder="${phone ? 'Phone screen notes — what did they say, what concerns came up, and what should happen next?' : 'Add a note — what was discussed, next step, anything to remember.'}"></textarea>
