@@ -259,6 +259,9 @@ function safeSet(key, value){ try { window.localStorage.setItem(key, value); } c
 function safeJSON(key, fallback){ try { return JSON.parse(safeGet(key) || 'null') || fallback; } catch(_) { return fallback; } }
 let candidates = (safeJSON('goffCandidatesV2', null) || safeJSON('goffCandidates', null) || seed).map(normalizeCandidate);
 let selectedId = candidates[0]?.id || 1;
+// Restore the open candidate from the URL on a refresh. pullCandidates() keeps
+// this id if that candidate exists in the live queue, so the profile reopens.
+(function(){ const idp = new URLSearchParams(window.location.search).get('id'); if(idp && !isNaN(Number(idp))) selectedId = Number(idp); })();
 
 // --- Server sync (Neon via /api/goff-recruiting/candidates) ---------------
 // The server is the source of truth so Quinton's pipeline is shared across
@@ -639,7 +642,23 @@ function feedbackWidget(){
   <small>Goes straight to Jeff with this exact location attached.</small></div>`;
 }
 
+// Mirror the current view (and open candidate) into the URL so a browser
+// refresh reopens the same screen instead of dumping back to the dashboard.
+// replaceState (not pushState) keeps the back button clean — every render
+// would otherwise stack a history entry.
+function syncUrl(){
+  try{
+    if(isPublicCareersHost()) return; // public careers keeps its own clean URL
+    const params = new URLSearchParams(window.location.search);
+    params.set('view', view);
+    if(view==='candidate'||view==='offer'){ const x=c(); if(x) params.set('id', x.id); else params.delete('id'); }
+    else { params.delete('id'); }
+    const qs = params.toString();
+    window.history.replaceState(null, '', window.location.pathname + (qs ? '?'+qs : ''));
+  }catch(_){}
+}
 function render(){
+  syncUrl();
   if(view==='career'||view==='thanks'||view==='apply'){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
