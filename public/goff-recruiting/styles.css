@@ -577,3 +577,12 @@ details.correction-tools > summary::-webkit-details-marker{display:none}
 details.correction-tools > summary::before{content:"▸";color:var(--brand);font-size:13px}
 details.correction-tools[open] > summary::before{content:"▾"}
 details.correction-tools > summary h3{margin:0}
+
+/* Contact strip inside the candidate hero — email/phone/location at a glance,
+   right under the name instead of buried mid-page. */
+.candidate-hero-contact{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin-top:16px;padding-top:16px;border-top:1px solid #ececec;font-size:14px}
+.candidate-hero-contact a,.candidate-hero-contact span{color:var(--text);font-weight:700;text-decoration:none}
+.candidate-hero-contact a{border-bottom:1px solid var(--line);padding-bottom:1px}
+.candidate-hero-contact a:hover{border-bottom-color:var(--brand);color:var(--brand)}
+.candidate-hero-contact .hero-copy{border:0;background:transparent;color:var(--steel);font-weight:700;font-size:13px;padding:0;cursor:pointer}
+.candidate-hero-contact .hero-copy:hover{color:var(--text)}

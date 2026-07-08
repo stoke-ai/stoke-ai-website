@@ -1245,8 +1245,6 @@ function candidate(){
   const ageText=stageAgeText(x);
   const showClearance = ['Offer accepted - clearance hold','BBSI documents invite','Offer sent / follow-up','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
   const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
-  const customDecisions = decisionActionsForStage(x.stage);
-  const nextStepChoices = reviewNextStepChoices(x);
   return `${head(`${x.pinned ? '★ ' : ''}${esc(x.first)} ${esc(x.last)}`, `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)}`,`<div class="head-actions"><button class="btn pin-toggle ${x.pinned ? 'pinned' : ''}" onclick="togglePin(${x.id})" title="${x.pinned ? 'Unpin' : 'Pin this candidate'}">${x.pinned ? '★ Pinned' : '☆ Pin'}</button><button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button></div>`)}
   <section class="panel candidate-hero">
     <div class="candidate-hero-row">
@@ -1261,8 +1259,14 @@ function candidate(){
         <div class="hero-stat"><span>Priority</span><strong>${esc(x.priority)}</strong></div>
       </div>
     </div>
+    <div class="candidate-hero-contact">
+      <a href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — ' + x.role)}">✉ ${esc(x.email)}</a>
+      ${x.phone ? `<a href="tel:${esc(x.phone)}">☎ ${esc(x.phone)}</a>` : ''}
+      ${x.location ? `<span>📍 ${esc(x.location)}</span>` : ''}
+      <button class="hero-copy" title="Copy email address" onclick="copyToClipboard('${esc(x.email)}')">⧉ Copy email</button>
+    </div>
     <div class="candidate-hero-actions">
-      ${nextStepChoices ? nextStepChoices : (customDecisions.length ? customDecisions.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('') : `<button class="btn primary" onclick="advance()">Move to next stage</button>`)}
+      ${stageDecisionButtons(x)}
       <button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
@@ -1271,21 +1275,13 @@ function candidate(){
   ${phoneScreenPanel(x)}
   <div class="grid two" style="margin-top:16px">
     <section class="panel">
-      <h3>Contact</h3>
-      <div class="profile-grid">
-        ${field('Email', `<a href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — ' + x.role)}">${esc(x.email)}</a> <button class="copy-icon" title="Copy email" onclick="event.stopPropagation();copyToClipboard('${esc(x.email)}')">⧉</button>`)}
-        ${field('Phone', x.phone ? `<a href="tel:${esc(x.phone)}">${esc(x.phone)}</a> <button class="copy-icon" title="Copy phone" onclick="event.stopPropagation();copyToClipboard('${esc(x.phone)}')">⧉</button>` : '—')}
-        ${field('Location', x.location || '—')}
-        ${field('Source', x.source)}
-      </div>
-      ${x.concerns ? `<div class="notice warning" style="margin-top:16px"><strong>Concern to resolve:</strong><br>${esc(x.concerns)}</div>` : ''}
-      <h3 style="margin-top:18px">Role expectations</h3>
-      <p class="muted">${esc(roleFit(x))}</p>
+      <h3>Evidence checklist</h3>
+      <p class="muted small" style="margin:-8px 0 14px">What's been verified so far. Fill these in as the candidate clears each step.</p>
+      ${evidenceTable(x)}
     </section>
     <section class="panel">
-      <h3>Evidence checklist</h3>
-      ${evidenceTable(x)}
-      <div class="notice success" style="margin-top:16px"><strong>${meta.next ? 'Recommended next stage' : 'No automatic next stage'}</strong>${meta.next ? `<br>${esc(meta.next)}` : ''}</div>
+      ${x.concerns ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(x.concerns)}</div><h3 style="margin-top:18px">Role expectations</h3>` : `<h3>Role expectations</h3>`}
+      <p class="muted">${esc(roleFit(x))}</p>
     </section>
   </div>
   <details class="panel correction-tools" style="margin-top:16px">
@@ -1308,13 +1304,6 @@ function candidate(){
     ${(x.notes && x.notes.length) ? `<div class="notes-list">${x.notes.slice().reverse().map(n => `<div class="note-row"><div class="note-row-meta"><strong>${esc(n.author || 'Recruiter')}</strong> · ${esc(formatRelativeShort(n.createdAt))}</div><p>${esc(n.text)}</p></div>`).join('')}</div>` : ''}
   </section>
   ${showClearance ? `<section class="panel" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>${employeeHandoffPanel(x)}` : ''}
-  <section class="panel" style="margin-top:16px">
-    <details class="email-draft-details">
-      <summary><h3 style="display:inline">Preview email draft for this stage</h3></summary>
-      <p class="muted" style="margin-top:8px">Template for "${esc(x.stage)}". In production this creates a Gmail draft for review before sending.</p>
-      <div class="draft">${esc(merge(x.stage,x))}</div>
-    </details>
-  </section>
   <section class="panel" style="margin-top:16px">
     <h3>Timeline</h3>
     <div class="timeline">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
@@ -1364,25 +1353,32 @@ function changeCandidatePath(path){
 }
 function phoneScreenPanel(x){
   if(!['Phone screen invitation','Review phone screen'].includes(x.stage)) return '';
-  const phoneLink = x.phone ? `<a class="btn primary" href="tel:${esc(x.phone)}">Call ${esc(x.phone)}</a>` : '';
-  const emailLink = x.email ? `<a class="btn" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — phone screen for ' + x.role)}">Email candidate</a>` : '';
   return `<section class="panel" style="margin-top:16px">
-    <div class="section-head"><div><div class="eyebrow">Phone screen</div><h3>Record the call notes, then choose the outcome.</h3></div><span class="tag amber">Active step</span></div>
+    <div class="section-head"><div><div class="eyebrow">Phone screen</div><h3>Record the call notes.</h3></div><span class="tag amber">Active step</span></div>
     <div class="notice"><strong>What to capture:</strong><br>Availability, commute/location, relevant experience, pay/schedule fit, attitude/reliability notes, and any red flags.</div>
-    <div class="actions tight" style="margin-top:12px">${phoneLink}${emailLink}<button class="btn" onclick="showDraft(c().stage)">Open phone screen invite draft</button></div>
     <div class="note-composer" style="margin-top:14px">
       <textarea id="phoneScreenNotes" rows="4" placeholder="Phone screen notes — what did they say, what concerns came up, and what should happen next?"></textarea>
       <div class="note-composer-actions">
         <button class="btn brand" onclick="savePhoneScreenNote()">Save phone screen notes</button>
-        <span class="muted small">Saves to recruiter notes and timeline.</span>
+        <span class="muted small">Saves to recruiter notes and timeline. Pick the outcome from the buttons up top when you're done.</span>
       </div>
     </div>
-    <div class="actions tight" style="margin-top:14px">
-      <button class="btn primary" onclick="phoneScreenOutcome('weld')">Move to weld test</button>
-      <button class="btn" onclick="phoneScreenOutcome('additional')">Needs additional review</button>
-      <button class="btn" onclick="phoneScreenOutcome('hold')">Hold / not fit</button>
-    </div>
   </section>`;
+}
+// Single source of truth for the "what happens next" buttons shown in the hero.
+// Every stage funnels through here so the candidate page has ONE action zone
+// instead of decisions scattered between the hero and the stage panels.
+function stageDecisionButtons(x){
+  const review = reviewNextStepChoices(x);
+  if(review) return review;
+  if(['Phone screen invitation','Review phone screen'].includes(x.stage)) return [
+    `<button class="btn primary" onclick="phoneScreenOutcome('weld')">Move to weld test</button>`,
+    `<button class="btn" onclick="phoneScreenOutcome('additional')">Needs additional review</button>`,
+    `<button class="btn" onclick="phoneScreenOutcome('hold')">Hold / not fit</button>`,
+  ].join('');
+  const custom = decisionActionsForStage(x.stage);
+  if(custom.length) return custom.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('');
+  return `<button class="btn primary" onclick="advance()">Move to next stage</button>`;
 }
 function savePhoneScreenNote(){
   const x = c();
