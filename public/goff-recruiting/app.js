@@ -354,6 +354,10 @@ function initialRecruitingView(){
 }
 let view = initialRecruitingView();
 let selectedStage = 'Interview completed';
+// Which inline editor is open on the candidate page: 'stage' | 'role' | null.
+// Corrections edit in place (a select swaps in where the value is shown)
+// instead of a modal. Cleared automatically once a change is made.
+let inlineEdit = null;
 function save(){ safeSet('goffCandidatesV2', JSON.stringify(candidates)); pushCandidates(); }
 function c(){ return candidates.find(x=>x.id===selectedId) || candidates[0]; }
 function parseSharedQueue(){ try { return JSON.parse(safeGet('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
@@ -1337,7 +1341,11 @@ function candidate(){
   const ageText=stageAgeText(x);
   const showClearance = ['Offer accepted - clearance hold','BBSI documents invite','Offer sent / follow-up','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
   const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
-  return `${head(`${x.pinned ? '★ ' : ''}${esc(x.first)} ${esc(x.last)}`, `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)}`,`<div class="head-actions"><button class="btn pin-toggle ${x.pinned ? 'pinned' : ''}" onclick="togglePin(${x.id})" title="${x.pinned ? 'Unpin' : 'Pin this candidate'}">${x.pinned ? '★ Pinned' : '☆ Pin'}</button><button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button></div>`)}
+  // Role/path edits in place, right where the role is shown under the name.
+  const roleSub = inlineEdit==='role'
+    ? `<select class="stage-select inline-fix" onchange="changeCandidatePosition(this.value)"><option value="">Change position — ${esc(x.role)}…</option>${openJobs().map(job=>`<option value="${esc(job.id)}">${esc(job.title)}</option>`).join('')}</select> <select class="stage-select inline-fix" onchange="changeCandidatePath(this.value)"><option value="Welder path" ${x.path==='Welder path'?'selected':''}>Welder path</option><option value="Other path" ${x.path!=='Welder path'?'selected':''}>Other path</option></select> <button class="stage-fix" onclick="inlineEdit=null;render()">✕ cancel</button>`
+    : `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)} <button class="stage-fix" title="Change the position or career path" onclick="inlineEdit='role';render()">✎</button>`;
+  return `${head(`${x.pinned ? '★ ' : ''}${esc(x.first)} ${esc(x.last)}`, roleSub,`<div class="head-actions"><button class="btn pin-toggle ${x.pinned ? 'pinned' : ''}" onclick="togglePin(${x.id})" title="${x.pinned ? 'Unpin' : 'Pin this candidate'}">${x.pinned ? '★ Pinned' : '☆ Pin'}</button><button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button></div>`)}
   <section class="panel candidate-hero">
     <div class="candidate-hero-contact" style="margin-top:0;padding-top:0;border-top:0">
       <a href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — ' + x.role)}">✉ ${esc(x.email)}</a>
@@ -1349,7 +1357,9 @@ function candidate(){
     <div class="candidate-hero-row">
       <div class="candidate-hero-stage">
         <div class="eyebrow">Now</div>
-        <h3>${esc(x.stage)} <button class="stage-fix" title="Wrong stage or wrong opening? Fix it here." onclick="showFixModal()">✎ fix</button></h3>
+        ${inlineEdit==='stage'
+          ? `<div class="inline-stage-edit"><select class="stage-select" onchange="setStage(this.value)">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select> <button class="stage-fix" onclick="inlineEdit=null;render()">✕ cancel</button></div>`
+          : `<h3>${esc(x.stage)} <button class="stage-fix" title="Wrong stage? Change it right here." onclick="inlineEdit='stage';render()">✎ fix</button></h3>`}
         <p class="muted">${meta.next ? `then: <strong>${esc(meta.next)}</strong>` : 'final step in this track'}</p>
       </div>
       <div class="candidate-hero-meta">
@@ -1377,23 +1387,10 @@ function candidate(){
     <div class="timeline">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
   </section>`;
 }
-function candidatePositionEditor(x){
-  const jobOptions = openJobs().map(job => `<option value="${esc(job.id)}" ${job.title===x.role?'selected':''}>${esc(job.title)}</option>`).join('');
-  return `<div class="correction-box">
-    <select class="stage-select" onchange="changeCandidatePosition(this.value)">
-      <option value="">Choose a position…</option>
-      ${jobOptions}
-    </select>
-    <select class="stage-select" style="margin-top:8px" onchange="changeCandidatePath(this.value)">
-      <option value="Welder path" ${x.path==='Welder path'?'selected':''}>Welder path</option>
-      <option value="Other path" ${x.path!=='Welder path'?'selected':''}>Other path</option>
-    </select>
-    <p class="muted small" style="margin-top:8px">Current: ${esc(x.role)} · ${esc(x.path || 'Other path')}</p>
-  </div>`;
-}
 function changeCandidatePosition(jobId){
   const job = jobById(jobId);
   if(!job) return;
+  inlineEdit=null;
   const x = c();
   const oldRole = x.role;
   const oldPath = x.path || 'Other path';
@@ -1407,6 +1404,7 @@ function changeCandidatePosition(jobId){
   showToast('Candidate position updated');
 }
 function changeCandidatePath(path){
+  inlineEdit=null;
   const x = c();
   const nextPath = path === 'Welder path' ? 'Welder path' : 'Other path';
   const oldPath = x.path || 'Other path';
@@ -1489,7 +1487,7 @@ function reviewNextStepChoices(x){
     `<button class="btn" onclick="chooseReviewNextStep('hold')">Hold / not fit</button>`,
   ].join('');
 }
-function setStage(s){ let x=c(); if((s==='BBSI documents invite' || s==='Transition to onboarding workflow') && !clearanceReady(x)){ x.timeline.push('Blocked onboarding handoff: pre-employment clearance incomplete'); save(); showGuardrail(); return; } if(s==='Transition to onboarding workflow'){ moveToOnboarding(); return; } if(x.stage !== s) x.stageUpdatedAt = nowISO(); x.stage=s; const meta=stageMeta(s); x.owner=meta.owner; x.due=meta.due; x.timeline.push('Stage changed to '+s); save(); render(); }
+function setStage(s){ inlineEdit=null; let x=c(); if((s==='BBSI documents invite' || s==='Transition to onboarding workflow') && !clearanceReady(x)){ x.timeline.push('Blocked onboarding handoff: pre-employment clearance incomplete'); save(); showGuardrail(); return; } if(s==='Transition to onboarding workflow'){ moveToOnboarding(); return; } if(x.stage !== s) x.stageUpdatedAt = nowISO(); x.stage=s; const meta=stageMeta(s); x.owner=meta.owner; x.due=meta.due; x.timeline.push('Stage changed to '+s); save(); render(); }
 function advance(){ let x=c(); const next = NEXT[x.stage] || 'Manager review packet'; setStage(next); }
 function chooseReviewNextStep(choice){
   const x=c();
@@ -1562,22 +1560,6 @@ function sendCandidateEmail(via){
 function merge(stage,x){ const meta=stageMeta(stage); const key=meta.template; const body=TEMPLATE_TEXT[key] || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',realConcern(x) || 'None noted').replaceAll('{{roleFit}}',roleFit(x)); }
 function showDraft(stage){ let x=c(); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Generated email draft</h3><p>This uses the installed Goff template for the candidate’s current stage. Review or edit it, then open it pre-filled in Gmail (or your mail app) and hit Send. It sends from your own careers@ account — replies come back to you.</p><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy</button><button class="btn" onclick="sendCandidateEmail('mailto')">Open in email app</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
-// Corrections live in a modal launched from the hero ("✎ Fix stage / role")
-// instead of a section further down the page — the rail is where you notice a
-// wrong stage, so the fix is one click from it. setStage/changeCandidatePosition
-// re-render the page, which closes the modal and updates the rail in one step.
-function showFixModal(){
-  const x=c(); if(!x) return;
-  document.getElementById('modal').className='modal open';
-  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Fix stage or change role</h3>
-    <p>Only use these if someone clicked the wrong step, or the candidate should be considered for a different opening. Either change is logged in the timeline.</p>
-    <label class="muted small" style="display:block;margin-top:6px;font-weight:700">Stage</label>
-    <select onchange="setStage(this.value)" class="stage-select">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select>
-    <label class="muted small" style="display:block;margin-top:16px;font-weight:700">Position / career path</label>
-    ${candidatePositionEditor(x)}
-    <div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button></div>
-  </div>`;
-}
 function showGuardrail(){ document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>BBSI handoff blocked</h3><p>Goff’s BBSI ATS SOP says <strong>Offer Accepted = not cleared</strong> and <strong>Onboarding = fully cleared</strong>. Complete drug screen, background, and start date before BBSI onboarding.</p><div class="modal-actions"><button class="btn brand" onclick="document.getElementById('modal').className='modal';render()">Review clearance checklist</button></div></div>`; }
 function employeePortalLink(){
   // Live employee portal. portal.goffwelding.com is NOT connected yet (DNS still

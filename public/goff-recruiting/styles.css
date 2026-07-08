@@ -629,3 +629,8 @@ details.collapse-panel > summary h3{margin:0}
    reads as metadata (like an edit-pencil) instead of a decision button. */
 .stage-fix{border:0;background:transparent;color:#9a9a9a;font-size:13px;font-weight:700;font-family:'Lato',sans-serif;padding:2px 6px;vertical-align:middle;cursor:pointer;border-radius:3px}
 .stage-fix:hover{color:var(--text);background:#f0f0f0}
+
+/* Inline correction editors — the select swaps in where the value is shown */
+.inline-stage-edit{display:flex;align-items:center;gap:8px;margin:6px 0}
+.inline-stage-edit .stage-select{max-width:420px}
+.topbar .stage-select.inline-fix{display:inline-block;width:auto;max-width:300px;font-size:14px;padding:8px 10px;vertical-align:middle}
