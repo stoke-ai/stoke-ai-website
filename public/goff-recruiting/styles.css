@@ -570,3 +570,10 @@ img,svg,canvas,iframe{max-width:100%}
 .pos-form .field-label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;color:#333}
 .pos-form .pos-full{grid-column:1/-1}
 @media(max-width:700px){.pos-form{grid-template-columns:1fr}.pos-row{flex-direction:column;align-items:flex-start}}
+
+/* Collapsible correction tools on the candidate page (de-clutter secondary actions) */
+details.correction-tools > summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px}
+details.correction-tools > summary::-webkit-details-marker{display:none}
+details.correction-tools > summary::before{content:"▸";color:var(--brand);font-size:13px}
+details.correction-tools[open] > summary::before{content:"▾"}
+details.correction-tools > summary h3{margin:0}

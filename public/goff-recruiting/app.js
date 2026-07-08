@@ -1252,31 +1252,31 @@ function candidate(){
   ${phoneScreenPanel(x)}
   <div class="grid two" style="margin-top:16px">
     <section class="panel">
-      <h3>What needs to happen</h3>
-      <div class="notice success"><strong>${meta.next ? 'Recommended next stage' : 'No automatic next stage'}</strong>${meta.next ? `<br>${esc(meta.next)}` : ''}<br><span class="muted">Template: ${esc(meta.template)}</span></div>
-      <h3 style="margin-top:18px">Made a mistake? Move candidate back/change stage</h3>
-      <p class="muted small">Use this if someone clicked the wrong next step. It logs the correction in the timeline.</p>
-      <select onchange="setStage(this.value)" class="stage-select">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select>
-      <h3 style="margin-top:18px">Change position / career path</h3>
-      <p class="muted small">Use this when the candidate should be considered for a different opening.</p>
-      ${candidatePositionEditor(x)}
-      <h3 style="margin-top:18px">Evidence checklist</h3>
-      ${evidenceTable(x)}
-    </section>
-    <section class="panel">
-      <h3>Candidate profile</h3>
+      <h3>Contact</h3>
       <div class="profile-grid">
         ${field('Email', `<a href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — ' + x.role)}">${esc(x.email)}</a> <button class="copy-icon" title="Copy email" onclick="event.stopPropagation();copyToClipboard('${esc(x.email)}')">⧉</button>`)}
         ${field('Phone', x.phone ? `<a href="tel:${esc(x.phone)}">${esc(x.phone)}</a> <button class="copy-icon" title="Copy phone" onclick="event.stopPropagation();copyToClipboard('${esc(x.phone)}')">⧉</button>` : '—')}
         ${field('Location', x.location || '—')}
         ${field('Source', x.source)}
       </div>
-      <div class="notice"><strong>Summary:</strong><br>${esc(x.summary)}</div>
-      ${x.concerns ? `<div class="notice warning"><strong>Concern to resolve:</strong><br>${esc(x.concerns)}</div>` : ''}
+      ${x.concerns ? `<div class="notice warning" style="margin-top:16px"><strong>Concern to resolve:</strong><br>${esc(x.concerns)}</div>` : ''}
       <h3 style="margin-top:18px">Role expectations</h3>
       <p class="muted">${esc(roleFit(x))}</p>
     </section>
+    <section class="panel">
+      <h3>Evidence checklist</h3>
+      ${evidenceTable(x)}
+      <div class="notice success" style="margin-top:16px"><strong>${meta.next ? 'Recommended next stage' : 'No automatic next stage'}</strong>${meta.next ? `<br>${esc(meta.next)}` : ''}</div>
+    </section>
   </div>
+  <details class="panel correction-tools" style="margin-top:16px">
+    <summary><h3 style="display:inline">Correct stage or change role</h3></summary>
+    <p class="muted small" style="margin-top:10px">Only use these if someone clicked the wrong step, or the candidate should be considered for a different opening. Either change is logged in the timeline.</p>
+    <label class="muted small" style="display:block;margin-top:14px;font-weight:700">Stage</label>
+    <select onchange="setStage(this.value)" class="stage-select">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select>
+    <label class="muted small" style="display:block;margin-top:16px;font-weight:700">Position / career path</label>
+    ${candidatePositionEditor(x)}
+  </details>
   <section class="panel" style="margin-top:16px">
     <div class="section-head"><div><div class="eyebrow">Recruiter notes</div><h3>${(x.notes && x.notes.length) ? `${x.notes.length} note${x.notes.length === 1 ? '' : 's'} on file.` : 'No notes yet.'}</h3></div></div>
     <div class="note-composer">
