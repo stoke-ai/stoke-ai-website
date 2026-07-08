@@ -1359,7 +1359,7 @@ function candidate(){
         <div class="eyebrow">Now</div>
         ${inlineEdit==='stage'
           ? `<div class="inline-stage-edit"><select class="stage-select" onchange="setStage(this.value)">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select> <button class="stage-fix" onclick="inlineEdit=null;render()">✕ cancel</button></div>`
-          : `<h3>${esc(x.stage)} <button class="stage-fix" title="Wrong stage? Change it right here." onclick="inlineEdit='stage';render()">✎ fix</button></h3>`}
+          : `<h3>${esc(x.stage)} <button class="stage-fix" title="Wrong stage? Change it right here." onclick="inlineEdit='stage';render()">✎</button></h3>`}
         <p class="muted">${meta.next ? `then: <strong>${esc(meta.next)}</strong>` : 'final step in this track'}</p>
       </div>
       <div class="candidate-hero-meta">
