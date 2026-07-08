@@ -1,14 +1,31 @@
-const PROFILE = {
-  employeeName: 'Ricky Lambert',
-  firstName: 'Ricky',
-  role: 'Sanitary Stainless Steel Welder / Fabricator',
-  supervisor: 'Assigned supervisor',
-  startDate: 'Monday, July 8',
-  startTime: '6:00 AM',
-  location: 'Goff Welding • 531 W 100 S #24, Paul, ID',
-  status: 'Cleared for onboarding',
-  contact: 'Quinton Evans — onboarding contact',
-};
+// The employee's identity comes from the invite link the recruiting portal
+// builds: /goff-employee/?id=<StableId>&employee=<Full Name>&role=<Role>&supervisor=<Name>&start=<Date>.
+// Falls back to a neutral greeting so a new hire never sees someone else's name
+// (previously this was hardcoded to a demo person, "Ricky Lambert").
+function readProfileFromUrl(){
+  let p;
+  try { p = new URLSearchParams(window.location.search); } catch(_) { p = null; }
+  const get = (k) => { try { return (p && p.get(k)) ? p.get(k).trim() : ''; } catch(_) { return ''; } };
+  const employeeName = get('employee') || get('name');
+  const firstName = employeeName ? employeeName.split(/\s+/)[0] : '';
+  const stableId = get('id') || get('employeeId') || get('candidateId') || get('email') || employeeName || 'anonymous';
+  return {
+    id: stableId,
+    storageKey: `goffEmployeeChecklist:${stableId}`,
+    courseIndexKey: `goffCourseIndex:${stableId}`,
+    employeeName: employeeName || '',
+    firstName: firstName || 'there',
+    role: get('role') || 'New team member',
+    supervisor: get('supervisor') || 'Assigned supervisor',
+    startDate: get('start') || 'To be confirmed',
+    startTime: get('startTime') || '6:00 AM',
+    location: get('location') || 'Goff Welding • 531 W 100 S #24, Paul, ID',
+    email: get('email'),
+    status: 'Cleared for onboarding',
+    contact: 'Quinton Evans — onboarding contact',
+  };
+}
+const PROFILE = readProfileFromUrl();
 
 const pages = [
   ['start','Start here','Employee'],
@@ -1422,11 +1439,10 @@ const checkinItems = [
   { title:'Employee questions captured', detail:'Write down unanswered questions and assign follow-up.' },
 ];
 
-const demoOnboardingQueue = [
-  { id:'demo-ricky', name:'Ricky Lambert', role:'Sanitary Stainless Steel Welder / Fabricator', supervisor:'Quinton Evans', stage:'Training path', status:'In progress', start:'Jul 8', progress:62, blocked:'BBSI completion needs confirmation', next:'Confirm myBBSI complete, then schedule manager handoff' },
-  { id:'next-helper', name:'Next helper hire', role:'Shop / field helper', supervisor:'Supervisor to confirm', stage:'Clearance hold', status:'Waiting', start:'Pending', progress:18, blocked:'Drug screen/background/start date not confirmed', next:'Do not send employee portal until clearance is confirmed' },
-  { id:'vehicle-checkin', name:'Vehicle-user check-in', role:'Driver / assigned vehicle user', supervisor:'Supervisor to confirm', stage:'30-day check-in', status:'Due soon', start:'Started', progress:84, blocked:'Truck check-in routing needs owner', next:'Run 30-day check-in and confirm vehicle/form training' },
-];
+// Demo queue removed for live use (2026-07-08). The admin onboarding tracker
+// now shows only real records: server handoffs from recruiting + any local
+// handoffs. Kept as an empty array so downstream code is unchanged.
+const demoOnboardingQueue = [];
 function parseRecruitingHandoffs(){ try { return JSON.parse(localStorage.getItem('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
 // Real onboarding records from the server (created by the recruiting handoff).
 let serverEmployees = [];
@@ -1453,22 +1469,32 @@ async function loadServerEmployees(){
     if(section === 'ops') render();
   }catch(_){ /* offline: fall back to local queue */ }
 }
+function isDemoOnboardingRecord(x){
+  const name = String(x?.name || '').toLowerCase().trim();
+  const email = String(x?.email || '').toLowerCase().trim();
+  // Old demo/test handoffs can live in a browser's localStorage after prior prototype use.
+  // Never show them in the live admin tracker.
+  return !name || name === 'ricky lambert' || /(^|\b)(demo|test|sample|example)(\b|$)/i.test(name) || /@example\.com$/i.test(email);
+}
 function currentOnboardingQueue(){
-  const handoffs = parseRecruitingHandoffs().map(x => Object.assign({ progress:28, status:'Ready for onboarding', stage:'BBSI invite + training path', blocked:'BBSI/myBBSI invite and completion still need admin confirmation', next:'Send welcome link, confirm myBBSI invite, then start training path' }, x, { fromRecruiting:true }));
-  const seen = new Set(serverEmployees.map(x => String(x.name || '').toLowerCase()));
+  const handoffs = parseRecruitingHandoffs()
+    .filter(x => !isDemoOnboardingRecord(x))
+    .map(x => Object.assign({ progress:28, status:'Ready for onboarding', stage:'BBSI invite + training path', blocked:'BBSI/myBBSI invite and completion still need admin confirmation', next:'Send welcome link, confirm myBBSI invite, then start training path' }, x, { fromRecruiting:true }));
+  const realServerEmployees = serverEmployees.filter(x => !isDemoOnboardingRecord(x));
+  const seen = new Set(realServerEmployees.map(x => String(x.name || '').toLowerCase()));
   const localOnly = handoffs.filter(x => !seen.has(String(x.name || '').toLowerCase()));
   localOnly.forEach(x => seen.add(String(x.name || '').toLowerCase()));
-  const demos = demoOnboardingQueue.filter(x => !seen.has(String(x.name || '').toLowerCase()));
-  return [...serverEmployees, ...localOnly, ...demos];
+  const demos = demoOnboardingQueue.filter(x => !isDemoOnboardingRecord(x) && !seen.has(String(x.name || '').toLowerCase()));
+  return [...realServerEmployees, ...localOnly, ...demos];
 }
 function computedAdminMetrics(){
   const q = currentOnboardingQueue();
-  const blocked = q.filter(x => String(x.blocked || '').trim() && !/^none/i.test(String(x.blocked))).length + 3;
-  const decisions = 6 + q.filter(x => x.fromRecruiting).length;
+  const blocked = q.filter(x => String(x.blocked || '').trim() && !/^none/i.test(String(x.blocked))).length;
+  const decisions = q.filter(x => x.fromRecruiting).length;
   return [
     { label:'In onboarding', value:String(q.length), detail:`${q.filter(x=>/progress|ready/i.test(x.status)).length} active/ready, ${q.filter(x=>/hold|waiting/i.test(x.stage+x.status)).length} hold/waiting, ${q.filter(x=>/30-day|due/i.test(x.stage+x.status)).length} check-in due` },
-    { label:'Blocked items', value:String(blocked), detail:'BBSI completion, form routing, safety signoff, truck owner, handoffs' },
-    { label:'Next 7 days', value:String(Math.max(5, q.length + 2)), detail:'Welcome text, BBSI verify, safety, manager handoff, check-in' },
+    { label:'Blocked items', value:String(blocked), detail:'BBSI completion, form routing, safety signoff' },
+    { label:'Next 7 days', value:String(q.length), detail:'Welcome text, BBSI verify, safety, manager handoff, check-in' },
     { label:'Needs Goff decision', value:String(decisions), detail:'Approvers, visibility, signoffs, recipients, timing' },
   ];
 }
@@ -1561,6 +1587,9 @@ function initialEmployeeSection(){
   const params = new URLSearchParams(window.location.search);
   const explicit = params.get('section');
   if(explicit) return explicit;
+  // ?admin=1 (or ?admin / ?view=admin) opens the admin onboarding tracker.
+  const adminParam = (params.get('admin') || params.get('view') || '').toLowerCase();
+  if(adminParam === '1' || adminParam === 'true' || adminParam === 'admin' || adminParam === 'ops') return 'ops';
   if(path.includes('/admin')) return 'ops';
   if(path.includes('/training')) return 'training';
   if(path.includes('/course') || path.includes('/orientation')) return 'course';
@@ -1573,9 +1602,9 @@ let section = initialEmployeeSection();
 const memoryStore = {};
 function safeGet(key){ try { return window.localStorage.getItem(key); } catch(_) { return memoryStore[key] || null; } }
 function safeSet(key, value){ try { window.localStorage.setItem(key, value); } catch(_) { memoryStore[key] = String(value); } }
-let completed = (() => { try { return JSON.parse(safeGet('goffEmployeeChecklist') || '{}'); } catch(_) { return {}; } })();
-courseIndex = (() => { const v = parseInt(safeGet('goffCourseIndex') || '0', 10); return Number.isFinite(v) ? Math.max(0, Math.min(ORIENTATION_STEPS.length - 1, v)) : 0; })();
-function save(){ safeSet('goffEmployeeChecklist', JSON.stringify(completed)); }
+let completed = (() => { try { return JSON.parse(safeGet(PROFILE.storageKey) || '{}'); } catch(_) { return {}; } })();
+courseIndex = (() => { const v = parseInt(safeGet(PROFILE.courseIndexKey) || '0', 10); return Number.isFinite(v) ? Math.max(0, Math.min(ORIENTATION_STEPS.length - 1, v)) : 0; })();
+function save(){ safeSet(PROFILE.storageKey, JSON.stringify(completed)); }
 function onboardingParts(){
   return [
     { label:'Orientation', pct: coursePct() },
@@ -1725,7 +1754,7 @@ function scrollToEl(sel){
   if(r.top < 0 || r.top > 160) window.scrollTo({ top: r.top + (window.pageYOffset || 0) - 84, behavior:'smooth' });
 }
 function scrollToSlide(){ scrollToEl('.slide-canvas'); }
-function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(ORIENTATION_STEPS.length-1, i)); safeSet('goffCourseIndex', courseIndex); render(); scrollToSlide(); }
+function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(ORIENTATION_STEPS.length-1, i)); safeSet(PROFILE.courseIndexKey, courseIndex); render(); scrollToSlide(); }
 function toggleCourseSlide(i){ completed[`course-${i}`] = !completed[`course-${i}`]; save(); render(); }
 function completeAndNextCourseSlide(i){
   completed[`course-${i}`] = true;
