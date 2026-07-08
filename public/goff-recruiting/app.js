@@ -905,7 +905,7 @@ let applyJobId = new URLSearchParams(window.location.search).get('job');
 function openApply(jobId){ applyJobId = jobId; view='apply'; render(); window.scrollTo({top:0,behavior:'smooth'}); }
 function appFieldHtml(f, idx, prefix){
   const id = `${prefix}-${idx}`;
-  const label = `<label class="field-label" for="${id}">${esc(f.k)}${f.req?' <em class="req">*</em>':''}`;
+  const label = `<label class="field-label" for="${id}"><span class="fl-text">${esc(f.k)}${f.req?'<em class="req"> *</em>':''}</span>`;
   if(f.type==='textarea') return `${label}<textarea id="${id}" rows="4"></textarea></label>`;
   if(f.type==='yesno') return `${label}<select id="${id}"><option value=""></option><option>Yes</option><option>No</option></select></label>`;
   if(f.type==='select'){
@@ -1227,6 +1227,7 @@ function candidate(){
   const showClearance = ['Offer accepted - clearance hold','BBSI documents invite','Offer sent / follow-up','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
   const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
   const customDecisions = decisionActionsForStage(x.stage);
+  const nextStepChoices = reviewNextStepChoices(x);
   return `${head(`${x.pinned ? '★ ' : ''}${esc(x.first)} ${esc(x.last)}`, `${esc(x.role)} · from ${esc(x.source)} · ${esc(x.path)}`,`<div class="head-actions"><button class="btn pin-toggle ${x.pinned ? 'pinned' : ''}" onclick="togglePin(${x.id})" title="${x.pinned ? 'Unpin' : 'Pin this candidate'}">${x.pinned ? '★ Pinned' : '☆ Pin'}</button><button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button></div>`)}
   <section class="panel candidate-hero">
     <div class="candidate-hero-row">
@@ -1242,18 +1243,23 @@ function candidate(){
       </div>
     </div>
     <div class="candidate-hero-actions">
-      ${customDecisions.length ? customDecisions.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('') : `<button class="btn primary" onclick="advance()">Move to next stage</button>`}
+      ${nextStepChoices ? nextStepChoices : (customDecisions.length ? customDecisions.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('') : `<button class="btn primary" onclick="advance()">Move to next stage</button>`)}
       <button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
   </section>
   ${x.application && Object.keys(x.application).length ? `<section class="panel" style="margin-top:16px"><h3>Application answers</h3><div class="app-answers">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></section>` : ''}
+  ${phoneScreenPanel(x)}
   <div class="grid two" style="margin-top:16px">
     <section class="panel">
       <h3>What needs to happen</h3>
       <div class="notice success"><strong>${meta.next ? 'Recommended next stage' : 'No automatic next stage'}</strong>${meta.next ? `<br>${esc(meta.next)}` : ''}<br><span class="muted">Template: ${esc(meta.template)}</span></div>
-      <h3 style="margin-top:18px">Change stage</h3>
+      <h3 style="margin-top:18px">Made a mistake? Move candidate back/change stage</h3>
+      <p class="muted small">Use this if someone clicked the wrong next step. It logs the correction in the timeline.</p>
       <select onchange="setStage(this.value)" class="stage-select">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select>
+      <h3 style="margin-top:18px">Change position / career path</h3>
+      <p class="muted small">Use this when the candidate should be considered for a different opening.</p>
+      ${candidatePositionEditor(x)}
       <h3 style="margin-top:18px">Evidence checklist</h3>
       ${evidenceTable(x)}
     </section>
@@ -1295,8 +1301,157 @@ function candidate(){
     <div class="timeline">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
   </section>`;
 }
+function candidatePositionEditor(x){
+  const jobOptions = openJobs().map(job => `<option value="${esc(job.id)}" ${job.title===x.role?'selected':''}>${esc(job.title)}</option>`).join('');
+  return `<div class="correction-box">
+    <select class="stage-select" onchange="changeCandidatePosition(this.value)">
+      <option value="">Choose a position…</option>
+      ${jobOptions}
+    </select>
+    <select class="stage-select" style="margin-top:8px" onchange="changeCandidatePath(this.value)">
+      <option value="Welder path" ${x.path==='Welder path'?'selected':''}>Welder path</option>
+      <option value="Other path" ${x.path!=='Welder path'?'selected':''}>Other path</option>
+    </select>
+    <p class="muted small" style="margin-top:8px">Current: ${esc(x.role)} · ${esc(x.path || 'Other path')}</p>
+  </div>`;
+}
+function changeCandidatePosition(jobId){
+  const job = jobById(jobId);
+  if(!job) return;
+  const x = c();
+  const oldRole = x.role;
+  const oldPath = x.path || 'Other path';
+  x.role = job.title;
+  x.path = job.path || (job.title.toLowerCase().includes('welder') || job.title.toLowerCase().includes('fitter') ? 'Welder path' : 'Other path');
+  x.evidence = x.evidence || {};
+  x.evidence.weld = x.path === 'Welder path' ? (x.evidence.weld === 'N/A' ? 'Not started' : (x.evidence.weld || 'Not started')) : 'N/A';
+  x.timeline.push(`Position changed: ${oldRole} / ${oldPath} → ${x.role} / ${x.path}`);
+  save();
+  render();
+  showToast('Candidate position updated');
+}
+function changeCandidatePath(path){
+  const x = c();
+  const nextPath = path === 'Welder path' ? 'Welder path' : 'Other path';
+  const oldPath = x.path || 'Other path';
+  if(oldPath === nextPath) return;
+  x.path = nextPath;
+  x.evidence = x.evidence || {};
+  x.evidence.weld = x.path === 'Welder path' ? (x.evidence.weld === 'N/A' ? 'Not started' : (x.evidence.weld || 'Not started')) : 'N/A';
+  x.timeline.push(`Career path changed: ${oldPath} → ${x.path}`);
+  save();
+  render();
+  showToast('Candidate career path updated');
+}
+function phoneScreenPanel(x){
+  if(!['Phone screen invitation','Review phone screen'].includes(x.stage)) return '';
+  const phoneLink = x.phone ? `<a class="btn primary" href="tel:${esc(x.phone)}">Call ${esc(x.phone)}</a>` : '';
+  const emailLink = x.email ? `<a class="btn" href="mailto:${esc(x.email)}?subject=${encodeURIComponent('Goff Welding — phone screen for ' + x.role)}">Email candidate</a>` : '';
+  return `<section class="panel" style="margin-top:16px">
+    <div class="section-head"><div><div class="eyebrow">Phone screen</div><h3>Record the call notes, then choose the outcome.</h3></div><span class="tag amber">Active step</span></div>
+    <div class="notice"><strong>What to capture:</strong><br>Availability, commute/location, relevant experience, pay/schedule fit, attitude/reliability notes, and any red flags.</div>
+    <div class="actions tight" style="margin-top:12px">${phoneLink}${emailLink}<button class="btn" onclick="showDraft(c().stage)">Open phone screen invite draft</button></div>
+    <div class="note-composer" style="margin-top:14px">
+      <textarea id="phoneScreenNotes" rows="4" placeholder="Phone screen notes — what did they say, what concerns came up, and what should happen next?"></textarea>
+      <div class="note-composer-actions">
+        <button class="btn brand" onclick="savePhoneScreenNote()">Save phone screen notes</button>
+        <span class="muted small">Saves to recruiter notes and timeline.</span>
+      </div>
+    </div>
+    <div class="actions tight" style="margin-top:14px">
+      <button class="btn primary" onclick="phoneScreenOutcome('weld')">Move to weld test</button>
+      <button class="btn" onclick="phoneScreenOutcome('additional')">Needs additional review</button>
+      <button class="btn" onclick="phoneScreenOutcome('hold')">Hold / not fit</button>
+    </div>
+  </section>`;
+}
+function savePhoneScreenNote(){
+  const x = c();
+  const input = document.getElementById('phoneScreenNotes');
+  if(!input) return;
+  const text = input.value.trim();
+  if(!text){ showToast('Add phone screen notes first'); return; }
+  x.notes = x.notes || [];
+  x.notes.push({ id: Date.now(), author: (currentUser && currentUser.name) || 'Recruiter', text: `Phone screen: ${text}`, createdAt: nowISO() });
+  x.timeline.push(`Phone screen notes saved: ${text.slice(0, 70)}${text.length > 70 ? '…' : ''}`);
+  save();
+  render();
+  showToast('Phone screen notes saved');
+}
+function phoneScreenOutcome(choice){
+  const x = c();
+  const fromStage = x.stage;
+  const options = {
+    weld: { label:'Move to weld test', stage:isWelderPath(x)?'Weld test invitation':'Schedule interview', note:isWelderPath(x)?'Phone screen complete; candidate should move to weld test.':'Phone screen complete; candidate should move to the next interview step.' },
+    additional: { label:'Needs additional review', stage:'Manager review packet', note:'Phone screen complete; candidate needs additional review before moving forward.' },
+    hold: { label:'Hold / not fit', stage:'Keep on file', note:'Phone screen complete; candidate is being held or is not a current fit.' },
+  };
+  const picked = options[choice];
+  if(!picked) return;
+  if(x.stage !== picked.stage) x.stageUpdatedAt = nowISO();
+  x.stage = picked.stage;
+  const meta = stageMeta(picked.stage);
+  x.owner = meta.owner;
+  x.due = meta.due;
+  x.timeline.push(`Phone screen outcome: ${picked.label} → ${picked.stage}`);
+  save();
+  render();
+  sendInternalRecruitingUpdate(x, fromStage, picked);
+}
+function reviewNextStepChoices(x){
+  if(x.stage !== 'Review candidate / choose path') return '';
+  const weldLabel = isWelderPath(x) ? 'Weld test' : 'Work sample / test';
+  return [
+    `<button class="btn primary" onclick="chooseReviewNextStep('phone')">Phone screen</button>`,
+    `<button class="btn" onclick="chooseReviewNextStep('weld')">${esc(weldLabel)}</button>`,
+    `<button class="btn" onclick="chooseReviewNextStep('quinton')">Needs additional review</button>`,
+    `<button class="btn" onclick="chooseReviewNextStep('hold')">Hold / not fit</button>`,
+  ].join('');
+}
 function setStage(s){ let x=c(); if((s==='BBSI documents invite' || s==='Transition to onboarding workflow') && !clearanceReady(x)){ x.timeline.push('Blocked onboarding handoff: pre-employment clearance incomplete'); save(); showGuardrail(); return; } if(s==='Transition to onboarding workflow'){ moveToOnboarding(); return; } if(x.stage !== s) x.stageUpdatedAt = nowISO(); x.stage=s; const meta=stageMeta(s); x.owner=meta.owner; x.due=meta.due; x.timeline.push('Stage changed to '+s); save(); render(); }
 function advance(){ let x=c(); const next = NEXT[x.stage] || 'Manager review packet'; setStage(next); }
+function chooseReviewNextStep(choice){
+  const x=c();
+  const fromStage = x.stage;
+  const options = {
+    phone: { label:'Phone screen', stage:'Phone screen invitation', note:'Candidate should be screened by phone before scheduling the next step.' },
+    weld: { label:isWelderPath(x)?'Weld test':'Work sample / test', stage:isWelderPath(x)?'Weld test invitation':'Schedule interview', note:isWelderPath(x)?'Candidate looks ready for a weld test invitation.':'Candidate should move to the next practical evaluation step.' },
+    quinton: { label:'Needs additional review', stage:'Manager review packet', note:'Candidate needs additional review before moving forward.' },
+    hold: { label:'Hold / not fit', stage:'Keep on file', note:'Candidate is being held or is not a current fit.' },
+  };
+  const picked = options[choice];
+  if(!picked) return;
+  if(x.stage !== picked.stage) x.stageUpdatedAt = nowISO();
+  x.stage = picked.stage;
+  const meta = stageMeta(picked.stage);
+  x.owner = meta.owner;
+  x.due = meta.due;
+  x.timeline.push(`Next step chosen: ${picked.label} → ${picked.stage}`);
+  save();
+  render();
+  sendInternalRecruitingUpdate(x, fromStage, picked);
+}
+async function sendInternalRecruitingUpdate(x, fromStage, picked){
+  try{
+    const r = await fetch('/api/goff-recruiting/internal-update', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        candidate:{ id:x.id, first:x.first, last:x.last, name:`${x.first} ${x.last}`.trim(), role:x.role, email:x.email, phone:x.phone, fromStage },
+        decision:picked,
+      }),
+    });
+    if(!r.ok) throw new Error('internal update failed');
+    const current = candidates.find(cand => cand.id === x.id);
+    if(current){ current.timeline.push(`Internal update emailed to careers@goffwelding.com: ${picked.label}`); save(); render(); }
+    showToast('Internal update emailed to careers@goffwelding.com');
+  }catch(err){
+    console.warn('[goff-recruiting] internal update failed:', err);
+    const current = candidates.find(cand => cand.id === x.id);
+    if(current){ current.timeline.push(`Internal update email failed: ${picked.label}`); save(); render(); }
+    showToast('Next step saved — internal email failed');
+  }
+}
 function setClearance(k,v){ let x=c(); x.clearance[k]=v; x.timeline.push(`Clearance updated: ${k} = ${v}`); save(); render(); }
 // Turn a merged template into a one-click send. Gmail compose (Goff uses
 // Google Workspace) opens pre-filled from the recruiter's careers@ account —

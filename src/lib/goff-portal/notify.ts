@@ -16,17 +16,18 @@ export function escapeHtml(value: string) {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-export async function sendGoffEmail(subject: string, html: string): Promise<boolean> {
+export async function sendGoffEmailTo(to: string | string[], subject: string, html: string): Promise<boolean> {
   if (!RESEND_API_KEY) {
     console.warn('[goff-notify] RESEND_API_KEY not set — notification skipped:', subject);
     return false;
   }
   // PORTAL_EMAIL_FROM may be a bare address or already "Name <email>" — don't double-wrap.
   const from = FROM.includes('<') ? FROM : `Goff Portal <${FROM}>`;
+  const recipients = Array.isArray(to) ? to : [to];
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to: [TO], subject, html }),
+    body: JSON.stringify({ from, to: recipients, subject, html }),
   });
   if (!response.ok) {
     const body = await response.text().catch(() => '');
@@ -34,4 +35,8 @@ export async function sendGoffEmail(subject: string, html: string): Promise<bool
     return false;
   }
   return true;
+}
+
+export async function sendGoffEmail(subject: string, html: string): Promise<boolean> {
+  return sendGoffEmailTo(TO, subject, html);
 }
