@@ -250,7 +250,15 @@ function normalizeCandidate(x){
   x.stageUpdatedAt ||= nowISO();
   x.notes = Array.isArray(x.notes) ? x.notes : [];
   x.pinned = x.pinned === true;
+  x.emailedStages = Array.isArray(x.emailedStages) ? x.emailedStages : [];
   return x;
+}
+// "Waiting on: Candidate" is only true AFTER the stage's email actually went
+// out. Until then the ball is in the recruiter's court — the hero shows
+// "You — send the email" and makes the email button the primary action.
+function stageEmailPending(x){
+  const m = STAGE[x.stage];
+  return !!(m && m.owner === 'Candidate' && !(x.emailedStages || []).includes(x.stage));
 }
 
 const memoryStore = {};
@@ -1341,6 +1349,7 @@ function candidate(){
   const ageText=stageAgeText(x);
   const showClearance = ['Offer accepted - clearance hold','BBSI documents invite','Offer sent / follow-up','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
   const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
+  const emailPending = stageEmailPending(x);
   // Role/path edits in place, right where the role is shown under the name.
   const roleSub = inlineEdit==='role'
     ? `<select class="stage-select inline-fix" onchange="changeCandidatePosition(this.value)"><option value="">Change position — ${esc(x.role)}…</option>${openJobs().map(job=>`<option value="${esc(job.id)}">${esc(job.title)}</option>`).join('')}</select> <select class="stage-select inline-fix" onchange="changeCandidatePath(this.value)"><option value="Welder path" ${x.path==='Welder path'?'selected':''}>Welder path</option><option value="Other path" ${x.path!=='Welder path'?'selected':''}>Other path</option></select> <button class="stage-fix" onclick="inlineEdit=null;render()">✕ cancel</button>`
@@ -1364,12 +1373,13 @@ function candidate(){
       </div>
       <div class="candidate-hero-meta">
         <div class="hero-stat"><span>In stage</span><strong class="age-${ageLevel}">${esc(ageText)}</strong></div>
-        <div class="hero-stat"><span>Waiting on</span><strong>${esc(x.owner)}</strong></div>
+        <div class="hero-stat"><span>Waiting on</span><strong>${emailPending ? 'You — send the email' : esc(x.owner)}</strong></div>
       </div>
     </div>
     <div class="candidate-hero-actions">
-      ${stageDecisionButtons(x)}
-      <button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>
+      ${emailPending
+        ? `<button class="btn primary" onclick="showDraft(c().stage)">✉ Send ${esc(meta.template)} email</button>${stageDecisionButtons(x).replaceAll('btn primary','btn')}`
+        : `${stageDecisionButtons(x)}<button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>`}
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
     ${sideChecks(x)}
@@ -1552,6 +1562,10 @@ function sendCandidateEmail(via){
     : 'mailto:'+encodeURIComponent(to)+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
   openUrl(url, via==='gmail');
   x.timeline.push('Emailed candidate ('+(via==='gmail'?'Gmail':'mail app')+'): '+subject);
+  // Record that this stage's email went out — flips "Waiting on" from the
+  // recruiter back to the candidate and demotes the send button.
+  x.emailedStages = x.emailedStages || [];
+  if(!x.emailedStages.includes(x.stage)) x.emailedStages.push(x.stage);
   save();
   document.getElementById('modal').className='modal'; render();
   showToast(via==='gmail' ? 'Opening Gmail — just hit Send' : 'Opening your mail app');
