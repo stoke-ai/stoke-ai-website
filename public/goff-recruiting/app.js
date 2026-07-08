@@ -1240,6 +1240,16 @@ function evidenceTable(x){
   }).join('')}</div>`;
 }
 function setEvidence(id,k,v){ const x=candidates.find(c=>c.id===id); if(!x) return; x.evidence=x.evidence||{}; x.evidence[k]=v; x.timeline.push(`Evidence updated: ${k} → ${v}`); save(); render(); }
+function resolveConcern(id){ const x=candidates.find(c=>c.id===id); if(!x || !x.concerns) return; x.timeline.push(`Concern resolved: ${String(x.concerns).slice(0,80)}`); x.concerns=''; save(); render(); showToast('Concern marked resolved'); }
+// Intake concerns are all variations of "verify this person before investing
+// time." Recording the phone screen IS that verification — clear them so the
+// warning doesn't nag forever after it's been handled.
+function clearScreeningConcern(x){
+  if(x.concerns && /screening|verify|verification/i.test(x.concerns)){
+    x.timeline.push('Screening concern auto-resolved (phone screen recorded)');
+    x.concerns='';
+  }
+}
 function clearanceReady(x){ return x.clearance?.drug==='Passed' && ['Cleared','N/A'].includes(x.clearance?.background) && x.clearance?.startDate==='Confirmed'; }
 function clearancePanel(x){ const ready=clearanceReady(x); return `<div class="notice ${ready?'success':'warning'}"><strong>${ready?'Clearance complete':'BBSI guardrail active'}</strong><br>Offer Accepted is a hold stage. Do not move to BBSI onboarding until drug screen, background, and start date are complete.</div><div class="mini-grid">${field('Drug screen',x.clearance.drug)}${field('Background',x.clearance.background)}${field('Start date',x.clearance.startDate)}</div><div class="actions tight"><button class="btn" onclick="setClearance('drug','Scheduled')">Drug scheduled</button><button class="btn" onclick="setClearance('drug','Passed')">Drug passed</button><button class="btn" onclick="setClearance('background','Cleared')">Background cleared</button><button class="btn" onclick="setClearance('background','N/A')">Background N/A</button><button class="btn" onclick="setClearance('startDate','Confirmed')">Start confirmed</button></div>`; }
 function employeePortalUrl(x){
@@ -1317,7 +1327,7 @@ function candidate(){
   ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
   ${phoneScreenPanel(x)}
   <section class="panel" style="margin-top:16px">
-    ${x.concerns ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(x.concerns)}</div><h3 style="margin-top:18px">Role expectations</h3>` : `<h3>Role expectations</h3>`}
+    ${x.concerns ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(x.concerns)}<div style="margin-top:10px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="resolveConcern(${x.id})">✓ Mark resolved</button></div></div><h3 style="margin-top:18px">Role expectations</h3>` : `<h3>Role expectations</h3>`}
     <p class="muted">${esc(roleFit(x))}</p>
   </section>
   <details class="panel collapse-panel" style="margin-top:16px">
@@ -1429,6 +1439,7 @@ function savePhoneScreenNote(){
   // evidence checklist so the recruiter doesn't have to mark it separately.
   x.evidence = x.evidence || {};
   x.evidence.phone = 'Complete';
+  clearScreeningConcern(x);
   save();
   render();
   showToast('Phone screen notes saved — marked complete on the checklist');
@@ -1451,6 +1462,7 @@ function phoneScreenOutcome(choice){
   // Recording an outcome means the phone screen is done — tick the checklist.
   x.evidence = x.evidence || {};
   x.evidence.phone = 'Complete';
+  clearScreeningConcern(x);
   x.timeline.push(`Phone screen outcome: ${picked.label} → ${picked.stage}`);
   save();
   render();
