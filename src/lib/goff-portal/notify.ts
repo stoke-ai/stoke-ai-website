@@ -16,7 +16,14 @@ export function escapeHtml(value: string) {
   return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-export async function sendGoffEmailTo(to: string | string[], subject: string, html: string): Promise<boolean> {
+export type GoffEmailAttachment = { filename: string; content: string }; // content = base64
+
+export type GoffEmailOptions = {
+  replyTo?: string;
+  attachments?: GoffEmailAttachment[];
+};
+
+export async function sendGoffEmailTo(to: string | string[], subject: string, html: string, options: GoffEmailOptions = {}): Promise<boolean> {
   if (!RESEND_API_KEY) {
     console.warn('[goff-notify] RESEND_API_KEY not set — notification skipped:', subject);
     return false;
@@ -24,10 +31,13 @@ export async function sendGoffEmailTo(to: string | string[], subject: string, ht
   // PORTAL_EMAIL_FROM may be a bare address or already "Name <email>" — don't double-wrap.
   const from = FROM.includes('<') ? FROM : `Goff Portal <${FROM}>`;
   const recipients = Array.isArray(to) ? to : [to];
+  const payload: Record<string, unknown> = { from, to: recipients, subject, html };
+  if (options.replyTo) payload.reply_to = options.replyTo;
+  if (options.attachments?.length) payload.attachments = options.attachments;
   const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from, to: recipients, subject, html }),
+    body: JSON.stringify(payload),
   });
   if (!response.ok) {
     const body = await response.text().catch(() => '');

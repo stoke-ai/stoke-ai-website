@@ -1710,6 +1710,7 @@ function offer(){
           <button class="btn" onclick="downloadOfferLetterDoc()">Download .doc</button>
           <button class="btn" onclick="printOfferLetter()">Print / Save PDF</button>
         </div>
+        <button class="btn primary" onclick="emailOfferLetter()">✉ Email offer letter to candidate</button>
         <button class="btn brand" onclick="markOfferSent()">Mark offer sent → move to follow-up</button>
       </div>
       <h4 style="margin-top:22px">Offer SOP checklist</h4>
@@ -1767,6 +1768,30 @@ function updateOfferLive(){
   if(merged.generatedAt && offerLetterFieldsChanged(x.offer, vals)){ merged.generatedAt=null; merged.signaturesRouted=false; }
   const banner=document.getElementById('offerBanner'); if(banner) banner.innerHTML=offerBannerHTML(offerMissingOf(merged));
   const steps=document.getElementById('offerChecklist'); if(steps) steps.innerHTML=offerStepsHTML(merged, x);
+}
+// Real in-portal send: the portal emails the candidate with the generated
+// letter attached (Gmail compose links can't carry attachments). Guarded the
+// same way as marking sent — complete fields + a freshly generated letter.
+async function emailOfferLetter(){
+  syncOfferFromForm();
+  const x=c();
+  const missing=offerMissing(x);
+  if(missing.length){ showToast(`Fill the ${missing.length} missing field${missing.length===1?'':'s'} first`); render(); return; }
+  if(!x.offer.generatedAt){ showToast('Generate the letter first (Download .doc or Print/PDF) so the attached copy matches'); return; }
+  if(!x.email){ showToast('No email on file for this candidate'); return; }
+  if(!window.confirm(`Email the offer letter to ${x.first} ${x.last} <${x.email}> now?`)) return;
+  const html=offerLetterHTML(x,true);
+  const b64=btoa(unescape(encodeURIComponent(html)));
+  try{
+    const r=await fetch('/api/goff-recruiting/offer-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:x.email,candidate:`${x.first} ${x.last}`,role:x.role,attachment:b64,filename:`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`})});
+    const data=await r.json().catch(()=>({}));
+    if(!r.ok){ showToast(data.error||'Send failed — download and email it from Gmail instead'); return; }
+    x.timeline.push(`Offer letter emailed to ${x.email} (letter attached)`);
+    x.emailedStages=x.emailedStages||[];
+    if(!x.emailedStages.includes(x.stage)) x.emailedStages.push(x.stage);
+    save(); render();
+    showToast('Offer letter sent ✉ — mark offer sent when you are ready');
+  }catch(_){ showToast('Send failed — download and email it from Gmail instead'); }
 }
 function markOfferSent(){
   syncOfferFromForm();
