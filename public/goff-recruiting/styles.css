@@ -672,3 +672,6 @@ details.collapse-panel > summary h3{margin:0}
 /* Collapsed timeline shows count + latest event so it's glanceable shut */
 .collapse-panel .tl-peek{margin-left:12px;color:var(--steel);font-size:13px;font-weight:700}
 @media(max-width:700px){.collapse-panel .tl-peek{display:block;margin:6px 0 0 21px}}
+
+/* Amber in-progress state for hero pills (scheduled/ordered) */
+.side-check.pending{background:#fdf8ef;border-color:#ecd3a3;color:var(--amber)}

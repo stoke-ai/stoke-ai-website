@@ -1376,6 +1376,23 @@ function sideChecks(x){
     return `<button class="side-check${done?' done':''}" title="${done?'Click to un-mark':'Click when this check is complete'}" onclick="setEvidence(${x.id},'${k}','${done?'Not started':'Complete'}')">${done?'✓':'○'} ${label}</button>`;
   }).join('')}</div>`;
 }
+// During offer/clearance stages the hero swaps its side-checks row for a
+// clearance strip — the same three facts as the cards below (drug /
+// background / start), so 'what's cleared?' is answered at the top without
+// scrolling. Click a pill to jump to the full cards. (Background already
+// two-way syncs with the side-check fact, so nothing is tracked twice.)
+function clearanceStrip(x){
+  const cl=x.clearance||{};
+  const items=[
+    ['Drug screen', cl.drug, cl.drug==='Passed', cl.drug==='Scheduled'],
+    ['Background', cl.background, ['Cleared','N/A'].includes(cl.background), cl.background==='Ordered'],
+    ['Start date', cl.startDate, cl.startDate==='Confirmed', false],
+  ];
+  const allDone=clearanceReady(x);
+  return `<div class="side-checks"><span class="side-checks-label">Clearance</span>${items.map(([label,val,done,pending])=>
+    `<button class="side-check ${done?'done':(pending?'pending':'')}" title="${esc(val||'Not started')} — click for details" onclick="document.getElementById('clearanceCard')?.scrollIntoView({behavior:'smooth',block:'center'})">${done?'✓':(pending?'●':'○')} ${label}</button>`
+  ).join('')}${allDone?`<span class="tag green">All clear — onboarding unlocked below</span>`:''}</div>`;
+}
 function candidate(){
   const x=c();
   const meta=stageMeta(x.stage);
@@ -1416,7 +1433,7 @@ function candidate(){
         : `${stageDecisionButtons(x)}<button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>`}
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
-    ${sideChecks(x)}
+    ${showClearance ? clearanceStrip(x) : sideChecks(x)}
   </section>
   ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
   ${notesPanel(x)}
@@ -1424,7 +1441,7 @@ function candidate(){
     ${realConcern(x) ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(realConcern(x))}<div style="margin-top:10px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="resolveConcern(${x.id})">✓ Mark resolved</button></div></div><h3 style="margin-top:18px">Role expectations</h3>` : `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h3>Role expectations</h3><button class="btn" style="padding:7px 14px;font-size:13px;flex:0 0 auto" onclick="addConcern(${x.id})">⚑ Flag a concern</button></div>`}
     <p class="muted">${esc(roleFit(x))}</p>
   </section>
-  ${showClearance ? `<section class="panel" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>${employeeHandoffPanel(x)}` : ''}
+  ${showClearance ? `<section class="panel" id="clearanceCard" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>${employeeHandoffPanel(x)}` : ''}
   <details class="panel collapse-panel" style="margin-top:16px">
     <summary><h3 style="display:inline">Timeline</h3><span class="tl-peek">${x.timeline.length} event${x.timeline.length===1?'':'s'}${x.timeline.length?` · latest: ${esc(String(x.timeline[x.timeline.length-1]).slice(0,64))}${String(x.timeline[x.timeline.length-1]).length>64?'…':''}`:''}</span></summary>
     <div class="timeline" style="margin-top:14px">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
