@@ -1318,7 +1318,27 @@ function clearScreeningConcern(x){
   }
 }
 function clearanceReady(x){ return x.clearance?.drug==='Passed' && ['Cleared','N/A'].includes(x.clearance?.background) && x.clearance?.startDate==='Confirmed'; }
-function clearancePanel(x){ const ready=clearanceReady(x); return `<div class="notice ${ready?'success':'warning'}"><strong>${ready?'Clearance complete':'BBSI guardrail active'}</strong><br>Offer Accepted is a hold stage. Do not move to BBSI onboarding until drug screen, background, and start date are complete.</div><div class="mini-grid">${field('Drug screen',x.clearance.drug)}${field('Background',x.clearance.background)}${field('Start date',x.clearance.startDate)}</div><div class="actions tight"><button class="btn" onclick="setClearance('drug','Scheduled')">Drug scheduled</button><button class="btn" onclick="setClearance('drug','Passed')">Drug passed</button><button class="btn" onclick="setClearance('background','Cleared')">Background cleared</button><button class="btn" onclick="setClearance('background','N/A')">Background N/A</button><button class="btn" onclick="setClearance('startDate','Confirmed')">Start confirmed</button></div>`; }
+// Each clearance item shows its state at a glance: green ✓ done, amber ●
+// in progress (scheduled/ordered), grey ○ not started. Buttons under each
+// item only offer that item's next states.
+function clearanceItem(label, value, done, pending, buttons){
+  const state = done ? 'done' : (pending ? 'pending' : '');
+  const mark = done ? '✓' : (pending ? '●' : '○');
+  return `<div class="clr-item ${state}"><div class="clr-head"><span class="clr-mark">${mark}</span><span class="clr-label">${label}</span></div><div class="clr-status">${esc(value)}</div><div class="clr-actions">${buttons}</div></div>`;
+}
+function clearancePanel(x){
+  const ready=clearanceReady(x);
+  const cl=x.clearance||{};
+  return `<div class="notice ${ready?'success':'warning'}"><strong>${ready?'Clearance complete — this candidate can move to onboarding':'BBSI guardrail active'}</strong><br>Offer Accepted is a hold stage. Do not move to BBSI onboarding until drug screen, background, and start date are complete.</div>
+  <div class="clr-grid">
+    ${clearanceItem('Drug screen', cl.drug, cl.drug==='Passed', cl.drug==='Scheduled',
+      `<button class="btn clr-btn" onclick="setClearance('drug','Scheduled')">Scheduled</button><button class="btn clr-btn" onclick="setClearance('drug','Passed')">Passed</button>`)}
+    ${clearanceItem('Background', cl.background, ['Cleared','N/A'].includes(cl.background), cl.background==='Ordered',
+      `<button class="btn clr-btn" onclick="setClearance('background','Ordered')">Ordered</button><button class="btn clr-btn" onclick="setClearance('background','Cleared')">Cleared</button><button class="btn clr-btn" onclick="setClearance('background','N/A')">N/A</button>`)}
+    ${clearanceItem('Start date', cl.startDate, cl.startDate==='Confirmed', false,
+      `<button class="btn clr-btn" onclick="setClearance('startDate','Confirmed')">Confirmed</button>`)}
+  </div>`;
+}
 function employeePortalUrl(x){
   const p=new URLSearchParams();
   p.set('id', `candidate-${x.id}`);

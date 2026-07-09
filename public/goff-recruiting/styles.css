@@ -644,3 +644,18 @@ details.collapse-panel > summary h3{margin:0}
 .steps .step.done{background:#f0f8f2;border-left:4px solid var(--green)}
 .steps .step.done b{color:var(--green)}
 .steps .step .step-btn{margin-top:8px;padding:6px 12px;font-size:12px;box-shadow:none;border:1px solid var(--line)}
+
+/* Clearance guardrail items — visible state per check: ✓ done (green),
+   ● in progress (amber), ○ not started. */
+.clr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:14px}
+.clr-item{border:1px solid var(--line);border-left:4px solid #c9c9c9;border-radius:var(--radius);background:#fafafa;padding:14px 16px}
+.clr-item .clr-head{display:flex;align-items:center;gap:8px}
+.clr-item .clr-mark{font-size:15px;color:var(--steel);line-height:1}
+.clr-item .clr-label{font-weight:900;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--text)}
+.clr-item .clr-status{margin:6px 0 10px;font-weight:700;color:var(--steel);font-size:14px}
+.clr-item .clr-actions{display:flex;flex-wrap:wrap;gap:6px}
+.clr-item .clr-btn{padding:6px 12px;font-size:12px;box-shadow:none;border:1px solid var(--line)}
+.clr-item.pending{border-left-color:var(--amber);background:#fdf8ef}
+.clr-item.pending .clr-mark,.clr-item.pending .clr-status{color:var(--amber)}
+.clr-item.done{border-left-color:var(--green);background:#f0f8f2}
+.clr-item.done .clr-mark,.clr-item.done .clr-status{color:var(--green)}
