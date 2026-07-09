@@ -1675,11 +1675,11 @@ function offer(){
   const missing=offerMissing(x);
   const o=x.offer||{};
   return `${head('Offer letter workflow',`Building the offer for ${esc(x.first)} ${esc(x.last)} (${esc(x.role)}). Save verified details, preview the letter, then download or print.`,`<button class="btn ghost" onclick="view='candidate';render()">← Back to candidate</button>`)}
-  ${missing.length ? `<div class="notice warning"><strong>${missing.length} field${missing.length===1?'':'s'} missing before this offer can be sent:</strong> ${missing.map(esc).join(' · ')}</div>` : `<div class="notice success"><strong>All required fields are present.</strong> You can preview and send.</div>`}
+  <div id="offerBanner">${offerBannerHTML(missing)}</div>
   <div class="grid two" style="margin-top:16px">
     <section class="panel">
       <div class="section-head"><h3>Offer details</h3><span class="muted">Verified by Hiring Manager + Core Members</span></div>
-      <div class="form offer-form">
+      <div class="form offer-form" oninput="updateOfferLive()" onchange="updateOfferLive()">
         <fieldset class="offer-fieldset">
           <legend>Position</legend>
           <label class="field-label">Offer letter date <span class="req">required</span><input id="offerDate" type="date" value="${esc(o.date)}"></label>
@@ -1712,27 +1712,64 @@ function offer(){
           <button class="btn" onclick="downloadOfferLetterDoc()">Download .doc</button>
           <button class="btn" onclick="printOfferLetter()">Print / Save PDF</button>
         </div>
-        <button class="btn brand" onclick="setStage('Offer sent / follow-up')">Mark offer sent → move to follow-up</button>
+        <button class="btn brand" onclick="markOfferSent()">Mark offer sent → move to follow-up</button>
       </div>
       <h4 style="margin-top:22px">Offer SOP checklist</h4>
-      <div class="steps">
-        <div class="step"><b>1. Verify request</b><br><small>Candidate, position, pay, schedule, start date, supervisor, and core members.</small></div>
-        <div class="step"><b>2. Confirm hours</b><br><small>SOP says regular hours should fall between 6:00 AM and 6:00 PM.</small></div>
-        <div class="step"><b>3. Generate letter</b><br><small>Download Word-compatible .doc or print/save PDF.</small></div>
-        <div class="step"><b>4. Route signatures</b><br><small>Upload generated PDF/DOC to DocHub and assign candidate/core-member fields.</small></div>
-      </div>
+      <div class="steps" id="offerChecklist">${offerStepsHTML(o, x)}</div>
     </section>
   </div>
   <section class="panel" style="margin-top:16px"><h3>Pre-employment clearance guardrail</h3>${clearancePanel(x)}</section>`;
 }
-function saveOffer(){ let x=c(); x.offer={date:document.getElementById('offerDate').value,pay:document.getElementById('offerPay').value,startDate:document.getElementById('offerStart').value,schedule:document.getElementById('offerSchedule').value,supervisor:document.getElementById('offerSupervisor').value,employmentType:document.getElementById('offerEmploymentType').value,minHours:document.getElementById('offerMinHours').value,coreMember1:document.getElementById('offerCore1').value,coreMember2:document.getElementById('offerCore2').value,approvers:[document.getElementById('offerCore1').value,document.getElementById('offerCore2').value].filter(Boolean).join(', '),validityDays:document.getElementById('offerValidity').value||'30',notes:document.getElementById('offerNotes').value}; x.timeline.push('Offer details saved for generated offer letter'); save(); render(); }
-function offerMissing(x){ const o=x.offer||{}; return [['date','Offer date'],['startDate','Expected start date'],['supervisor','Supervisor'],['pay','Starting pay'],['minHours','Minimum hours'],['schedule','Scheduled work hours'],['coreMember1','Core Member 1'],['coreMember2','Core Member 2']].filter(([k])=>!String(o[k]||'').trim()).map(([,label])=>label); }
+function saveOffer(){ syncOfferFromForm(); c().timeline.push('Offer details saved for generated offer letter'); save(); render(); showToast('Offer details saved'); }
+const OFFER_REQUIRED = [['date','Offer date','offerDate'],['startDate','Expected start date','offerStart'],['supervisor','Supervisor','offerSupervisor'],['pay','Starting pay','offerPay'],['minHours','Minimum hours','offerMinHours'],['schedule','Scheduled work hours','offerSchedule'],['coreMember1','Core Member 1','offerCore1'],['coreMember2','Core Member 2','offerCore2']];
+function offerMissingOf(o){ return OFFER_REQUIRED.filter(([k])=>!String((o||{})[k]||'').trim()).map(([,label])=>label); }
+function offerMissing(x){ return offerMissingOf(x.offer||{}); }
+// Read the offer form straight from the DOM (null when not on the offer view).
+// Lets the banner/checklist update live and lets every action auto-save, so
+// typed-but-unsaved fields can never produce a letter full of blanks.
+function offerFormValues(){
+  const el=id=>document.getElementById(id);
+  if(!el('offerDate')) return null;
+  return { date:el('offerDate').value, startDate:el('offerStart').value, supervisor:el('offerSupervisor').value, employmentType:el('offerEmploymentType').value, pay:el('offerPay').value, minHours:el('offerMinHours').value, schedule:el('offerSchedule').value, coreMember1:el('offerCore1').value, coreMember2:el('offerCore2').value, validityDays:el('offerValidity').value||'30', notes:el('offerNotes').value };
+}
+function syncOfferFromForm(){
+  const vals=offerFormValues(); if(!vals) return;
+  const x=c();
+  x.offer={...x.offer, ...vals, approvers:[vals.coreMember1,vals.coreMember2].filter(Boolean).join(', ')};
+  save();
+}
+function offerBannerHTML(missing){
+  return missing.length
+    ? `<div class="notice warning"><strong>${missing.length} field${missing.length===1?'':'s'} missing before this offer can be sent:</strong> ${missing.map(esc).join(' · ')}</div>`
+    : `<div class="notice success"><strong>All required fields are present.</strong> You can preview and send.</div>`;
+}
+function offerStepsHTML(o, x){
+  const missing=offerMissingOf(o);
+  const step=(done,title,body)=>`<div class="step ${done?'done':''}"><b>${done?'✓ ':''}${title}</b><br><small>${body}</small></div>`;
+  return step(missing.length===0,'1. Verify request', missing.length===0?'All required offer fields are filled in.':`Still needed: ${missing.map(esc).join(', ')}.`)
+    + step(!!String(o.schedule||'').trim(),'2. Confirm hours','SOP says regular hours should fall between 6:00 AM and 6:00 PM.')
+    + step(!!o.generatedAt,'3. Generate letter', o.generatedAt?'Letter has been downloaded/printed.':'Download Word-compatible .doc or print/save PDF.')
+    + `<div class="step ${o.signaturesRouted?'done':''}"><b>${o.signaturesRouted?'✓ ':''}4. Route signatures</b><br><small>Upload generated PDF/DOC to DocHub and assign candidate/core-member fields.</small><br><button class="btn step-btn" onclick="toggleSignaturesRouted()">${o.signaturesRouted?'Undo':'Mark signatures routed'}</button></div>`;
+}
+function toggleSignaturesRouted(){ const x=c(); x.offer.signaturesRouted=!x.offer.signaturesRouted; x.timeline.push(x.offer.signaturesRouted?'Offer signatures routed via DocHub':'Offer signature routing un-marked'); save(); render(); }
+function updateOfferLive(){
+  const vals=offerFormValues(); if(!vals) return;
+  const x=c(); const merged={...x.offer, ...vals};
+  const banner=document.getElementById('offerBanner'); if(banner) banner.innerHTML=offerBannerHTML(offerMissingOf(merged));
+  const steps=document.getElementById('offerChecklist'); if(steps) steps.innerHTML=offerStepsHTML(merged, x);
+}
+function markOfferSent(){
+  syncOfferFromForm();
+  const missing=offerMissing(c());
+  if(missing.length){ showToast(`Can't mark sent — ${missing.length} required field${missing.length===1?'':'s'} still missing`); render(); return; }
+  setStage('Offer sent / follow-up');
+}
 function offerLetterHTML(x, print=false){ const o=x.offer||{}; const candidate=`${x.first} ${x.last}`; const missing=offerMissing(x); return `<!doctype html><html><head><meta charset="utf-8"><title>Goff Offer Letter - ${esc(candidate)}</title><style>body{font-family:Arial,Helvetica,sans-serif;color:#111;line-height:1.45;margin:0;background:${print?'#fff':'#eee'}}.page{max-width:820px;margin:${print?'0':'28px auto'};background:#fff;padding:56px 64px;box-shadow:${print?'none':'0 18px 44px rgba(0,0,0,.16)'}}.letterhead{display:flex;justify-content:space-between;border-bottom:4px solid #c40012;padding-bottom:16px;margin-bottom:28px}.brand{font-weight:900;font-size:24px}.addr{text-align:right;font-size:12px;line-height:1.35}.section-title{font-weight:900;margin-top:18px}.siggrid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:34px}.line{border-top:1px solid #111;padding-top:6px;min-height:28px}.missing{background:#fff7e8;border-left:5px solid #a15c00;padding:12px;margin:0 0 18px}.muted{color:#555;font-size:12px}.toolbar{max-width:820px;margin:20px auto 0;display:flex;gap:10px}.btn{border:0;background:#c40012;color:#fff;padding:10px 14px;font-weight:800;border-radius:4px}@media print{.toolbar,.missing{display:none}.page{box-shadow:none;margin:0;padding:36px}}</style></head><body>${print?'':`<div class="toolbar"><button class="btn" onclick="window.print()">Print / Save PDF</button></div>`}<main class="page">${missing.length?`<div class="missing"><strong>Missing before sending:</strong> ${missing.map(esc).join(', ')}</div>`:''}<div class="letterhead"><div><div class="brand">Goff Welding, LLC</div><div class="muted">OFFER LETTER</div></div><div class="addr">531 W 100 S #22<br>Paul, Idaho 83347<br>Phone (208) 647-2488<br>info@goffwelding.com</div></div><p><strong>Date:</strong> ${esc(o.date||'__________')}</p><p>Dear ${esc(candidate)},</p><p>Congratulations! Goff Welding LLC is pleased to extend this offer of employment for the position of <strong>${esc(x.role||'__________')}</strong> with an anticipated start date of <strong>${esc(o.startDate||'__________')}</strong>.</p><p>This offer is contingent upon the successful completion of a background check, drug screening, and verification of your eligibility to work in the United States. Please review this summary of terms and conditions for your anticipated employment with us.</p><p class="section-title">Position</p><p>You will report directly to <strong>${esc(o.supervisor||'__________')}</strong>. This is a <strong>${esc(o.employmentType||'__________')}</strong> position.</p><p class="section-title">Compensation & Hours</p><p>You will be compensated at a rate of <strong>${esc(o.pay||'__________')}</strong> per hour, with payroll issued on a weekly basis each Friday.</p><p>This is a <strong>${esc(o.employmentType||'__________')}</strong> job that will require you to work a minimum of <strong>${esc(o.minHours||'____')}</strong> hours per week. Your typical schedule will fall between the hours of <strong>${esc(o.schedule||'__________')}</strong>, subject to workload.</p><p class="section-title">Benefits</p><p>You will become eligible for company sponsored insurance benefits after 60 days of employment, in accordance with plan terms.</p><p class="section-title">Training Investment</p><p>As part of our commitment to employee development, Goff Welding LLC may sponsor training programs. If you voluntarily resign within one (1) year of completing any company sponsored training, you agree to reimburse the company for the actual cost of such training.</p><p class="section-title">Employment Relationship</p><p>Your employment with Goff Welding LLC is at will, meaning that either you or the company may terminate the employment relationship at any time, with or without cause or notice.</p><p class="section-title">Offer Validity</p><p>This offer is valid for <strong>${esc(o.validityDays||'30')}</strong> calendar days from the date of this letter. If we do not receive your signed acceptance within this timeframe, the offer may be withdrawn.</p><p>We look forward to having you join the Goff Welding LLC team and believe you will find this opportunity both challenging and rewarding!</p><p>Sincerely,</p><div class="siggrid"><div><div class="line">${esc(o.coreMember1||'Core Member 1')}</div></div><div><div class="line">${esc(o.coreMember2||'Core Member 2')}</div></div></div><p style="margin-top:36px">I, <strong>${esc(candidate)}</strong>, have read and understand the provisions of this offer of employment and accept the above conditional job offer.</p><div class="siggrid"><div><div class="line">Candidate Signature</div></div><div><div class="line">Date</div></div><div><div class="line">Candidate Printed Name</div></div></div></main></body></html>`; }
-function previewOfferLetter(){ const x=c(); const html=offerLetterHTML(x); const missing=offerMissing(x); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card wide"><h3>Actual offer letter preview</h3><p>${missing.length?`Missing before send: ${missing.join(', ')}`:'All required offer fields are present.'}</p><iframe class="doc-preview" srcdoc="${esc(html)}"></iframe><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="printOfferLetter()">Print / Save PDF</button><button class="btn brand" onclick="downloadOfferLetterDoc()">Download .doc</button></div></div>`; }
+function previewOfferLetter(){ syncOfferFromForm(); const x=c(); const html=offerLetterHTML(x); const missing=offerMissing(x); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card wide"><h3>Actual offer letter preview</h3><p>${missing.length?`Missing before send: ${missing.join(', ')}`:'All required offer fields are present.'}</p><iframe class="doc-preview" srcdoc="${esc(html)}"></iframe><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="printOfferLetter()">Print / Save PDF</button><button class="btn brand" onclick="downloadOfferLetterDoc()">Download .doc</button></div></div>`; }
 function downloadFile(filename, content, type='text/plain'){ const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0); }
 function safeFileName(s){ return String(s||'candidate').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'candidate'; }
-function downloadOfferLetterDoc(){ const x=c(); const html=offerLetterHTML(x,true); downloadFile(`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`, html, 'application/msword'); x.timeline.push('Generated offer letter document download'); save(); }
-function printOfferLetter(){ const w=window.open('', '_blank'); w.document.write(offerLetterHTML(c(), true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
+function downloadOfferLetterDoc(){ syncOfferFromForm(); const x=c(); const html=offerLetterHTML(x,true); downloadFile(`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`, html, 'application/msword'); x.offer.generatedAt=nowISO(); x.timeline.push('Generated offer letter document download'); save(); render(); }
+function printOfferLetter(){ syncOfferFromForm(); const x=c(); x.offer.generatedAt=nowISO(); x.timeline.push('Offer letter opened for print / PDF'); save(); const w=window.open('', '_blank'); w.document.write(offerLetterHTML(x, true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
 function showOfferPacket(){ previewOfferLetter(); }
 function previewTemplate(name){
   const body = TEMPLATE_TEXT[name];

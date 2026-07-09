@@ -639,3 +639,8 @@ details.collapse-panel > summary h3{margin:0}
 .modal-card .draft-tpl-label{display:block;font-weight:700;margin:0 32px 6px}
 .modal-card .stage-select.draft-tpl{width:calc(100% - 64px);margin:0 32px 12px}
 @media(max-width:760px){.modal-card .draft-tpl-label{margin-left:22px;margin-right:22px}.modal-card .stage-select.draft-tpl{width:calc(100% - 44px);margin-left:22px;margin-right:22px}}
+
+/* Offer SOP checklist — steps check themselves off as the work happens */
+.steps .step.done{background:#f0f8f2;border-left:4px solid var(--green)}
+.steps .step.done b{color:var(--green)}
+.steps .step .step-btn{margin-top:8px;padding:6px 12px;font-size:12px;box-shadow:none;border:1px solid var(--line)}
