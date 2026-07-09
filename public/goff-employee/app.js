@@ -2318,25 +2318,21 @@ function opsToast(label){
   const old=document.querySelector('.toast'); if(old) old.remove();
   const t=document.createElement('div'); t.className='toast'; t.textContent=label; document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
 }
-// Real in-portal send — same as the recruiting side's offer email. Sending
-// the welcome IS the milestone: the server stamps 'welcome' on success.
-async function sendWelcomeEmail(serverId){
+// Welcome email goes out via Gmail compose — the team sends from their own
+// careers@ account, never a stoke-ai address. Opening Gmail marks the
+// milestone (same rule as recruiting's stage emails).
+function sendWelcomeEmail(serverId){
   const e = serverEmployees.find(x => String(x.serverId) === String(serverId)); if(!e) return;
   const ta = document.getElementById('welcomeText');
   const msg = ta ? ta.value.trim() : '';
   if(!msg){ opsToast('Welcome message is empty'); return; }
   if(!e.email){ opsToast('No email on this employee record'); return; }
-  if(!window.confirm(`Email this welcome message to ${e.name} <${e.email}> now?`)) return;
-  try{
-    const r = await fetch('/api/goff-portal/welcome-email', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: serverId, message: msg }) });
-    const data = await r.json().catch(()=>({}));
-    if(!r.ok){ opsToast(data.error || 'Send failed — copy the message and send from Gmail'); return; }
-    e.milestones = e.milestones || {}; e.milestones.welcome = new Date().toISOString();
-    const v = milestoneView(e.milestones);
-    e.stage=v.stage; e.progress=v.progress; e.blocked=v.blocked; e.next=v.next;
-    render();
-    opsToast('Welcome email sent ✉ — milestone marked');
-  }catch(_){ opsToast('Send failed — copy the message and send from Gmail'); }
+  const m = msg.match(/^Subject:\s*(.+?)\n+([\s\S]*)$/);
+  const subject = m ? m[1].trim() : 'Welcome to Goff Welding — Start Here';
+  const body = m ? m[2] : msg;
+  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(e.email)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body), '_blank', 'noopener');
+  markEmployeeMilestone(serverId, 'welcome', true);
+  opsToast('Gmail opened — hit Send');
 }
 function copyEmployeeAsset(text, label){
   navigator.clipboard?.writeText(text);
@@ -2417,8 +2413,8 @@ function employeeDetail(){
   </section>
   ${trainingPanelFor(e)}
   <section class="panel"><p class="eyebrow">Their portal</p><h2>Employee link &amp; welcome message</h2>
-    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link. Edit the message below if you like, then send — the "Welcome link sent" milestone marks itself.</p>
-    <div class="admin-actions" style="margin:0 0 4px"><button onclick="sendWelcomeEmail('${esc(e.serverId)}')">✉ Email welcome to ${esc(e.name.split(' ')[0])}</button><button class="secondary" onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy instead</button></div>
+    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link. Edit the message below if you like, then send from Gmail (it opens pre-filled from your careers@ account) — the "Welcome link sent" milestone marks itself.</p>
+    <div class="admin-actions" style="margin:0 0 4px"><button onclick="sendWelcomeEmail('${esc(e.serverId)}')">✉ Send welcome in Gmail</button><button class="secondary" onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy instead</button></div>
     <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a> <button class="secondary" style="border:1px solid #ddd;padding:6px 12px;font-size:12px" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">⧉ Copy link</button></p>
     <textarea id="welcomeText" style="width:100%;min-height:220px;margin-top:14px;border:1px solid var(--line);border-radius:5px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px">${esc(employeeWelcomeText(e))}</textarea>
   </section>

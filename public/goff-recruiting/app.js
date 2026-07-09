@@ -1520,7 +1520,7 @@ function offerStrip(x){
     ['details','Offer details', offerMissing(x).length===0, 'Open the offer details form'],
     ['generate','Letter generated', !!o.generatedAt, 'Generate the letter (.doc download)'],
     ['route','Signature sent', !!o.signaturesRouted, 'Mark the letter sent for signatures in DocHub'],
-    ['send','Sent to candidate', OFFER_SENT_STAGES.includes(x.stage), 'Email the offer to the candidate'],
+    ['send','Sent to candidate', OFFER_SENT_STAGES.includes(x.stage), 'Send the offer from Gmail (letter downloads to attach)'],
     ['accept','Accepted', OFFER_ACCEPTED_STAGES.includes(x.stage), 'Record that the candidate accepted'],
   ];
   return `<div class="side-checks"><span class="side-checks-label">Offer</span>${items.map(([step,label,done,hint])=>`<button class="side-check ${done?'done':''}" title="${done?'Done — click for details':hint}" onclick="offerPillClick('${step}')">${done?'✓':'○'} ${label}</button>`).join('')}</div>`;
@@ -2027,7 +2027,7 @@ function offerBuilderSection(x){
             next==='fields'?'fill in the required fields on the left.':
             next==='generate'?'generate the letter — Download .doc or Print/PDF.':
             next==='route'?'upload the letter to DocHub, send it for signatures, then mark it sent.':
-            next==='send'?'email the offer to the candidate (attaches the letter).':
+            next==='send'?'send from Gmail — the letter downloads first; attach it before hitting Send.':
             'the offer is with the candidate — record their answer on their candidate page.'}</div>
           <button class="btn" onclick="previewOfferLetter()">Preview letter →</button>
           <div class="offer-actions-row">
@@ -2035,7 +2035,7 @@ function offerBuilderSection(x){
             <button class="btn ${next==='generate'?'primary':(genDone?'done-action':'')}" onclick="printOfferLetter()">${genDone?'✓ ':''}Print / Save PDF</button>
           </div>
           <button class="btn ${next==='route'?'primary':(sigDone?'done-action':'')}" onclick="toggleSignaturesRouted()">${sigDone?'✓ Signature sent via DocHub':'Mark signature sent (DocHub)'}</button>
-          <button class="btn ${next==='send'?'primary':(sentDone?'done-action':'')}" onclick="emailOfferLetter()">${sentDone?'✓ Offer sent':'✉ Email offer letter to candidate'}</button>
+          <button class="btn ${next==='send'?'primary':(sentDone?'done-action':'')}" onclick="emailOfferLetter()">${sentDone?'✓ Offer sent':'✉ Send offer in Gmail (letter attaches)'}</button>
           ${sentDone
             ? `<button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Record their answer ↑</button>`
             : `<button class="btn" onclick="markOfferSent()">I sent it myself — mark offer sent</button>`}`;
@@ -2097,31 +2097,29 @@ function updateOfferLive(){
   const banner=document.getElementById('offerBanner'); if(banner) banner.innerHTML=offerBannerHTML(offerMissingOf(merged));
   const steps=document.getElementById('offerChecklist'); if(steps) steps.innerHTML=offerStepsHTML(merged, x);
 }
-// Real in-portal send: the portal emails the candidate with the generated
-// letter attached (Gmail compose links can't carry attachments). Guarded the
-// same way as marking sent — complete fields + a freshly generated letter.
-async function emailOfferLetter(){
+// Offer email goes out via Gmail compose — Goff sends from their own
+// careers@ Google Workspace account, never a stoke-ai address. Gmail URLs
+// can't carry attachments, so the flow is: fresh letter downloads, Gmail
+// opens pre-filled, the recruiter attaches the file and hits Send.
+function emailOfferLetter(){
   syncOfferFromForm();
   const x=c();
   const missing=offerMissing(x);
   if(missing.length){ showToast(`Fill the ${missing.length} missing field${missing.length===1?'':'s'} first`); render(); return; }
-  if(!x.offer.generatedAt){ showToast('Generate the letter first (Download .doc or Print/PDF) so the attached copy matches'); return; }
   if(!x.email){ showToast('No email on file for this candidate'); return; }
-  if(!window.confirm(`Email the offer letter to ${x.first} ${x.last} <${x.email}> now?`)) return;
+  // Always download a fresh copy so the attached letter matches the form.
   const html=offerLetterHTML(x,true);
-  const b64=btoa(unescape(encodeURIComponent(html)));
-  try{
-    const r=await fetch('/api/goff-recruiting/offer-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:x.email,candidate:`${x.first} ${x.last}`,role:x.role,attachment:b64,filename:`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`})});
-    const data=await r.json().catch(()=>({}));
-    if(!r.ok){ showToast(data.error||'Send failed — download and email it from Gmail instead'); return; }
-    x.timeline.push(`Offer letter emailed to ${x.email} (letter attached)`);
-    x.emailedStages=x.emailedStages||[];
-    if(!x.emailedStages.includes(x.stage)) x.emailedStages.push(x.stage);
-    save();
-    // Sending the offer IS the stage change — the rail follows the work.
-    if(['Offer letter info request','Offer letter draft'].includes(x.stage)){ setStage('Offer sent / follow-up'); } else { render(); }
-    showToast('Offer letter sent ✉ — mark offer sent when you are ready');
-  }catch(_){ showToast('Send failed — download and email it from Gmail instead'); }
+  downloadFile(`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`, html, 'application/msword');
+  x.offer.generatedAt=nowISO();
+  const subject=`Your Offer Letter — Goff Welding (${x.role})`;
+  const body=`Hi ${x.first},\n\nCongratulations! Attached is your official offer letter from Goff Welding for the ${x.role} position.\n\nPlease review, sign, and return it — and reply to this email with any questions.\n\nWe're excited to have you join the team.\n\nGoff Welding Hiring Team\n531 W 100 S #24, Paul, ID 83347\n(208) 647-2488`;
+  openUrl('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(x.email)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body), true);
+  x.timeline.push('Offer email opened in Gmail (letter downloaded for attaching)');
+  x.emailedStages=x.emailedStages||[];
+  if(!x.emailedStages.includes(x.stage)) x.emailedStages.push(x.stage);
+  save();
+  showToast('Letter downloaded ⬇ — ATTACH it in Gmail, then hit Send');
+  if(['Offer letter info request','Offer letter draft'].includes(x.stage)){ setStage('Offer sent / follow-up'); } else { render(); }
 }
 function markOfferSent(){
   syncOfferFromForm();
