@@ -559,7 +559,7 @@ function applyCandidateFilters(list){
   const filtered = list.filter(x => {
     // Finalists (offer/clearance stages) graduate out of the Candidates list —
     // they live in the Finalists section. 'All' still shows everyone.
-    if(f.group === 'active' && (!isActive(x) || OFFER_QUEUE_STAGES.includes(x.stage))) return false;
+    if(f.group === 'active' && (!isActive(x) || OFFER_QUEUE_STAGES.includes(x.stage) || isHired(x))) return false;
     if(f.group === 'disposition' && isActive(x)) return false;
     if(f.group === 'finalists' && !OFFER_QUEUE_STAGES.includes(x.stage)) return false;
     if(f.path === 'welder' && !isWelderPath(x)) return false;
@@ -784,7 +784,7 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}<span class="nav-label">Pipeline — application to hire</span>${nav('candidates','Candidates')}${nav('manager','Manager review')}${nav('offers','Finalists')}<span class="nav-label">Hiring tools</span>${nav('positions','Open Positions')}${nav('intake','Add candidate')}${nav('templates','Templates')}<span class="nav-label">Reference</span>${nav('workflow','Full workflow')}${nav('how-it-works','How to use it')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}<span class="nav-label">Pipeline — application to hire</span>${nav('candidates','Candidates')}${nav('manager','Manager review')}${nav('offers','Finalists')}${nav('newhires','New Hires')}<span class="nav-label">Hiring tools</span>${nav('positions','Open Positions')}${nav('intake','Add candidate')}${nav('templates','Templates')}<span class="nav-label">Reference</span>${nav('workflow','Full workflow')}${nav('how-it-works','How to use it')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
@@ -795,12 +795,12 @@ function page(){
   // a friendly empty state instead of crashing.
   if(view==='offer') view='candidate'; // offer builder is embedded in the candidate page now
   if(['candidate','manager'].includes(view) && !c()) return emptyPipeline();
-  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,positions:positionsView,manager,offers:offersQueue,workflow,templates,'how-it-works':howItWorks}[view] || dashboard)();
+  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,positions:positionsView,manager,offers:offersQueue,newhires:newHires,workflow,templates,'how-it-works':howItWorks}[view] || dashboard)();
 }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
   const austinDecisions = candidates.filter(needsHiringManager);
-  const hired = candidates.filter(x => x.stage==='Transition to onboarding workflow');
+  const hired = candidates.filter(isHired);
   const stale = candidates.filter(x => isActive(x) && agingLevel(x)==='stale' && !needsHiringManager(x) && !hired.includes(x));
   const aging = candidates.filter(x => isActive(x) && agingLevel(x)==='aging' && !needsHiringManager(x) && !hired.includes(x));
   const quintonsQueue = candidates.filter(x => isActive(x) && !needsHiringManager(x) && !stale.includes(x) && !aging.includes(x) && !hired.includes(x));
@@ -820,7 +820,7 @@ function dashboard(){
     <div class="metric" onclick="view='manager';render()" style="cursor:pointer"><span>Decisions needed</span><b>${austinDecisions.length}</b></div>
     <div class="metric" onclick="view='offers';render()" style="cursor:pointer"><span>Finalists</span><b>${finalists.length}</b></div>
     <div class="metric"><span>Needs attention</span><b>${stale.length + aging.length}</b></div>
-    <div class="metric"><span>Hired</span><b>${hired.length}</b></div>
+    <div class="metric" onclick="view='newhires';render()" style="cursor:pointer"><span>Hired</span><b>${hired.length}</b></div>
   </div>
   ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on a hiring-lead call.' : `${austinDecisions.length} candidates are waiting on a hiring-lead call.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>No decisions waiting right now.</h3><p class="muted">The recruiting queue is moving. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
 
@@ -829,7 +829,7 @@ function dashboard(){
   <section class="panel funnels"><div class="section-head"><div><div class="eyebrow">Pipeline by path</div><h3>From applied to hired.</h3></div><button class="btn" onclick="view='workflow';render()">View full workflow</button></div>${funnelHTML('Welder path — fabricators &amp; fitters', welderCandidates)}${funnelHTML('Other roles — foreman, inventory, procurement, helper', otherCandidates)}</section>
 
   <section class="panel"><div class="section-head"><div><div class="eyebrow">In motion</div><h3>${quintonsQueue.length === 1 ? '1 candidate moving normally.' : `${quintonsQueue.length} candidates moving normally.`}</h3></div></div>${quintonsQueue.length ? `<div class="queue">${quintonsQueue.map(card).join('')}</div>` : `<p class="muted">Nothing else in motion. Add a candidate from the Intake screen.</p>`}</section>
-  ${hired.length ? `<section class="panel"><div class="section-head"><div><div class="eyebrow">Hired 🎉</div><h3>${hired.length === 1 ? '1 new hire in onboarding.' : `${hired.length} new hires in onboarding.`}</h3></div><button class="btn" onclick="window.open('/goff-employee/?section=ops','_blank','noopener')">Open onboarding admin</button></div><div class="queue">${hired.map(card).join('')}</div></section>` : ''}
+  ${hired.length ? `<section class="panel"><div class="section-head"><div><div class="eyebrow">Hired 🎉</div><h3>${hired.length === 1 ? '1 new hire in onboarding.' : `${hired.length} new hires in onboarding.`}</h3></div><button class="btn" onclick="view='newhires';render()">Open New Hires →</button></div><div class="queue">${hired.map(card).join('')}</div></section>` : ''}
 
   ${recentActivityPanel()}`;
 }
@@ -1579,7 +1579,7 @@ function candidate(){
     </div>
     ${showClearance ? offerStrip(x)+clearanceStrip(x) : sideChecks(x)}
   </section>
-  ${OFFER_QUEUE_STAGES.includes(x.stage) ? offerBuilderSection(x) : ''}
+  ${(OFFER_QUEUE_STAGES.includes(x.stage) || isHired(x)) ? offerBuilderSection(x) : ''}
   ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
   ${notesPanel(x)}
   <section class="panel" style="margin-top:16px">
@@ -1927,7 +1927,9 @@ function manager(){
 // candidate's offer builder. (Previously the nav item silently opened the
 // builder for whichever candidate happened to be selected last — with several
 // offers in flight there was no way to see or switch between them.)
-const OFFER_QUEUE_STAGES = ['Offer letter info request','Offer letter draft','Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
+const OFFER_QUEUE_STAGES = ['Offer letter info request','Offer letter draft','Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day'];
+const HIRED_STAGE = 'Transition to onboarding workflow';
+function isHired(x){ return x.stage === HIRED_STAGE; }
 function offerStatusSummary(x){
   const o=x.offer||{};
   const missing=offerMissing(x);
@@ -1938,6 +1940,23 @@ function offerStatusSummary(x){
   if(x.stage==='Offer accepted - clearance hold') return clearanceReady(x) ? {label:'Cleared — move to onboarding', cls:'green'} : {label:'Accepted — clearance in progress', cls:'amber'};
   if(x.stage==='Transition to onboarding workflow') return {label:'Hired — onboarding in the employee portal', cls:'green'};
   return {label:'In motion', cls:'green'};
+}
+// New Hires — people who finished recruiting. Their onboarding runs in the
+// employee portal; this queue is the recruiting-side roster + quick links.
+function newHires(){
+  const hires = candidates.filter(isHired).slice().sort((a,b)=>String(b.stageUpdatedAt||'').localeCompare(String(a.stageUpdatedAt||'')));
+  if(!hires.length) return `${head('New Hires','Nobody has crossed the finish line yet. When a finalist clears checks and moves to onboarding, they land here.',`<button class="btn ghost" onclick="view='offers';render()">← Finalists</button>`)}
+    <section class="panel"><div class="notice"><strong>No new hires yet.</strong><br>Finalists graduate here the moment you click "Move to onboarding".</div></section>`;
+  return `${head('New Hires',`${hires.length} hire${hires.length===1?'':'s'} — recruiting is done; onboarding runs in the employee portal.`,`<button class="btn primary" onclick="window.open('/goff-employee/?section=ops','_blank','noopener')">Open onboarding admin →</button>`)}
+  <div class="offer-queue">${hires.map(x=>{
+    const o=x.offer||{};
+    return `<section class="panel offer-queue-row" onclick="selectedId=${x.id};view='candidate';render()">
+      <div class="oq-who"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)}</small></div>
+      <div class="oq-stage"><span class="tag green">Hired 🎉</span><small class="muted">Start: ${esc(o.startDate?fmtDateUS(o.startDate):'TBD')} · Supervisor: ${esc(o.supervisor||'TBD')}</small></div>
+      <div class="oq-status"><span class="tag dark">Onboarding in employee portal</span></div>
+      <span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" onclick="event.stopPropagation();selectedId=${x.id};copyToClipboard(fullEmployeePortalUrl(candidates.find(cc=>cc.id===${x.id})))">Copy employee link</button><button class="btn primary" onclick="event.stopPropagation();selectedId=${x.id};view='candidate';render()">Open record →</button></span>
+    </section>`;
+  }).join('')}</div>`;
 }
 function offersQueue(){
   const queue = candidates.filter(x=>OFFER_QUEUE_STAGES.includes(x.stage));
