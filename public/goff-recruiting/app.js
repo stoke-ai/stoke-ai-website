@@ -1730,9 +1730,20 @@ function offerFormValues(){
   if(!el('offerDate')) return null;
   return { date:el('offerDate').value, startDate:el('offerStart').value, supervisor:el('offerSupervisor').value, employmentType:el('offerEmploymentType').value, pay:el('offerPay').value, minHours:el('offerMinHours').value, schedule:el('offerSchedule').value, validityDays:el('offerValidity').value||'30', notes:el('offerNotes').value };
 }
+const OFFER_LETTER_FIELDS = ['date','startDate','supervisor','employmentType','pay','minHours','schedule','validityDays'];
+function offerLetterFieldsChanged(o, vals){ return OFFER_LETTER_FIELDS.some(k=>String((o||{})[k]||'')!==String(vals[k]||'')); }
 function syncOfferFromForm(){
   const vals=offerFormValues(); if(!vals) return;
   const x=c();
+  // Changing anything that appears IN the letter invalidates a previously
+  // generated file — step 3 un-checks and forces a re-download so the signed
+  // copy can't silently drift from what's in the system. Internal notes
+  // don't appear in the letter, so they don't invalidate it.
+  if(x.offer.generatedAt && offerLetterFieldsChanged(x.offer, vals)){
+    x.offer.generatedAt=null;
+    x.offer.signaturesRouted=false;
+    x.timeline.push('Offer details changed after letter was generated — regenerate before sending');
+  }
   x.offer={...x.offer, ...vals};
   save();
 }
@@ -1753,6 +1764,7 @@ function toggleSignaturesRouted(){ const x=c(); x.offer.signaturesRouted=!x.offe
 function updateOfferLive(){
   const vals=offerFormValues(); if(!vals) return;
   const x=c(); const merged={...x.offer, ...vals};
+  if(merged.generatedAt && offerLetterFieldsChanged(x.offer, vals)){ merged.generatedAt=null; merged.signaturesRouted=false; }
   const banner=document.getElementById('offerBanner'); if(banner) banner.innerHTML=offerBannerHTML(offerMissingOf(merged));
   const steps=document.getElementById('offerChecklist'); if(steps) steps.innerHTML=offerStepsHTML(merged, x);
 }
@@ -1771,7 +1783,7 @@ function previewOfferLetter(){ syncOfferFromForm(); const x=c(); const html=offe
 function downloadFile(filename, content, type='text/plain'){ const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0); }
 function safeFileName(s){ return String(s||'candidate').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'candidate'; }
 function downloadOfferLetterDoc(){ syncOfferFromForm(); const x=c(); const html=offerLetterHTML(x,true); downloadFile(`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`, html, 'application/msword'); x.offer.generatedAt=nowISO(); x.timeline.push('Generated offer letter document download'); save(); render(); }
-function printOfferLetter(){ syncOfferFromForm(); const x=c(); x.offer.generatedAt=nowISO(); x.timeline.push('Offer letter opened for print / PDF'); save(); const w=window.open('', '_blank'); w.document.write(offerLetterHTML(x, true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
+function printOfferLetter(){ syncOfferFromForm(); const x=c(); x.offer.generatedAt=nowISO(); x.timeline.push('Offer letter opened for print / PDF'); save(); render(); const w=window.open('', '_blank'); w.document.write(offerLetterHTML(x, true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
 function showOfferPacket(){ previewOfferLetter(); }
 function previewTemplate(name){
   const body = TEMPLATE_TEXT[name];
