@@ -2242,36 +2242,62 @@ function copyEmployeeAsset(text, label){
   const old=document.querySelector('.toast'); if(old) old.remove();
   const t=document.createElement('div'); t.className='toast'; t.textContent=label; document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
 }
-// Full detail for one hire — everything Quinton needs about this person in
-// one place: contact, milestones, their portal link, the welcome message.
+// Full detail for one hire — laid out like the recruiting candidate page:
+// contact strip, milestone rail, a NOW block saying what to do, one primary
+// action. Same mental model on both sides of the portal.
+const MILESTONE_DESC = {
+  welcome: 'Send their private portal link with the welcome message below.',
+  bbsi: 'Confirm the BBSI/myBBSI invite is complete — or resend it and follow up.',
+  training: 'They work the orientation + safety training path inside their portal.',
+  handoff: 'Supervisor confirms the first assignment and day-one expectations.',
+  checkin30: 'Sit down at 30 days: forms, timekeeping, safety questions, tools, expectations.',
+};
 function employeeDetail(){
   const e = serverEmployees.find(x => String(x.serverId) === String(selectedEmployeeId));
   if(!e) return `<section class="panel"><p class="eyebrow">New hire</p><h2>${serverEmployeesLoaded ? 'Hire not found' : 'Loading…'}</h2><p>${serverEmployeesLoaded ? 'This record may have been removed.' : 'Fetching the onboarding queue.'}</p><div class="admin-actions"><button onclick="nav('ops')">← Back to the board</button></div></section>`;
-  const view = milestoneView(e.milestones || {});
+  const ms = e.milestones || {};
+  const view = milestoneView(ms);
+  const nextItem = EMP_MILESTONES.find(([k]) => !ms[k]);
+  const nextIdx = nextItem ? EMP_MILESTONES.findIndex(([k]) => k === nextItem[0]) : EMP_MILESTONES.length;
   const link = employeePortalLinkFor(e);
-  return `<section class="panel"><p class="eyebrow">New hire — onboarding</p><h2>${esc(e.name)}</h2><p class="summary">${esc(e.role)} · reports to ${esc(e.supervisor)} · starts ${esc(e.start)}</p>
-    <div class="handoff">
-      <div><span>Email</span><b>${e.email ? `<a href="mailto:${esc(e.email)}">${esc(e.email)}</a>` : '—'}</b></div>
-      <div><span>Phone</span><b>${e.phone ? `<a href="tel:${esc(e.phone)}">${esc(e.phone)}</a>` : '—'}</b></div>
-      <div><span>Status</span><b>${esc(view.done)}/${EMP_MILESTONES.length} milestones · ${esc(view.progress)}%</b></div>
+  return `<div class="topbar-lite"><div><p class="eyebrow">Onboarding — new hire</p><h2 style="font-family:'Playfair Display',serif;font-size:clamp(34px,5vw,48px);line-height:1.02;margin:0 0 8px;letter-spacing:-.025em">${esc(e.name)}</h2><p style="color:#666;margin:0">${esc(e.role)} · reports to ${esc(e.supervisor)}</p></div><button class="secondary" style="border:1px solid #ddd;flex:0 0 auto" onclick="nav('ops')">← Back to the board</button></div>
+  <section class="panel emp-hero">
+    <div class="emp-contact">
+      ${e.email ? `<a href="mailto:${esc(e.email)}">✉ ${esc(e.email)}</a>` : ''}
+      ${e.phone ? `<a href="tel:${esc(e.phone)}">☎ ${esc(e.phone)}</a>` : ''}
+      <span>🗓 Starts ${esc(e.start)}</span>
     </div>
-    <div class="bar"><i style="width:${esc(view.progress)}%"></i></div>
-    <div class="ms-pills">${EMP_MILESTONES.map(([k,label])=>{const done=!!(e.milestones&&e.milestones[k]);return `<button class="ms-pill ${done?'done':''}" title="${done?'Done — click to undo':'Click when done'}" onclick="event.stopPropagation();markEmployeeMilestone('${esc(e.serverId)}','${k}',${done?'false':'true'})">${done?'✓':'○'} ${esc(label)}</button>`;}).join('')}</div>
-    <p class="note" style="margin-top:14px"><strong>Next action:</strong> ${esc(view.next)}</p>
+    <div class="ms-rail">${EMP_MILESTONES.map(([k,label],i)=>{
+      const done=!!ms[k];
+      const state = done?'done':(i===nextIdx?'now':'');
+      return `<button class="ms-pill ${state}" title="${done?'Done — click to undo':'Click when done'}" onclick="markEmployeeMilestone('${esc(e.serverId)}','${k}',${done?'false':'true'})">${done?'✓':(i===nextIdx?'●':'○')} ${esc(label)}</button>`;
+    }).join('')}</div>
+    <div class="emp-now">
+      <div>
+        <p class="eyebrow" style="margin:0 0 6px">Now</p>
+        <h3 style="font-family:'Playfair Display',serif;font-size:26px;margin:0 0 6px">${nextItem ? esc(nextItem[1]) : 'Onboarding complete 🎉'}</h3>
+        <p style="color:#666;margin:0">${nextItem ? esc(MILESTONE_DESC[nextItem[0]]||'') : 'Fully onboarded — the portal is now their everyday home.'}</p>
+      </div>
+      <div class="emp-stats">
+        <div><span>Progress</span><strong>${esc(view.done)}/${EMP_MILESTONES.length} · ${esc(view.progress)}%</strong></div>
+        <div><span>Start date</span><strong>${esc(e.start)}</strong></div>
+      </div>
+    </div>
+    <div class="bar" style="margin:14px 0 6px"><i style="width:${esc(view.progress)}%"></i></div>
+    <div class="admin-actions" style="margin-top:14px">
+      ${nextItem ? `<button onclick="markEmployeeMilestone('${esc(e.serverId)}','${nextItem[0]}',true)">✓ Mark "${esc(nextItem[1])}" done</button>` : ''}
+      <button class="secondary" onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy welcome message</button>
+      <button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
+    </div>
   </section>
   <section class="panel"><p class="eyebrow">Their portal</p><h2>Employee link &amp; welcome message</h2>
-    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link — send it with the welcome message below.</p>
-    <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a></p>
-    <div class="admin-actions">
-      <button onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy welcome message</button>
-      <button class="secondary" style="border-color:#ddd" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">Copy link only</button>
-      <button class="secondary" style="border-color:#ddd" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
-    </div>
+    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link — send it with the welcome message below, then mark "Welcome link sent" above.</p>
+    <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a> <button class="secondary" style="border:1px solid #ddd;padding:6px 12px;font-size:12px" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">⧉ Copy link</button></p>
     <textarea id="welcomeText" style="width:100%;min-height:220px;margin-top:14px;border:1px solid var(--line);border-radius:5px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px">${esc(employeeWelcomeText(e))}</textarea>
   </section>
   <section class="panel"><p class="eyebrow">History</p><h2>Where the full story lives</h2>
     <p>Their complete recruiting record — application answers, notes, offer, clearance, timeline — is on the recruiting side under <strong>New Hires</strong>.</p>
-    <div class="admin-actions"><button class="secondary" style="border-color:#ddd" onclick="window.open('/goff-recruiting/?view=newhires','_blank','noopener')">Open New Hires →</button><button onclick="nav('ops')">← Back to the board</button></div>
+    <div class="admin-actions"><button class="secondary" onclick="window.open('/goff-recruiting/?view=newhires','_blank','noopener')">Open New Hires →</button><button onclick="nav('ops')">← Back to the board</button></div>
   </section>`;
 }
 function adminNavBtn(id,label){ return `<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`; }
