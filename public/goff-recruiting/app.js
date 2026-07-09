@@ -519,7 +519,7 @@ function recentActivityPanel(){
   if (!ranked.length) return '';
   return `<section class="panel"><div class="section-head"><div><div class="eyebrow">Recent activity</div><h3>What changed lately.</h3></div></div>
     <div class="activity-list">${ranked.map(r => `<button class="activity-row" onclick="selectedId=${r.x.id};view='candidate';render()">
-      <div class="activity-row-id"><strong>${r.x.pinned ? '★ ' : ''}${esc(r.x.first)} ${esc(r.x.last)}</strong><small>${esc(r.x.stage)}</small></div>
+      <div class="activity-row-id"><strong>${r.x.pinned ? '★ ' : ''}${esc(r.x.first)} ${esc(r.x.last)}</strong><small>${esc(stageLabel(r.x.stage))}</small></div>
       <div class="activity-row-action">${esc(r.action)}</div>
       <div class="activity-row-time">${esc(formatRelativeShort(r.ts))}</div>
     </button>`).join('')}</div>
@@ -800,9 +800,13 @@ function page(){
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
   const austinDecisions = candidates.filter(needsHiringManager);
-  const stale = candidates.filter(x => isActive(x) && agingLevel(x)==='stale' && !needsHiringManager(x));
-  const aging = candidates.filter(x => isActive(x) && agingLevel(x)==='aging' && !needsHiringManager(x));
-  const quintonsQueue = candidates.filter(x => isActive(x) && !needsHiringManager(x) && !stale.includes(x) && !aging.includes(x));
+  const hired = candidates.filter(x => x.stage==='Transition to onboarding workflow');
+  const stale = candidates.filter(x => isActive(x) && agingLevel(x)==='stale' && !needsHiringManager(x) && !hired.includes(x));
+  const aging = candidates.filter(x => isActive(x) && agingLevel(x)==='aging' && !needsHiringManager(x) && !hired.includes(x));
+  const quintonsQueue = candidates.filter(x => isActive(x) && !needsHiringManager(x) && !stale.includes(x) && !aging.includes(x) && !hired.includes(x));
+  const finalists = candidates.filter(x => OFFER_QUEUE_STAGES.includes(x.stage) && x.stage!=='Transition to onboarding workflow');
+  const weekAgo = Date.now() - 7*24*60*60*1000;
+  const newThisWeek = candidates.filter(x => Number(x.id) > weekAgo).length;
 
   const welderCandidates = candidates.filter(x => isActive(x) && isWelderPath(x));
   const otherCandidates = candidates.filter(x => isActive(x) && !isWelderPath(x));
@@ -810,6 +814,14 @@ function dashboard(){
   const todaySummary = buildTodaySummary(austinDecisions, stale.length, aging.length);
 
   return `${head(`Today's hiring snapshot.`, todaySummary, `<button class="btn" onclick="view='intake';render()">Intake links</button><button class="btn primary" onclick="window.open(CAREERS_URL,'_blank','noopener')">Open careers page</button>`)}
+  <div class="metrics">
+    <div class="metric" onclick="view='candidates';render()" style="cursor:pointer"><span>New this week</span><b>${newThisWeek}</b></div>
+    <div class="metric" onclick="view='candidates';render()" style="cursor:pointer"><span>Active candidates</span><b>${quintonsQueue.length + stale.length + aging.length + austinDecisions.length}</b></div>
+    <div class="metric" onclick="view='manager';render()" style="cursor:pointer"><span>Decisions needed</span><b>${austinDecisions.length}</b></div>
+    <div class="metric" onclick="view='offers';render()" style="cursor:pointer"><span>Finalists</span><b>${finalists.length}</b></div>
+    <div class="metric"><span>Needs attention</span><b>${stale.length + aging.length}</b></div>
+    <div class="metric"><span>Hired</span><b>${hired.length}</b></div>
+  </div>
   ${austinDecisions.length ? `<section class="panel decisions"><div class="section-head"><div><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>${austinDecisions.length === 1 ? 'One candidate is waiting on a hiring-lead call.' : `${austinDecisions.length} candidates are waiting on a hiring-lead call.`}</h3></div></div><div class="decision-list">${austinDecisions.map(decisionCard).join('')}</div></section>` : `<section class="panel decisions-empty"><div class="eyebrow eyebrow-decisions">Decisions needed</div><h3>No decisions waiting right now.</h3><p class="muted">The recruiting queue is moving. ${(stale.length+aging.length) ? `${stale.length+aging.length} candidate${(stale.length+aging.length)===1?'':'s'} aging — see below.` : 'Pipeline is clean.'}</p></section>`}
 
   ${(stale.length || aging.length) ? `<section class="panel aging"><div class="section-head"><div><div class="eyebrow eyebrow-aging">Check before they go cold</div><h3>${stale.length ? `${stale.length} stale${aging.length ? `, ${aging.length} aging` : ''}.` : `${aging.length} aging.`}</h3></div></div><div class="aging-list">${stale.map(c => agingRow(c,'stale')).join('')}${aging.map(c => agingRow(c,'aging')).join('')}</div></section>` : ''}
@@ -817,6 +829,7 @@ function dashboard(){
   <section class="panel funnels"><div class="section-head"><div><div class="eyebrow">Pipeline by path</div><h3>From applied to hired.</h3></div><button class="btn" onclick="view='workflow';render()">View full workflow</button></div>${funnelHTML('Welder path — fabricators &amp; fitters', welderCandidates)}${funnelHTML('Other roles — foreman, inventory, procurement, helper', otherCandidates)}</section>
 
   <section class="panel"><div class="section-head"><div><div class="eyebrow">In motion</div><h3>${quintonsQueue.length === 1 ? '1 candidate moving normally.' : `${quintonsQueue.length} candidates moving normally.`}</h3></div></div>${quintonsQueue.length ? `<div class="queue">${quintonsQueue.map(card).join('')}</div>` : `<p class="muted">Nothing else in motion. Add a candidate from the Intake screen.</p>`}</section>
+  ${hired.length ? `<section class="panel"><div class="section-head"><div><div class="eyebrow">Hired 🎉</div><h3>${hired.length === 1 ? '1 new hire in onboarding.' : `${hired.length} new hires in onboarding.`}</h3></div><button class="btn" onclick="window.open('/goff-employee/?section=ops','_blank','noopener')">Open onboarding admin</button></div><div class="queue">${hired.map(card).join('')}</div></section>` : ''}
 
   ${recentActivityPanel()}`;
 }
@@ -838,7 +851,7 @@ function decisionCard(x){
   return `<article class="decision-card">
     <div class="decision-card-head">
       <div class="decision-card-id"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)} · from ${esc(x.source)} · Waiting ${esc(ageText)} on you</small></div>
-      <span class="tag red">${esc(x.stage)}</span>
+      <span class="tag red">${esc(stageLabel(x.stage))}</span>
     </div>
     <p class="decision-card-summary">${esc(x.summary)}</p>
     ${realConcern(x) ? `<div class="decision-card-concern"><strong>Concern:</strong> ${esc(realConcern(x))}</div>` : ''}
@@ -880,7 +893,7 @@ function bucketSnapshotRow(x){
   const meta = stageMeta(x.stage);
   return `<div class="bucket-snapshot-row" onclick="selectedId=${x.id};view='candidate';render()">
     <div><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)}</small></div>
-    <div class="bucket-snapshot-stage"><span class="tag dark">${esc(x.stage)}</span><small>Next: ${esc(meta.next || 'human decision')}</small></div>
+    <div class="bucket-snapshot-stage"><span class="tag dark">${esc(stageLabel(x.stage))}</span><small>Next: ${esc(meta.next || 'human decision')}</small></div>
   </div>`;
 }
 function funnelHTML(label, list){
@@ -910,7 +923,7 @@ function agingRow(x, level){
   const meta = stageMeta(x.stage);
   return `<div class="aging-row ${level}" onclick="selectedId=${x.id};view='candidate';render()">
     <div class="aging-row-id"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)} · ${esc(x.path)}</small></div>
-    <div class="aging-row-stage">${esc(x.stage)}<small>Next: ${esc(meta.next || 'human decision')}</small></div>
+    <div class="aging-row-stage">${esc(stageLabel(x.stage))}<small>Next: ${esc(meta.next ? stageLabel(meta.next) : 'human decision')}</small></div>
     <div class="aging-row-meta"><span class="aging-pill ${level}">${esc(stageAgeText(x))} in stage</span><small>Waiting on ${esc(x.owner)}</small></div>
   </div>`;
 }
@@ -923,7 +936,7 @@ function workflow(){
     ${stageDetailPanel()}
   </section>`;
 }
-function card(x){ return `<div class="candidate${x.pinned?' pinned':''}" onclick="selectedId=${x.id};view='candidate';render()"><div><strong>${x.pinned?'★ ':''}${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)} • ${esc(x.source)}</small><div class="tags"><span class="tag ${tag(x.priority)}">${esc(x.priority)}</span><span class="tag dark">${esc(x.stage)}</span><span class="tag ${tag(x.due)}">${esc(x.due)}</span><span class="tag">Waiting: ${esc(x.owner)}</span></div></div><span class="pill ${x.priority==='Hot'?'hot':String(x.due).includes('Today')?'today':'wait'}">Open</span></div>`; }
+function card(x){ return `<div class="candidate${x.pinned?' pinned':''}" onclick="selectedId=${x.id};view='candidate';render()"><div><strong>${x.pinned?'★ ':''}${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)} • ${esc(x.source)}</small><div class="tags"><span class="tag dark">${esc(stageLabel(x.stage))}</span><span class="tag ${tag(x.due)}">${esc(x.due)}</span><span class="tag">Waiting: ${esc(x.owner)}</span><span class="tag">${esc(stageAgeText(x))} in stage</span></div></div><span class="pill ${String(x.due).includes('Today')?'today':'wait'}">Open</span></div>`; }
 function stageTile(s){ const count=candidates.filter(x=>x.stage===s.id).length; return `<button class="pipe-step ${count?'has-candidate':''} ${selectedStage===s.id?'selected':''}" onclick="selectedStage='${esc(s.id)}';render()"><small>${s.group}</small><b>${s.id}</b><span>${s.template}</span><em>${count} candidate${count===1?'':'s'}</em></button>`; }
 function stageDetailPanel(){ const stage=selectedStage || WORKFLOW_STAGES[0].id; const meta=stageMeta(stage); const list=candidates.filter(x=>x.stage===stage); return `<div class="stage-detail"><div class="section-head compact"><div><h3>${esc(stage)}</h3><p class="muted">${list.length ? `${list.length} candidate${list.length===1?'':'s'} currently in this status.` : 'No candidates are currently in this status.'} Next step: ${esc(meta.next || 'human decision / complete')}</p></div><span class="tag dark">${esc(meta.template)}</span></div>${list.length ? `<div class="queue compact">${list.map(card).join('')}</div>` : `<div class="notice"><strong>Empty stage.</strong><br>When someone reaches ${esc(stage)}, they will appear here.</div>`}</div>`; }
 
@@ -1450,7 +1463,7 @@ function stageRail(x){
   return `<div class="stage-rail">${FUNNEL_BUCKETS.map((b,i)=>{
     const state = off ? 'todo' : (i<idx ? 'done' : (i===idx ? 'now' : 'todo'));
     return `<div class="rail-step ${state}"><span class="rail-dot">${state==='done'?'✓':(state==='now'?'●':'○')}</span><span class="rail-label">${b.label}</span></div>`;
-  }).join('')}${off ? `<span class="tag dark rail-off">${esc(x.stage)}</span>` : ''}</div>`;
+  }).join('')}${off ? `<span class="tag dark rail-off">${esc(stageLabel(x.stage))}</span>` : ''}</div>`;
 }
 // Checks that run alongside the main funnel rather than on it — the single
 // stage pointer can't show these, which is the one job the old evidence
