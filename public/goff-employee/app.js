@@ -2314,6 +2314,30 @@ function employeeWelcomeText(e){
   const url = employeePortalLinkFor(e);
   return `Subject: Welcome to Goff Welding — Start Here\n\nHi ${e.name.split(' ')[0]},\n\nWelcome to Goff Welding! Your first day is ${e.start || 'coming up'} and you'll report to ${e.supervisor}.\n\nYour next step is to complete your BBSI/myBBSI onboarding invite, then use your Goff employee portal below for first-day details, orientation, safety training, timekeeping (ExakTime), and company links.\n\nEmployee portal: ${url}\n\nSee you soon,\nGoff Welding`;
 }
+function opsToast(label){
+  const old=document.querySelector('.toast'); if(old) old.remove();
+  const t=document.createElement('div'); t.className='toast'; t.textContent=label; document.body.appendChild(t); setTimeout(()=>t.remove(),2200);
+}
+// Real in-portal send — same as the recruiting side's offer email. Sending
+// the welcome IS the milestone: the server stamps 'welcome' on success.
+async function sendWelcomeEmail(serverId){
+  const e = serverEmployees.find(x => String(x.serverId) === String(serverId)); if(!e) return;
+  const ta = document.getElementById('welcomeText');
+  const msg = ta ? ta.value.trim() : '';
+  if(!msg){ opsToast('Welcome message is empty'); return; }
+  if(!e.email){ opsToast('No email on this employee record'); return; }
+  if(!window.confirm(`Email this welcome message to ${e.name} <${e.email}> now?`)) return;
+  try{
+    const r = await fetch('/api/goff-portal/welcome-email', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: serverId, message: msg }) });
+    const data = await r.json().catch(()=>({}));
+    if(!r.ok){ opsToast(data.error || 'Send failed — copy the message and send from Gmail'); return; }
+    e.milestones = e.milestones || {}; e.milestones.welcome = new Date().toISOString();
+    const v = milestoneView(e.milestones);
+    e.stage=v.stage; e.progress=v.progress; e.blocked=v.blocked; e.next=v.next;
+    render();
+    opsToast('Welcome email sent ✉ — milestone marked');
+  }catch(_){ opsToast('Send failed — copy the message and send from Gmail'); }
+}
 function copyEmployeeAsset(text, label){
   navigator.clipboard?.writeText(text);
   const old=document.querySelector('.toast'); if(old) old.remove();
@@ -2387,20 +2411,18 @@ function employeeDetail(){
     <div class="bar" style="margin:14px 0 6px"><i style="width:${esc(view.progress)}%"></i></div>
     <div class="admin-actions" style="margin-top:14px">
       ${nextItem ? `<button onclick="markEmployeeMilestone('${esc(e.serverId)}','${nextItem[0]}',true)">✓ Mark "${esc(nextItem[1])}" done</button>` : ''}
-      <button class="secondary" onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy welcome message</button>
+      <button class="secondary" onclick="document.getElementById('welcomeText').scrollIntoView({behavior:'smooth',block:'center'})">✉ Send welcome ↓</button>
       <button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
     </div>
   </section>
   ${trainingPanelFor(e)}
   <section class="panel"><p class="eyebrow">Their portal</p><h2>Employee link &amp; welcome message</h2>
-    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link — send it with the welcome message below, then mark "Welcome link sent" above.</p>
+    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link. Edit the message below if you like, then send — the "Welcome link sent" milestone marks itself.</p>
+    <div class="admin-actions" style="margin:0 0 4px"><button onclick="sendWelcomeEmail('${esc(e.serverId)}')">✉ Email welcome to ${esc(e.name.split(' ')[0])}</button><button class="secondary" onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy instead</button></div>
     <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a> <button class="secondary" style="border:1px solid #ddd;padding:6px 12px;font-size:12px" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">⧉ Copy link</button></p>
     <textarea id="welcomeText" style="width:100%;min-height:220px;margin-top:14px;border:1px solid var(--line);border-radius:5px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px">${esc(employeeWelcomeText(e))}</textarea>
   </section>
-  <section class="panel"><p class="eyebrow">History</p><h2>Where the full story lives</h2>
-    <p>Their complete recruiting record — application answers, notes, offer, clearance, timeline — is on the recruiting side under <strong>New Hires</strong>.</p>
-    <div class="admin-actions"><button class="secondary" onclick="window.open('/goff-recruiting/?view=newhires','_blank','noopener')">Open New Hires →</button><button onclick="nav('ops')">← Back to the board</button></div>
-  </section>`;
+  <div class="admin-actions" style="margin-top:4px"><button class="secondary" onclick="nav('ops')">← Back to the board</button></div>`;
 }
 function adminNavBtn(id,label){ return `<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`; }
 function render(){
