@@ -78,11 +78,11 @@ function decisionActionsForStage(stage){
     { label: 'Pass', action: "setStage('Not selected')" },
   ];
   if(stage === 'Offer letter info request') return [
-    { label: 'Build offer letter', action: "view='offer';render()", primary: true },
+    { label: 'Build offer letter ↓', action: "scrollToOfferBuilder()", primary: true },
     { label: 'Pass', action: "setStage('Not selected')" },
   ];
   if(stage === 'Offer letter draft') return [
-    { label: 'Open offer builder', action: "view='offer';render()", primary: true },
+    { label: 'Open offer builder ↓', action: "scrollToOfferBuilder()", primary: true },
   ];
   if(stage === 'Offer sent / follow-up') return [
     { label: 'Offer accepted', action: "setStage('Offer accepted - clearance hold')", primary: true },
@@ -557,8 +557,11 @@ function updateCandidateSearch(value){
 function applyCandidateFilters(list){
   const f = candidateFilters;
   const filtered = list.filter(x => {
-    if(f.group === 'active' && !isActive(x)) return false;
+    // Finalists (offer/clearance stages) graduate out of the Candidates list —
+    // they live in the Finalists section. 'All' still shows everyone.
+    if(f.group === 'active' && (!isActive(x) || OFFER_QUEUE_STAGES.includes(x.stage))) return false;
     if(f.group === 'disposition' && isActive(x)) return false;
+    if(f.group === 'finalists' && !OFFER_QUEUE_STAGES.includes(x.stage)) return false;
     if(f.path === 'welder' && !isWelderPath(x)) return false;
     if(f.path === 'other' && isWelderPath(x)) return false;
     if(f.owner !== 'all' && x.owner !== f.owner) return false;
@@ -602,6 +605,7 @@ function candidateList(){
       <div class="filter-group">
         <span class="filter-label">Status</span>
         ${chipBtn('group','active','Active')}
+        ${chipBtn('group','finalists','Finalists')}
         ${chipBtn('group','disposition','Parked / rejected')}
         ${chipBtn('group','all','All')}
       </div>
@@ -780,7 +784,7 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('positions','Open Positions')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offers','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('positions','Open Positions')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offers','Finalists')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
@@ -789,8 +793,9 @@ function page(){
   if(isPublicCareersHost()) view = publicSafeView(view);
   // Candidate-detail views need a selected candidate; on an empty pipeline show
   // a friendly empty state instead of crashing.
-  if(['candidate','manager','offer'].includes(view) && !c()) return emptyPipeline();
-  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,positions:positionsView,manager,offer,offers:offersQueue,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)();
+  if(view==='offer') view='candidate'; // offer builder is embedded in the candidate page now
+  if(['candidate','manager'].includes(view) && !c()) return emptyPipeline();
+  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,positions:positionsView,manager,offers:offersQueue,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)();
 }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
@@ -1478,7 +1483,7 @@ function offerStrip(x){
     ['Sent to candidate', SENT.includes(x.stage)],
     ['Accepted', ACCEPTED.includes(x.stage)],
   ];
-  return `<div class="side-checks"><span class="side-checks-label">Offer</span>${items.map(([label,done])=>`<button class="side-check ${done?'done':''}" title="Open the offer builder" onclick="view='offer';render()">${done?'✓':'○'} ${label}</button>`).join('')}</div>`;
+  return `<div class="side-checks"><span class="side-checks-label">Offer</span>${items.map(([label,done])=>`<button class="side-check ${done?'done':''}" title="Jump to the offer builder below" onclick="scrollToOfferBuilder()">${done?'✓':'○'} ${label}</button>`).join('')}</div>`;
 }
 function clearanceStrip(x){
   const cl=x.clearance||{};
@@ -1530,10 +1535,11 @@ function candidate(){
       ${emailPending
         ? `<button class="btn primary" onclick="showDraft(c().stage)">✉ Send ${esc(meta.template)} email</button>${stageDecisionButtons(x).replaceAll('btn primary','btn')}`
         : `${stageDecisionButtons(x)}<button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>`}
-      ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
+      ${showOfferShortcut ? `<button class="btn" onclick="scrollToOfferBuilder()">Jump to offer builder ↓</button>` : ''}
     </div>
     ${showClearance ? offerStrip(x)+clearanceStrip(x) : sideChecks(x)}
   </section>
+  ${OFFER_QUEUE_STAGES.includes(x.stage) ? offerBuilderSection(x) : ''}
   ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
   ${notesPanel(x)}
   <section class="panel" style="margin-top:16px">
@@ -1825,7 +1831,7 @@ function manager(){
 // candidate's offer builder. (Previously the nav item silently opened the
 // builder for whichever candidate happened to be selected last — with several
 // offers in flight there was no way to see or switch between them.)
-const OFFER_QUEUE_STAGES = ['Offer letter info request','Offer letter draft','Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day'];
+const OFFER_QUEUE_STAGES = ['Offer letter info request','Offer letter draft','Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
 function offerStatusSummary(x){
   const o=x.offer||{};
   const missing=offerMissing(x);
@@ -1838,24 +1844,27 @@ function offerStatusSummary(x){
 }
 function offersQueue(){
   const queue = candidates.filter(x=>OFFER_QUEUE_STAGES.includes(x.stage));
-  if(!queue.length) return `${head('Offer workflow','No candidates are in the offer or clearance stages right now. When someone reaches Manager review → approve, they show up here.',`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  if(!queue.length) return `${head('Finalists','No one is in the offer or clearance stages right now. When the manager approves a candidate for an offer, they graduate out of Candidates and show up here.',`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
     <section class="panel"><div class="notice"><strong>Nothing in the offer pipeline.</strong><br>Candidates land here from "Approve — start offer" in Manager review. Open a candidate and advance them to see this queue in action.</div></section>`;
-  return `${head('Offer workflow',`${queue.length} candidate${queue.length===1?'':'s'} in the offer & clearance stages. Open one to build, send, and clear their offer.`,`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  return `${head('Finalists',`${queue.length} finalist${queue.length===1?'':'s'} — past candidacy, being offered the job. Everything (offer, clearance, onboarding) happens on their page.`,`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
   <div class="offer-queue">${queue.map(x=>{
     const st=offerStatusSummary(x);
-    return `<section class="panel offer-queue-row" onclick="selectedId=${x.id};view='offer';render()">
+    return `<section class="panel offer-queue-row" onclick="selectedId=${x.id};view='candidate';render()">
       <div class="oq-who"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)}</small></div>
       <div class="oq-stage"><span class="tag dark">${esc(stageLabel(x.stage))}</span><small class="muted">${esc(stageAgeText(x))} in stage</small></div>
       <div class="oq-status"><span class="tag ${st.cls}">${esc(st.label)}</span></div>
-      <button class="btn primary" onclick="event.stopPropagation();selectedId=${x.id};view='offer';render()">Open offer builder →</button>
+      <button class="btn primary" onclick="event.stopPropagation();selectedId=${x.id};view='candidate';render()">Open finalist →</button>
     </section>`;
   }).join('')}</div>`;
 }
-function offer(){
-  const x=c();
+// The offer builder lives ON the candidate page (embedded below the hero for
+// finalists) — clicking 'Accepted' or an offer pill must never teleport to a
+// different screen. The old view='offer' route now aliases to the candidate.
+function scrollToOfferBuilder(){ const el=document.getElementById('offerBuilder'); if(el) el.scrollIntoView({behavior:'smooth',block:'start'}); }
+function offerBuilderSection(x){
   const missing=offerMissing(x);
   const o=x.offer||{};
-  return `${head('Offer letter workflow',`Building the offer for ${esc(x.first)} ${esc(x.last)} (${esc(x.role)}). Save verified details, preview the letter, then download or print.`,`<div class="head-actions"><button class="btn ghost" onclick="view='offers';render()">← All offers</button><button class="btn ghost" onclick="view='candidate';render()">← Back to candidate</button></div>`)}
+  return `<div id="offerBuilder" style="margin-top:16px">
   <div id="offerBanner">${offerBannerHTML(missing)}</div>
   <div class="grid two" style="margin-top:16px">
     <section class="panel">
@@ -1908,7 +1917,7 @@ function offer(){
           <button class="btn ${next==='route'?'primary':(sigDone?'done-action':'')}" onclick="toggleSignaturesRouted()">${sigDone?'✓ Signatures routed via DocHub':'Mark signatures routed (DocHub)'}</button>
           <button class="btn ${next==='send'?'primary':(sentDone?'done-action':'')}" onclick="emailOfferLetter()">${sentDone?'✓ Offer sent':'✉ Email offer letter to candidate'}</button>
           ${sentDone
-            ? `<button class="btn" onclick="view='candidate';render()">Record their answer →</button>`
+            ? `<button class="btn" onclick="window.scrollTo({top:0,behavior:'smooth'})">Record their answer ↑</button>`
             : `<button class="btn" onclick="markOfferSent()">I sent it myself — mark offer sent</button>`}`;
         })()}
       </div>
@@ -1916,7 +1925,7 @@ function offer(){
       <div class="steps" id="offerChecklist">${offerStepsHTML(o, x)}</div>
     </section>
   </div>
-  <section class="panel" style="margin-top:16px"><h3>Pre-employment clearance guardrail</h3>${clearancePanel(x)}</section>`;
+  </div>`;
 }
 function saveOffer(){ syncOfferFromForm(); c().timeline.push('Offer details saved for generated offer letter'); save(); render(); showToast('Offer details saved'); }
 const OFFER_REQUIRED = [['date','Offer date','offerDate'],['startDate','Expected start date','offerStart'],['supervisor','Supervisor','offerSupervisor'],['pay','Starting pay','offerPay'],['minHours','Minimum hours','offerMinHours'],['schedule','Scheduled work hours','offerSchedule'],['coreMember1','Core Member 1 (approver)','offerCore1'],['coreMember2','Core Member 2 (approver)','offerCore2']];
