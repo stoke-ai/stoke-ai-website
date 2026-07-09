@@ -1889,13 +1889,28 @@ function offer(){
     <section class="panel">
       <h3>Generate &amp; send</h3>
       <div class="offer-actions">
-        <button class="btn primary big" onclick="previewOfferLetter()">Preview actual letter →</button>
-        <div class="offer-actions-row">
-          <button class="btn" onclick="downloadOfferLetterDoc()">Download .doc</button>
-          <button class="btn" onclick="printOfferLetter()">Print / Save PDF</button>
-        </div>
-        <button class="btn primary" onclick="emailOfferLetter()">✉ Email offer letter to candidate</button>
-        <button class="btn brand" onclick="markOfferSent()">Mark offer sent → move to follow-up</button>
+        ${(()=>{
+          const genDone=!!o.generatedAt, sigDone=!!o.signaturesRouted;
+          const sentDone=['Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
+          const next = missing.length?'fields':(!genDone?'generate':(!sigDone?'route':(!sentDone?'send':'answer')));
+          return `
+          <div class="notice ${next==='answer'?'success':''}" style="margin:0 0 6px"><strong>Next step:</strong> ${
+            next==='fields'?'fill in the required fields on the left.':
+            next==='generate'?'generate the letter — Download .doc or Print/PDF.':
+            next==='route'?'upload the letter to DocHub, assign the signature fields, then mark it routed.':
+            next==='send'?'email the offer to the candidate (attaches the letter).':
+            'the offer is with the candidate — record their answer on their candidate page.'}</div>
+          <button class="btn" onclick="previewOfferLetter()">Preview letter →</button>
+          <div class="offer-actions-row">
+            <button class="btn ${next==='generate'?'primary':(genDone?'done-action':'')}" onclick="downloadOfferLetterDoc()">${genDone?'✓ ':''}Download .doc</button>
+            <button class="btn ${next==='generate'?'primary':(genDone?'done-action':'')}" onclick="printOfferLetter()">${genDone?'✓ ':''}Print / Save PDF</button>
+          </div>
+          <button class="btn ${next==='route'?'primary':(sigDone?'done-action':'')}" onclick="toggleSignaturesRouted()">${sigDone?'✓ Signatures routed via DocHub':'Mark signatures routed (DocHub)'}</button>
+          <button class="btn ${next==='send'?'primary':(sentDone?'done-action':'')}" onclick="emailOfferLetter()">${sentDone?'✓ Offer sent':'✉ Email offer letter to candidate'}</button>
+          ${sentDone
+            ? `<button class="btn" onclick="view='candidate';render()">Record their answer →</button>`
+            : `<button class="btn" onclick="markOfferSent()">I sent it myself — mark offer sent</button>`}`;
+        })()}
       </div>
       <h4 style="margin-top:22px">Offer SOP checklist</h4>
       <div class="steps" id="offerChecklist">${offerStepsHTML(o, x)}</div>
@@ -1943,7 +1958,7 @@ function offerStepsHTML(o, x){
   return step(missing.length===0,'1. Verify request', missing.length===0?'All required offer fields are filled in.':`Still needed: ${missing.map(esc).join(', ')}.`)
     + step(!!String(o.schedule||'').trim(),'2. Confirm hours','SOP says regular hours should fall between 6:00 AM and 6:00 PM.')
     + step(!!o.generatedAt,'3. Generate letter', o.generatedAt?'Letter has been downloaded/printed.':'Download Word-compatible .doc or print/save PDF.')
-    + `<div class="step ${o.signaturesRouted?'done':''}"><b>${o.signaturesRouted?'✓ ':''}4. Route signatures</b><br><small>Upload the generated PDF/DOC to Goff's e-signature service and assign candidate + approver fields. (SOP says DocHub — confirm with Cecilia which service she actually uses.)</small><br><button class="btn step-btn" onclick="toggleSignaturesRouted()">${o.signaturesRouted?'Undo':'Mark signatures routed'}</button></div>`;
+    + step(!!o.signaturesRouted,'4. Route signatures','Upload the generated PDF/DOC to DocHub (dochub.com — confirmed, that\u2019s what Cecilia uses) and assign candidate + approver signature fields.');
 }
 function toggleSignaturesRouted(){ const x=c(); x.offer.signaturesRouted=!x.offer.signaturesRouted; x.timeline.push(x.offer.signaturesRouted?'Offer signatures routed via DocHub':'Offer signature routing un-marked'); save(); render(); }
 function updateOfferLive(){

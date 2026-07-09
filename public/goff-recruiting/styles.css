@@ -675,3 +675,7 @@ details.collapse-panel > summary h3{margin:0}
 
 /* Amber in-progress state for hero pills (scheduled/ordered) */
 .side-check.pending{background:#fdf8ef;border-color:#ecd3a3;color:var(--amber)}
+
+/* Completed actions in the offer column — quiet green, not shouting red */
+.btn.done-action{border-color:#bfe0cb;color:var(--green);background:#f0f8f2;box-shadow:none}
+.btn.done-action:hover{border-color:var(--green);color:var(--green);transform:none}
