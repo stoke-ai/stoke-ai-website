@@ -627,6 +627,81 @@ function stageMeta(stage){ return STAGE[stage] || WORKFLOW_STAGES[0]; }
 function jobFor(role){ const list = positions.length ? positions : jobs; return list.find(j => role && role.toLowerCase().includes(j.title.toLowerCase().split(' ')[0])) || list.find(j => role && j.title===role) || list[0] || jobs[0]; }
 function roleFit(x){ return jobFor(x.role).roleFit; }
 function esc(s){ return String(s ?? '').replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+// Plain-language layer over the SOP stage names. The stage ids are workflow
+// keys (stored on candidates, matched everywhere) and several read as
+// internal jargon ('Offer letter info request'). These labels + one-line
+// descriptions are what humans see — written for the bus test: someone who
+// has never touched this candidate should know where things stand.
+const STAGE_LABELS = {
+  'Application received':'New Application',
+  'Review candidate / choose path':'Review Application — Choose Next Step',
+  'Needs more experience info':'Asked Candidate for More Experience Info',
+  'Location / relocation check':'Checking Location / Relocation',
+  'Phone screen invitation':'Phone Screen Invite Sent',
+  'Review phone screen':'Phone Screen Done — Review It',
+  'Weld test invitation':'Weld Test Invite',
+  'Distance weld test invitation':'Distance Weld Test Invite',
+  'Weld test confirmation':'Weld Test Scheduled',
+  'Review weld test':'Weld Test Done — Review Results',
+  'Schedule interview':'Scheduling Interview',
+  'Interview confirmation':'Interview Scheduled',
+  'Interview completed':'Interview Done — Review It',
+  'Reference check authorization':'Reference Authorization Sent',
+  'Crystal Knows invite':'Crystal Knows Assessment Sent',
+  'Call references':'Calling References',
+  'Review references + Crystal':'Review References + Crystal',
+  'Second interview request':'Requesting Second Interview',
+  'Second interview scheduled':'Second Interview Scheduled',
+  'Manager review packet':'Waiting on Manager Decision',
+  'Background check invite':'Background Check Sent',
+  'Review background check results':'Review Background Results',
+  'Offer letter info request':'Gathering Offer Details',
+  'Offer letter draft':'Offer Letter Ready — Send It',
+  'Offer sent / follow-up':'Offer Sent — Waiting on Answer',
+  'Offer accepted - clearance hold':'Accepted — Clearing Final Checks',
+  'BBSI documents invite':'BBSI Paperwork Sent',
+  'Schedule first day':'Scheduling First Day',
+  'Transition to onboarding workflow':'Moving Into Onboarding',
+  'Keep on file':'On Hold — Kept on File',
+  'Not selected':'Not Selected',
+  'Needs more experience':'Passed — Needs More Experience',
+  'Entry-level unavailable':'Passed — No Entry-Level Openings',
+  'Relocation mismatch':'Passed — Relocation Mismatch',
+};
+const STAGE_DESC = {
+  'Application received':'A new application landed. Review it and choose their first step.',
+  'Review candidate / choose path':'Read the application and pick what happens next: phone screen, weld test, or pass.',
+  'Needs more experience info':'We asked the candidate to send more detail about their experience.',
+  'Location / relocation check':'We asked the candidate to confirm where they are and whether they can be here.',
+  'Phone screen invitation':'The phone screen invite went to the candidate — when they call, capture notes below and pick the outcome up top.',
+  'Review phone screen':'The call happened. Decide: weld test, more review, or hold.',
+  'Weld test invitation':'Invite the candidate to a paid weld test at the shop.',
+  'Distance weld test invitation':'Coordinating a remote weld test for an out-of-area candidate.',
+  'Weld test confirmation':'Weld test is scheduled — confirm the date and time with the candidate.',
+  'Review weld test':'The weld test happened. Review the results and decide: interview or pass.',
+  'Schedule interview':'Line up the in-person interview with the hiring team.',
+  'Interview confirmation':'Interview is scheduled — confirm with the candidate.',
+  'Interview completed':'The interview happened. Move to references or send to the manager for a decision.',
+  'Reference check authorization':'Waiting on the candidate to sign the reference-check authorization.',
+  'Crystal Knows invite':'Waiting on the candidate to finish the Crystal Knows assessment.',
+  'Call references':'Call the references and record what they say.',
+  'Review references + Crystal':'References and Crystal results are in — package them for the manager.',
+  'Second interview request':'Asking the candidate for a second interview.',
+  'Second interview scheduled':'Second interview is on the calendar.',
+  'Manager review packet':'Everything is with the hiring manager — they approve for offer, request another interview, or pass.',
+  'Background check invite':'Waiting on the candidate to complete the background check.',
+  'Review background check results':'Background results are in — review before building the offer.',
+  'Offer letter info request':'Manager approved the hire. Collect pay, start date, hours, and approvers, then build the letter in the offer builder.',
+  'Offer letter draft':'The offer letter is built and generated. Route signatures if needed, then email it to the candidate.',
+  'Offer sent / follow-up':'The offer is in the candidate\u2019s hands. Record their answer up top; follow up after 24 hours.',
+  'Offer accepted - clearance hold':'They said yes \u2014 but accepted is not hired. Finish drug screen, background, and start date below, then move them to onboarding.',
+  'BBSI documents invite':'BBSI employment paperwork is with the new hire.',
+  'Schedule first day':'Set their first day and get the shop ready for them.',
+  'Transition to onboarding workflow':'Recruiting is done \u2014 this person is moving into the employee portal.',
+  'Keep on file':'Not moving forward right now; kept warm for future openings.',
+  'Not selected':'Passed on this candidate. Rejection template available up top.',
+};
+function stageLabel(s){ return STAGE_LABELS[s] || titleCase(s); }
 // Display-layer Title Case for stage names and headings. Stage strings are
 // data (workflow keys, stored on candidates) so they stay lowercase in the
 // model; this formats them for display only. Small connector words stay
@@ -1388,6 +1463,23 @@ function sideChecks(x){
 // background / start), so 'what's cleared?' is answered at the top without
 // scrolling. Click a pill to jump to the full cards. (Background already
 // two-way syncs with the side-check fact, so nothing is tracked twice.)
+// Offer progress at the top of the candidate page — the same facts the offer
+// builder tracks (details → letter → signatures → sent → accepted), so anyone
+// picking up this candidate cold knows exactly how far the offer got without
+// opening the builder. Click any pill to open it.
+function offerStrip(x){
+  const o=x.offer||{};
+  const SENT=['Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
+  const ACCEPTED=['Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
+  const items=[
+    ['Offer details', offerMissing(x).length===0],
+    ['Letter generated', !!o.generatedAt],
+    ['Signatures routed', !!o.signaturesRouted],
+    ['Sent to candidate', SENT.includes(x.stage)],
+    ['Accepted', ACCEPTED.includes(x.stage)],
+  ];
+  return `<div class="side-checks"><span class="side-checks-label">Offer</span>${items.map(([label,done])=>`<button class="side-check ${done?'done':''}" title="Open the offer builder" onclick="view='offer';render()">${done?'✓':'○'} ${label}</button>`).join('')}</div>`;
+}
 function clearanceStrip(x){
   const cl=x.clearance||{};
   const items=[
@@ -1425,9 +1517,9 @@ function candidate(){
       <div class="candidate-hero-stage">
         <div class="eyebrow">Now</div>
         ${inlineEdit==='stage'
-          ? `<div class="inline-stage-edit"><select class="stage-select" onchange="setStage(this.value)">${STAGES.map(s=>`<option ${s===x.stage?'selected':''}>${esc(s)}</option>`).join('')}</select> <button class="stage-fix" onclick="inlineEdit=null;render()">✕ cancel</button></div>`
-          : `<h3>${esc(titleCase(x.stage))} <button class="stage-fix" title="Wrong stage? Change it right here." onclick="inlineEdit='stage';render()">✎</button></h3>`}
-        <p class="muted">${meta.next ? `then: <strong>${esc(titleCase(meta.next))}</strong>` : 'final step in this track'}</p>
+          ? `<div class="inline-stage-edit"><select class="stage-select" onchange="setStage(this.value)">${STAGES.map(s=>`<option value="${esc(s)}" ${s===x.stage?'selected':''}>${esc(stageLabel(s))}</option>`).join('')}</select> <button class="stage-fix" onclick="inlineEdit=null;render()">✕ cancel</button></div>`
+          : `<h3>${esc(stageLabel(x.stage))} <button class="stage-fix" title="Wrong stage? Change it right here." onclick="inlineEdit='stage';render()">✎</button></h3>`}
+        <p class="muted">${esc(STAGE_DESC[x.stage]||'')}${meta.next ? ` <strong>Next: ${esc(stageLabel(meta.next))}</strong>` : ''}</p>
       </div>
       <div class="candidate-hero-meta">
         <div class="hero-stat"><span>In stage</span><strong class="age-${ageLevel}">${esc(ageText)}</strong></div>
@@ -1440,7 +1532,7 @@ function candidate(){
         : `${stageDecisionButtons(x)}<button class="btn" onclick="showDraft(c().stage)">Generate email draft</button>`}
       ${showOfferShortcut ? `<button class="btn" onclick="view='offer';render()">Open offer workflow</button>` : ''}
     </div>
-    ${showClearance ? clearanceStrip(x) : sideChecks(x)}
+    ${showClearance ? offerStrip(x)+clearanceStrip(x) : sideChecks(x)}
   </section>
   ${x.application && Object.keys(x.application).length ? `<details class="panel collapse-panel" style="margin-top:16px"><summary><h3 style="display:inline">Application answers</h3></summary><div class="app-answers" style="margin-top:16px">${Object.entries(x.application).filter(([,v])=>v).map(([k,v])=>`<div class="app-answer"><span>${esc(k)}</span><p>${esc(String(v))}</p></div>`).join('')}</div></details>` : ''}
   ${notesPanel(x)}
@@ -1753,7 +1845,7 @@ function offersQueue(){
     const st=offerStatusSummary(x);
     return `<section class="panel offer-queue-row" onclick="selectedId=${x.id};view='offer';render()">
       <div class="oq-who"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)}</small></div>
-      <div class="oq-stage"><span class="tag dark">${esc(titleCase(x.stage))}</span><small class="muted">${esc(stageAgeText(x))} in stage</small></div>
+      <div class="oq-stage"><span class="tag dark">${esc(stageLabel(x.stage))}</span><small class="muted">${esc(stageAgeText(x))} in stage</small></div>
       <div class="oq-status"><span class="tag ${st.cls}">${esc(st.label)}</span></div>
       <button class="btn primary" onclick="event.stopPropagation();selectedId=${x.id};view='offer';render()">Open offer builder →</button>
     </section>`;
