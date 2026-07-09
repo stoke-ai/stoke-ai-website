@@ -360,3 +360,9 @@ button.faq-act{margin:0}
 /* Clickable hire rows on the onboarding board */
 .employee-row.clickable-row{cursor:pointer;transition:border-color .15s,transform .15s}
 .employee-row.clickable-row:hover{border-color:var(--red);transform:translateY(-1px)}
+
+/* Secondary buttons inside admin action rows were dark-on-dark:
+   .admin-actions button{background:#222} beat .secondary's white background
+   while .secondary's #111 text survived. White wins explicitly. */
+.admin-actions button.secondary{background:#fff;color:#111;border:1px solid #ddd}
+.admin-actions button.secondary:hover{background:#f1f1f1;color:#111}
