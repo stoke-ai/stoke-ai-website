@@ -1493,6 +1493,8 @@ async function loadServerEmployees(){
         id: `emp-${e.id}`,
         serverId: e.id,
         email: e.email || '',
+        phone: e.phone || '',
+        startDateRaw: e.start_date ? String(e.start_date).slice(0,10) : '',
         milestones: ms,
         name: `${e.first_name} ${e.last_name}`.trim(),
         role: e.role || 'Role TBD',
@@ -1910,7 +1912,7 @@ function contentPage(id){ const p=pageContent[id]; if(!p) return startSection();
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl>${m.id==='damage'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('damage')">Fill out: damage report</button><button onclick="openFormFill('incident')">Fill out: incident report</button></div>`:m.id==='nearmiss'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('nearmiss')">Fill out a near-miss report</button></div>`:''}</article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><p class="note"><strong>Production database needed:</strong> notes, assignments, and completion status will activate once employee records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Save check-in note</button><button disabled title="Requires production database">Assign follow-up</button><button disabled title="Requires production database">Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
-  return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''}"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div>${e.fromServer ? `<div class="ms-pills">${EMP_MILESTONES.map(([k,label])=>{const done=!!(e.milestones&&e.milestones[k]);return `<button class="ms-pill ${done?'done':''}" title="${done?'Done — click to undo':'Click when done'}" onclick="markEmployeeMilestone('${esc(e.serverId)}','${k}',${done?'false':'true'})">${done?'✓':'○'} ${esc(label)}</button>`;}).join('')}</div>` : ''}<div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Live:</strong> the milestone buttons on each hire's card above are the workflow — welcome link, BBSI confirmation, training start, supervisor handoff, and the 30-day check-in all save to the shared record.</p></section>
+  return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''} ${e.fromServer?'clickable-row':''}" ${e.fromServer?`onclick="openEmployee('${esc(e.serverId)}')"`:''}><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div>${e.fromServer ? `<div class="ms-pills">${EMP_MILESTONES.map(([k,label])=>{const done=!!(e.milestones&&e.milestones[k]);return `<button class="ms-pill ${done?'done':''}" title="${done?'Done — click to undo':'Click when done'}" onclick="event.stopPropagation();markEmployeeMilestone('${esc(e.serverId)}','${k}',${done?'false':'true'})">${done?'✓':'○'} ${esc(label)}</button>`;}).join('')}</div>` : ''}<div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Live:</strong> the milestone buttons on each hire's card above are the workflow — welcome link, BBSI confirmation, training start, supervisor handoff, and the 30-day check-in all save to the shared record.</p></section>
   <section class="panel"><p class="eyebrow">Training oversight — what Austin asked for on the July 1 call</p><h2>Who actually read it, and who click-click-clicked</h2><p class="summary">Every knowledge check tracks attempts, not just completion. Quinton and managers see per-employee results: first-try answers versus second-guessing, section completion, quiz scores, and acknowledgements. Demo data below is from this device.</p>
   <div class="metric-grid">${(()=>{const s=kcStats();return [
     { label:'Knowledge checks', value:`${s.done}/${s.total}`, detail:'Answered correctly so far on this device' },
@@ -2131,6 +2133,7 @@ function main(){
   if(section==='home') return employeeHome();
   if(section==='path') return pathSection();
   if(section==='ops') return opsSection();
+  if(section==='employee') return employeeDetail();
   if(section==='training') return trainingSection();
   if(section==='course') return courseSection();
   if(section==='values') return contentPage('values');
@@ -2208,7 +2211,69 @@ function compactHeader(){
 // sidebar, grouped nav, content on the right — so the team moves between
 // "Goff Recruiting" and "Onboarding Admin" without relearning the layout.
 // Employee-facing sections keep their own phone-first hero/tabs design.
-const ADMIN_SHELL_SECTIONS = new Set(['ops','clearance','handoff','admin','training']);
+const ADMIN_SHELL_SECTIONS = new Set(['ops','clearance','handoff','admin','training','employee']);
+// Which hire the admin detail view is showing (survives refresh via ?emp=).
+let selectedEmployeeId = new URLSearchParams(window.location.search).get('emp') || '';
+function openEmployee(serverId){
+  selectedEmployeeId = serverId;
+  const url = new URL(window.location.href);
+  url.searchParams.set('section','employee');
+  url.searchParams.set('emp', serverId);
+  window.history.pushState({section:'employee'}, '', url.toString());
+  section='employee';
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function employeePortalLinkFor(e){
+  const p = new URLSearchParams();
+  if(e.name) p.set('employee', e.name);
+  if(e.email) p.set('email', e.email);
+  if(e.role && e.role !== 'Role TBD') p.set('role', e.role);
+  if(e.supervisor && !/confirm/i.test(e.supervisor)) p.set('supervisor', e.supervisor);
+  if(e.startDateRaw) p.set('start', e.startDateRaw);
+  return `${window.location.origin}/goff-employee/?${p.toString()}`;
+}
+function employeeWelcomeText(e){
+  const url = employeePortalLinkFor(e);
+  return `Subject: Welcome to Goff Welding — Start Here\n\nHi ${e.name.split(' ')[0]},\n\nWelcome to Goff Welding! Your first day is ${e.start || 'coming up'} and you'll report to ${e.supervisor}.\n\nYour next step is to complete your BBSI/myBBSI onboarding invite, then use your Goff employee portal below for first-day details, orientation, safety training, timekeeping (ExakTime), and company links.\n\nEmployee portal: ${url}\n\nSee you soon,\nGoff Welding`;
+}
+function copyEmployeeAsset(text, label){
+  navigator.clipboard?.writeText(text);
+  const old=document.querySelector('.toast'); if(old) old.remove();
+  const t=document.createElement('div'); t.className='toast'; t.textContent=label; document.body.appendChild(t); setTimeout(()=>t.remove(),1800);
+}
+// Full detail for one hire — everything Quinton needs about this person in
+// one place: contact, milestones, their portal link, the welcome message.
+function employeeDetail(){
+  const e = serverEmployees.find(x => String(x.serverId) === String(selectedEmployeeId));
+  if(!e) return `<section class="panel"><p class="eyebrow">New hire</p><h2>${serverEmployeesLoaded ? 'Hire not found' : 'Loading…'}</h2><p>${serverEmployeesLoaded ? 'This record may have been removed.' : 'Fetching the onboarding queue.'}</p><div class="admin-actions"><button onclick="nav('ops')">← Back to the board</button></div></section>`;
+  const view = milestoneView(e.milestones || {});
+  const link = employeePortalLinkFor(e);
+  return `<section class="panel"><p class="eyebrow">New hire — onboarding</p><h2>${esc(e.name)}</h2><p class="summary">${esc(e.role)} · reports to ${esc(e.supervisor)} · starts ${esc(e.start)}</p>
+    <div class="handoff">
+      <div><span>Email</span><b>${e.email ? `<a href="mailto:${esc(e.email)}">${esc(e.email)}</a>` : '—'}</b></div>
+      <div><span>Phone</span><b>${e.phone ? `<a href="tel:${esc(e.phone)}">${esc(e.phone)}</a>` : '—'}</b></div>
+      <div><span>Status</span><b>${esc(view.done)}/${EMP_MILESTONES.length} milestones · ${esc(view.progress)}%</b></div>
+    </div>
+    <div class="bar"><i style="width:${esc(view.progress)}%"></i></div>
+    <div class="ms-pills">${EMP_MILESTONES.map(([k,label])=>{const done=!!(e.milestones&&e.milestones[k]);return `<button class="ms-pill ${done?'done':''}" title="${done?'Done — click to undo':'Click when done'}" onclick="event.stopPropagation();markEmployeeMilestone('${esc(e.serverId)}','${k}',${done?'false':'true'})">${done?'✓':'○'} ${esc(label)}</button>`;}).join('')}</div>
+    <p class="note" style="margin-top:14px"><strong>Next action:</strong> ${esc(view.next)}</p>
+  </section>
+  <section class="panel"><p class="eyebrow">Their portal</p><h2>Employee link &amp; welcome message</h2>
+    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link — send it with the welcome message below.</p>
+    <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a></p>
+    <div class="admin-actions">
+      <button onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy welcome message</button>
+      <button class="secondary" style="border-color:#ddd" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">Copy link only</button>
+      <button class="secondary" style="border-color:#ddd" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
+    </div>
+    <textarea id="welcomeText" style="width:100%;min-height:220px;margin-top:14px;border:1px solid var(--line);border-radius:5px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px">${esc(employeeWelcomeText(e))}</textarea>
+  </section>
+  <section class="panel"><p class="eyebrow">History</p><h2>Where the full story lives</h2>
+    <p>Their complete recruiting record — application answers, notes, offer, clearance, timeline — is on the recruiting side under <strong>New Hires</strong>.</p>
+    <div class="admin-actions"><button class="secondary" style="border-color:#ddd" onclick="window.open('/goff-recruiting/?view=newhires','_blank','noopener')">Open New Hires →</button><button onclick="nav('ops')">← Back to the board</button></div>
+  </section>`;
+}
 function adminNavBtn(id,label){ return `<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`; }
 function render(){
   const app = document.getElementById('app');
