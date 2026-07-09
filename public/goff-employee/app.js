@@ -1402,22 +1402,23 @@ function coursePlayer(set, c){
   const isPolicy = set === 'policy';
   const signs = isPolicy && /Sign/.test(c.required);
   const isDone = courseComplete(set, c);
-  // Completion lives at the END of the presentation, unlocked only after every
-  // slide's questions are answered — never a page-bottom shortcut.
+  // Completion is gated on every slide's questions being answered — but once
+  // unlocked, the sign button lives IN the action row (the ack text sits just
+  // above it), so nobody scrolls down to sign and back up to move on.
   const allQuizzesDone = c.slides.every(s => !slideQuizGated(s));
   const finishCall = `finishCourse('${set}','${c.id}')`;
   const ackPanel = last && allQuizzesDone && !isDone
     ? (isPolicy
-      ? `<div class="ack-box course-ack"><h3>${signs?'Sign to complete this policy':'Acknowledge to complete this policy'}</h3><p>I acknowledge that I have received, read, and understand the ${esc(c.title)} and agree to comply with its terms.</p><div class="admin-actions"><button class="complete-btn done" onclick="${finishCall}">${signs?'Sign & complete ✓':'Acknowledge & complete ✓'}</button></div><p class="note" style="margin-top:10px"><strong>Production note:</strong> this captures your signature and completion date on your employee record.</p></div>`
-      : `<div class="ack-box course-ack"><h3>Section complete</h3><p>You’ve covered ${esc(c.title)} and answered its knowledge checks. This completion is tracked on your safety training record.</p><div class="admin-actions"><button class="complete-btn done" onclick="${finishCall}">Complete section ✓</button></div></div>`)
+      ? `<div class="ack-box course-ack"><h3>${signs?'Sign to complete this policy':'Acknowledge to complete this policy'}</h3><p>I acknowledge that I have received, read, and understand the ${esc(c.title)} and agree to comply with its terms.</p><p class="note" style="margin-top:10px"><strong>On record:</strong> your ${signs?'signature':'acknowledgement'} and completion date are stored on your employee record.</p></div>`
+      : `<div class="ack-box course-ack"><h3>Section complete</h3><p>You’ve covered ${esc(c.title)} and answered its knowledge checks. This completion is tracked on your safety training record.</p></div>`)
     : '';
   const backLabel = isPolicy ? '← All policies' : set === 'basics' ? '← Work basics' : '← All safety sections';
   return `<section class="austin-course"><div class="course-top"><div><p class="eyebrow">${isPolicy?'Policy course':set==='basics'?'Work basics':'Safety training'} • ${esc(c.required || 'Training section')}</p><h2>${esc(c.title)}</h2><p>Slide ${idx+1} of ${c.slides.length} • ${esc(c.tagline)}</p></div><button class="secondary" onclick="closeCourse()">${backLabel}</button></div>
   ${courseSlideCanvas(item)}
-  <div class="course-actions"><button class="secondary" onclick="setCoursePos('${set}','${c.id}',${idx-1})" ${idx===0?'disabled':''}>← Previous</button>${last
-    ? (isDone ? `<button class="complete-btn done" disabled>Completed ✓</button>` : !allQuizzesDone ? `<button class="complete-btn" disabled title="Answer every question in this course first">Answer the questions in this course</button>` : `<button class="complete-btn" disabled title="Complete below">${signs?'Sign below to complete ↓':'Complete below ↓'}</button>`)
-    : `<button ${gated?'disabled title="Answer the questions above to continue"':''} onclick="setCoursePos('${set}','${c.id}',${idx+1})">${gated?'Answer to continue': nextCourseLabel(set, c, idx)}</button>`}</div>
   ${ackPanel}
+  <div class="course-actions"><button class="secondary" onclick="setCoursePos('${set}','${c.id}',${idx-1})" ${idx===0?'disabled':''}>← Previous</button>${last
+    ? (isDone ? `<button class="complete-btn done" disabled>Completed ✓</button>` : !allQuizzesDone ? `<button class="complete-btn" disabled title="Answer every question in this course first">Answer the questions in this course</button>` : `<button class="complete-btn done" onclick="${finishCall}">${isPolicy?(signs?'Sign & complete ✓':'Acknowledge & complete ✓'):'Complete section ✓'}</button>`)
+    : `<button ${gated?'disabled title="Answer the questions above to continue"':''} onclick="setCoursePos('${set}','${c.id}',${idx+1})">${gated?'Answer to continue': nextCourseLabel(set, c, idx)}</button>`}</div>
   <div class="course-rail">${c.slides.map((s,i)=>`<button class="rail-dot ${i===idx?'active':''}" onclick="setCoursePos('${set}','${c.id}',${i})" title="Slide ${i+1}">${i+1}</button>`).join('')}</div></section>`;
 }
 function courseMenuCards(set){
