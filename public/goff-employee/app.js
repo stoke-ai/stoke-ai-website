@@ -2338,29 +2338,41 @@ function opsToast(label){
 // Welcome email goes out via Gmail compose — the team sends from their own
 // careers@ account, never a stoke-ai address. Opening Gmail marks the
 // milestone (same rule as recruiting's stage emails).
-// Heads-up that the myBBSI invite is coming / needs finishing. The invite
-// itself is sent from BBSI's system (Cecilia), so this does NOT mark the
-// 'BBSI invite sent' milestone — that stays a deliberate click.
-function sendBbsiHeadsUp(serverId){
+// Email drafts open in a modal FIRST (like the recruiting side): the
+// recruiter reviews/edits the wording, then Opens in Gmail to send from
+// their own careers@ account. Welcome sends mark the milestone on Gmail
+// open; the BBSI heads-up never marks anything (BBSI sends the real invite).
+const EMP_EMAIL_DRAFTS = {
+  welcome: { label:'Welcome email', marks:'welcome', build: e => employeeWelcomeText(e) },
+  bbsi: { label:'BBSI heads-up', marks:null, build: e => `Subject: Your BBSI onboarding paperwork — Goff Welding\n\nHi ${e.name.split(' ')[0]},\n\nHeads up — your employment paperwork comes through myBBSI (our payroll/HR partner). Watch your inbox (and spam folder) for an invite email from BBSI/myBBSI and complete it before your first day.\n\nIf it hasn't shown up or you get stuck, just reply here and we'll resend it.\n\nGoff Welding\n(208) 647-2488` },
+};
+function openEmailDraft(serverId, kind){
   const e = serverEmployees.find(x => String(x.serverId) === String(serverId)); if(!e) return;
+  const d = EMP_EMAIL_DRAFTS[kind]; if(!d) return;
   if(!e.email){ opsToast('No email on this employee record'); return; }
-  const first = e.name.split(' ')[0];
-  const subject = 'Your BBSI onboarding paperwork — Goff Welding';
-  const body = `Hi ${first},\n\nHeads up — your employment paperwork comes through myBBSI (our payroll/HR partner). Watch your inbox (and spam folder) for an invite email from BBSI/myBBSI and complete it before your first day.\n\nIf it hasn't shown up or you get stuck, just reply here and we'll resend it.\n\nGoff Welding\n(208) 647-2488`;
-  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(e.email)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body), '_blank', 'noopener');
-  opsToast('Gmail opened — hit Send');
+  const modal = document.getElementById('empModal'); if(!modal) return;
+  modal.className = 'emp-modal open';
+  modal.innerHTML = `<div class="emp-modal-card"><h3>${esc(d.label)} — ${esc(e.name)}</h3>
+    <p>Review or edit, then open it pre-filled in Gmail and hit Send. It goes out from your own careers@ account. First line stays <strong>Subject: ...</strong></p>
+    <textarea id="empDraft">${esc(d.build(e))}</textarea>
+    <div class="emp-modal-actions">
+      <button class="secondary" onclick="document.getElementById('empModal').className='emp-modal'">Close</button>
+      <button class="secondary" onclick="copyEmployeeAsset(document.getElementById('empDraft').value,'Draft copied')">Copy</button>
+      <button onclick="sendDraftViaGmail('${esc(e.serverId)}','${kind}')">Open in Gmail →</button>
+    </div></div>`;
 }
-function sendWelcomeEmail(serverId){
+function sendDraftViaGmail(serverId, kind){
   const e = serverEmployees.find(x => String(x.serverId) === String(serverId)); if(!e) return;
-  const ta = document.getElementById('welcomeText');
+  const d = EMP_EMAIL_DRAFTS[kind]; if(!d) return;
+  const ta = document.getElementById('empDraft');
   const msg = ta ? ta.value.trim() : '';
-  if(!msg){ opsToast('Welcome message is empty'); return; }
-  if(!e.email){ opsToast('No email on this employee record'); return; }
+  if(!msg){ opsToast('Draft is empty'); return; }
   const m = msg.match(/^Subject:\s*(.+?)\n+([\s\S]*)$/);
-  const subject = m ? m[1].trim() : 'Welcome to Goff Welding — Start Here';
+  const subject = m ? m[1].trim() : `Goff Welding — ${d.label}`;
   const body = m ? m[2] : msg;
   window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(e.email)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body), '_blank', 'noopener');
-  markEmployeeMilestone(serverId, 'welcome', true);
+  document.getElementById('empModal').className='emp-modal';
+  if(d.marks){ markEmployeeMilestone(serverId, d.marks, true); }
   opsToast('Gmail opened — hit Send');
 }
 function copyEmployeeAsset(text, label){
@@ -2437,17 +2449,16 @@ function employeeDetail(){
     <div class="bar" style="margin:14px 0 6px"><i style="width:${esc(view.progress)}%"></i></div>
     <div class="admin-actions" style="margin-top:14px">
       ${nextItem ? `<button onclick="markEmployeeMilestone('${esc(e.serverId)}','${nextItem[0]}',true)">✓ ${esc(nextItem[1])}</button>` : ''}
-      ${nextItem && nextItem[0]==='welcome' ? `<button class="secondary" onclick="document.getElementById('welcomeText').scrollIntoView({behavior:'smooth',block:'center'})">✉ Send welcome ↓</button>` : ''}
-      ${nextItem && (nextItem[0]==='bbsiSent' || nextItem[0]==='bbsi') ? `<button class="secondary" onclick="sendBbsiHeadsUp('${esc(e.serverId)}')">✉ BBSI heads-up</button>` : ''}
+      ${nextItem && nextItem[0]==='welcome' ? `<button class="secondary" onclick="openEmailDraft('${esc(e.serverId)}','welcome')">✉ Welcome email</button>` : ''}
+      ${nextItem && (nextItem[0]==='bbsiSent' || nextItem[0]==='bbsi') ? `<button class="secondary" onclick="openEmailDraft('${esc(e.serverId)}','bbsi')">✉ BBSI heads-up</button>` : ''}
       <button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
     </div>
   </section>
   ${trainingPanelFor(e)}
-  <section class="panel"><p class="eyebrow">Their portal</p><h2>Employee link &amp; welcome message</h2>
-    <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link. Edit the message below if you like, then send from Gmail (it opens pre-filled from your careers@ account) — the "Welcome link sent" milestone marks itself.</p>
-    <div class="admin-actions" style="margin:0 0 4px"><button onclick="sendWelcomeEmail('${esc(e.serverId)}')">✉ Send welcome in Gmail</button><button class="secondary" onclick="copyEmployeeAsset(document.getElementById('welcomeText').value,'Welcome message copied')">Copy instead</button></div>
-    <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a> <button class="secondary" style="border:1px solid #ddd;padding:6px 12px;font-size:12px" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">⧉ Copy link</button></p>
-    <textarea id="welcomeText" style="width:100%;min-height:220px;margin-top:14px;border:1px solid var(--line);border-radius:5px;padding:14px;font-family:ui-monospace,Menlo,monospace;font-size:13px">${esc(employeeWelcomeText(e))}</textarea>
+  <section class="panel"><p class="eyebrow">Their portal</p><h2>Unique employee link</h2>
+    <p>${esc(e.name.split(' ')[0])}'s private start-here link — every device they open it on records progress to their file.</p>
+    <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a></p>
+    <div class="admin-actions"><button class="secondary" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">⧉ Copy link</button><button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview portal</button><button class="secondary" onclick="openEmailDraft('${esc(e.serverId)}','welcome')">✉ Welcome email</button><button class="secondary" onclick="openEmailDraft('${esc(e.serverId)}','bbsi')">✉ BBSI heads-up</button></div>
   </section>
   <div class="admin-actions" style="margin-top:4px"><button class="secondary" onclick="nav('ops')">← Back to the board</button></div>`;
 }
@@ -2467,7 +2478,7 @@ function render(){
         ${adminNavBtn('training','Full path map')}
       </nav>
       <div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-recruiting/">Recruiting platform</a><a href="?section=start">Employee view</a><a href="/goff-recruiting/?view=career" target="_blank" rel="noopener">Public careers page</a></div>
-    </aside><main class="content">${main()}</main></div>${feedbackWidget()}`;
+    </aside><main class="content">${main()}</main></div><div id="empModal" class="emp-modal"></div>${feedbackWidget()}`;
     return;
   }
   if(section==='course'){

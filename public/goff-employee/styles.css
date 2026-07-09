@@ -388,3 +388,13 @@ button.faq-act{margin:0}
 .identity-bar strong{color:#fff}
 .identity-bar button{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;box-shadow:none;padding:6px 12px;font-size:12px;margin-left:auto}
 .identity-bar button:hover{background:rgba(255,255,255,.1)}
+
+/* Email draft modal on the admin side — review/edit, then Open in Gmail */
+.emp-modal{display:none;position:fixed;inset:0;background:rgba(10,10,10,.68);z-index:1000;align-items:center;justify-content:center;padding:24px}
+.emp-modal.open{display:flex}
+.emp-modal-card{width:min(760px,96vw);max-height:92vh;overflow:auto;background:#fff;border-radius:5px;border-top:5px solid var(--red);box-shadow:0 24px 60px rgba(0,0,0,.4);padding:26px 30px}
+.emp-modal-card h3{font-family:'Playfair Display',serif;font-size:26px;margin:0 0 8px}
+.emp-modal-card p{color:#666;margin:0 0 14px}
+.emp-modal-card textarea{width:100%;min-height:300px;border:1.5px solid var(--line);border-radius:4px;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.emp-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
+.emp-modal-actions .secondary{border:1px solid #ddd;color:#111}
