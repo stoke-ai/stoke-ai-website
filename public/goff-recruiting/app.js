@@ -1472,18 +1472,45 @@ function sideChecks(x){
 // builder tracks (details → letter → signatures → sent → accepted), so anyone
 // picking up this candidate cold knows exactly how far the offer got without
 // opening the builder. Click any pill to open it.
+const OFFER_SENT_STAGES=['Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
+const OFFER_ACCEPTED_STAGES=['Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
+// The pills ACT: clicking an undone step does that step (or takes you to
+// where it happens); clicking a done step jumps to the builder for detail.
+// A pill that looks like 'click to mark accepted' must actually mark accepted.
+function offerPillClick(step){
+  const x=c(); if(!x) return;
+  const o=x.offer||{};
+  if(step==='details'){ scrollToOfferBuilder(); return; }
+  if(step==='generate'){
+    if(offerMissing(x).length){ showToast('Fill in the offer details first'); scrollToOfferBuilder(); return; }
+    if(!o.generatedAt){ downloadOfferLetterDoc(); return; }
+    scrollToOfferBuilder(); return;
+  }
+  if(step==='route'){
+    if(!o.generatedAt){ showToast('Generate the letter first — then route it in DocHub'); scrollToOfferBuilder(); return; }
+    toggleSignaturesRouted(); return;
+  }
+  if(step==='send'){
+    if(OFFER_SENT_STAGES.includes(x.stage)){ scrollToOfferBuilder(); return; }
+    emailOfferLetter(); return;
+  }
+  if(step==='accept'){
+    if(OFFER_ACCEPTED_STAGES.includes(x.stage)){ scrollToOfferBuilder(); return; }
+    if(x.stage!=='Offer sent / follow-up'){ showToast('Send the offer first — then record their answer'); return; }
+    if(window.confirm(`Record that ${x.first} ${x.last} ACCEPTED the offer?`)) setStage('Offer accepted - clearance hold');
+    return;
+  }
+}
 function offerStrip(x){
   const o=x.offer||{};
-  const SENT=['Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
-  const ACCEPTED=['Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'];
   const items=[
-    ['Offer details', offerMissing(x).length===0],
-    ['Letter generated', !!o.generatedAt],
-    ['Signatures routed', !!o.signaturesRouted],
-    ['Sent to candidate', SENT.includes(x.stage)],
-    ['Accepted', ACCEPTED.includes(x.stage)],
+    ['details','Offer details', offerMissing(x).length===0, 'Open the offer details form'],
+    ['generate','Letter generated', !!o.generatedAt, 'Generate the letter (.doc download)'],
+    ['route','Signatures routed', !!o.signaturesRouted, 'Mark the letter routed in DocHub'],
+    ['send','Sent to candidate', OFFER_SENT_STAGES.includes(x.stage), 'Email the offer to the candidate'],
+    ['accept','Accepted', OFFER_ACCEPTED_STAGES.includes(x.stage), 'Record that the candidate accepted'],
   ];
-  return `<div class="side-checks"><span class="side-checks-label">Offer</span>${items.map(([label,done])=>`<button class="side-check ${done?'done':''}" title="Jump to the offer builder below" onclick="scrollToOfferBuilder()">${done?'✓':'○'} ${label}</button>`).join('')}</div>`;
+  return `<div class="side-checks"><span class="side-checks-label">Offer</span>${items.map(([step,label,done,hint])=>`<button class="side-check ${done?'done':''}" title="${done?'Done — click for details':hint}" onclick="offerPillClick('${step}')">${done?'✓':'○'} ${label}</button>`).join('')}</div>`;
 }
 function clearanceStrip(x){
   const cl=x.clearance||{};
