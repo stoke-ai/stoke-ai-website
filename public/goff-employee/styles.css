@@ -382,3 +382,9 @@ button.faq-act{margin:0}
 .emp-stats span{display:block;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#888;font-weight:900}
 .emp-stats strong{font-family:'Playfair Display',serif;font-size:20px}
 @media(max-width:760px){.emp-now{flex-direction:column}.topbar-lite{flex-direction:column}}
+
+/* Who-is-this-computer-training-as bar — shared office machines */
+.identity-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;background:#111;color:#ddd;border-left:4px solid var(--red);border-radius:4px;padding:10px 14px;margin:0 0 16px;font-size:13px}
+.identity-bar strong{color:#fff}
+.identity-bar button{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;box-shadow:none;padding:6px 12px;font-size:12px;margin-left:auto}
+.identity-bar button:hover{background:rgba(255,255,255,.1)}

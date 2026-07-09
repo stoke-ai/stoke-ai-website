@@ -1673,6 +1673,22 @@ function loadEmployeeIdentity(){
   return id;
 }
 const employeeIdentity = loadEmployeeIdentity();
+// Training happens on shared office computers — the browser remembers the
+// LAST person whose link was opened. This bar makes that visible so hire B
+// doesn't record quiz answers onto hire A's record. 'Not you?' clears the
+// identity; the next person opens THEIR link and it re-binds.
+function identityBar(){
+  if(!(employeeIdentity.emp || employeeIdentity.email || employeeIdentity.name)) return '';
+  const who = employeeIdentity.name || employeeIdentity.email || 'this employee';
+  return `<div class="identity-bar">Training as <strong>${esc(who)}</strong> — progress records to their file. <button onclick="switchIdentity()">Not you? Switch person</button></div>`;
+}
+function switchIdentity(){
+  if(!window.confirm('Clear this computer\u2019s current person? The next hire should open THEIR own portal link to record their progress.')) return;
+  try{ localStorage.removeItem('goffEmployeeIdentityV1'); }catch(_){}
+  const url = new URL(window.location.href);
+  ['emp','email','employee'].forEach(k=>url.searchParams.delete(k));
+  window.location.href = url.toString();
+}
 let trackQueue = [];
 let trackTimer = null;
 function trackEvent(ev){
@@ -2322,6 +2338,18 @@ function opsToast(label){
 // Welcome email goes out via Gmail compose — the team sends from their own
 // careers@ account, never a stoke-ai address. Opening Gmail marks the
 // milestone (same rule as recruiting's stage emails).
+// Heads-up that the myBBSI invite is coming / needs finishing. The invite
+// itself is sent from BBSI's system (Cecilia), so this does NOT mark the
+// 'BBSI invite sent' milestone — that stays a deliberate click.
+function sendBbsiHeadsUp(serverId){
+  const e = serverEmployees.find(x => String(x.serverId) === String(serverId)); if(!e) return;
+  if(!e.email){ opsToast('No email on this employee record'); return; }
+  const first = e.name.split(' ')[0];
+  const subject = 'Your BBSI onboarding paperwork — Goff Welding';
+  const body = `Hi ${first},\n\nHeads up — your employment paperwork comes through myBBSI (our payroll/HR partner). Watch your inbox (and spam folder) for an invite email from BBSI/myBBSI and complete it before your first day.\n\nIf it hasn't shown up or you get stuck, just reply here and we'll resend it.\n\nGoff Welding\n(208) 647-2488`;
+  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+encodeURIComponent(e.email)+'&su='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body), '_blank', 'noopener');
+  opsToast('Gmail opened — hit Send');
+}
 function sendWelcomeEmail(serverId){
   const e = serverEmployees.find(x => String(x.serverId) === String(serverId)); if(!e) return;
   const ta = document.getElementById('welcomeText');
@@ -2410,6 +2438,7 @@ function employeeDetail(){
     <div class="admin-actions" style="margin-top:14px">
       ${nextItem ? `<button onclick="markEmployeeMilestone('${esc(e.serverId)}','${nextItem[0]}',true)">✓ ${esc(nextItem[1])}</button>` : ''}
       <button class="secondary" onclick="document.getElementById('welcomeText').scrollIntoView({behavior:'smooth',block:'center'})">✉ Send welcome ↓</button>
+      <button class="secondary" onclick="sendBbsiHeadsUp('${esc(e.serverId)}')">✉ BBSI heads-up</button>
       <button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
     </div>
   </section>
@@ -2442,14 +2471,14 @@ function render(){
     return;
   }
   if(section==='course'){
-    app.innerHTML = `${courseHeader()}<main class="course-wrap">${main()}</main>${feedbackWidget()}`;
+    app.innerHTML = `${courseHeader()}<main class="course-wrap">${identityBar()}${main()}</main>${feedbackWidget()}`;
   } else {
     // Full welcome hero only on the home screen; inner pages get a slim bar.
     // Once onboarding is done (or when previewing 'home'), the hero becomes the
     // everyday welcome-back with search instead of first-day logistics.
     const isHome = section==='home' || section==='start';
     const hdr = isHome ? homeHeader() : section==='path' ? header() : compactHeader();
-    app.innerHTML = `${hdr}<main class="wrap">${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>${feedbackWidget()}`;
+    app.innerHTML = `${hdr}<main class="wrap">${identityBar()}${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>${feedbackWidget()}`;
   }
 }
 render();
