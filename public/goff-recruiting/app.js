@@ -1291,7 +1291,7 @@ function evidenceTable(x){
     </div>`;
   }).join('')}</div>`;
 }
-function setEvidence(id,k,v){ const x=candidates.find(c=>c.id===id); if(!x) return; x.evidence=x.evidence||{}; x.evidence[k]=v; x.timeline.push(`Evidence updated: ${k} → ${v}`); save(); render(); }
+function setEvidence(id,k,v){ const x=candidates.find(c=>c.id===id); if(!x) return; x.evidence=x.evidence||{}; x.evidence[k]=v; if(k==='background'){ x.clearance=x.clearance||{}; x.clearance.background = evidenceDone(v) ? 'Cleared' : 'Not started'; } x.timeline.push(`Evidence updated: ${k} → ${v}`); save(); render(); }
 function resolveConcern(id){ const x=candidates.find(c=>c.id===id); if(!x || !x.concerns) return; x.timeline.push(`Concern resolved: ${String(x.concerns).slice(0,80)}`); x.concerns=''; save(); render(); showToast('Concern marked resolved'); }
 // A concern is only worth showing if it's specific to THIS candidate. The old
 // intake code stamped the same boilerplate on everyone ('Needs screening.',
@@ -1381,7 +1381,7 @@ function candidate(){
   const meta=stageMeta(x.stage);
   const ageLevel=agingLevel(x);
   const ageText=stageAgeText(x);
-  const showClearance = ['Offer accepted - clearance hold','BBSI documents invite','Offer sent / follow-up','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
+  const showClearance = ['Offer letter info request','Offer letter draft','Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'].includes(x.stage);
   const showOfferShortcut = ['Offer letter info request','Offer letter draft','Offer sent / follow-up'].includes(x.stage);
   const emailPending = stageEmailPending(x);
   // Role/path edits in place, right where the role is shown under the name.
@@ -1574,7 +1574,16 @@ async function sendInternalRecruitingUpdate(x, fromStage, picked){
     showToast('Next step saved — internal email failed');
   }
 }
-function setClearance(k,v){ let x=c(); x.clearance[k]=v; x.timeline.push(`Clearance updated: ${k} = ${v}`); save(); render(); }
+function setClearance(k,v){
+  let x=c();
+  x.clearance[k]=v;
+  // Background is ONE fact shown in two places (hero side-check pill and the
+  // clearance card) — marking it here ticks the side check too, so the
+  // recruiter never has to record the same thing twice.
+  if(k==='background'){ x.evidence=x.evidence||{}; x.evidence.background=v; }
+  x.timeline.push(`Clearance updated: ${k} = ${v}`);
+  save(); render();
+}
 // Turn a merged template into a one-click send. Gmail compose (Goff uses
 // Google Workspace) opens pre-filled from the recruiter's careers@ account —
 // real deliverability and replies, zero infrastructure. Mailto covers other
