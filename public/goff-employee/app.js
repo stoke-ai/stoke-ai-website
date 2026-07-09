@@ -2437,8 +2437,8 @@ function employeeDetail(){
     <div class="bar" style="margin:14px 0 6px"><i style="width:${esc(view.progress)}%"></i></div>
     <div class="admin-actions" style="margin-top:14px">
       ${nextItem ? `<button onclick="markEmployeeMilestone('${esc(e.serverId)}','${nextItem[0]}',true)">✓ ${esc(nextItem[1])}</button>` : ''}
-      <button class="secondary" onclick="document.getElementById('welcomeText').scrollIntoView({behavior:'smooth',block:'center'})">✉ Send welcome ↓</button>
-      <button class="secondary" onclick="sendBbsiHeadsUp('${esc(e.serverId)}')">✉ BBSI heads-up</button>
+      ${nextItem && nextItem[0]==='welcome' ? `<button class="secondary" onclick="document.getElementById('welcomeText').scrollIntoView({behavior:'smooth',block:'center'})">✉ Send welcome ↓</button>` : ''}
+      ${nextItem && (nextItem[0]==='bbsiSent' || nextItem[0]==='bbsi') ? `<button class="secondary" onclick="sendBbsiHeadsUp('${esc(e.serverId)}')">✉ BBSI heads-up</button>` : ''}
       <button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
     </div>
   </section>
