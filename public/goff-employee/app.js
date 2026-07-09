@@ -1437,7 +1437,7 @@ function policiesSection(){
   const doneCount = POLICY_COURSES.filter(policyCourseComplete).length;
   return `<section class="panel doc-page"><p class="eyebrow">${onboardingComplete()?'Company policies':'Step 2 • Policies &amp; acknowledgements'}</p><h2>The rules of working at Goff</h2><p class="summary">Each policy below is a short course — a few slides that explain the actual rules, a couple of questions to prove you caught them, and your acknowledgement at the end. ${doneCount} of ${POLICY_COURSES.length} complete. Take them in any order; the ones marked “Sign” become part of your signed employee record.</p>
   <div class="policy-courses">${courseMenuCards('policy')}</div>
-  ${allPolicyCoursesDone()?`<div class="ack-box"><h3>All policies acknowledged ✓</h3><p>Every policy course is complete. In production, your signatures and completion dates are stored on your employee record and visible to HR.</p></div>`:''}</section>`;
+  ${allPolicyCoursesDone()?`<div class="ack-box"><h3>All policies acknowledged ✓</h3><p>Every policy course is complete — your signatures and completion dates are on your employee record.</p></div>${nextStepDoor('Policies')}`:''}</section>`;
 }
 
 const checkinItems = [
@@ -1810,6 +1810,24 @@ function tabs(){
   const groups = ['Admin','Review'];
   return `<nav class="tabs grouped-tabs">${groups.map(group=>`<div class="tab-group"><span>${esc(group)}</span>${pages.filter(p=>p[2]===group).map(([id,label])=>`<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`).join('')}</div>`).join('')}<div class="tab-group portal-switch"><span>One portal — switch area</span><a href="?section=start">Employee view</a><a href="/goff-recruiting/">Recruiting platform</a><a href="/goff-recruiting/?view=career">Public careers page</a></div></nav>`;
 }
+// The next-step door. Every finish line (end of policies, safety, etc.)
+// shows ONE big button pointing at whatever comes next — stupid simple,
+// nobody finishes a section and wonders where to go.
+function nextOnboardingStep(){
+  const steps = [
+    { section:'course', label:'Orientation', done: coursePct() === 100 },
+    { section:'policies', label:'Policies & acknowledgements', done: allPolicyCoursesDone() },
+    { section:'safety', label:'Safety training', done: allSafetyCoursesDone() },
+    { section:'exaktime', label:'Work basics (ExakTime & timekeeping)', done: allWorkBasicsDone() },
+    { section:'path', label:'Supervisor handoff', done: HANDOFF_CHECKLIST.every((_,i)=>completed[`handoffitem-${i}`]) },
+  ];
+  return steps.find(s => !s.done) || null;
+}
+function nextStepDoor(currentLabel){
+  const next = nextOnboardingStep();
+  if(!next) return `<div class="next-door alldone"><h3>🎉 That was the last step — onboarding complete!</h3><p>Your whole record is signed and on file. The portal is now your everyday home: schedule, forms, safety reporting, FAQs.</p><button onclick="nav('home')">Go to my portal home →</button></div>`;
+  return `<div class="next-door"><h3>${esc(currentLabel)} done ✓ — next up: ${esc(next.label)}</h3><button onclick="nav('${next.section}')">Continue to ${esc(next.label)} →</button></div>`;
+}
 function onboardingComplete(){ return onboardingParts().every(p => p.pct === 100); }
 function startSection(){ return employeeHome(); }
 function homeSearchGo(el){
@@ -1960,7 +1978,7 @@ function exaktimeSection(){
   const p = pageContent.exaktime;
   return `<section class="panel doc-page"><p class="eyebrow">${onboardingComplete()?'Work basics':'Step 4 • Learn work basics'}</p><h2>ExakTime &amp; the tools of the day</h2><p class="summary">One short course covers it: setting up ExakTime, the daily clock-in rhythm, how a timecard becomes a paycheck, and the other tools you’ll touch — QUO, Travel Bank, purchase requests, and the Work Schedule. Finish the course to complete this step.</p>
   <div class="policy-courses basics-courses">${courseMenuCards('basics')}</div>
-  ${allWorkBasicsDone()?`<div class="ack-box"><h3>Work basics complete ✓</h3><p>This step is done. The FAQ keeps every one of these answers searchable whenever you need a refresher.</p></div>`:''}
+  ${allWorkBasicsDone()?`<div class="ack-box"><h3>Work basics complete ✓</h3><p>This step is done. The FAQ keeps every one of these answers searchable whenever you need a refresher.</p></div>${nextStepDoor('Work basics')}`:''}
   <div class="confirm-box"><h3>Questions to confirm with Goff/BBSI</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`;
 }
 
@@ -2131,7 +2149,7 @@ function safetySection(){
   return `<section class="panel doc-page"><p class="eyebrow">${onboardingComplete()?'Safety training':'Step 3 • Safety training — built from BBSI’s 2026 New Hire Safety Orientation'}</p><h2>Safety training sections</h2><p class="summary">${coursesDone} of ${SAFETY_COURSES.length} sections complete. Each section is a short slide course with knowledge checks — this is the “10–15 sections” structure Austin described, filled with BBSI’s actual 2026 material. Work through them all, then pass the final quiz below to complete your safety record.</p>
   <div class="policy-courses safety-courses">${courseMenuCards('safety')}</div>
   <article class="safety-sec placeholder" style="margin-top:16px"><span class="sec-num">…</span><div><b>More coming from BBSI</b><p>The 2026 deck reserves placeholders for Emergency Response, PPE, Hot Work, Compressed Gas, Fall Protection, Walking/Working Surfaces, Rigging, Bloodborne Pathogens, and Noise Exposure — titled but no teaching material yet. As BBSI’s content arrives, each becomes a section here in the same format.</p></div></article></section>
-  ${allSafetyCoursesDone() ? `<section class="panel"><div class="ack-box"><h3>Employee acknowledgement — safety training complete</h3><p>${esc(SAFETY_ACK)}</p><div class="admin-actions">${completed['iipp-ack'] ? `<button disabled>✓ Signed &amp; submitted</button>` : `<button onclick="signSafetyAck()">Sign &amp; submit to HR / Safety Manager</button>`}</div><p class="note" style="margin-top:12px"><strong>On record:</strong> your signed acknowledgement is stored on your employee record with the date.</p></div></section>` : ''}
+  ${allSafetyCoursesDone() ? `<section class="panel"><div class="ack-box"><h3>Employee acknowledgement — safety training complete</h3><p>${esc(SAFETY_ACK)}</p><div class="admin-actions">${completed['iipp-ack'] ? `<button disabled>✓ Signed &amp; submitted</button>` : `<button onclick="signSafetyAck()">Sign &amp; submit to HR / Safety Manager</button>`}</div><p class="note" style="margin-top:12px"><strong>On record:</strong> your signed acknowledgement is stored on your employee record with the date.</p></div>${completed['iipp-ack'] ? nextStepDoor('Safety training') : ''}</section>` : ''}
   <section class="panel"><div class="confirm-box"><h3>Pending BBSI / Goff</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`;
 }
 
