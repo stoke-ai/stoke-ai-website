@@ -343,7 +343,7 @@ button.faq-act{margin:0}
 .shell .sidebar{background:#0a0a0a;color:#fff;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,.08);overflow:auto}
 .shell .sidebar:before{content:"";display:block;height:6px;background:var(--red);flex:0 0 auto}
 .shell .brand{display:flex;flex-direction:column;gap:10px;align-items:flex-start;padding:24px 22px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
-.shell .brand-logo{width:100%;max-width:200px;height:auto;display:block;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5))}
+.shell .brand-logo{width:100%;max-width:200px;height:auto;display:block;filter:brightness(0) invert(1) drop-shadow(0 2px 6px rgba(0,0,0,.5))}
 .shell .brand-subtitle{margin:0;color:#b8b8b8;font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase}
 .shell .nav{display:flex;flex-direction:column;padding:16px 18px}
 .shell .nav button{border:0;text-align:left;padding:14px;border-radius:3px;background:transparent;color:#fff;font-weight:700;font-size:14px;border-left:3px solid transparent;box-shadow:none}
