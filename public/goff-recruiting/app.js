@@ -665,7 +665,7 @@ const STAGE_LABELS = {
   'Offer accepted - clearance hold':'Accepted — Clearing Final Checks',
   'BBSI documents invite':'BBSI Paperwork Sent',
   'Schedule first day':'Scheduling First Day',
-  'Transition to onboarding workflow':'Moving Into Onboarding',
+  'Transition to onboarding workflow':'Hired — In Onboarding',
   'Keep on file':'On Hold — Kept on File',
   'Not selected':'Not Selected',
   'Needs more experience':'Passed — Needs More Experience',
@@ -701,7 +701,7 @@ const STAGE_DESC = {
   'Offer accepted - clearance hold':'They said yes \u2014 but accepted is not hired. Finish drug screen, background, and start date below, then move them to onboarding.',
   'BBSI documents invite':'BBSI employment paperwork is with the new hire.',
   'Schedule first day':'Set their first day and get the shop ready for them.',
-  'Transition to onboarding workflow':'Recruiting is done \u2014 this person is moving into the employee portal.',
+  'Transition to onboarding workflow':'Recruiting is done \u2014 they\u2019re hired. Their onboarding now runs in the employee portal (Onboarding admin control).',
   'Keep on file':'Not moving forward right now; kept warm for future openings.',
   'Not selected':'Passed on this candidate. Rejection template available up top.',
 };
@@ -1936,6 +1936,7 @@ function offerStatusSummary(x){
   if(!o.signaturesRouted) return {label:'Letter generated — send for signatures', cls:'amber'};
   if(!(x.emailedStages||[]).includes(x.stage) && ['Offer letter draft','Offer sent / follow-up'].includes(x.stage)) return {label:'Signature sent — email the offer', cls:'amber'};
   if(x.stage==='Offer accepted - clearance hold') return clearanceReady(x) ? {label:'Cleared — move to onboarding', cls:'green'} : {label:'Accepted — clearance in progress', cls:'amber'};
+  if(x.stage==='Transition to onboarding workflow') return {label:'Hired — onboarding in the employee portal', cls:'green'};
   return {label:'In motion', cls:'green'};
 }
 function offersQueue(){
