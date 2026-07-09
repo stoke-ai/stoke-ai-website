@@ -683,3 +683,6 @@ details.collapse-panel > summary h3{margin:0}
 /* Sidebar group labels — the nav reads as the hiring flow, not a pile */
 .nav .nav-label{display:block;font-size:10px;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:#8a8a8a;padding:18px 14px 8px;border-top:1px solid rgba(255,255,255,.08);margin-top:10px}
 .nav .nav-label:first-of-type{border-top:0;margin-top:4px}
+
+/* Offer builder columns inside the collapsible (plain, not nested panels) */
+.offer-col{min-width:0}

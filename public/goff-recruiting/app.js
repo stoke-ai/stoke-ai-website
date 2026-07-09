@@ -1437,7 +1437,7 @@ function employeePortalUrl(x){
   return `/goff-employee/?${p.toString()}`;
 }
 function fullEmployeePortalUrl(x){ return employeePortalLink()+employeePortalUrl(x).replace(/^\/goff-employee\//,''); }
-function employeeHandoffPanel(x){ const accepted=['Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'].includes(x.stage); const ready=clearanceReady(x)&&accepted; const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); const fullUrl=fullEmployeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee link</span><strong>${esc(`${x.first} ${x.last}`.trim() || 'New hire')}</strong><small class="link-break">${esc(fullUrl)}</small></div><div><span>Access method</span><strong>Private link</strong><small>Unique per candidate. Progress is kept separate by candidate ID.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Once moved, Quinton can track this hire from Admin control.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and keeps this employee’s progress tied to the unique link.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="copyToClipboard('${esc(fullUrl)}')">Copy exact employee link</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
+function employeeHandoffPanel(x){ const accepted=['Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'].includes(x.stage); const ready=clearanceReady(x)&&accepted; const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); const fullUrl=fullEmployeePortalUrl(x); return `<details class="panel collapse-panel employee-handoff" style="margin-top:16px" ${ready&&!moved?'open':''}><summary><h3 style="display:inline">${moved?'✓ Handed off — they\u2019re in the employee portal':(ready?'Final step: send them into the employee portal':'Employee portal hand-off')}</h3><span class="tl-peek">${moved?'in the onboarding queue':(ready?'everything is cleared — one click':'locked until offer accepted + checks clear')}</span></summary><div style="margin-top:14px" class="handoff-body"><div class="handoff-grid"><div><span>Employee link</span><strong>${esc(`${x.first} ${x.last}`.trim() || 'New hire')}</strong><small class="link-break">${esc(fullUrl)}</small></div><div><span>Access method</span><strong>Private link</strong><small>Unique per candidate. Progress is kept separate by candidate ID.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Once moved, Quinton can track this hire from Admin control.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and keeps this employee’s progress tied to the unique link.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="copyToClipboard('${esc(fullUrl)}')">Copy exact employee link</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></div></details>`; }
 // One progress rail instead of "current stage" + a separate evidence checklist.
 // Reuses the same 6 funnel buckets as the dashboard so both screens speak the
 // same language. Steps left of the current bucket are done (the stage pointer
@@ -1573,7 +1573,7 @@ function candidate(){
     ${realConcern(x) ? `<h3>Concern to resolve</h3><div class="notice warning">${esc(realConcern(x))}<div style="margin-top:10px"><button class="btn" style="padding:7px 14px;font-size:13px" onclick="resolveConcern(${x.id})">✓ Mark resolved</button></div></div><h3 style="margin-top:18px">Role expectations</h3>` : `<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px"><h3>Role expectations</h3><button class="btn" style="padding:7px 14px;font-size:13px;flex:0 0 auto" onclick="addConcern(${x.id})">⚑ Flag a concern</button></div>`}
     <p class="muted">${esc(roleFit(x))}</p>
   </section>
-  ${showClearance ? `<section class="panel" id="clearanceCard" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>${employeeHandoffPanel(x)}` : ''}
+  ${showClearance ? `<details class="panel collapse-panel" id="clearanceCard" style="margin-top:16px" ${clearanceReady(x)?'':'open'}><summary><h3 style="display:inline">Clearance guardrails</h3><span class="tl-peek">${clearanceReady(x)?'✓ all three checks complete':'action needed — drug / background / start date'}</span></summary><div style="margin-top:14px">${clearancePanel(x)}</div></details>${employeeHandoffPanel(x)}` : ''}
   <details class="panel collapse-panel" style="margin-top:16px">
     <summary><h3 style="display:inline">Timeline</h3><span class="tl-peek">${x.timeline.length} event${x.timeline.length===1?'':'s'}${x.timeline.length?` · latest: ${esc(String(x.timeline[x.timeline.length-1]).slice(0,64))}${String(x.timeline[x.timeline.length-1]).length>64?'…':''}`:''}</span></summary>
     <div class="timeline" style="margin-top:14px">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
@@ -1648,6 +1648,10 @@ function stageDecisionButtons(x){
   }
   const custom = decisionActionsForStage(x.stage);
   if(custom.length) return custom.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('');
+  // Terminal stages have no next — advance() would fall back to Manager
+  // review and silently resurrect a finished/parked person.
+  if(x.stage==='Transition to onboarding workflow') return `<span class="tag green">Recruiting complete — manage them from the employee portal</span>`;
+  if(!NEXT[x.stage]) return `<button class="btn" onclick="inlineEdit='stage';render()">Reopen — change stage</button>`;
   return `<button class="btn primary" onclick="advance()">Move to next stage</button>`;
 }
 function phoneScreenOutcome(choice){
@@ -1891,10 +1895,14 @@ function scrollToOfferBuilder(){ const el=document.getElementById('offerBuilder'
 function offerBuilderSection(x){
   const missing=offerMissing(x);
   const o=x.offer||{};
-  return `<div id="offerBuilder" style="margin-top:16px">
-  <div id="offerBanner">${offerBannerHTML(missing)}</div>
+  // Collapsed once the offer work is done (status chip green) — the summary
+  // bar still says exactly where it stands. Open while anything is pending.
+  const st=offerStatusSummary(x);
+  return `<details id="offerBuilder" class="panel collapse-panel" style="margin-top:16px" ${st.cls==='amber'?'open':''}>
+  <summary><h3 style="display:inline">Offer builder</h3><span class="tl-peek">${esc(st.label)}</span></summary>
+  <div id="offerBanner" style="margin-top:14px">${offerBannerHTML(missing)}</div>
   <div class="grid two" style="margin-top:16px">
-    <section class="panel">
+    <div class="offer-col">
       <div class="section-head"><h3>Offer details</h3><span class="muted">Verified by Hiring Manager + Core Members</span></div>
       <div class="form offer-form" oninput="updateOfferLive()" onchange="updateOfferLive()">
         <fieldset class="offer-fieldset">
@@ -1921,8 +1929,8 @@ function offerBuilderSection(x){
         </fieldset>
         <button class="btn brand" onclick="saveOffer()">Save offer details</button>
       </div>
-    </section>
-    <section class="panel">
+    </div>
+    <div class="offer-col">
       <h3>Generate &amp; send</h3>
       <div class="offer-actions">
         ${(()=>{
@@ -1950,9 +1958,9 @@ function offerBuilderSection(x){
       </div>
       <h4 style="margin-top:22px">Offer SOP checklist</h4>
       <div class="steps" id="offerChecklist">${offerStepsHTML(o, x)}</div>
-    </section>
+    </div>
   </div>
-  </div>`;
+  </details>`;
 }
 function saveOffer(){ syncOfferFromForm(); c().timeline.push('Offer details saved for generated offer letter'); save(); render(); showToast('Offer details saved'); }
 const OFFER_REQUIRED = [['date','Offer date','offerDate'],['startDate','Expected start date','offerStart'],['supervisor','Supervisor','offerSupervisor'],['pay','Starting pay','offerPay'],['minHours','Minimum hours','offerMinHours'],['schedule','Scheduled work hours','offerSchedule'],['coreMember1','Core Member 1 (approver)','offerCore1'],['coreMember2','Core Member 2 (approver)','offerCore2']];
