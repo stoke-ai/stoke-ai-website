@@ -1785,7 +1785,45 @@ function sendCandidateEmail(via){
   document.getElementById('modal').className='modal'; render();
   showToast('Opening Gmail — just hit Send');
 }
-function mergeKey(key,x){ const body=TEMPLATE_TEXT[key] || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',realConcern(x) || 'None noted').replaceAll('{{roleFit}}',roleFit(x)); }
+// Recruiter-editable templates: overrides live in goff_templates (synced at
+// boot); the baked-in TEMPLATE_TEXT is the default and the reset point.
+let templateOverrides = safeJSON('goffTemplateOverridesV1', {}) || {};
+function templateText(key){ return templateOverrides[key] || TEMPLATE_TEXT[key]; }
+async function initTemplateSync(){
+  try{
+    const r=await fetch('/api/goff-recruiting/templates');
+    if(!r.ok) return;
+    const data=await r.json();
+    if(data && data.templates){ templateOverrides=data.templates; safeSet('goffTemplateOverridesV1', JSON.stringify(templateOverrides)); }
+  }catch(_){}
+}
+async function saveTemplateEdit(name){
+  const ta=document.getElementById('tplEditor'); if(!ta) return;
+  const body=ta.value;
+  const isReset=!body.trim() || body===TEMPLATE_TEXT[name];
+  if(isReset) delete templateOverrides[name]; else templateOverrides[name]=body;
+  safeSet('goffTemplateOverridesV1', JSON.stringify(templateOverrides));
+  try{
+    const r=await fetch('/api/goff-recruiting/templates',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({key:name, body:isReset?'':body})});
+    showToast(r.ok ? (isReset?'Template reset to default':'Template saved — used for every future email') : 'Saved locally — cloud sync failed');
+  }catch(_){ showToast('Saved locally — cloud sync failed'); }
+  document.getElementById('modal').className='modal';
+  render();
+}
+function editTemplate(name){
+  const body=templateText(name) || '';
+  const custom=!!templateOverrides[name];
+  document.getElementById('modal').className='modal open';
+  document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Edit: ${esc(name)}</h3>
+    <p>Edit the raw template. Keep the merge fields — <code>{{first}}</code> <code>{{last}}</code> <code>{{role}}</code> <code>{{summary}}</code> <code>{{concerns}}</code> <code>{{roleFit}}</code> — and they fill in per candidate. First line stays <strong>Subject: ...</strong>${custom?' <span class="tag amber">customized — reset restores the original</span>':''}</p>
+    <textarea id="tplEditor">${esc(body)}</textarea>
+    <div class="modal-actions">
+      <button class="btn" onclick="document.getElementById('modal').className='modal'">Cancel</button>
+      ${custom?`<button class="btn" onclick="document.getElementById('tplEditor').value='';saveTemplateEdit('${esc(name).replace(/'/g,"\\'")}')">Reset to default</button>`:''}
+      <button class="btn brand" onclick="saveTemplateEdit('${esc(name).replace(/'/g,"\\'")}')">Save template</button>
+    </div></div>`;
+}
+function mergeKey(key,x){ const body=templateText(key) || TEMPLATE_TEXT['Manager Review Packet']; return body.replaceAll('{{first}}',x.first).replaceAll('{{last}}',x.last).replaceAll('{{role}}',x.role).replaceAll('{{source}}',x.source).replaceAll('{{stage}}',x.stage).replaceAll('{{summary}}',x.summary).replaceAll('{{concerns}}',realConcern(x) || 'None noted').replaceAll('{{roleFit}}',roleFit(x)); }
 function merge(stage,x){ return mergeKey(stageMeta(stage).template, x); }
 function showDraft(stage){ let x=c(); const stageTpl=stageMeta(stage).template; document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Email the candidate</h3><p>Defaults to the template for their current stage — switch to any other Goff template below. Review or edit, then open it pre-filled in Gmail and hit Send. It sends from your own careers@ account — replies come back to you.</p><label class="muted small draft-tpl-label">Template</label><select class="stage-select draft-tpl" onchange="document.querySelector('.modal-card textarea').value=mergeKey(this.value,c())">${Object.keys(TEMPLATE_TEXT).map(k=>`<option ${k===stageTpl?'selected':''}>${esc(k)}</option>`).join('')}</select><textarea>${merge(stage,x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="copyToClipboard(document.querySelector('.modal-card textarea').value)">Copy</button><button class="btn brand" onclick="sendCandidateEmail('gmail')">Open in Gmail →</button></div></div>`; }
 function markDraft(){ c().timeline.push('Email draft generated for '+c().stage); save(); document.getElementById('modal').className='modal'; render(); }
@@ -2090,7 +2128,7 @@ function downloadOfferLetterDoc(){ syncOfferFromForm(); const x=c(); const html=
 function printOfferLetter(){ syncOfferFromForm(); const x=c(); x.offer.generatedAt=nowISO(); x.timeline.push('Offer letter opened for print / PDF'); save(); if(x.stage==='Offer letter info request'){ setStage('Offer letter draft'); } const w=window.open('', '_blank'); w.document.write(offerLetterHTML(x, true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
 function showOfferPacket(){ previewOfferLetter(); }
 function previewTemplate(name){
-  const body = TEMPLATE_TEXT[name];
+  const body = templateText(name);
   if(!body){
     document.getElementById('modal').className='modal open';
     document.getElementById('modal').innerHTML = `<div class="modal-card"><h3>${esc(name)}</h3><p>This template is in the Goff Drive library but is not wired into the platform yet. We can add it once you confirm the wording.</p><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button></div></div>`;
@@ -2100,14 +2138,14 @@ function previewTemplate(name){
   const x = c();
   const stagesUsing = WORKFLOW_STAGES.filter(s => s.template === name).map(s => s.id);
   document.getElementById('modal').className='modal open';
-  document.getElementById('modal').innerHTML = `<div class="modal-card"><h3>${esc(name)}</h3>${stagesUsing.length ? `<p>Sent automatically at stage${stagesUsing.length===1?'':'s'}: <strong>${stagesUsing.map(esc).join(', ')}</strong>.</p>` : '<p>This template is mapped but not yet tied to any workflow stage.</p>'}<textarea>${esc(merge(stagesUsing[0] || x.stage, x))}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button></div></div>`;
+  document.getElementById('modal').innerHTML = `<div class="modal-card"><h3>${esc(name)}</h3>${stagesUsing.length ? `<p>Sent automatically at stage${stagesUsing.length===1?'':'s'}: <strong>${stagesUsing.map(esc).join(', ')}</strong>.</p>` : '<p>This template is mapped but not yet tied to any workflow stage.</p>'}<textarea>${esc(merge(stagesUsing[0] || x.stage, x))}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn brand" onclick="editTemplate('${esc(name).replace(/'/g,"\\'")}')">Edit template</button></div></div>`;
 }
 
 function templates(){
   const used = new Set(WORKFLOW_STAGES.map(s => s.template));
   const installed = DRIVE_TEMPLATES.filter(t => TEMPLATE_TEXT[t] || used.has(t));
   const notMapped = DRIVE_TEMPLATES.filter(t => !used.has(t) && !TEMPLATE_TEXT[t]);
-  return `${head('Installed templates','Every Drive template that drives this platform, with a preview using the currently-selected candidate.')}
+  return `${head('Installed templates','Every template that drives this platform. Click to preview with the current candidate, or ✎ Edit to change the wording — edits apply to every future email.')}
   <div class="grid metrics">
     ${metric('Drive templates', DRIVE_TEMPLATES.length)}
     ${metric('Wired up', installed.length)}
@@ -2119,7 +2157,8 @@ function templates(){
     <p class="muted">Preview merges in the currently-selected candidate so you can see what would go out.</p>
     <div class="template-list">${DRIVE_TEMPLATES.map(t => {
       const isInstalled = installed.includes(t);
-      return `<button class="template-row clickable" onclick="previewTemplate('${esc(t).replace(/'/g,"\\'")}')"><b>${esc(t)}</b><span class="tag ${isInstalled ? 'green' : 'amber'}">${isInstalled ? 'Installed' : 'Needs review'}</span></button>`;
+      const custom = !!templateOverrides[t];
+      return `<div class="template-row clickable" onclick="previewTemplate('${esc(t).replace(/'/g,"\\'")}')"><b>${esc(t)}</b><span style="display:flex;gap:8px;align-items:center">${custom?'<span class="tag blue">Customized</span>':''}<span class="tag ${isInstalled ? 'green' : 'amber'}">${isInstalled ? 'Installed' : 'Needs review'}</span>${TEMPLATE_TEXT[t]?`<button class="btn ev-toggle" onclick="event.stopPropagation();editTemplate('${esc(t).replace(/'/g,"\\'")}')">✎ Edit</button>`:''}</span></div>`;
     }).join('')}</div>
   </section>
   <section class="panel" style="margin-top:16px">
@@ -2351,6 +2390,7 @@ function howItWorks(){
 }
 
 render();
+initTemplateSync();
 initCandidateSync();
 loadCurrentUser();
 initPositionsSync();
