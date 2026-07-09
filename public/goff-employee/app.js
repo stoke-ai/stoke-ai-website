@@ -2204,8 +2204,30 @@ function feedbackWidget(){
 function compactHeader(){
   return `<header class="mini-hero"><img src="/goff-welding-logo.png" alt="Goff Welding" /><span class="mini-sep">Employee portal</span><div class="mini-meta"><span>${esc(PROFILE.firstName)} • starts ${esc(PROFILE.startDate)}</span><button class="secondary" onclick="nav('start')">Portal home</button></div></header>`;
 }
+// Admin sections wear the SAME shell as the recruiting platform — dark left
+// sidebar, grouped nav, content on the right — so the team moves between
+// "Goff Recruiting" and "Onboarding Admin" without relearning the layout.
+// Employee-facing sections keep their own phone-first hero/tabs design.
+const ADMIN_SHELL_SECTIONS = new Set(['ops','clearance','handoff','admin','training']);
+function adminNavBtn(id,label){ return `<button class="${section===id?'active':''}" onclick="nav('${id}')">${esc(label)}</button>`; }
 function render(){
   const app = document.getElementById('app');
+  if(ADMIN_SHELL_SECTIONS.has(section)){
+    app.innerHTML = `<div class="shell"><aside class="sidebar">
+      <div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Onboarding Admin</p></div>
+      <nav class="nav">
+        ${adminNavBtn('ops','Onboarding board')}
+        <span class="nav-label">New hires — day 1 to 30</span>
+        ${adminNavBtn('clearance','Clearance hold')}
+        ${adminNavBtn('handoff','Manager handoff')}
+        <span class="nav-label">Review &amp; reference</span>
+        ${adminNavBtn('admin','Austin review')}
+        ${adminNavBtn('training','Full path map')}
+      </nav>
+      <div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-recruiting/">Recruiting platform</a><a href="?section=start">Employee view</a><a href="/goff-recruiting/?view=career" target="_blank" rel="noopener">Public careers page</a></div>
+    </aside><main class="content">${main()}</main></div>${feedbackWidget()}`;
+    return;
+  }
   if(section==='course'){
     app.innerHTML = `${courseHeader()}<main class="course-wrap">${main()}</main>${feedbackWidget()}`;
   } else {
