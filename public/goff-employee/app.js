@@ -1458,10 +1458,11 @@ function parseRecruitingHandoffs(){ try { return JSON.parse(localStorage.getItem
 // so the board is the same from any device.
 const EMP_MILESTONES = [
   ['welcome','Welcome link sent'],
-  ['bbsi','BBSI/myBBSI confirmed'],
-  ['training','Training path started'],
-  ['handoff','Supervisor handoff'],
-  ['checkin30','30-day check-in'],
+  ['bbsiSent','BBSI invite sent'],
+  ['bbsi','BBSI paperwork complete'],
+  ['training','Training started'],
+  ['handoff','Supervisor handoff done'],
+  ['checkin30','30-day check-in done'],
 ];
 function milestoneView(ms){
   const done = EMP_MILESTONES.filter(([k]) => ms && ms[k]).length;
@@ -1470,7 +1471,7 @@ function milestoneView(ms){
     done,
     progress: Math.round(done / EMP_MILESTONES.length * 100),
     stage: nextItem ? `Next: ${nextItem[1]}` : 'Onboarding complete',
-    blocked: nextItem ? (nextItem[0]==='bbsi' ? 'Waiting on BBSI/myBBSI — confirm or resend the invite' : 'Nothing blocked — work the next milestone') : 'Nothing — fully onboarded',
+    blocked: nextItem ? (nextItem[0]==='bbsiSent' ? 'On us — the BBSI/myBBSI invite hasn\u2019t been sent yet' : nextItem[0]==='bbsi' ? 'Waiting on BBSI / the employee — confirm the paperwork came back complete, or resend' : 'Nothing blocked — work the next milestone') : 'Nothing — fully onboarded',
     next: nextItem ? nextItem[1] : 'Move them to the everyday employee home',
   };
 }
@@ -2344,8 +2345,9 @@ function copyEmployeeAsset(text, label){
 // action. Same mental model on both sides of the portal.
 const MILESTONE_DESC = {
   welcome: 'Send their private portal link with the welcome message below.',
-  bbsi: 'Confirm the BBSI/myBBSI invite is complete — or resend it and follow up.',
-  training: 'They work the orientation + safety training path inside their portal.',
+  bbsiSent: 'Send them the BBSI/myBBSI onboarding invite — BBSI owns the employment paperwork.',
+  bbsi: 'Confirm their BBSI/myBBSI paperwork actually came back complete. Follow up or resend if it stalls.',
+  training: 'They work the orientation + safety training path inside their portal — this one marks itself when they start.',
   handoff: 'Supervisor confirms the first assignment and day-one expectations.',
   checkin30: 'Sit down at 30 days: forms, timekeeping, safety questions, tools, expectations.',
 };
@@ -2406,7 +2408,7 @@ function employeeDetail(){
     </div>
     <div class="bar" style="margin:14px 0 6px"><i style="width:${esc(view.progress)}%"></i></div>
     <div class="admin-actions" style="margin-top:14px">
-      ${nextItem ? `<button onclick="markEmployeeMilestone('${esc(e.serverId)}','${nextItem[0]}',true)">✓ Mark "${esc(nextItem[1])}" done</button>` : ''}
+      ${nextItem ? `<button onclick="markEmployeeMilestone('${esc(e.serverId)}','${nextItem[0]}',true)">✓ ${esc(nextItem[1])}</button>` : ''}
       <button class="secondary" onclick="document.getElementById('welcomeText').scrollIntoView({behavior:'smooth',block:'center'})">✉ Send welcome ↓</button>
       <button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
     </div>

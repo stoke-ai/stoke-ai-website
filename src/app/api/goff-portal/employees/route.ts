@@ -17,7 +17,7 @@ export async function GET() {
 // Onboarding milestones, marked from the admin ops board (welcome link sent,
 // BBSI confirmed, training started, supervisor handoff, 30-day check-in).
 // Value true stamps the time; false clears it (undo).
-const MILESTONE_KEYS = new Set(['welcome', 'bbsi', 'training', 'handoff', 'checkin30']);
+const MILESTONE_KEYS = new Set(['welcome', 'bbsiSent', 'bbsi', 'training', 'handoff', 'checkin30']);
 
 export async function PATCH(request: NextRequest) {
   const sql = goffDb();
