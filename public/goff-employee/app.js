@@ -1492,6 +1492,7 @@ async function loadServerEmployees(){
       return {
         id: `emp-${e.id}`,
         serverId: e.id,
+        email: e.email || '',
         milestones: ms,
         name: `${e.first_name} ${e.last_name}`.trim(),
         role: e.role || 'Role TBD',
@@ -1520,7 +1521,11 @@ function currentOnboardingQueue(){
   const handoffs = parseRecruitingHandoffs()
     .filter(x => !isDemoOnboardingRecord(x))
     .map(x => Object.assign({ progress:28, status:'Ready for onboarding', stage:'BBSI invite + training path', blocked:'BBSI/myBBSI invite and completion still need admin confirmation', next:'Send welcome link, confirm myBBSI invite, then start training path' }, x, { fromRecruiting:true }));
-  const realServerEmployees = serverEmployees.filter(x => !isDemoOnboardingRecord(x));
+  // Server rows are real database records — only drop obvious fakes
+  // (@example.com). The aggressive name filter stays for localStorage rows,
+  // where stale prototype demos actually live; applied to server rows it
+  // hid 'Jeffrey Stoker (Test)', a real end-to-end hire.
+  const realServerEmployees = serverEmployees.filter(x => String(x.name||'').trim() && !/@example\.com$/i.test(String(x.email||'')));
   const seen = new Set(realServerEmployees.map(x => String(x.name || '').toLowerCase()));
   const localOnly = handoffs.filter(x => !seen.has(String(x.name || '').toLowerCase()));
   localOnly.forEach(x => seen.add(String(x.name || '').toLowerCase()));
