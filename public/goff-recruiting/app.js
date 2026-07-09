@@ -698,7 +698,7 @@ function render(){
     document.getElementById('app').innerHTML = `${page()}<div id="modal" class="modal"></div>${feedbackWidget()}`;
     return;
   }
-  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('positions','Open Positions')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offer','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
+  document.getElementById('app').innerHTML = `<div class="shell"><aside class="sidebar"><div class="brand"><img src="/goff-welding-logo.png" alt="Goff Welding" class="brand-logo"><p class="brand-subtitle">Recruiting Platform</p></div><nav class="nav">${nav('dashboard','Dashboard')}${nav('candidates','Candidates')}${nav('positions','Open Positions')}${nav('intake','Add candidate')}${nav('manager','Manager review')}${nav('offers','Offer workflow')}${nav('workflow','Full workflow')}${nav('templates','Templates')}${nav('integrations','Setup &amp; status')}${nav('how-it-works','How it works')}</nav><div class="side-card portal-links"><strong>One portal — other areas</strong><a href="/goff-employee/?section=start">Employee onboarding portal</a><a href="/goff-employee/?section=ops">Onboarding admin control</a><a href="/goff-employee/?section=admin">Austin review mode</a></div><div class="side-card"><strong>Today’s focus</strong><p>Keep qualified candidates moving through Goff’s actual recruiting steps: screen, weld test, interview, references, offer, clearance hold, and BBSI handoff.</p></div>${currentUser ? `<div class="signed-as"><span>Signed in as</span><b>${esc(currentUser.name)}</b><em>${esc((currentUser.roles||[]).join(' · ') || 'recruiter')}</em></div>` : `<div class="signed-as shared"><span>Shared login</span><b>goffadmin</b><em>ask Jeff for a personal login</em></div>`}<button class="sidebar-signout" onclick="signOut()">Sign out</button></aside><main class="content">${page()}</main></div><div id="modal" class="modal"></div>${feedbackWidget()}`;
 }
 function nav(id,label){ return `<button class="${view===id?'active':''}" onclick="view='${id}';render()">${label}</button>`; }
 function head(title,sub,button=''){ return `<div class="topbar"><div><div class="eyebrow">Recruiting operations</div><h2>${title}</h2><p>${sub}</p></div>${button}</div>`; }
@@ -708,7 +708,7 @@ function page(){
   // Candidate-detail views need a selected candidate; on an empty pipeline show
   // a friendly empty state instead of crashing.
   if(['candidate','manager','offer'].includes(view) && !c()) return emptyPipeline();
-  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,positions:positionsView,manager,offer,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)();
+  return ({dashboard,intake,career,apply:applyView,thanks,candidate,candidates:candidateList,positions:positionsView,manager,offer,offers:offersQueue,workflow,templates,integrations,'how-it-works':howItWorks}[view] || dashboard)();
 }
 function metric(label,value){ return `<div class="metric"><span>${label}</span><b>${value}</b></div>`; }
 function dashboard(){
@@ -1690,11 +1690,42 @@ function manager(){
     </section>
   </div>`;
 }
+// Sidebar "Offer workflow" is a QUEUE, not a page for one person. It lists
+// everyone currently in offer/clearance stages; clicking a row opens THAT
+// candidate's offer builder. (Previously the nav item silently opened the
+// builder for whichever candidate happened to be selected last — with several
+// offers in flight there was no way to see or switch between them.)
+const OFFER_QUEUE_STAGES = ['Offer letter info request','Offer letter draft','Offer sent / follow-up','Offer accepted - clearance hold','BBSI documents invite','Schedule first day'];
+function offerStatusSummary(x){
+  const o=x.offer||{};
+  const missing=offerMissing(x);
+  if(missing.length) return {label:`${missing.length} field${missing.length===1?'':'s'} to fill`, cls:'amber'};
+  if(!o.generatedAt) return {label:'Ready to generate letter', cls:'amber'};
+  if(!o.signaturesRouted) return {label:'Letter generated — route signatures', cls:'amber'};
+  if(!(x.emailedStages||[]).includes(x.stage) && ['Offer letter draft','Offer sent / follow-up'].includes(x.stage)) return {label:'Signatures routed — send it', cls:'amber'};
+  if(x.stage==='Offer accepted - clearance hold') return clearanceReady(x) ? {label:'Cleared — move to onboarding', cls:'green'} : {label:'Accepted — clearance in progress', cls:'amber'};
+  return {label:'In motion', cls:'green'};
+}
+function offersQueue(){
+  const queue = candidates.filter(x=>OFFER_QUEUE_STAGES.includes(x.stage));
+  if(!queue.length) return `${head('Offer workflow','No candidates are in the offer or clearance stages right now. When someone reaches Manager review → approve, they show up here.',`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+    <section class="panel"><div class="notice"><strong>Nothing in the offer pipeline.</strong><br>Candidates land here from "Approve — start offer" in Manager review. Open a candidate and advance them to see this queue in action.</div></section>`;
+  return `${head('Offer workflow',`${queue.length} candidate${queue.length===1?'':'s'} in the offer & clearance stages. Open one to build, send, and clear their offer.`,`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
+  <div class="offer-queue">${queue.map(x=>{
+    const st=offerStatusSummary(x);
+    return `<section class="panel offer-queue-row" onclick="selectedId=${x.id};view='offer';render()">
+      <div class="oq-who"><strong>${esc(x.first)} ${esc(x.last)}</strong><small>${esc(x.role)}</small></div>
+      <div class="oq-stage"><span class="tag dark">${esc(titleCase(x.stage))}</span><small class="muted">${esc(stageAgeText(x))} in stage</small></div>
+      <div class="oq-status"><span class="tag ${st.cls}">${esc(st.label)}</span></div>
+      <button class="btn primary" onclick="event.stopPropagation();selectedId=${x.id};view='offer';render()">Open offer builder →</button>
+    </section>`;
+  }).join('')}</div>`;
+}
 function offer(){
   const x=c();
   const missing=offerMissing(x);
   const o=x.offer||{};
-  return `${head('Offer letter workflow',`Building the offer for ${esc(x.first)} ${esc(x.last)} (${esc(x.role)}). Save verified details, preview the letter, then download or print.`,`<button class="btn ghost" onclick="view='candidate';render()">← Back to candidate</button>`)}
+  return `${head('Offer letter workflow',`Building the offer for ${esc(x.first)} ${esc(x.last)} (${esc(x.role)}). Save verified details, preview the letter, then download or print.`,`<div class="head-actions"><button class="btn ghost" onclick="view='offers';render()">← All offers</button><button class="btn ghost" onclick="view='candidate';render()">← Back to candidate</button></div>`)}
   <div id="offerBanner">${offerBannerHTML(missing)}</div>
   <div class="grid two" style="margin-top:16px">
     <section class="panel">

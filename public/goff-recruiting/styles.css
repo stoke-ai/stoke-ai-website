@@ -659,3 +659,12 @@ details.collapse-panel > summary h3{margin:0}
 .clr-item.pending .clr-mark,.clr-item.pending .clr-status{color:var(--amber)}
 .clr-item.done{border-left-color:var(--green);background:#f0f8f2}
 .clr-item.done .clr-mark,.clr-item.done .clr-status{color:var(--green)}
+
+/* Offer workflow queue — one row per candidate in offer/clearance stages */
+.offer-queue{display:flex;flex-direction:column;gap:14px}
+.offer-queue-row{display:grid;grid-template-columns:minmax(160px,1.2fr) minmax(180px,1.4fr) minmax(160px,1.4fr) auto;gap:18px;align-items:center;cursor:pointer;padding:20px 24px;transition:border-color .15s,transform .15s}
+.offer-queue-row:hover{border-color:var(--brand);transform:translateY(-1px)}
+.offer-queue-row .oq-who strong{display:block;font-family:'Playfair Display',serif;font-size:19px}
+.offer-queue-row .oq-who small{color:var(--steel)}
+.offer-queue-row .oq-stage small{display:block;margin-top:6px}
+@media(max-width:860px){.offer-queue-row{grid-template-columns:1fr;gap:10px}}
