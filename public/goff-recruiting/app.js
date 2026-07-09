@@ -81,6 +81,13 @@ function decisionActionsForStage(stage){
     { label: 'Build offer letter', action: "view='offer';render()", primary: true },
     { label: 'Pass', action: "setStage('Not selected')" },
   ];
+  if(stage === 'Offer letter draft') return [
+    { label: 'Open offer builder', action: "view='offer';render()", primary: true },
+  ];
+  if(stage === 'Offer sent / follow-up') return [
+    { label: 'Offer accepted', action: "setStage('Offer accepted - clearance hold')", primary: true },
+    { label: 'Declined — keep on file', action: "setStage('Keep on file')" },
+  ];
   return [];
 }
 
@@ -1350,7 +1357,7 @@ function employeePortalUrl(x){
   return `/goff-employee/?${p.toString()}`;
 }
 function fullEmployeePortalUrl(x){ return employeePortalLink()+employeePortalUrl(x).replace(/^\/goff-employee\//,''); }
-function employeeHandoffPanel(x){ const ready=clearanceReady(x); const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); const fullUrl=fullEmployeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee link</span><strong>${esc(`${x.first} ${x.last}`.trim() || 'New hire')}</strong><small class="link-break">${esc(fullUrl)}</small></div><div><span>Access method</span><strong>Private link</strong><small>Unique per candidate. Progress is kept separate by candidate ID.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Once moved, Quinton can track this hire from Admin control.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and keeps this employee’s progress tied to the unique link.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="copyToClipboard('${esc(fullUrl)}')">Copy exact employee link</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
+function employeeHandoffPanel(x){ const accepted=['Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'].includes(x.stage); const ready=clearanceReady(x)&&accepted; const moved=alreadyMovedToOnboarding(x); const url=employeePortalUrl(x); const fullUrl=fullEmployeePortalUrl(x); return `<section class="panel employee-handoff" style="margin-top:16px"><div class="section-head"><div><div class="eyebrow">Recruiting → employee portal</div><h3>${ready?(moved?'Already in onboarding queue':'Ready to move into onboarding'):'Employee portal stays locked until clearance'}</h3></div><span class="tag ${ready?'green':'amber'}">${ready?(moved?'Queued':'Cleared'):'Guardrail active'}</span></div><div class="handoff-grid"><div><span>Employee link</span><strong>${esc(`${x.first} ${x.last}`.trim() || 'New hire')}</strong><small class="link-break">${esc(fullUrl)}</small></div><div><span>Access method</span><strong>Private link</strong><small>Unique per candidate. Progress is kept separate by candidate ID.</small></div><div><span>Admin result</span><strong>${moved?'Visible in onboarding queue':'Not queued yet'}</strong><small>Once moved, Quinton can track this hire from Admin control.</small></div></div><div class="notice ${ready?'success':'warning'}"><strong>${ready?'Next action: move to onboarding':'Do not send full employee portal yet'}</strong><br>${ready?'This creates the employee onboarding record, advances recruiting to Transition to onboarding workflow, and keeps this employee’s progress tied to the unique link.':'Offer accepted is not hired. Complete drug screen, background, and start date first.'}</div><div class="actions tight"><button class="btn ${ready?'primary':''}" ${ready?'':'disabled'} onclick="moveToOnboarding()">${moved?'Refresh onboarding record':'Move to onboarding'}</button><button class="btn" onclick="window.open('${url}','_blank','noopener')">Preview employee portal</button><button class="btn" onclick="copyToClipboard('${esc(fullUrl)}')">Copy exact employee link</button><button class="btn" onclick="showEmployeeWelcomeDraft()">Preview welcome message</button></div></section>`; }
 // One progress rail instead of "current stage" + a separate evidence checklist.
 // Reuses the same 6 funnel buckets as the dashboard so both screens speak the
 // same language. Steps left of the current bucket are done (the stage pointer
@@ -1391,7 +1398,7 @@ function clearanceStrip(x){
   const allDone=clearanceReady(x);
   return `<div class="side-checks"><span class="side-checks-label">Clearance</span>${items.map(([label,val,done,pending])=>
     `<button class="side-check ${done?'done':(pending?'pending':'')}" title="${esc(val||'Not started')} — click for details" onclick="document.getElementById('clearanceCard')?.scrollIntoView({behavior:'smooth',block:'center'})">${done?'✓':(pending?'●':'○')} ${label}</button>`
-  ).join('')}${allDone?`<span class="tag green">All clear — onboarding unlocked below</span>`:''}</div>`;
+  ).join('')}${allDone?(['Offer accepted - clearance hold','BBSI documents invite','Schedule first day','Transition to onboarding workflow'].includes(x.stage)?`<span class="tag green">All clear — onboarding unlocked</span>`:`<span class="tag amber">Checks clear — waiting on offer acceptance</span>`):''}</div>`;
 }
 function candidate(){
   const x=c();
@@ -1509,6 +1516,11 @@ function stageDecisionButtons(x){
     `<button class="btn" onclick="phoneScreenOutcome('additional')">Needs additional review</button>`,
     `<button class="btn" onclick="phoneScreenOutcome('hold')">Hold / not fit</button>`,
   ].join('');
+  if(x.stage==='Offer accepted - clearance hold'){
+    return clearanceReady(x)
+      ? `<button class="btn primary" onclick="moveToOnboarding()">Move to onboarding →</button>`
+      : `<button class="btn" disabled title="Complete drug screen, background, and start date first">Waiting on clearance — see checks below</button>`;
+  }
   const custom = decisionActionsForStage(x.stage);
   if(custom.length) return custom.map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('');
   return `<button class="btn primary" onclick="advance()">Move to next stage</button>`;
@@ -1869,7 +1881,9 @@ async function emailOfferLetter(){
     x.timeline.push(`Offer letter emailed to ${x.email} (letter attached)`);
     x.emailedStages=x.emailedStages||[];
     if(!x.emailedStages.includes(x.stage)) x.emailedStages.push(x.stage);
-    save(); render();
+    save();
+    // Sending the offer IS the stage change — the rail follows the work.
+    if(['Offer letter info request','Offer letter draft'].includes(x.stage)){ setStage('Offer sent / follow-up'); } else { render(); }
     showToast('Offer letter sent ✉ — mark offer sent when you are ready');
   }catch(_){ showToast('Send failed — download and email it from Gmail instead'); }
 }
@@ -1887,8 +1901,8 @@ function offerLetterHTML(x, print=false){ const o=x.offer||{}; const candidate=`
 function previewOfferLetter(){ syncOfferFromForm(); const x=c(); const html=offerLetterHTML(x); const missing=offerMissing(x); document.getElementById('modal').className='modal open'; document.getElementById('modal').innerHTML=`<div class="modal-card wide"><h3>Actual offer letter preview</h3><p>${missing.length?`Missing before send: ${missing.join(', ')}`:'All required offer fields are present.'}</p><iframe class="doc-preview" srcdoc="${esc(html)}"></iframe><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal'">Close</button><button class="btn" onclick="printOfferLetter()">Print / Save PDF</button><button class="btn brand" onclick="downloadOfferLetterDoc()">Download .doc</button></div></div>`; }
 function downloadFile(filename, content, type='text/plain'){ const blob=new Blob([content],{type}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url); a.remove();},0); }
 function safeFileName(s){ return String(s||'candidate').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'') || 'candidate'; }
-function downloadOfferLetterDoc(){ syncOfferFromForm(); const x=c(); const html=offerLetterHTML(x,true); downloadFile(`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`, html, 'application/msword'); x.offer.generatedAt=nowISO(); x.timeline.push('Generated offer letter document download'); save(); render(); }
-function printOfferLetter(){ syncOfferFromForm(); const x=c(); x.offer.generatedAt=nowISO(); x.timeline.push('Offer letter opened for print / PDF'); save(); render(); const w=window.open('', '_blank'); w.document.write(offerLetterHTML(x, true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
+function downloadOfferLetterDoc(){ syncOfferFromForm(); const x=c(); const html=offerLetterHTML(x,true); downloadFile(`goff-offer-letter-${safeFileName(x.first+'-'+x.last)}.doc`, html, 'application/msword'); x.offer.generatedAt=nowISO(); x.timeline.push('Generated offer letter document download'); save(); if(x.stage==='Offer letter info request'){ setStage('Offer letter draft'); } else { render(); } }
+function printOfferLetter(){ syncOfferFromForm(); const x=c(); x.offer.generatedAt=nowISO(); x.timeline.push('Offer letter opened for print / PDF'); save(); if(x.stage==='Offer letter info request'){ setStage('Offer letter draft'); } const w=window.open('', '_blank'); w.document.write(offerLetterHTML(x, true)); w.document.close(); w.focus(); setTimeout(()=>w.print(),250); }
 function showOfferPacket(){ previewOfferLetter(); }
 function previewTemplate(name){
   const body = TEMPLATE_TEXT[name];
