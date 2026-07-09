@@ -208,6 +208,7 @@ function answerKC(id, idx){
   if(!s.correct && s.attempts >= 2) s.locked = true;
   kcState[id] = s;
   safeSet('goffKCv1', JSON.stringify(kcState));
+  trackEvent({ type:'kc', kcId:id, picked:idx, correct:s.correct, attempt:s.attempts });
   render();
 }
 function reviewKC(id){
@@ -1366,7 +1367,15 @@ function courseMenuSel(set){ return set === 'safety' ? '.safety-courses' : set =
 function openCourse(set, id){ courseOpenSet = set; courseOpenId = id; render(); scrollToEl('.slide-canvas'); }
 function closeCourse(){ const sel = courseMenuSel(courseOpenSet); courseOpenSet = null; courseOpenId = null; render(); scrollToEl(sel); }
 function setCoursePos(set, id, i){ const c = courseListFor(set).find(x=>x.id===id); if(!c) return; courseSlidePos[`${set}:${id}`] = Math.max(0, Math.min(c.slides.length-1, i)); safeSet('goffCourseSlidesV2', JSON.stringify(courseSlidePos)); render(); scrollToSlide(); }
-function finishCourse(set, id){ completed[`${coursePrefix(set)}-${id}`] = true; save(); const sel = courseMenuSel(set); courseOpenSet = null; courseOpenId = null; render(); scrollToEl(sel); }
+function signSafetyAck(){
+  const suggested = employeeIdentity.name || '';
+  const name = window.prompt('Type your full legal name to sign the safety training acknowledgement:', suggested);
+  if(!name || !name.trim()) return;
+  completed['iipp-ack'] = true; save();
+  trackEvent({ type:'ack', docId:'iipp-safety', kind:'sign', signedName: name.trim() });
+  render();
+}
+function finishCourse(set, id){ completed[`${coursePrefix(set)}-${id}`] = true; save(); trackEvent({ type:'course', set:set, courseId:id }); if(set==='policy'){ trackEvent({ type:'ack', docId:id, kind:'sign', signedName: employeeIdentity.name || '' }); } const sel = courseMenuSel(set); courseOpenSet = null; courseOpenId = null; render(); scrollToEl(sel); }
 function openPolicyCourse(id){ openCourse('policy', id); }
 function slideQuizGated(item){ return !!(item && item.quiz && !item.quiz.every(id => kcState[id]?.correct)); }
 function courseComplete(set, c){ return completed[`${coursePrefix(set)}-${c.id}`] === true; }
@@ -1480,6 +1489,18 @@ async function markEmployeeMilestone(serverId, key, value){
 }
 // Real onboarding records from the server (created by the recruiting handoff).
 let serverEmployees = [];
+// Per-employee training aggregates from /api/goff-portal/track?summary=1,
+// keyed by employee uuid: { kcsCorrect, firstTry, attempts, courses{set:n}, acks, lastActivity }
+let trainingByEmp = {};
+async function loadTrainingSummary(){
+  try{
+    const r = await fetch('/api/goff-portal/track?summary=1');
+    if(!r.ok) return;
+    const data = await r.json();
+    trainingByEmp = (data && data.training) || {};
+    if(section==='ops' || section==='employee') render();
+  }catch(_){}
+}
 let serverEmployeesLoaded = false;
 async function loadServerEmployees(){
   try{
@@ -1511,6 +1532,7 @@ async function loadServerEmployees(){
     serverEmployeesLoaded = true;
     if(section === 'ops') render();
   }catch(_){ /* offline: fall back to local queue */ }
+  loadTrainingSummary();
 }
 function isDemoOnboardingRecord(x){
   const name = String(x?.name || '').toLowerCase().trim();
@@ -1629,6 +1651,44 @@ const humanNeeds = [
   ['BBSI boundary','Confirm what BBSI owns and what Goff wants the portal to track.'],
 ];
 
+// ── Per-employee training telemetry ────────────────────────────────────────
+// The private link carries identity (?emp=<employee uuid>, plus email/name).
+// We remember it on this device, and every knowledge-check attempt, course
+// completion, and acknowledgment posts home tagged to the employee — that's
+// what feeds the admin board's real "who read it" data. No identity = events
+// still send with a device id so they can be attached later.
+function loadEmployeeIdentity(){
+  let id = {};
+  try{ id = JSON.parse(localStorage.getItem('goffEmployeeIdentityV1') || '{}') || {}; }catch(_){}
+  const params = new URLSearchParams(window.location.search);
+  const emp = params.get('emp') || '';
+  const email = params.get('email') || '';
+  const name = params.get('employee') || '';
+  if(emp) id.emp = emp;
+  if(email) id.email = email;
+  if(name) id.name = name;
+  if(!id.device){ id.device = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('dev-' + Date.now() + '-' + Math.floor(Math.random()*1e6)); }
+  try{ localStorage.setItem('goffEmployeeIdentityV1', JSON.stringify(id)); }catch(_){}
+  return id;
+}
+const employeeIdentity = loadEmployeeIdentity();
+let trackQueue = [];
+let trackTimer = null;
+function trackEvent(ev){
+  trackQueue.push(ev);
+  clearTimeout(trackTimer);
+  // Small debounce so a burst (answer + completion) ships as one request.
+  trackTimer = setTimeout(flushTrackQueue, 800);
+}
+function flushTrackQueue(){
+  if(!trackQueue.length) return;
+  const events = trackQueue.splice(0, 50);
+  const payload = JSON.stringify({ emp: employeeIdentity.emp || '', email: employeeIdentity.email || '', name: employeeIdentity.name || '', device: employeeIdentity.device || '', events });
+  try{
+    fetch('/api/goff-portal/track', { method:'POST', headers:{'Content-Type':'application/json'}, body: payload, keepalive: true }).catch(()=>{});
+  }catch(_){}
+}
+window.addEventListener('pagehide', flushTrackQueue);
 function initialEmployeeSection(){
   const path = window.location.pathname.toLowerCase();
   const params = new URLSearchParams(window.location.search);
@@ -1802,10 +1862,17 @@ function scrollToEl(sel){
 }
 function scrollToSlide(){ scrollToEl('.slide-canvas'); }
 function setCourseSlide(i){ courseIndex = Math.max(0, Math.min(ORIENTATION_STEPS.length-1, i)); safeSet(PROFILE.courseIndexKey, courseIndex); render(); scrollToSlide(); }
-function toggleCourseSlide(i){ completed[`course-${i}`] = !completed[`course-${i}`]; save(); render(); }
+function trackOrientationIfDone(){
+  if(ORIENTATION_STEPS.every((_,ix)=>completed[`course-${ix}`]) && !completed['orientation-tracked']){
+    completed['orientation-tracked'] = true; save();
+    trackEvent({ type:'course', set:'orientation', courseId:'main' });
+  }
+}
+function toggleCourseSlide(i){ completed[`course-${i}`] = !completed[`course-${i}`]; save(); trackOrientationIfDone(); render(); }
 function completeAndNextCourseSlide(i){
   completed[`course-${i}`] = true;
   save();
+  trackOrientationIfDone();
   setCourseSlide(i+1);
 }
 function finishOrientation(){
@@ -1815,6 +1882,7 @@ function finishOrientation(){
     return;
   }
   completed[`course-${courseIndex}`] = true;
+  trackOrientationIfDone();
   completed.orientation = true;
   save();
   nav('policies');
@@ -1913,15 +1981,23 @@ function formsSection(){ return `<section class="panel"><p class="eyebrow">Compa
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><p class="note"><strong>Production database needed:</strong> notes, assignments, and completion status will activate once employee records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Save check-in note</button><button disabled title="Requires production database">Assign follow-up</button><button disabled title="Requires production database">Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
   return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''} ${e.fromServer?'clickable-row':''}" ${e.fromServer?`onclick="openEmployee('${esc(e.serverId)}')"`:''}><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div>${e.fromServer ? `<div class="ms-pills">${EMP_MILESTONES.map(([k,label])=>{const done=!!(e.milestones&&e.milestones[k]);return `<button class="ms-pill ${done?'done':''}" title="${done?'Done — click to undo':'Click when done'}" onclick="event.stopPropagation();markEmployeeMilestone('${esc(e.serverId)}','${k}',${done?'false':'true'})">${done?'✓':'○'} ${esc(label)}</button>`;}).join('')}</div>` : ''}<div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Live:</strong> the milestone buttons on each hire's card above are the workflow — welcome link, BBSI confirmation, training start, supervisor handoff, and the 30-day check-in all save to the shared record.</p></section>
-  <section class="panel"><p class="eyebrow">Training oversight — what Austin asked for on the July 1 call</p><h2>Who actually read it, and who click-click-clicked</h2><p class="summary">Every knowledge check tracks attempts, not just completion. Quinton and managers see per-employee results: first-try answers versus second-guessing, section completion, quiz scores, and acknowledgements. Demo data below is from this device.</p>
-  <div class="metric-grid">${(()=>{const s=kcStats();return [
-    { label:'Knowledge checks', value:`${s.done}/${s.total}`, detail:'Answered correctly so far on this device' },
-    { label:'First-try correct', value:String(s.firstTry), detail:'Read it and got it — the signal Austin wants' },
-    { label:'Needed retries', value:String(s.retried), detail:'Second-guessed — flag for a manager conversation' },
-    { label:'Safety sections', value:`${SAFETY_COURSES.filter(c=>courseComplete('safety',c)).length}/${SAFETY_COURSES.length}`, detail:'Final V3 quiz retired 7/2 — BBSI safety may reinstate' },
-  ].map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')})()}</div>
+  <section class="panel"><p class="eyebrow">Training oversight — what Austin asked for on the July 1 call</p><h2>Who actually read it, and who click-click-clicked</h2>
+  <p class="summary">Live per-employee results, straight from each hire's own device: sections completed, quiz answers, first-try versus retries, and signed acknowledgments. Click a row for the full picture.</p>
+  ${(()=>{
+    const rows = serverEmployees.filter(e=>trainingByEmp[String(e.serverId)]);
+    if(!rows.length) return `<p class="note"><strong>No training activity yet.</strong> The moment a hire opens their portal link and starts answering, their real progress shows here automatically.</p>`;
+    const kcTotal = Object.keys(KNOWLEDGE_CHECKS).length;
+    return `<div class="table-list">${rows.map(e=>{
+      const t = trainingByEmp[String(e.serverId)];
+      const c = t.courses||{};
+      const secDone = (c.orientation?1:0)+(c.policy||0)+(c.safety||0)+(c.basics||0);
+      const secTotal = 1+POLICY_COURSES.length+SAFETY_COURSES.length+WORKBASICS_COURSES.length;
+      const retried = Math.max(0,(t.kcsCorrect||0)-(t.firstTry||0));
+      return `<article style="cursor:pointer" onclick="openEmployee('${esc(e.serverId)}')"><div><b>${esc(e.name)}</b><small>${esc(e.role)} · last active ${esc(fmtRelDay(t.lastActivity))}</small></div><span>Sections ${secDone}/${secTotal} · KCs ${esc(t.kcsCorrect||0)}/${kcTotal}</span><em>${esc(t.firstTry||0)} first-try · ${esc(retried)} retried</em></article>`;
+    }).join('')}</div>`;
+  })()}
   <div class="doc-blocks" style="margin-top:16px"><article><h3>Assign retraining</h3><p>Manager assigns any section or policy to an employee with a deadline (“Did you even read the vehicle policy? You’re doing it tomorrow.”) — trackable instead of take-my-word-for-it.</p></article><article><h3>Yearly refresher</h3><p>Each year every employee gets 5 randomly-pulled sections as a refresher, per Austin. With all resources in one spot, this becomes a button, not a project.</p></article></div>
-  <p class="note"><strong>Next build:</strong> per-employee training tracking (each hire's actual course + quiz progress from their own device) — then assign-retraining and the yearly refresher become buttons here.</p></section>`;
+  <p class="note"><strong>Next build:</strong> with per-employee tracking now live, assign-retraining and the yearly refresher are ready to become buttons here.</p></section>`;
 }
 function resourcesSection(){ return `<section class="panel"><p class="eyebrow">Employee resources</p><h2>Everything you need, any day.</h2><p class="summary">Forms, policies, training refreshers, and company links — for every Goff employee, whether you started this morning or ten years ago. Can’t find something? Search the FAQs, then ask your supervisor.</p><div class="cards">${[['faq','FAQs — search anything'],['forms','Company forms'],['policies','Policies'],['perdiem','Per diem / travel'],['exaktime','Timekeeping'],['bbsi','Paystubs / myBBSI'],['safety','Safety refresher'],['tools','Tools / PPE'],['role','Role expectations'],['milestones','Check-ins']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open resource</small></button>`).join('')}</div></section>`; }
 
@@ -2037,7 +2113,7 @@ function safetySection(){
   return `<section class="panel doc-page"><p class="eyebrow">${onboardingComplete()?'Safety training':'Step 3 • Safety training — built from BBSI’s 2026 New Hire Safety Orientation'}</p><h2>Safety training sections</h2><p class="summary">${coursesDone} of ${SAFETY_COURSES.length} sections complete. Each section is a short slide course with knowledge checks — this is the “10–15 sections” structure Austin described, filled with BBSI’s actual 2026 material. Work through them all, then pass the final quiz below to complete your safety record.</p>
   <div class="policy-courses safety-courses">${courseMenuCards('safety')}</div>
   <article class="safety-sec placeholder" style="margin-top:16px"><span class="sec-num">…</span><div><b>More coming from BBSI</b><p>The 2026 deck reserves placeholders for Emergency Response, PPE, Hot Work, Compressed Gas, Fall Protection, Walking/Working Surfaces, Rigging, Bloodborne Pathogens, and Noise Exposure — titled but no teaching material yet. As BBSI’s content arrives, each becomes a section here in the same format.</p></div></article></section>
-  ${allSafetyCoursesDone() ? `<section class="panel"><div class="ack-box"><h3>Employee acknowledgement — safety training complete</h3><p>${esc(SAFETY_ACK)}</p><div class="admin-actions"><button disabled title="Requires production database">Sign &amp; submit to HR / Safety Manager</button></div><p class="note" style="margin-top:12px"><strong>Production note:</strong> the signed acknowledgement is kept in the employee personnel file (HR or Safety Manager). Signature capture activates with the production database.</p></div></section>` : ''}
+  ${allSafetyCoursesDone() ? `<section class="panel"><div class="ack-box"><h3>Employee acknowledgement — safety training complete</h3><p>${esc(SAFETY_ACK)}</p><div class="admin-actions">${completed['iipp-ack'] ? `<button disabled>✓ Signed &amp; submitted</button>` : `<button onclick="signSafetyAck()">Sign &amp; submit to HR / Safety Manager</button>`}</div><p class="note" style="margin-top:12px"><strong>On record:</strong> your signed acknowledgement is stored on your employee record with the date.</p></div></section>` : ''}
   <section class="panel"><div class="confirm-box"><h3>Pending BBSI / Goff</h3><ul>${p.questions.map(q=>`<li>${esc(q)}</li>`).join('')}</ul></div></section>`;
 }
 
@@ -2226,6 +2302,7 @@ function openEmployee(serverId){
 }
 function employeePortalLinkFor(e){
   const p = new URLSearchParams();
+  if(e.serverId) p.set('emp', e.serverId);
   if(e.name) p.set('employee', e.name);
   if(e.email) p.set('email', e.email);
   if(e.role && e.role !== 'Role TBD') p.set('role', e.role);
@@ -2252,6 +2329,30 @@ const MILESTONE_DESC = {
   handoff: 'Supervisor confirms the first assignment and day-one expectations.',
   checkin30: 'Sit down at 30 days: forms, timekeeping, safety questions, tools, expectations.',
 };
+function fmtRelDay(iso){ if(!iso) return 'never'; const d=new Date(iso); if(Number.isNaN(d.getTime())) return 'never'; const days=Math.floor((Date.now()-d.getTime())/86400000); return days<=0?'today':(days===1?'yesterday':`${days} days ago`); }
+function trainingPanelFor(e){
+  const t = trainingByEmp[String(e.serverId)];
+  const totals = { orientation: 1, policy: POLICY_COURSES.length, safety: SAFETY_COURSES.length, basics: WORKBASICS_COURSES.length };
+  const kcTotal = Object.keys(KNOWLEDGE_CHECKS).length;
+  if(!t) return `<section class="panel"><p class="eyebrow">Training progress — live from their device</p><h2>No activity yet</h2><p>${esc(e.name.split(' ')[0])} hasn't opened their portal (or hasn't answered anything yet). Progress appears here the moment they start — every quiz answer and section completion reports to their record automatically.</p></section>`;
+  const c = t.courses || {};
+  const retried = Math.max(0, (t.kcsCorrect||0) - (t.firstTry||0));
+  return `<section class="panel"><p class="eyebrow">Training progress — live from their device</p><h2>Who actually read it</h2>
+    <p class="summary">Last activity: <strong>${esc(fmtRelDay(t.lastActivity))}</strong>. Every answer and completion below came from ${esc(e.name.split(' ')[0])}'s own taps — not admin marks.</p>
+    <div class="metric-grid">
+      <article><span>Orientation</span><strong>${c.orientation ? '✓ Done' : '—'}</strong><p>13-step company orientation</p></article>
+      <article><span>Policies signed</span><strong>${esc(c.policy||0)}/${totals.policy}</strong><p>Sign-off recorded per policy</p></article>
+      <article><span>Safety sections</span><strong>${esc(c.safety||0)}/${totals.safety}</strong><p>BBSI safety course modules</p></article>
+      <article><span>Work basics</span><strong>${esc(c.basics||0)}/${totals.basics}</strong><p>ExakTime, forms, day-to-day</p></article>
+    </div>
+    <div class="metric-grid" style="margin-top:12px">
+      <article><span>Knowledge checks</span><strong>${esc(t.kcsCorrect||0)}/${kcTotal}</strong><p>Answered correctly</p></article>
+      <article><span>First-try correct</span><strong>${esc(t.firstTry||0)}</strong><p>Read it and got it — Austin's signal</p></article>
+      <article><span>Needed retries</span><strong>${esc(retried)}</strong><p>Second-guessed — worth a conversation</p></article>
+      <article><span>Acknowledgments</span><strong>${esc(t.acks||0)}</strong><p>Signed policy/safety acknowledgments</p></article>
+    </div>
+  </section>`;
+}
 function employeeDetail(){
   const e = serverEmployees.find(x => String(x.serverId) === String(selectedEmployeeId));
   if(!e) return `<section class="panel"><p class="eyebrow">New hire</p><h2>${serverEmployeesLoaded ? 'Hire not found' : 'Loading…'}</h2><p>${serverEmployeesLoaded ? 'This record may have been removed.' : 'Fetching the onboarding queue.'}</p><div class="admin-actions"><button onclick="nav('ops')">← Back to the board</button></div></section>`;
@@ -2290,6 +2391,7 @@ function employeeDetail(){
       <button class="secondary" onclick="window.open('${esc(link)}','_blank','noopener')">Preview their portal</button>
     </div>
   </section>
+  ${trainingPanelFor(e)}
   <section class="panel"><p class="eyebrow">Their portal</p><h2>Employee link &amp; welcome message</h2>
     <p>This is ${esc(e.name.split(' ')[0])}'s private start-here link — send it with the welcome message below, then mark "Welcome link sent" above.</p>
     <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a> <button class="secondary" style="border:1px solid #ddd;padding:6px 12px;font-size:12px" onclick="copyEmployeeAsset('${esc(link)}','Employee link copied')">⧉ Copy link</button></p>
