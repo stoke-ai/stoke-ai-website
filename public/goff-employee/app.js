@@ -2391,6 +2391,104 @@ const MILESTONE_DESC = {
   handoff: 'Supervisor confirms the first assignment and day-one expectations.',
   checkin30: 'Sit down at 30 days: forms, timekeeping, safety questions, tools, expectations.',
 };
+// ── 30-Day Employee Review (Austin's form, 7/6 email) ──────────────────────
+// Rendered on the hire page as a live checklist; auto-saves to goff_reviews.
+// Completing it ticks the '30-day check-in done' milestone.
+const RV30_SECTIONS = [
+  { key:'tools', title:'1. Tools & Equipment', hint:'Refer to the Employee Tool List Requirement Form. Missing tools supplied are payroll-deducted per policy.', check:'All present / functional', items:[
+    ['standard','Standard tools'], ['fitter','Fitter-specific tools (if applicable)'], ['welder','Welder-specific tools (if applicable)'], ['toolbox','Toolbox organized & adequate'] ]},
+  { key:'forms', title:'2. Forms, Links & Communication', hint:'', check:'Understands / can use', items:[
+    ['schedule','Schedule Sheet (access & navigation)'], ['nearmiss','Near Miss Report'], ['spark','Spark Award (knows purpose & process)'], ['truck','Truck Check-In/Out Form'], ['purchaseReq','Purchase Request Form'], ['purchaseJust','Purchase Justification Form'] ]},
+  { key:'job', title:'3. Job Understanding & Feedback', hint:'', check:'Discussed', items:[
+    ['expectations','Daily expectations / reporting lines'], ['contacts','Knows who to contact for help'], ['questions','Questions about how things work here'], ['performance','Anything affecting job performance'] ]},
+  { key:'systems', title:'4. System Access & HR Setup', hint:'', check:'Verified', items:[
+    ['bbsi','Access to BBSI (paystubs)'], ['exaktime','Knows how to request time off in ExakTime'], ['timecard','Received & follows Timesheet Info Card'], ['matrix','Completed New Employee Matrix'], ['hrsign','HR sign-off (Matrix verified)'] ]},
+];
+let reviews30 = {};            // serverId -> { status, data }
+let review30Loaded = {};       // serverId -> true once fetched
+let rv30SaveTimer = null;
+function blankReview30(){
+  const d = { supervisorNotes:'', employeeComments:'', hrInitials:'', signatures:{ employee:'', supervisor:'', hr:'' } };
+  RV30_SECTIONS.forEach(s => { d[s.key] = {}; s.items.forEach(([k]) => { d[s.key][k] = { ok:false, notes:'' }; }); });
+  return d;
+}
+async function loadReview30(serverId){
+  if(review30Loaded[serverId]) return;
+  review30Loaded[serverId] = true;
+  try{
+    const r = await fetch(`/api/goff-portal/reviews?employee=${encodeURIComponent(serverId)}`);
+    if(!r.ok) return;
+    const rows = ((await r.json()).reviews) || [];
+    const row = rows.find(x => x.kind === '30day');
+    if(row){ reviews30[serverId] = { status: row.status, data: Object.assign(blankReview30(), row.data) }; }
+    if(section==='employee') render();
+  }catch(_){}
+}
+function rv30(serverId){ return reviews30[serverId] || (reviews30[serverId] = { status:'draft', data: blankReview30() }); }
+function rv30Save(serverId, status){
+  const r = rv30(serverId);
+  if(status) r.status = status;
+  clearTimeout(rv30SaveTimer);
+  rv30SaveTimer = setTimeout(async () => {
+    try{
+      const resp = await fetch('/api/goff-portal/reviews', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ employeeId: serverId, kind:'30day', status: r.status, data: r.data }) });
+      if(!resp.ok){ const d = await resp.json().catch(()=>({})); opsToast(d.error || 'Review save failed'); }
+    }catch(_){ opsToast('Review save failed — check connection'); }
+  }, 700);
+}
+function rv30Toggle(serverId, sec, key, checked){ rv30(serverId).data[sec][key].ok = checked; rv30Save(serverId); render(); }
+function rv30Note(serverId, sec, key, v){ rv30(serverId).data[sec][key].notes = v; rv30Save(serverId); }
+function rv30Field(serverId, field, v){ rv30(serverId).data[field] = v; rv30Save(serverId); }
+function rv30Sig(serverId, who, v){ rv30(serverId).data.signatures[who] = v; rv30Save(serverId); }
+function rv30Complete(serverId){
+  const r = rv30(serverId);
+  const missingSig = ['employee','supervisor','hr'].filter(w => !String(r.data.signatures[w]||'').trim());
+  if(missingSig.length){ opsToast(`Type the ${missingSig.join(', ')} signature name${missingSig.length>1?'s':''} first`); return; }
+  if(!window.confirm('Mark the 30-day review complete? This signs it with the typed names and ticks the 30-day milestone.')) return;
+  rv30Save(serverId, 'complete');
+  markEmployeeMilestone(serverId, 'checkin30', true);
+  opsToast('30-day review complete ✓');
+}
+function rv30Reopen(serverId){ rv30Save(serverId, 'draft'); render(); }
+function review30Panel(e){
+  loadReview30(e.serverId);
+  const r = rv30(e.serverId);
+  const done = r.status === 'complete';
+  const total = RV30_SECTIONS.reduce((n,s)=>n+s.items.length,0);
+  const checked = RV30_SECTIONS.reduce((n,s)=>n+s.items.filter(([k])=>r.data[s.key][k].ok).length,0);
+  let due = '';
+  if(e.startDateRaw){ const d = new Date(`${e.startDateRaw}T12:00:00`); d.setDate(d.getDate()+30); due = d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); }
+  return `<section class="panel"><p class="eyebrow">30-Day Employee Review${due?` — due around ${esc(due)}`:''}</p>
+  <h2>${done?'✓ 30-Day Review — complete':'30-Day Review'} <span class="rv30-count">${checked}/${total} checked</span></h2>
+  <p class="summary">Austin's 30-day form, live: work through it in the sit-down, it saves as you go. ${done?'Completed and signed — reopen if something needs correcting.':'Completing it signs the review and ticks the 30-day milestone.'}</p>
+  ${RV30_SECTIONS.map(s => `<div class="rv30-section${done?' rv30-locked':''}">
+    <h3>${esc(s.title)} <small>${esc(s.check)}</small></h3>
+    ${s.hint?`<p class="rv30-hint">${esc(s.hint)}</p>`:''}
+    ${s.items.map(([k,label]) => { const it = r.data[s.key][k]; return `<div class="rv30-item ${it.ok?'ok':''}">
+      <label><input type="checkbox" ${it.ok?'checked':''} ${done?'disabled':''} onchange="rv30Toggle('${esc(e.serverId)}','${s.key}','${k}',this.checked)"><span>${esc(label)}</span></label>
+      <input type="text" class="rv30-notes" placeholder="Notes" value="${esc(it.notes)}" ${done?'disabled':''} oninput="rv30Note('${esc(e.serverId)}','${s.key}','${k}',this.value)">
+    </div>`; }).join('')}
+    ${s.key==='systems'?`<div class="rv30-item"><label style="flex:1"><span>HR initials</span></label><input type="text" class="rv30-notes" style="max-width:120px" placeholder="Initials" value="${esc(r.data.hrInitials)}" ${done?'disabled':''} oninput="rv30Field('${esc(e.serverId)}','hrInitials',this.value)"></div>`:''}
+  </div>`).join('')}
+  <div class="rv30-section${done?' rv30-locked':''}">
+    <h3>Supervisor notes / action items</h3>
+    <textarea rows="3" ${done?'disabled':''} oninput="rv30Field('${esc(e.serverId)}','supervisorNotes',this.value)">${esc(r.data.supervisorNotes)}</textarea>
+    <h3 style="margin-top:14px">Employee comments</h3>
+    <textarea rows="3" ${done?'disabled':''} oninput="rv30Field('${esc(e.serverId)}','employeeComments',this.value)">${esc(r.data.employeeComments)}</textarea>
+  </div>
+  <div class="rv30-section${done?' rv30-locked':''}">
+    <h3>5. Sign-off <small>type full names</small></h3>
+    <div class="rv30-sigs">
+      <label>Employee<input type="text" value="${esc(r.data.signatures.employee)}" ${done?'disabled':''} oninput="rv30Sig('${esc(e.serverId)}','employee',this.value)"></label>
+      <label>Supervisor<input type="text" value="${esc(r.data.signatures.supervisor)}" ${done?'disabled':''} oninput="rv30Sig('${esc(e.serverId)}','supervisor',this.value)"></label>
+      <label>HR<input type="text" value="${esc(r.data.signatures.hr)}" ${done?'disabled':''} oninput="rv30Sig('${esc(e.serverId)}','hr',this.value)"></label>
+    </div>
+  </div>
+  <div class="admin-actions">${done
+    ? `<button class="secondary" onclick="rv30Reopen('${esc(e.serverId)}')">Reopen review</button>`
+    : `<button onclick="rv30Complete('${esc(e.serverId)}')">✓ Complete & sign the 30-day review</button>`}</div>
+  </section>`;
+}
 function fmtRelDay(iso){ if(!iso) return 'never'; const d=new Date(iso); if(Number.isNaN(d.getTime())) return 'never'; const days=Math.floor((Date.now()-d.getTime())/86400000); return days<=0?'today':(days===1?'yesterday':`${days} days ago`); }
 function trainingPanelFor(e){
   const t = trainingByEmp[String(e.serverId)];
@@ -2455,6 +2553,7 @@ function employeeDetail(){
     </div>
   </section>
   ${trainingPanelFor(e)}
+  ${review30Panel(e)}
   <section class="panel"><p class="eyebrow">Their portal</p><h2>Unique employee link</h2>
     <p>${esc(e.name.split(' ')[0])}'s private start-here link — every device they open it on records progress to their file.</p>
     <p style="word-break:break-all"><a href="${esc(link)}" target="_blank" rel="noopener">${esc(link)}</a></p>

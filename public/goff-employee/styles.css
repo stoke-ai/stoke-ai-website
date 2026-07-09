@@ -398,3 +398,21 @@ button.faq-act{margin:0}
 .emp-modal-card textarea{width:100%;min-height:300px;border:1.5px solid var(--line);border-radius:4px;padding:14px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
 .emp-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px}
 .emp-modal-actions .secondary{border:1px solid #ddd;color:#111}
+
+/* 30-Day Review — live checklist version of Austin's form */
+.rv30-count{font-size:14px;font-family:Lato,sans-serif;font-weight:900;color:#666;background:#eee;border-radius:999px;padding:6px 12px;vertical-align:middle;margin-left:8px}
+.rv30-section{border:1px solid var(--line);border-radius:6px;padding:16px 18px;margin-top:14px;background:#fafafa}
+.rv30-section h3{font-size:19px;margin:0 0 10px}
+.rv30-section h3 small{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.14em;font-weight:900;margin-left:8px}
+.rv30-hint{color:#8a6100;background:#fff9ed;border-left:3px solid var(--amber);padding:8px 10px;border-radius:4px;font-size:13px;margin:0 0 10px}
+.rv30-item{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid #eee}
+.rv30-item:first-of-type{border-top:0}
+.rv30-item label{display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;font-weight:700;color:#333}
+.rv30-item input[type=checkbox]{width:auto;accent-color:var(--green);transform:scale(1.25)}
+.rv30-item.ok label span{color:#1f8a4c}
+.rv30-item .rv30-notes{flex:1;max-width:44%;padding:8px 10px;font-size:13px}
+.rv30-sigs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.rv30-sigs label{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:900;color:#777}
+.rv30-sigs input{margin-top:6px}
+.rv30-locked{opacity:.75}
+@media(max-width:760px){.rv30-item{flex-direction:column;align-items:stretch}.rv30-item .rv30-notes{max-width:100%}.rv30-sigs{grid-template-columns:1fr}}
