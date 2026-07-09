@@ -1815,6 +1815,19 @@ function moveToOnboarding(){
   document.getElementById('modal').innerHTML=`<div class="modal-card"><h3>Moved to onboarding</h3><p>${esc(record.name)} is now visible in the employee portal Admin control queue.</p><div class="notice success"><strong>Next action:</strong><br>${esc(record.next)}</div><div class="handoff-grid"><div><span>Stage</span><strong>${esc(record.stage)}</strong></div><div><span>Supervisor</span><strong>${esc(record.supervisor)}</strong></div><div><span>Start</span><strong>${esc(record.start)}</strong></div></div><textarea>${employeeWelcomeDraft(x)}</textarea><div class="modal-actions"><button class="btn" onclick="document.getElementById('modal').className='modal';render()">Done</button><button class="btn" onclick="window.open('/goff-employee/?admin=1','_blank','noopener')">Open admin queue</button><button class="btn brand" onclick="copyToClipboard(employeePortalLink())">Copy employee link</button></div></div>`;
 }
 function generateEmployeePortalAccess(){ moveToOnboarding(); }
+// Manager verdict + optional reasoning in one move. The note lands on the
+// candidate (authored, timestamped) so the recruiter sees WHY, not just what.
+function managerDecide(stage,label){
+  const x=c(); if(!x) return;
+  const ta=document.getElementById('mgrNote');
+  const t=ta ? ta.value.trim() : '';
+  if(t){
+    x.notes=x.notes||[];
+    x.notes.push({ id:Date.now(), author:(currentUser&&currentUser.name)||'Hiring manager', text:`Manager decision — ${label}: ${t}`, createdAt:nowISO() });
+    x.timeline.push(`Manager note: ${t.slice(0,80)}${t.length>80?'…':''}`);
+  }
+  setStage(stage);
+}
 function manager(){
   const queue = candidates.filter(a => a.stage === 'Manager review packet' || a.stage === 'Offer letter info request');
   if(!queue.length){
@@ -1830,7 +1843,6 @@ function manager(){
   let active = queue.find(a => a.id === selectedId) || queue[0];
   selectedId = active.id;
   const ageText = stageAgeText(active);
-  const customDecisions = decisionActionsForStage(active.stage);
   return `${head('Manager review',`${queue.length} candidate${queue.length===1?'':'s'} waiting for a hiring-manager decision.`,`<button class="btn ghost" onclick="view='dashboard';render()">← Back to dashboard</button>`)}
   <div class="grid manager-grid">
     <aside class="panel manager-queue">
@@ -1839,7 +1851,7 @@ function manager(){
       <div class="manager-queue-list">${queue.map(p => `<button class="manager-queue-item ${p.id===active.id?'selected':''}" onclick="selectedId=${p.id};render()">
         <strong>${esc(p.first)} ${esc(p.last)}</strong>
         <small>${esc(p.role)} · ${esc(p.path)}</small>
-        <div class="manager-queue-meta"><span class="tag red">${esc(p.stage)}</span><span class="aging-pill ${agingLevel(p)}">${esc(stageAgeText(p))} waiting</span></div>
+        <div class="manager-queue-meta"><span class="tag red">${esc(stageLabel(p.stage))}</span><span class="aging-pill ${agingLevel(p)}">${esc(stageAgeText(p))} waiting</span></div>
       </button>`).join('')}</div>
     </aside>
     <section class="panel manager-packet">
@@ -1857,14 +1869,16 @@ function manager(){
       ${realConcern(active) ? `<div class="notice warning"><strong>Concern to resolve:</strong> ${esc(realConcern(active))}</div>` : ''}
       <h4>Evidence checklist</h4>
       ${evidenceTable(active)}
+      <h4 style="margin-top:18px">Recruiter notes</h4>
+      ${(active.notes && active.notes.length) ? `<div class="notes-list">${active.notes.slice().reverse().slice(0,5).map(n=>`<div class="note-row"><div class="note-row-meta"><strong>${esc(n.author||'Recruiter')}</strong> · ${esc(formatRelativeShort(n.createdAt))}</div><p>${esc(n.text)}</p></div>`).join('')}</div>` : `<p class="muted small">No notes from the recruiter yet.</p>`}
       <h4 style="margin-top:18px">Decision</h4>
+      <div class="note-composer" style="margin-bottom:12px">
+        <textarea id="mgrNote" rows="2" placeholder="Optional — why this call? Saves to the candidate's notes so the recruiter sees your reasoning."></textarea>
+      </div>
       <div class="manager-decision-actions">
-        ${(customDecisions.length ? customDecisions : [
-          { label:'Approve — start offer', action:"setStage('Offer letter info request')", primary:true },
-          { label:'Second interview', action:"setStage('Second interview request')" },
-          { label:'Needs more experience', action:"setStage('Needs more experience')" },
-          { label:'Pass', action:"setStage('Not selected')" },
-        ]).map(a => `<button class="btn ${a.primary?'primary':''}" onclick="${a.action}">${esc(a.label)}</button>`).join('')}
+        ${active.stage==='Offer letter info request'
+          ? `<button class="btn primary" onclick="view='candidate';render();scrollToOfferBuilder()">Build offer letter →</button><button class="btn" onclick="managerDecide('Not selected','Pass')">Pass</button>`
+          : `<button class="btn primary" onclick="managerDecide('Offer letter info request','Approve — start offer')">Approve — start offer</button><button class="btn" onclick="managerDecide('Second interview request','Second interview')">Second interview</button><button class="btn" onclick="managerDecide('Needs more experience','Needs more experience')">Needs more experience</button><button class="btn" onclick="managerDecide('Not selected','Pass')">Pass</button>`}
         <button class="btn ghost" onclick="view='candidate';render()">Open full candidate →</button>
       </div>
     </section>
