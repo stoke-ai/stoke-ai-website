@@ -1444,6 +1444,40 @@ const checkinItems = [
 // handoffs. Kept as an empty array so downstream code is unchanged.
 const demoOnboardingQueue = [];
 function parseRecruitingHandoffs(){ try { return JSON.parse(localStorage.getItem('goffOnboardingQueueV1') || '[]'); } catch(_) { return []; } }
+// The five onboarding milestones Quinton works through per hire. Marked on
+// the ops board, stored on the employee record (goff_employees.milestones),
+// so the board is the same from any device.
+const EMP_MILESTONES = [
+  ['welcome','Welcome link sent'],
+  ['bbsi','BBSI/myBBSI confirmed'],
+  ['training','Training path started'],
+  ['handoff','Supervisor handoff'],
+  ['checkin30','30-day check-in'],
+];
+function milestoneView(ms){
+  const done = EMP_MILESTONES.filter(([k]) => ms && ms[k]).length;
+  const nextItem = EMP_MILESTONES.find(([k]) => !(ms && ms[k]));
+  return {
+    done,
+    progress: Math.round(done / EMP_MILESTONES.length * 100),
+    stage: nextItem ? `Next: ${nextItem[1]}` : 'Onboarding complete',
+    blocked: nextItem ? (nextItem[0]==='bbsi' ? 'Waiting on BBSI/myBBSI — confirm or resend the invite' : 'Nothing blocked — work the next milestone') : 'Nothing — fully onboarded',
+    next: nextItem ? nextItem[1] : 'Move them to the everyday employee home',
+  };
+}
+async function markEmployeeMilestone(serverId, key, value){
+  const emp = serverEmployees.find(e => e.serverId === serverId);
+  if(emp){ emp.milestones = emp.milestones || {}; emp.milestones[key] = value ? new Date().toISOString() : null;
+    const v = milestoneView(emp.milestones);
+    emp.stage = v.stage; emp.progress = v.progress; emp.blocked = v.blocked; emp.next = v.next;
+    emp.status = v.done === EMP_MILESTONES.length ? 'Onboarding complete' : 'Onboarding';
+  }
+  render();
+  try{
+    const r = await fetch('/api/goff-portal/employees', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ id: serverId, milestone: key, value }) });
+    if(!r.ok) throw new Error('status '+r.status);
+  }catch(err){ console.warn('[ops] milestone save failed:', err); alert('Could not save that to the server — check connection and try again.'); loadServerEmployees(); }
+}
 // Real onboarding records from the server (created by the recruiting handoff).
 let serverEmployees = [];
 let serverEmployeesLoaded = false;
@@ -1452,19 +1486,25 @@ async function loadServerEmployees(){
     const res = await fetch('/api/goff-portal/employees');
     if(!res.ok) return;
     const data = await res.json();
-    serverEmployees = (Array.isArray(data.employees) ? data.employees : []).map(e => ({
-      id: `emp-${e.id}`,
-      name: `${e.first_name} ${e.last_name}`.trim(),
-      role: e.role || 'Role TBD',
-      supervisor: e.supervisor || 'Supervisor to confirm',
-      stage: 'BBSI invite + training path',
-      status: e.status === 'onboarding' ? 'Ready for onboarding' : e.status,
-      start: e.start_date ? new Date(`${e.start_date}T12:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : 'Pending',
-      progress: 28,
-      blocked: 'BBSI/myBBSI invite and completion still need admin confirmation',
-      next: 'Send welcome link, confirm myBBSI invite, then start training path',
-      fromRecruiting: true, fromServer: true,
-    }));
+    serverEmployees = (Array.isArray(data.employees) ? data.employees : []).map(e => {
+      const ms = (e.milestones && typeof e.milestones === 'object') ? e.milestones : {};
+      const view = milestoneView(ms);
+      return {
+        id: `emp-${e.id}`,
+        serverId: e.id,
+        milestones: ms,
+        name: `${e.first_name} ${e.last_name}`.trim(),
+        role: e.role || 'Role TBD',
+        supervisor: e.supervisor || 'Supervisor to confirm',
+        stage: view.stage,
+        status: view.done === EMP_MILESTONES.length ? 'Onboarding complete' : 'Onboarding',
+        start: e.start_date ? new Date(`${e.start_date}T12:00:00`).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : 'Pending',
+        progress: view.progress,
+        blocked: view.blocked,
+        next: view.next,
+        fromRecruiting: true, fromServer: true,
+      };
+    });
     serverEmployeesLoaded = true;
     if(section === 'ops') render();
   }catch(_){ /* offline: fall back to local queue */ }
@@ -1865,7 +1905,7 @@ function contentPage(id){ const p=pageContent[id]; if(!p) return startSection();
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl>${m.id==='damage'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('damage')">Fill out: damage report</button><button onclick="openFormFill('incident')">Fill out: incident report</button></div>`:m.id==='nearmiss'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('nearmiss')">Fill out a near-miss report</button></div>`:''}</article>`).join('')}</div></section>`; }
 function checkinSection(){ return `<section class="panel checkin-panel"><p class="eyebrow">Follow-up after the fire hose</p><h2>30-day check-in</h2><p class="summary">Austin said the first day can be a fire hose. This check-in gives Goff a structured second pass after the employee has real context.</p><div class="checkin-grid">${checkinItems.map((item,i)=>`<label class="check ${completed[`checkin-${i}`]?'checked':''}"><input type="checkbox" ${completed[`checkin-${i}`]?'checked':''} onchange="toggle('checkin-${i}')" /><span><b>${esc(item.title)}</b><small>${esc(item.detail)}</small></span></label>`).join('')}</div><div class="manager-note"><h3>Admin/supervisor record</h3><textarea placeholder="Questions asked, expectations clarified, follow-up assigned, manager notes..."></textarea><p class="note"><strong>Production database needed:</strong> notes, assignments, and completion status will activate once employee records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Save check-in note</button><button disabled title="Requires production database">Assign follow-up</button><button disabled title="Requires production database">Mark 30-day complete</button></div></div></section>`; }
 function opsSection(){
-  return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''}"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div><div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Production database needed:</strong> these actions become one-click workflow actions once onboarding records are server-side.</p><div class="admin-actions"><button disabled title="Requires production database">Generate welcome message</button><button disabled title="Requires production database">Verify BBSI complete</button><button disabled title="Requires production database">Assign supervisor handoff</button><button disabled title="Requires production database">Schedule 30-day check-in</button></div></section>
+  return `<section class="panel ops-panel"><p class="eyebrow">Admin-side onboarding control</p><h2>Who needs what next</h2><p class="summary">This is the internal operating view: not another document list. It shows each new hire’s stage, blockers, owner actions, and follow-up timing.</p><div class="metric-grid">${adminMetrics().map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')}</div></section><section class="panel"><p class="eyebrow">Onboarding queue</p><h2>Employee status board</h2><div class="employee-board">${currentOnboardingQueue().map(e=>`<article class="employee-row ${e.fromRecruiting?'from-recruiting':''}"><div><span class="status-pill">${esc(e.status)}</span><h3>${esc(e.name)}</h3><p>${esc(e.role)}</p></div><dl><div><dt>Stage</dt><dd>${esc(e.stage)}</dd></div><div><dt>Supervisor</dt><dd>${esc(e.supervisor)}</dd></div><div><dt>Start</dt><dd>${esc(e.start)}</dd></div></dl><div class="mini-progress"><span>${esc(e.progress)}%</span><i style="width:${esc(e.progress)}%"></i></div>${e.fromServer ? `<div class="ms-pills">${EMP_MILESTONES.map(([k,label])=>{const done=!!(e.milestones&&e.milestones[k]);return `<button class="ms-pill ${done?'done':''}" title="${done?'Done — click to undo':'Click when done'}" onclick="markEmployeeMilestone('${esc(e.serverId)}','${k}',${done?'false':'true'})">${done?'✓':'○'} ${esc(label)}</button>`;}).join('')}</div>` : ''}<div class="row-next"><b>Blocked / watch</b><p>${esc(e.blocked)}</p><b>Next action</b><p>${esc(e.next)}</p></div></article>`).join('')}</div></section><section class="grid two"><article class="panel"><p class="eyebrow">Owner lanes</p><h2>Next actions by owner</h2><div class="owner-lanes">${ownerActions.map(l=>`<div class="owner-lane"><h3>${esc(l.owner)} <span>${esc(l.count)}</span></h3><ul>${l.items.map(item=>`<li>${esc(item)}</li>`).join('')}</ul></div>`).join('')}</div></article><article class="panel"><p class="eyebrow">Current blockers</p><h2>Decisions holding automation</h2><div class="blocker-list">${blockers.map(b=>`<article><span>${esc(b.owner)}</span><b>${esc(b.title)}</b><p>${esc(b.impact)}</p></article>`).join('')}</div></article></section><section class="panel"><p class="eyebrow">Operating timeline</p><h2>Admin checklist from clearance to 30 days</h2><div class="admin-timeline">${adminTimeline.map(([title,detail],i)=>`<article><span>${i+1}</span><div><b>${esc(title)}</b><p>${esc(detail)}</p></div></article>`).join('')}</div><p class="note"><strong>Live:</strong> the milestone buttons on each hire's card above are the workflow — welcome link, BBSI confirmation, training start, supervisor handoff, and the 30-day check-in all save to the shared record.</p></section>
   <section class="panel"><p class="eyebrow">Training oversight — what Austin asked for on the July 1 call</p><h2>Who actually read it, and who click-click-clicked</h2><p class="summary">Every knowledge check tracks attempts, not just completion. Quinton and managers see per-employee results: first-try answers versus second-guessing, section completion, quiz scores, and acknowledgements. Demo data below is from this device.</p>
   <div class="metric-grid">${(()=>{const s=kcStats();return [
     { label:'Knowledge checks', value:`${s.done}/${s.total}`, detail:'Answered correctly so far on this device' },
@@ -1874,7 +1914,7 @@ function opsSection(){
     { label:'Safety sections', value:`${SAFETY_COURSES.filter(c=>courseComplete('safety',c)).length}/${SAFETY_COURSES.length}`, detail:'Final V3 quiz retired 7/2 — BBSI safety may reinstate' },
   ].map(m=>`<article><span>${esc(m.label)}</span><strong>${esc(m.value)}</strong><p>${esc(m.detail)}</p></article>`).join('')})()}</div>
   <div class="doc-blocks" style="margin-top:16px"><article><h3>Assign retraining</h3><p>Manager assigns any section or policy to an employee with a deadline (“Did you even read the vehicle policy? You’re doing it tomorrow.”) — trackable instead of take-my-word-for-it.</p></article><article><h3>Yearly refresher</h3><p>Each year every employee gets 5 randomly-pulled sections as a refresher, per Austin. With all resources in one spot, this becomes a button, not a project.</p></article></div>
-  <div class="admin-actions"><button disabled title="Requires production database">Assign section to employee</button><button disabled title="Requires production database">Set completion deadline</button><button disabled title="Requires production database">Trigger yearly refresher</button></div></section>`;
+  <p class="note"><strong>Next build:</strong> per-employee training tracking (each hire's actual course + quiz progress from their own device) — then assign-retraining and the yearly refresher become buttons here.</p></section>`;
 }
 function resourcesSection(){ return `<section class="panel"><p class="eyebrow">Employee resources</p><h2>Everything you need, any day.</h2><p class="summary">Forms, policies, training refreshers, and company links — for every Goff employee, whether you started this morning or ten years ago. Can’t find something? Search the FAQs, then ask your supervisor.</p><div class="cards">${[['faq','FAQs — search anything'],['forms','Company forms'],['policies','Policies'],['perdiem','Per diem / travel'],['exaktime','Timekeeping'],['bbsi','Paystubs / myBBSI'],['safety','Safety refresher'],['tools','Tools / PPE'],['role','Role expectations'],['milestones','Check-ins']].map(([id,label])=>`<button class="page-card" onclick="nav('${id}')"><b>${esc(label)}</b><small>Open resource</small></button>`).join('')}</div></section>`; }
 

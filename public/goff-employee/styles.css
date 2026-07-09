@@ -331,3 +331,9 @@ button.faq-act{margin:0}
 
 /* Colorblind rule: white logo on the dark course app bar too */
 .course-appbar img{filter:brightness(0) invert(1)}
+
+/* Onboarding milestone pills on the admin ops board — click to mark done */
+.ms-pills{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.ms-pill{border:1px solid #d5d5d5;background:#fff;border-radius:999px;padding:7px 13px;font:inherit;font-size:13px;font-weight:700;color:#6e6e6e;cursor:pointer;transition:border-color .15s,color .15s,background .15s}
+.ms-pill:hover{border-color:#262626;color:#1a1a1a}
+.ms-pill.done{background:#f0f8f2;border-color:#bfe0cb;color:#1f8a4c}

@@ -9,9 +9,39 @@ export async function GET() {
   const sql = goffDb();
   if (!sql) return NextResponse.json({ error: 'Database not configured.' }, { status: 503 });
   const rows = await sql`
-    SELECT id, created_at, first_name, last_name, email, phone, role, supervisor, start_date, status, source
+    SELECT id, created_at, first_name, last_name, email, phone, role, supervisor, start_date, status, source, milestones
     FROM goff_employees ORDER BY created_at DESC LIMIT 200`;
   return NextResponse.json({ employees: rows });
+}
+
+// Onboarding milestones, marked from the admin ops board (welcome link sent,
+// BBSI confirmed, training started, supervisor handoff, 30-day check-in).
+// Value true stamps the time; false clears it (undo).
+const MILESTONE_KEYS = new Set(['welcome', 'bbsi', 'training', 'handoff', 'checkin30']);
+
+export async function PATCH(request: NextRequest) {
+  const sql = goffDb();
+  if (!sql) return NextResponse.json({ error: 'Database not configured.' }, { status: 503 });
+  try {
+    const body = await request.json().catch(() => null);
+    const id = String(body?.id || '').trim();
+    const milestone = String(body?.milestone || '').trim();
+    const value = body?.value === true;
+    if (!id || !MILESTONE_KEYS.has(milestone)) {
+      return NextResponse.json({ error: 'Send { id, milestone, value }.' }, { status: 400 });
+    }
+    const patch = { [milestone]: value ? new Date().toISOString() : null };
+    const rows = await sql`
+      UPDATE goff_employees
+      SET milestones = COALESCE(milestones, '{}'::jsonb) || ${sql.json(patch as never)}
+      WHERE id = ${id}
+      RETURNING id, milestones`;
+    if (!rows.length) return NextResponse.json({ error: 'Employee not found.' }, { status: 404 });
+    return NextResponse.json({ ok: true, milestones: rows[0].milestones });
+  } catch (err) {
+    console.error('[goff-employees] milestone update failed:', err);
+    return NextResponse.json({ error: 'Could not update milestone.' }, { status: 500 });
+  }
 }
 
 export async function POST(request: NextRequest) {
