@@ -668,3 +668,7 @@ details.collapse-panel > summary h3{margin:0}
 .offer-queue-row .oq-who small{color:var(--steel)}
 .offer-queue-row .oq-stage small{display:block;margin-top:6px}
 @media(max-width:860px){.offer-queue-row{grid-template-columns:1fr;gap:10px}}
+
+/* Collapsed timeline shows count + latest event so it's glanceable shut */
+.collapse-panel .tl-peek{margin-left:12px;color:var(--steel);font-size:13px;font-weight:700}
+@media(max-width:700px){.collapse-panel .tl-peek{display:block;margin:6px 0 0 21px}}

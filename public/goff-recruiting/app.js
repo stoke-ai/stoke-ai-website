@@ -1425,10 +1425,10 @@ function candidate(){
     <p class="muted">${esc(roleFit(x))}</p>
   </section>
   ${showClearance ? `<section class="panel" style="margin-top:16px"><h3>Clearance guardrails</h3>${clearancePanel(x)}</section>${employeeHandoffPanel(x)}` : ''}
-  <section class="panel" style="margin-top:16px">
-    <h3>Timeline</h3>
-    <div class="timeline">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
-  </section>`;
+  <details class="panel collapse-panel" style="margin-top:16px">
+    <summary><h3 style="display:inline">Timeline</h3><span class="tl-peek">${x.timeline.length} event${x.timeline.length===1?'':'s'}${x.timeline.length?` · latest: ${esc(String(x.timeline[x.timeline.length-1]).slice(0,64))}${String(x.timeline[x.timeline.length-1]).length>64?'…':''}`:''}</span></summary>
+    <div class="timeline" style="margin-top:14px">${x.timeline.slice().reverse().map(t=>`<div class="timeline-row"><span class="timeline-dot"></span><div><b>${esc(t)}</b><small>Logged in candidate history</small></div></div>`).join('')}</div>
+  </details>`;
 }
 function changeCandidatePosition(jobId){
   const job = jobById(jobId);
