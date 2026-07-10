@@ -1801,6 +1801,12 @@ function header(){
   </header>`;
 }
 
+// Stupid-simple escape hatch at the bottom of every employee page: however
+// deep you are, My onboarding and Home are one tap away without scrolling up.
+function bottomNav(){
+  if(section==='start' || section==='home') return '';
+  return `<div class="bottom-nav"><button class="secondary" onclick="nav('path')">← My onboarding</button><button class="secondary" onclick="nav('${onboardingComplete()?'home':'start'}')">Portal home</button></div>`;
+}
 function tabs(){
   const internalSections = new Set(['ops','clearance','handoff','admin']);
   if(!internalSections.has(section)){
@@ -2006,9 +2012,9 @@ function handoffDone(){ return HANDOFF_CHECKLIST.every((_,i)=>completed[`handoff
 function handoffSection(){
   const p = pageContent.handoff;
   const doneCount = HANDOFF_CHECKLIST.filter((_,i)=>completed[`handoffitem-${i}`]).length;
-  return `<section class="panel doc-page"><p class="eyebrow">${onboardingComplete()?'Onboarding record — supervisor handoff':'Step 5 • Supervisor handoff — the in-person checklist'}</p><h2>Meet with your supervisor</h2><p class="summary">Everything before this step happened on a screen. This step happens in the shop, with ${esc(PROFILE.supervisor)} — the physical items from Goff’s New Hire Checklist. ${doneCount} of ${HANDOFF_CHECKLIST.length} complete. In production, your supervisor checks these off and signs; for this review version, check them here.</p>
+  return `<section class="panel doc-page"><p class="eyebrow">${onboardingComplete()?'Onboarding record — supervisor handoff':'Step 5 • Supervisor handoff — the in-person checklist'}</p><h2>Meet with your supervisor</h2><p class="summary">Everything before this step happened on a screen. This step happens in the shop, with ${esc(PROFILE.supervisor)} — the physical items from Goff’s New Hire Checklist. ${doneCount} of ${HANDOFF_CHECKLIST.length} complete. Check each one off together as you go — it saves to your onboarding record.</p>
   <div class="checkin-grid">${HANDOFF_CHECKLIST.map(([title,detail],i)=>`<label class="check ${completed[`handoffitem-${i}`]?'checked':''}"><input type="checkbox" ${completed[`handoffitem-${i}`]?'checked':''} onchange="toggle('handoffitem-${i}')" /><span><b>${esc(title)}</b><small>${esc(detail)}</small></span></label>`).join('')}</div>
-  ${handoffDone()?`<div class="ack-box"><h3>Handoff complete — welcome to the crew ✓</h3><p>Onboarding is done. From here the portal is your everyday home: FAQs, forms, policies, and training refreshers. Your 30-day check-in is already on the calendar.</p><div class="admin-actions"><button disabled title="Requires production database">Supervisor sign-off</button></div></div>`:''}</section>`;
+  ${handoffDone()?`${nextStepDoor('Supervisor handoff')}<div class="ack-box"><h3>Handoff complete — welcome to the crew ✓</h3><p>Onboarding is done. From here the portal is your everyday home: FAQs, forms, policies, and training refreshers. Your 30-day check-in is already on the calendar.</p><div class="admin-actions"><button disabled title="Requires production database">Supervisor sign-off</button></div></div>`:''}</section>`;
 }
 function contentPage(id){ const p=pageContent[id]; if(!p) return startSection(); const bar = ''; return `<section class="panel doc-page"><p class="eyebrow">${esc(p.kicker)}</p><h2>${esc(p.title)}</h2><p class="summary">${esc(p.summary)}</p><div class="doc-blocks">${p.blocks.map(([h,b])=>`<article><h3>${esc(h)}</h3><p>${esc(b)}</p></article>`).join('')}</div>${bar}</section>`; }
 function formsSection(){ return `<section class="panel"><p class="eyebrow">Company links training</p><h2>Forms employees need to understand</h2><p class="summary">Each form should teach when to use it, how to submit it, who sees it, and what happens after. Final routing and visibility will be locked after Austin confirms who owns each form and which links are employee-visible.</p><div class="form-modules">${formModules.map(m=>`<article class="form-module"><div class="module-head"><span>${esc(m.status)}</span><h3>${esc(m.title)}</h3><small>${esc(m.audience)}</small></div><dl><div><dt>When to use it</dt><dd>${esc(m.when)}</dd></div><div><dt>How to submit</dt><dd>${esc(m.how)}</dd></div><div><dt>What happens next</dt><dd>${esc(m.next)}</dd></div><div class="proposed-route"><dt>Proposed routing — DRAFT</dt><dd>${esc(m.route)}</dd></div><div class="confirm"><dt>Confirm</dt><dd>${esc(m.confirm)}</dd></div></dl>${m.id==='damage'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('damage')">Fill out: damage report</button><button onclick="openFormFill('incident')">Fill out: incident report</button></div>`:m.id==='nearmiss'?`<div class="admin-actions" style="padding:0 16px 16px"><button onclick="openFormFill('nearmiss')">Fill out a near-miss report</button></div>`:''}</article>`).join('')}</div></section>`; }
@@ -2317,7 +2323,7 @@ function compactHeader(){
 // sidebar, grouped nav, content on the right — so the team moves between
 // "Goff Recruiting" and "Onboarding Admin" without relearning the layout.
 // Employee-facing sections keep their own phone-first hero/tabs design.
-const ADMIN_SHELL_SECTIONS = new Set(['ops','clearance','handoff','admin','training','employee']);
+const ADMIN_SHELL_SECTIONS = new Set(['ops','clearance','admin','training','employee']);
 // Which hire the admin detail view is showing (survives refresh via ?emp=).
 let selectedEmployeeId = new URLSearchParams(window.location.search).get('emp') || '';
 function openEmployee(serverId){
@@ -2584,7 +2590,7 @@ function render(){
         ${adminNavBtn('ops','Onboarding board')}
         <span class="nav-label">New hires — day 1 to 30</span>
         ${adminNavBtn('clearance','Clearance hold')}
-        ${adminNavBtn('handoff','Manager handoff')}
+        ${adminNavBtn('handoff','Handoff checklist')}
         <span class="nav-label">Review &amp; reference</span>
         ${adminNavBtn('admin','Austin review')}
         ${adminNavBtn('training','Full path map')}
@@ -2601,7 +2607,7 @@ function render(){
     // everyday welcome-back with search instead of first-day logistics.
     const isHome = section==='home' || section==='start';
     const hdr = isHome ? homeHeader() : section==='path' ? header() : compactHeader();
-    app.innerHTML = `${hdr}<main class="wrap">${identityBar()}${tabs()}${main()}</main><footer>Private Goff Welding employee portal</footer>${feedbackWidget()}`;
+    app.innerHTML = `${hdr}<main class="wrap">${identityBar()}${tabs()}${main()}${bottomNav()}</main><footer>Private Goff Welding employee portal</footer>${feedbackWidget()}`;
   }
 }
 render();

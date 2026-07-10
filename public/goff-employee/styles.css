@@ -425,3 +425,7 @@ button.faq-act{margin:0}
 .next-door button:hover{background:#eee}
 .next-door.alldone{border-left-color:var(--green)}
 @media(max-width:700px){.next-door{flex-direction:column;align-items:stretch;text-align:center}}
+
+/* Bottom escape hatch on every employee page */
+.bottom-nav{display:flex;gap:10px;flex-wrap:wrap;margin:26px 0 8px;padding-top:18px;border-top:1px solid #ddd}
+.bottom-nav .secondary{border:1px solid #ccc}
