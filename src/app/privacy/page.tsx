@@ -1,0 +1,25 @@
+import type { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+
+export const metadata: Metadata = { title: 'Privacy Policy | Stoke AI', description: 'Privacy Policy for Stoke AI services and client communications.' };
+
+const sections = [
+  { title: 'Information we collect', body: <>We may collect information you provide directly, including your name, company, email address, mobile number, project details, service requests, and communications with us. Our website may also collect basic technical information such as IP address, browser type, device information, referring page, and submission timestamps.</> },
+  { title: 'How we use information', body: <>We use information to provide and improve Stoke AI services, operate client workspaces, respond to questions, coordinate active projects, maintain account security, document consent, comply with law, and communicate with clients and prospective clients.</> },
+  { title: 'SMS privacy', body: <><strong className="text-white">Mobile information, SMS opt-in data, and consent records will not be sold, rented, or shared with third parties or affiliates for marketing or promotional purposes.</strong> We may share information with service providers only as needed to deliver requested communications and operate our systems. Text-message frequency varies. Message and data rates may apply. Reply STOP to unsubscribe or HELP for help.</> },
+  { title: 'How information may be shared', body: <>We may share limited information with vendors that help us host, secure, maintain, or deliver our services; with professional advisers when necessary; in connection with a business transfer; or when required by law. Service providers receive only the information reasonably necessary for their work and must handle it appropriately.</> },
+  { title: 'Data retention and security', body: <>We retain information for as long as reasonably necessary to provide services, maintain business and consent records, resolve disputes, and meet legal obligations. We use reasonable administrative and technical safeguards, but no internet or storage system can be guaranteed completely secure.</> },
+  { title: 'Your choices', body: <>You may request access, correction, or deletion of personal information by contacting us. You may opt out of text messages at any time by replying STOP. You may ask for messaging help by replying HELP. Opting out of SMS does not end other client services or prevent necessary non-SMS communication.</> },
+  { title: 'Cookies and third-party services', body: <>Our site and service providers may use essential cookies and similar technologies to operate pages, sessions, forms, analytics, and security features. Third-party services are governed by their own privacy terms when you interact with them directly.</> },
+  { title: 'Changes to this policy', body: <>We may update this Privacy Policy as our services or legal requirements change. The effective date shown on this page identifies the current version.</> },
+];
+
+export default function PrivacyPage() {
+  return <main className="min-h-screen bg-[#0d0d0d] text-white"><div className="mx-auto max-w-4xl px-5 py-8 sm:px-8 sm:py-12">
+    <header className="mb-10 flex items-center justify-between border-b border-white/10 pb-6"><Link href="/" className="block w-40 sm:w-48"><Image src="/logo.png" alt="Stoke AI" width={500} height={170} className="h-auto w-full" /></Link><Link href="/sms-consent" className="text-sm font-bold text-orange-300 hover:text-orange-200">SMS consent</Link></header>
+    <p className="text-sm font-bold uppercase tracking-[0.2em] text-orange-300">Legal</p><h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Privacy Policy</h1><p className="mt-4 text-gray-400">Effective July 14, 2026</p>
+    <div className="mt-10 space-y-9 text-base leading-7 text-gray-300"><section><h2 className="text-xl font-black text-white">Who we are</h2><p className="mt-2">This Privacy Policy applies to JHEKOO LLC doing business as Stoke AI (“Stoke AI,” “we,” “us,” or “our”), including stoke-ai.com, client workspaces, forms, and related services.</p></section>{sections.map((section) => <section key={section.title}><h2 className="text-xl font-black text-white">{section.title}</h2><p className="mt-2">{section.body}</p></section>)}<section><h2 className="text-xl font-black text-white">Contact us</h2><p className="mt-2">JHEKOO LLC dba Stoke AI<br />450 W 90 N<br />Burley, ID 83318<br /><a className="text-orange-300 underline" href="mailto:automate@stoke-ai.com">automate@stoke-ai.com</a><br /><a className="text-orange-300 underline" href="tel:+12085737224">+1 (208) 573-7224</a></p></section></div>
+    <footer className="mt-12 flex gap-5 border-t border-white/10 pt-6 text-sm text-gray-400"><Link href="/" className="hover:text-orange-300">Home</Link><Link href="/terms" className="hover:text-orange-300">Terms of Service</Link><Link href="/sms-consent" className="hover:text-orange-300">SMS consent</Link></footer>
+  </div></main>;
+}
