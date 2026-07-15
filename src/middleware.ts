@@ -3,6 +3,14 @@ import { NextRequest, NextResponse } from 'next/server';
 const GOFF_HOSTS = new Set([
   'goff.stoke-ai.com',
   'goff-stoke-ai.vercel.app',
+  'careers.goffwelding.com',
+]);
+
+// The one-portal domain: recruiting admin at the root (auth-gated), public
+// careers at /careers and /apply, employee portal at /employee. The apex
+// goffwelding.com stays with LinkNow — we only take subdomains.
+const GOFF_PORTAL_HOSTS = new Set([
+  'portal.goffwelding.com',
 ]);
 
 const GOFF_EMPLOYEE_HOSTS = new Set([
@@ -10,7 +18,7 @@ const GOFF_EMPLOYEE_HOSTS = new Set([
   'employee.goffwelding.com',
 ]);
 
-const PORTAL_COOKIE = 'stoke_portal_session';
+const GOFF_RECRUITING_COOKIE = 'goff_recruiting_session';
 const GOFF_ADMIN_CLIENT_ID = 'goff-admin';
 const MAX_SESSION_AGE_SECONDS = 60 * 60 * 24 * 14;
 
@@ -100,6 +108,35 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // portal.goffwelding.com — the team's front door.
+  if (GOFF_PORTAL_HOSTS.has(host)) {
+    // Public careers experience on the portal domain (client locks to the
+    // career view from the /careers and /apply paths).
+    if (pathname === '/careers' || pathname === '/apply' || pathname.startsWith('/goff-careers')) {
+      return NextResponse.rewrite(new URL('/goff-recruiting/index.html', request.url));
+    }
+    // Employee portal under /employee (assets load via /goff-employee/*).
+    if (pathname === '/employee' || pathname === '/employee/') {
+      return NextResponse.rewrite(new URL('/goff-employee/index.html', request.url));
+    }
+    // Root (and /admin) → recruiting admin, same session gate as the main
+    // domain; /goff-recruiting/* and /goff-employee/* fall through to the
+    // shared handling below so assets and the login page work unchanged.
+    if (pathname === '/' || pathname === '/index.html' || pathname === '/admin') {
+      if (process.env.GOFF_RECRUITING_REQUIRE_AUTH === 'true') {
+        const token = request.cookies.get(GOFF_RECRUITING_COOKIE)?.value;
+        const clientId = await clientIdFromCookie(token);
+        if (clientId !== GOFF_ADMIN_CLIENT_ID) {
+          const loginUrl = request.nextUrl.clone();
+          loginUrl.pathname = '/goff-recruiting/login';
+          loginUrl.search = `?next=${encodeURIComponent('/')}`;
+          return NextResponse.redirect(loginUrl);
+        }
+      }
+      return NextResponse.rewrite(new URL('/goff-recruiting/index.html', request.url));
+    }
+  }
+
   // Clean static route for the Goff employee portal prototype on the main
   // Stoke domain. The employee vanity host rewrite above handles production
   // domain access.
@@ -109,7 +146,7 @@ export async function middleware(request: NextRequest) {
   if (pathname === '/goff-recruiting' || pathname === '/goff-recruiting/') {
     const publicViewEarly = ['career', 'apply', 'thanks'].includes(request.nextUrl.searchParams.get('view') || '');
     if (process.env.GOFF_RECRUITING_REQUIRE_AUTH === 'true' && !publicViewEarly) {
-      const token = request.cookies.get(PORTAL_COOKIE)?.value;
+      const token = request.cookies.get(GOFF_RECRUITING_COOKIE)?.value;
       const clientId = await clientIdFromCookie(token);
       if (clientId !== GOFF_ADMIN_CLIENT_ID) {
         const loginUrl = request.nextUrl.clone();
@@ -143,7 +180,7 @@ export async function middleware(request: NextRequest) {
   const publicView = ['career', 'apply', 'thanks'].includes(request.nextUrl.searchParams.get('view') || '');
   const isStaticAsset = /\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?)$/i.test(pathname);
   if (authRequired && pathname.startsWith('/goff-recruiting') && !isPublicAdminPath(pathname) && !publicView && !isStaticAsset) {
-    const token = request.cookies.get(PORTAL_COOKIE)?.value;
+    const token = request.cookies.get(GOFF_RECRUITING_COOKIE)?.value;
     const clientId = await clientIdFromCookie(token);
     if (clientId !== GOFF_ADMIN_CLIENT_ID) {
       const loginUrl = request.nextUrl.clone();
