@@ -58,19 +58,6 @@ export const portalClients: PortalClient[] = [
     trelloBoardId: process.env.TRELLO_GOFF_BOARD_ID,
   },
   {
-    // Separate org/auth identity for the Goff Recruiting admin tool. Lives
-    // alongside the Goff client portal but uses its own login so Austin and
-    // Quinton don't share credentials with the client-portal session, and so
-    // the recruiting dashboard can be gated independently in middleware.ts.
-    id: 'goff-admin',
-    username: 'goffadmin',
-    name: 'Goff Recruiting Admin',
-    contactEmail: '',
-    notificationContacts: [],
-    headline: 'Goff Welding recruiting platform — admin',
-    summary: 'Internal admin access for the Goff Recruiting Platform (dashboard, candidates, manager review, offer workflow).',
-  },
-  {
     id: 'rachel-hansen',
     username: 'rachel',
     name: 'Rachel Hansen Agency',
