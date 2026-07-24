@@ -1,0 +1,220 @@
+{
+  "reconciledAt": "2026-07-24T13:46:38-06:00",
+  "headline": "No urgent client decision is due right now.",
+  "subhead": "Four active client lanes are visible. Two records need a fresh operating check before they should guide a new commitment.",
+  "summary": {
+    "needsJeff": 0,
+    "blazeOwned": 3,
+    "waitingOnClient": 1,
+    "needsFreshnessCheck": 2
+  },
+  "attention": [
+    {
+      "tone": "clear",
+      "eyebrow": "Jeff's desk",
+      "title": "Nothing is asking for an immediate decision",
+      "detail": "Goff remains behind an internal review gate, Morgan has a dated renewal reminder, Rachel's new-scope gate is preserved, and Handy has no newly verified request for Jeff.",
+      "action": "Keep working from the current lanes; interrupt Jeff only if a promise, client wait, or release gate changes."
+    }
+  ],
+  "changes": [
+    {
+      "client": "Goff",
+      "date": "Jul 22",
+      "title": "Evidence provenance became the active procurement slice",
+      "detail": "The local pilot now preserves source evidence through the review packet. The repository test suite was re-run successfully on July 24.",
+      "confidence": "verified"
+    },
+    {
+      "client": "Handy",
+      "date": "Jun 10",
+      "title": "Dispatch overlap warnings were tightened",
+      "detail": "The latest recorded implementation work made grouped and untimed loads participate in the same overlap safety checks dispatchers see.",
+      "confidence": "verified"
+    },
+    {
+      "client": "Morgan",
+      "date": "Jun 16",
+      "title": "The workflow boundary was consolidated",
+      "detail": "The current record keeps HCP unchanged unless Roger explicitly approves a new scope. This needs a fresh operating check before a new commitment.",
+      "confidence": "stale"
+    },
+    {
+      "client": "Rachel",
+      "date": "Jul 24",
+      "title": "The pre-new-scope gate is explicit",
+      "detail": "The working photo-queue outcome must be closed out cordially with an Agency OS Review and written SAIOS closeout before another $5k engagement begins.",
+      "confidence": "reported"
+    }
+  ],
+  "blazeWork": [
+    {
+      "client": "Goff",
+      "work": "Finish procurement evidence review and prepare Jeff's internal walkthrough.",
+      "nextUpdate": "After the safety review is complete",
+      "tone": "moving"
+    },
+    {
+      "client": "Rachel",
+      "work": "Preserve the working photo-queue outcome and prepare the closeout/review layer before any new scope.",
+      "nextUpdate": "At the closeout-ready gate",
+      "tone": "moving"
+    },
+    {
+      "client": "Command Center",
+      "work": "Turn fragmented operating records into this persistent owner view without publishing client-sensitive detail.",
+      "nextUpdate": "This production walkthrough",
+      "tone": "moving"
+    }
+  ],
+  "waitingRooms": [
+    {
+      "label": "Waiting on Jeff",
+      "count": 0,
+      "detail": "No verified decision or communication is due today.",
+      "tone": "clear"
+    },
+    {
+      "label": "Waiting on client",
+      "count": 1,
+      "detail": "Morgan's next-improvement review remains with Roger in the latest durable record.",
+      "tone": "watch"
+    },
+    {
+      "label": "Waiting on Blaze",
+      "count": 3,
+      "detail": "Goff review, Rachel closeout preparation, and Command Center delivery.",
+      "tone": "moving"
+    },
+    {
+      "label": "Needs fresh evidence",
+      "count": 2,
+      "detail": "Handy and Morgan require operating reconciliation before new commitments are treated as current.",
+      "tone": "watch"
+    }
+  ],
+  "clients": [
+    {
+      "id": "goff",
+      "name": "Goff Welding",
+      "health": "on-track",
+      "healthLabel": "Moving",
+      "outcome": "Prove a safe, auditable procurement-intake workflow before any production integration.",
+      "lane": "Evidence provenance and reviewer packet",
+      "state": "Internal QA",
+      "nextMilestone": "Jeff walkthrough after independent safety review",
+      "nextOwner": "Blaze",
+      "nextContact": "After the internal walkthrough is ready",
+      "jeffAction": "None now. Review the realistic walkthrough before any Goff operator is invited.",
+      "risk": "Do not schedule operators or make production writes before the reviewed slice is ready.",
+      "decision": "Keep the pilot local and evidence-led; production ownership and SAP integration remain outside this slice.",
+      "verifiedAt": "2026-07-24",
+      "freshness": "verified",
+      "sources": [
+        "goff-procurement-intake · current branch and passing test suite",
+        "Goff project focus control list",
+        "Evidence provenance slice contract"
+      ]
+    },
+    {
+      "id": "handy",
+      "name": "Handy Truck Lines",
+      "health": "watch",
+      "healthLabel": "Fresh check needed",
+      "outcome": "Keep the live dispatch system reliable while preserving dispatcher judgment.",
+      "lane": "Dispatch-board and importer correctness",
+      "state": "Production",
+      "nextMilestone": "Reconcile the current production priority with Jeff and dispatcher feedback",
+      "nextOwner": "Jeff + Blaze",
+      "nextContact": "Not currently recorded",
+      "jeffAction": "No immediate task. Confirm the next priority before Blaze starts an unrelated lane.",
+      "risk": "The repository is active production, but the Command Center's client control record is older than the code evidence.",
+      "decision": "Warnings should support dispatcher judgment rather than hard-blocking legitimate exceptions.",
+      "verifiedAt": "2026-06-10",
+      "freshness": "stale",
+      "sources": [
+        "dispatching-app · origin/main",
+        "Handy Truck Lines overview",
+        "Dispatch project primer"
+      ]
+    },
+    {
+      "id": "morgan",
+      "name": "Morgan Door",
+      "health": "watch",
+      "healthLabel": "Waiting + stale",
+      "outcome": "Improve workflow visibility without silently changing Morgan's HCP operating system.",
+      "lane": "Daily-needs visibility and next-improvement review",
+      "state": "Client review",
+      "nextMilestone": "Roger confirms which next improvement, if any, should become active",
+      "nextOwner": "Roger Morgan",
+      "nextContact": "Renewal conversation reminder set for October 15",
+      "jeffAction": "None today. Do not promise HCP changes or a new build before Roger chooses the next lane.",
+      "risk": "The latest durable operating record was consolidated June 16 and should be refreshed before it drives new work.",
+      "decision": "HCP stays unchanged unless Roger explicitly approves new scope.",
+      "verifiedAt": "2026-06-16",
+      "freshness": "stale",
+      "sources": [
+        "Morgan Door active memory index",
+        "Active-client control record",
+        "Dated renewal reminder"
+      ]
+    },
+    {
+      "id": "rachel",
+      "name": "Rachel Hansen Agency",
+      "health": "on-track",
+      "healthLabel": "Gate preserved",
+      "outcome": "Close the working photo-queue engagement cleanly before opening another paid priority.",
+      "lane": "Photo queue continuity and engagement closeout",
+      "state": "Closeout preparation",
+      "nextMilestone": "Agency OS Review and written SAIOS closeout",
+      "nextOwner": "Blaze",
+      "nextContact": "When the closeout package is ready for Jeff's review",
+      "jeffAction": "No immediate task. Do not begin another $5k workstream before reviewing the closeout.",
+      "risk": "A useful working workflow can still create scope confusion if delivered value and the next engagement are not separated.",
+      "decision": "No new $5k work until a cordial portal recap, Agency OS Review, and written SAIOS closeout are complete.",
+      "verifiedAt": "2026-07-24",
+      "freshness": "reported",
+      "sources": [
+        "Rachel Hansen active memory",
+        "Photo-queue operating record",
+        "Stoke AI engagement boundary"
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "client": "Goff",
+      "type": "release gate",
+      "statement": "Internal walkthrough and safety review come before operator validation or production writes.",
+      "freshness": "verified",
+      "verifiedAt": "2026-07-24",
+      "source": "Goff project focus control list"
+    },
+    {
+      "client": "Handy",
+      "type": "operating rule",
+      "statement": "Warn dispatchers about exceptions; do not replace their judgment with new hard blocks without approval.",
+      "freshness": "stale",
+      "verifiedAt": "2026-06-10",
+      "source": "Handy dispatch operating record"
+    },
+    {
+      "client": "Morgan",
+      "type": "scope boundary",
+      "statement": "Do not change HCP unless Roger explicitly approves that scope.",
+      "freshness": "stale",
+      "verifiedAt": "2026-06-16",
+      "source": "Morgan Door current operating truth"
+    },
+    {
+      "client": "Rachel",
+      "type": "commercial gate",
+      "statement": "Close out the current engagement in writing before starting another $5k workstream.",
+      "freshness": "reported",
+      "verifiedAt": "2026-07-24",
+      "source": "Rachel Hansen active memory"
+    }
+  ]
+}

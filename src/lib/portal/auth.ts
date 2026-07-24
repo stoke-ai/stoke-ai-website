@@ -59,7 +59,11 @@ function sign(value: string) {
 export function verifyPortalCode(clientId: string, code: string) {
   if (!portalClients.some((client) => client.id === clientId)) return false;
 
-  const expectedCode = parsePortalAccessCodes()[clientId];
+  // Keep the private owner view on its own credential so activating or
+  // rotating Jeff's access never overwrites the client workspace code map.
+  const expectedCode = clientId === 'stoke-ai' && process.env.COMMAND_CENTER_ACCESS_CODE
+    ? process.env.COMMAND_CENTER_ACCESS_CODE
+    : parsePortalAccessCodes()[clientId];
   if (!expectedCode) return false;
 
   return safeCompare(code, expectedCode);
