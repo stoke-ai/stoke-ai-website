@@ -19,7 +19,7 @@ const hiddenPaths = new Set([
 export default function ChatWidgetGate() {
   const pathname = usePathname();
 
-  if (hiddenPaths.has(pathname)) {
+  if (hiddenPaths.has(pathname) || pathname.startsWith('/mdc')) {
     return null;
   }
 
