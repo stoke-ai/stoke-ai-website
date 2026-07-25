@@ -1,0 +1,169 @@
+import type { ServicePageData } from "../_components/ServicePage";
+
+export const installation: ServicePageData = {
+  eyebrow: "Residential garage door installation · Magic Valley",
+  title: "A new garage door that looks right, seals tight, and works reliably.",
+  intro: "Morgan Door helps Southern Idaho homeowners choose and install Raynor garage doors without the catalog overload. Get clear guidance on style, insulation, windows, finish, and operation—then a precise installation from a trained local team.",
+  image: "https://morgandoorcompany.com/wp-content/uploads/2025/03/hm-bg-1.webp",
+  imageAlt: "New residential garage doors on a Magic Valley home",
+  problemsTitle: "Replace the weak link in your home.",
+  problems: [
+    { title: "Worn or damaged door", copy: "Replace cracked panels, bent sections, failing hardware, or a door that has become unreliable." },
+    { title: "Cold, drafty garage", copy: "Improve the opening with an insulated door and properly fitted perimeter seals for Idaho winters." },
+    { title: "Outdated curb appeal", copy: "Choose a style, color, window pattern, and finish that belong on your home." },
+    { title: "Noisy, rough operation", copy: "Start fresh with a correctly balanced door, quality hardware, and a compatible operator." },
+    { title: "New construction", copy: "Coordinate measurements, door selection, and installation timing with your builder or project manager." },
+    { title: "Better daily convenience", copy: "Pair the door with modern controls and safety features that fit how your family uses the garage." },
+  ],
+  differentiators: [
+    { title: "Practical product guidance", copy: "We narrow the choices around your opening, budget, insulation needs, and the look of the home." },
+    { title: "Raynor quality", copy: "A broad residential line gives you durable steel, insulation, window, and design options without sacrificing serviceability." },
+    { title: "Trained installation", copy: "Correct tracks, spring balance, seals, operator settings, and safety tests matter as much as the door itself." },
+    { title: "A local company after the sale", copy: "Morgan Door has served the Magic Valley since 1975 and remains here when you need maintenance or repair." },
+  ],
+  process: [
+    { title: "Talk through the project", copy: "Tell us the opening size, what you dislike about the current door, and what matters most." },
+    { title: "Measure and choose", copy: "We verify the opening and help compare practical Raynor styles, insulation levels, windows, and finishes." },
+    { title: "Approve the quote", copy: "You receive a clear recommendation and scope before the door is ordered or work begins." },
+    { title: "Install and test", copy: "We install, balance, seal, connect, test safety features, clean up, and show you the finished system." },
+  ],
+  localProof: [
+    "Founded in Burley in 1975",
+    "Residential and commercial Raynor partner",
+    "Local support across Burley, Twin Falls, Rupert, Kimberly, and the Magic Valley",
+    "Door and insulation recommendations shaped by Southern Idaho weather",
+  ],
+  faqs: [
+    { question: "How long does garage door installation take?", answer: "Most straightforward residential replacements are completed in one visit after the door arrives. Custom openings, framing changes, or special door configurations can take longer. Morgan Door confirms the installation scope and timing before work begins." },
+    { question: "What should I consider when choosing a new garage door?", answer: "Start with opening size, insulation needs, wind exposure, maintenance preference, window placement, architectural style, and budget. The best door is the one that fits the home and performs reliably—not simply the most expensive option." },
+    { question: "Are insulated garage doors worth it in Southern Idaho?", answer: "Often, yes. An insulated door can reduce heat transfer, make an attached garage more comfortable, strengthen the door sections, and soften operating noise. The value depends on whether the garage is attached, heated, used as workspace, or exposed to strong weather." },
+    { question: "Can you replace the door and keep my existing opener?", answer: "Sometimes. The opener must be compatible with the new door's size and weight and must pass a safety and condition check. Morgan Door will tell you whether keeping it is sensible or whether replacement is the safer long-term choice." },
+    { question: "Do you install garage doors outside Burley?", answer: "Yes. Morgan Door serves homeowners throughout the Magic Valley, including Twin Falls, Rupert, Heyburn, Kimberly, Jerome, Buhl, Filer, and surrounding Southern Idaho communities. Call with your address to confirm coverage." },
+  ],
+};
+
+export const repair: ServicePageData = {
+  eyebrow: "All-brand garage door repair · Burley & Magic Valley",
+  title: "Get your garage door moving safely again.",
+  intro: "A stuck or damaged door can trap a vehicle, interrupt a business, or leave the building exposed. Morgan Door diagnoses the actual failure, explains the repair, and works on all major garage door brands.",
+  image: "https://morgandoorcompany.com/wp-content/uploads/2025/03/installer-temp.webp",
+  imageAlt: "Morgan Door technician repairing a garage door",
+  problemsTitle: "Fix the failure—not just the symptom.",
+  problems: [
+    { title: "Broken springs", copy: "A loud bang, heavy door, or door that opens only a few inches often points to a failed spring. Do not attempt this repair yourself." },
+    { title: "Snapped or loose cables", copy: "Cables can come off drums, fray, or break and leave the door crooked or unsafe to move." },
+    { title: "Door off track", copy: "Bent track, impact, failed rollers, or cable problems can pull a door out of alignment. Stop operating it." },
+    { title: "Opener problems", copy: "We diagnose remotes, controls, drive systems, limits, force settings, and operator compatibility." },
+    { title: "Sensor and closing issues", copy: "A door that reverses or refuses to close may have alignment, wiring, obstruction, or force-setting problems." },
+    { title: "Noise and rough travel", copy: "Grinding, scraping, popping, or shaking can reveal worn rollers, loose hardware, imbalance, or track trouble." },
+  ],
+  differentiators: [
+    { title: "All brands serviced", copy: "You do not need to know the manufacturer before calling. Tell us what the door is doing." },
+    { title: "Safety-first diagnosis", copy: "We inspect the complete counterbalance, track, hardware, and operator system before recommending the repair." },
+    { title: "Straight recommendations", copy: "If a focused repair is the sensible answer, we say so. If the system is no longer worth repairing, we explain why." },
+    { title: "Same-day availability", copy: "Same-day appointments may be available. Urgent calls are prioritized based on safety, security, and vehicle access." },
+  ],
+  process: [
+    { title: "Call or request service", copy: "Describe what happened, whether the door is open or closed, and whether a vehicle is trapped." },
+    { title: "Make the area safe", copy: "We give you immediate do-not-do guidance and prioritize dangerous or unsecured doors." },
+    { title: "Diagnose and quote", copy: "A trained technician inspects the system, explains the failure, and provides the repair scope." },
+    { title: "Repair and verify", copy: "We complete the approved work, test balance and safety functions, lubricate appropriate points, and show you the result." },
+  ],
+  localProof: [
+    "More than 50 years of garage door experience",
+    "Local team—not a national call center",
+    "Service for homes, shops, farms, and commercial buildings",
+    "Customer reports of professional same-day service and strong value",
+  ],
+  faqs: [
+    { question: "Do you repair all garage door brands?", answer: "Yes. Morgan Door repairs residential and commercial doors and operators from major brands. The first step is diagnosing the system and confirming the correct compatible parts." },
+    { question: "Can I open a garage door with a broken spring?", answer: "Do not operate the opener or attempt to lift the door unless a trained professional has made it safe. A broken spring removes the counterbalance that controls hundreds of pounds of door weight and can damage the opener or cause injury." },
+    { question: "Do you offer same-day garage door repair in Burley or Twin Falls?", answer: "Same-day appointments may be available depending on call volume, location, parts, and the safety of the situation. Call early and explain whether the door is stuck open, off track, or blocking a vehicle so the team can prioritize correctly." },
+    { question: "Why does my garage door open and then close again?", answer: "Common causes include photo-eye alignment, obstructions, wiring faults, incorrect travel limits, force settings, or a door that is binding. A technician can isolate whether the problem is in the door, hardware, or opener." },
+    { question: "Should I repair or replace my garage door?", answer: "Repair usually makes sense when the door sections and main structure are sound and the failed parts are serviceable. Replacement may be better when panels are badly damaged, the door is poorly insulated, parts are obsolete, or repeated failures are adding up. Morgan Door will explain both options." },
+  ],
+};
+
+export const commercial: ServicePageData = {
+  eyebrow: "Commercial & overhead doors · Southern Idaho",
+  title: "Keep your building secure and your operation moving.",
+  intro: "Morgan Door installs, repairs, and maintains commercial overhead doors and operators for shops, farms, warehouses, service bays, and facilities across the Magic Valley.",
+  image: "https://morgandoorcompany.com/wp-content/uploads/2024/04/portfolio1.jpg",
+  imageAlt: "Commercial overhead door installation",
+  problemsTitle: "Reduce downtime at the opening your operation depends on.",
+  problems: [
+    { title: "Door will not open or close", copy: "Restore access and security when a sectional or overhead door stops the day." },
+    { title: "Impact damage", copy: "Assess bent sections, track, rollers, bottom fixtures, cables, and structural alignment after a vehicle or equipment strike." },
+    { title: "Operator or control failure", copy: "Diagnose commercial operators, controls, limits, safety devices, and connected hardware." },
+    { title: "Cold or exposed building", copy: "Improve door fit, seals, insulation, and closing reliability for Southern Idaho weather." },
+    { title: "New facility or opening", copy: "Coordinate door type, size, headroom, cycle needs, operator, controls, and installation with the project team." },
+    { title: "Repeated service calls", copy: "Build a planned inspection and maintenance approach around high-use or mission-critical doors." },
+  ],
+  differentiators: [
+    { title: "Residential and commercial depth", copy: "One local company can support the home, shop, agricultural building, warehouse, or service facility." },
+    { title: "Raynor commercial options", copy: "Sectional, insulated, and specialty solutions can be matched to the opening and operating demands." },
+    { title: "Safety and equipment standards", copy: "Trained installers use the proper equipment and follow relevant safety requirements for the work." },
+    { title: "Local project accountability", copy: "You work with a Burley-based company that understands travel, scheduling, weather, and the cost of downtime here." },
+  ],
+  process: [
+    { title: "Site conversation", copy: "Tell us what the opening serves, the current failure, cycle frequency, clearance, security needs, and project timing." },
+    { title: "Field assessment", copy: "We inspect or measure the opening, structure, hardware, operator, controls, and safety devices." },
+    { title: "Clear scope", copy: "Receive the recommended repair, replacement, or maintenance scope with practical options." },
+    { title: "Coordinate and complete", copy: "We schedule around operations, perform the approved work, test the system, and document the handoff." },
+  ],
+  localProof: [
+    "Magic Valley service from a Burley-based team",
+    "Support for shops, agriculture, warehouses, service bays, and facilities",
+    "Commercial door and operator experience",
+    "Planned maintenance options for critical openings",
+  ],
+  faqs: [
+    { question: "What types of commercial overhead doors do you service?", answer: "Morgan Door supports commercial sectional and overhead door systems, insulated doors, shop and agricultural doors, operators, controls, and related safety hardware. A field assessment confirms the exact system and compatible parts." },
+    { question: "Can you work around our business hours?", answer: "Scheduling depends on the project, location, safety needs, and crew availability. Morgan Door coordinates the work plan with the facility contact to reduce disruption and keep the opening safe." },
+    { question: "Do commercial doors need planned maintenance?", answer: "High-cycle and mission-critical doors benefit from scheduled inspection. Technicians can identify worn cables, rollers, hardware, seals, balance, track, controls, and safety-device problems before they become an unplanned shutdown." },
+    { question: "Can you help specify a door for a new commercial building?", answer: "Yes. Morgan Door can help evaluate opening size, headroom, insulation, wind exposure, duty cycle, operator and controls, safety devices, security, and coordination needs before quoting." },
+    { question: "How quickly can you respond to a commercial door failure?", answer: "Response depends on location, call volume, system type, and part availability. Call and explain whether the building is unsecured or operations are stopped so the team can assess urgency immediately." },
+  ],
+};
+
+export const maintenance: ServicePageData = {
+  eyebrow: "Garage door maintenance & safety checks · Magic Valley",
+  title: "Catch wear before it becomes a breakdown.",
+  intro: "A professional garage door inspection helps identify imbalance, worn hardware, damaged seals, unsafe components, and opener issues before they strand a vehicle or interrupt your business.",
+  image: "https://morgandoorcompany.com/wp-content/uploads/2025/02/hmpg2.jpg",
+  imageAlt: "Garage doors maintained for reliable operation",
+  problemsTitle: "Small warning signs deserve a closer look.",
+  problems: [
+    { title: "New or worsening noise", copy: "Squeaks, pops, grinding, and scraping can point to friction, looseness, wear, or alignment problems." },
+    { title: "Door feels heavy", copy: "A balance problem can overwork the opener and signal spring or counterbalance trouble." },
+    { title: "Uneven travel", copy: "A crooked, shaking, or jerky door can indicate cable, roller, track, or hardware issues." },
+    { title: "Light or weather around edges", copy: "Worn seals and poor fit let in wind, dust, pests, and cold air." },
+    { title: "Door reverses unexpectedly", copy: "Safety sensors, force settings, travel limits, or binding should be checked before regular use continues." },
+    { title: "No recent professional inspection", copy: "Annual attention is especially useful for high-use doors and systems exposed to weather or commercial duty." },
+  ],
+  differentiators: [
+    { title: "System-level inspection", copy: "The door, counterbalance, track, rollers, hinges, cables, seals, operator, controls, and safety features work as one system." },
+    { title: "No unnecessary replacement pitch", copy: "The point is to find real wear and risk, then prioritize what actually needs attention." },
+    { title: "Trained eyes on dangerous parts", copy: "Springs, cables, bottom fixtures, and heavy door sections can be dangerous without proper tools and training." },
+    { title: "Maintenance for home and business", copy: "Morgan Door can inspect a single residential door or help plan recurring attention for multiple commercial openings." },
+  ],
+  process: [
+    { title: "Schedule the check", copy: "Tell us the door type, age if known, usage, and any sounds or behavior you have noticed." },
+    { title: "Inspect and test", copy: "We check visible wear, mounting, track, rollers, cables, balance, seals, controls, and safety functions." },
+    { title: "Prioritize findings", copy: "You receive straightforward guidance on urgent repairs, normal wear, and items to monitor." },
+    { title: "Service approved items", copy: "We complete the agreed maintenance or repair work and confirm safe, smoother operation." },
+  ],
+  localProof: [
+    "Seasonal awareness for cold, wind, dust, and temperature swings",
+    "Residential and commercial maintenance",
+    "Safety-focused inspection by trained professionals",
+    "Local follow-up when a part or future repair is needed",
+  ],
+  faqs: [
+    { question: "How often should a garage door be professionally inspected?", answer: "For a typical home, an annual professional check is a practical baseline, especially when the door is used as the main entrance. High-cycle commercial doors may need more frequent inspection based on usage, environment, manufacturer guidance, and safety requirements." },
+    { question: "What is included in a garage door safety check?", answer: "A professional check typically covers visible hardware, track, rollers, hinges, cables, spring and balance condition, fasteners, seals, operator travel, controls, photo eyes, and reversal or safety functions as applicable to the system." },
+    { question: "Can I lubricate my garage door myself?", answer: "Homeowners can follow the door and opener manufacturers' instructions for approved lubrication points, but should not loosen, adjust, or remove springs, cables, bottom fixtures, or counterbalance hardware. If the door is heavy, crooked, damaged, or off track, stop and call a professional." },
+    { question: "Does maintenance prevent every garage door failure?", answer: "No inspection can prevent every unexpected failure, but maintenance can reveal developing wear, poor balance, loose hardware, damaged seals, and safety problems before many of them become larger breakdowns." },
+    { question: "Do you offer maintenance for commercial doors?", answer: "Yes. Morgan Door can inspect commercial overhead doors and discuss a planned schedule based on the number of openings, duty cycle, environment, and operational importance." },
+  ],
+};

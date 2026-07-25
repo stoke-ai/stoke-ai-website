@@ -1,6 +1,8 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import Link from "next/link";
+import QuoteForm from "./_components/QuoteForm";
 
 const phoneDisplay = "(208) 678-3667";
 const phoneHref = "tel:+12086783667";
@@ -11,24 +13,28 @@ const services = [
     title: "Garage Door Repair",
     copy: "Broken springs, snapped cables, off-track doors, opener problems, and doors that will not open or close.",
     action: "Schedule a repair",
+    href: "/mdc/garage-door-repair",
   },
   {
     number: "02",
     title: "New Garage Doors",
     copy: "Compare styles, insulation, windows, and finishes. We measure, install, test, and clean up.",
     action: "Explore new doors",
+    href: "/mdc/garage-door-installation",
   },
   {
     number: "03",
     title: "Commercial Doors",
     copy: "Overhead doors, operators, repairs, and planned maintenance for shops, farms, and facilities.",
     action: "Commercial solutions",
+    href: "/mdc/commercial-overhead-doors",
   },
   {
     number: "04",
     title: "Safety & Maintenance",
     copy: "Catch worn hardware, poor balance, damaged seals, and safety issues before they become breakdowns.",
     action: "Book a safety check",
+    href: "/mdc/maintenance-safety-checks",
   },
 ];
 
@@ -54,12 +60,6 @@ const cities = [
 
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitted(true);
-  }
 
   return (
     <main className="mdc-site">
@@ -72,7 +72,7 @@ export default function Home() {
 
       <header className="site-header">
         <div className="shell header-inner">
-          <a className="brand" href="#top" aria-label="Morgan Door Company home">
+          <a className="brand" href="/mdc" aria-label="Morgan Door Company home">
             <img
               src="https://morgandoorcompany.com/wp-content/uploads/2021/10/Morgan-Door-Company-v5-200x90.png"
               alt="Morgan Door Company"
@@ -90,12 +90,12 @@ export default function Home() {
             <span />
           </button>
           <nav className={menuOpen ? "nav nav-open" : "nav"} aria-label="Main navigation">
-            <a href="#repair" onClick={() => setMenuOpen(false)}>Repair</a>
-            <a href="#services" onClick={() => setMenuOpen(false)}>New Doors</a>
-            <a href="#commercial" onClick={() => setMenuOpen(false)}>Commercial</a>
-            <a href="#about" onClick={() => setMenuOpen(false)}>About</a>
+            <a href="/mdc/garage-door-repair" onClick={() => setMenuOpen(false)}>Repair</a>
+            <a href="/mdc/garage-door-installation" onClick={() => setMenuOpen(false)}>New Doors</a>
+            <a href="/mdc/commercial-overhead-doors" onClick={() => setMenuOpen(false)}>Commercial</a>
+            <a href="/mdc/about" onClick={() => setMenuOpen(false)}>About</a>
             <a className="nav-phone" href={phoneHref}>{phoneDisplay}</a>
-            <a className="button button-small" href="#quote" onClick={() => setMenuOpen(false)}>
+            <a className="button button-small" href="/mdc/free-quote" onClick={() => setMenuOpen(false)}>
               Get Free Quote
             </a>
           </nav>
@@ -118,65 +118,18 @@ export default function Home() {
             </div>
             <div className="hero-actions">
               <a className="button button-call" href={phoneHref}>Call {phoneDisplay}</a>
-              <a className="button button-ghost" href="#quote">Get a Free Quote</a>
+              <a className="button button-ghost" href="/mdc/free-quote">Get a Free Quote</a>
             </div>
             <p className="micro">Talk with a local team member. No call center. No runaround.</p>
           </div>
 
           <div className="quote-card" id="quote">
-            {!submitted ? (
-              <>
-                <div className="quote-heading">
-                  <p className="quote-kicker">Takes about 60 seconds</p>
-                  <h2>Get your free quote</h2>
-                  <p>Tell us what you need. We&apos;ll follow up with a useful next step.</p>
-                </div>
-                <form onSubmit={handleSubmit}>
-                  <label>
-                    What do you need?
-                    <select name="service" defaultValue="" required>
-                      <option value="" disabled>Select a service</option>
-                      <option>Repair</option>
-                      <option>New residential door</option>
-                      <option>Commercial / overhead door</option>
-                      <option>Maintenance / safety check</option>
-                      <option>Not sure</option>
-                    </select>
-                  </label>
-                  <div className="field-row">
-                    <label>
-                      Name
-                      <input name="name" autoComplete="name" placeholder="Your name" required />
-                    </label>
-                    <label>
-                      City or ZIP
-                      <input name="location" autoComplete="postal-code" placeholder="Burley" required />
-                    </label>
-                  </div>
-                  <label>
-                    Mobile phone
-                    <input name="phone" type="tel" autoComplete="tel" placeholder="(208) 555-0000" required />
-                  </label>
-                  <label>
-                    What&apos;s happening?
-                    <textarea name="details" rows={3} placeholder="Door is stuck halfway, spring looks broken..." />
-                  </label>
-                  <button className="button button-form" type="submit">Request My Quote</button>
-                  <p className="form-note">No obligation. Your information is used only to respond to this request.</p>
-                </form>
-              </>
-            ) : (
-              <div className="success" role="status">
-                <div className="success-mark">✓</div>
-                <p className="quote-kicker">Request received</p>
-                <h2>Thanks. We&apos;ll be in touch.</h2>
-                <p>This demo shows the customer confirmation experience. For urgent help, call Morgan Door directly.</p>
-                <a className="button button-form" href={phoneHref}>Call {phoneDisplay}</a>
-                <button className="text-button" type="button" onClick={() => setSubmitted(false)}>
-                  Send another request
-                </button>
-              </div>
-            )}
+            <div className="quote-heading">
+              <p className="quote-kicker">Takes about 60 seconds</p>
+              <h2>Get your free quote</h2>
+              <p>Tell us what you need. We&apos;ll follow up with a useful next step.</p>
+            </div>
+            <QuoteForm compact />
           </div>
         </div>
       </section>
@@ -206,7 +159,7 @@ export default function Home() {
                 <div className="service-number">{service.number}</div>
                 <h3>{service.title}</h3>
                 <p>{service.copy}</p>
-                <a href="#quote">{service.action}<span aria-hidden="true"> →</span></a>
+                <a href={service.href}>{service.action}<span aria-hidden="true"> →</span></a>
               </article>
             ))}
           </div>
@@ -238,7 +191,7 @@ export default function Home() {
             </div>
             <div className="inline-actions">
               <a className="button" href={phoneHref}>Call for repair</a>
-              <a className="text-link" href="#quote">Request repair online →</a>
+              <a className="text-link" href="/mdc/free-quote">Request repair online →</a>
             </div>
             <p className="safety-note"><strong>Safety first:</strong> Do not attempt to release or replace a spring yourself.</p>
           </div>
@@ -301,7 +254,7 @@ export default function Home() {
           <p className="eyebrow">Quality Raynor garage doors</p>
           <h2>A door that belongs on your home.</h2>
           <p>Compare practical choices in style, insulation, windows, finish, and operation without getting buried in a catalog.</p>
-          <a className="button button-light" href="#quote">Get a door quote</a>
+          <a className="button button-light" href="/mdc/free-quote">Get a door quote</a>
         </div>
         <div className="gallery-images">
           <img src="https://morgandoorcompany.com/wp-content/uploads/2024/04/portfolio1.jpg" alt="Residential garage door installation" />
@@ -323,7 +276,7 @@ export default function Home() {
               <span>Shop & ag doors</span>
               <span>Operators & controls</span>
             </div>
-            <a className="text-link" href="#quote">Request a commercial site visit →</a>
+            <a className="text-link" href="/mdc/free-quote">Request a commercial site visit →</a>
           </div>
         </div>
       </section>
@@ -373,7 +326,7 @@ export default function Home() {
           </div>
           <div className="final-actions">
             <a className="button button-call" href={phoneHref}>Call {phoneDisplay}</a>
-            <a className="button button-ghost" href="#quote">Get My Free Quote</a>
+            <a className="button button-ghost" href="/mdc/free-quote">Get My Free Quote</a>
           </div>
         </div>
       </section>
@@ -387,8 +340,8 @@ export default function Home() {
             />
             <p>Family-owned garage door repair and installation across the Magic Valley since 1975.</p>
           </div>
-          <div><strong>Services</strong><a href="#repair">Garage Door Repair</a><a href="#services">New Garage Doors</a><a href="#commercial">Commercial Doors</a><a href="#services">Maintenance</a></div>
-          <div><strong>Company</strong><a href="#about">Our Story</a><a href="#about">Reviews</a><a href="#quote">Free Quote</a><a href={phoneHref}>Contact</a></div>
+          <div><strong>Services</strong><a href="/mdc/garage-door-repair">Garage Door Repair</a><a href="/mdc/garage-door-installation">New Garage Doors</a><a href="/mdc/commercial-overhead-doors">Commercial Doors</a><a href="/mdc/maintenance-safety-checks">Maintenance</a></div>
+          <div><strong>Company</strong><a href="/mdc/about">Our Story</a><Link href="/mdc/resources">Resources</Link><a href="/mdc/free-quote">Free Quote</a><a href={phoneHref}>Contact</a></div>
           <div className="footer-contact"><strong>Talk with Morgan Door</strong><a href={phoneHref}>{phoneDisplay}</a><span>Burley, Idaho</span><span>Serving the Magic Valley</span></div>
         </div>
         <div className="shell footer-bottom">
@@ -399,7 +352,7 @@ export default function Home() {
 
       <div className="mobile-bar">
         <a href={phoneHref}>Call Now</a>
-        <a href="#quote">Free Quote</a>
+        <a href="/mdc/free-quote">Free Quote</a>
       </div>
     </main>
   );
