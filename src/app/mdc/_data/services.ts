@@ -88,8 +88,8 @@ export const commercial: ServicePageData = {
   eyebrow: "Commercial & overhead doors · Southern Idaho",
   title: "Keep your building secure and your operation moving.",
   intro: "Morgan Door installs, repairs, and maintains commercial overhead doors and operators for shops, farms, warehouses, service bays, and facilities across the Magic Valley.",
-  image: "https://morgandoorcompany.com/wp-content/uploads/2024/04/portfolio1.jpg",
-  imageAlt: "Commercial overhead door installation",
+  image: "/mdc-commercial-overhead-doors.webp",
+  imageAlt: "Commercial metal building with four sectional overhead doors in Southern Idaho",
   problemsTitle: "Reduce downtime at the opening your operation depends on.",
   problems: [
     { title: "Door will not open or close", copy: "Restore access and security when a sectional or overhead door stops the day." },
