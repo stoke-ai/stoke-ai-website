@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test:sms-consent": "node --experimental-strip-types --test src/lib/sms-consent/store.test.ts && node scripts/verify-sms-consent.mjs",
     "verify:command-center": "node scripts/verify-command-center.mjs"
   },
   "dependencies": {
@@ -20,6 +21,7 @@
     "ws": "^8.19.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.4",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
