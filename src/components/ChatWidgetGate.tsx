@@ -9,6 +9,7 @@ const hiddenPaths = new Set([
   '/jordi',
   '/portal',
   '/command-center',
+  '/morgan-door-review',
   '/admin/portal',
   '/boatman-garage',
   '/sms-consent',
