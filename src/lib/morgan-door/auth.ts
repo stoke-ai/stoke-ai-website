@@ -21,10 +21,10 @@ export function verifyReviewLogin(username: string, code: string) {
 export async function setReviewSession() {
   const issued = Date.now().toString();
   const payload = `braxton.${issued}`;
-  (await cookies()).set(COOKIE, `${payload}.${sign(payload)}`, { httpOnly:true, secure:process.env.NODE_ENV==='production', sameSite:'lax', path:'/morgan-door-review', maxAge:MAX_AGE });
+  (await cookies()).set(COOKIE, `${payload}.${sign(payload)}`, { httpOnly:true, secure:process.env.NODE_ENV==='production', sameSite:'lax', path:'/', maxAge:MAX_AGE });
 }
 export async function clearReviewSession() {
-  (await cookies()).set(COOKIE, '', { httpOnly:true, secure:process.env.NODE_ENV==='production', sameSite:'lax', path:'/morgan-door-review', maxAge:0 });
+  (await cookies()).set(COOKIE, '', { httpOnly:true, secure:process.env.NODE_ENV==='production', sameSite:'lax', path:'/', maxAge:0 });
 }
 export async function isReviewAuthenticated() {
   const token = (await cookies()).get(COOKIE)?.value;
