@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 import type{ReviewAnswer,ReviewCase,ReviewDecision}from '@/lib/morgan-door/store';
 
 type Choice={answer:ReviewAnswer;label:string;help:string;tone:'yes'|'no'|'skip'|'other'};
@@ -15,7 +15,7 @@ function question(item:ReviewCase){
 }
 function choices(item:ReviewCase):Choice[]{
  if(item.customer.toLowerCase().includes('larry bowlin'))return[
-  {answer:'keep_active',label:'Yes — work is still active',help:'Keep it open for follow-up.',tone:'yes'},
+  {answer:'create_job',label:'Yes — approved work needs a Job',help:'Add it to the reviewed follow-up list.',tone:'yes'},
   {answer:'canceled',label:'No — close this estimate',help:'Nothing remains to be done.',tone:'no'},
   {answer:'not_sure',label:'Not sure — skip it',help:'Save it for later review.',tone:'skip'},
  ];
@@ -37,11 +37,11 @@ const answerName:Record<ReviewAnswer,string>={existing_job:'Existing Job',create
 export default function ReviewDeck({initial}:{initial:ReviewCase[]}){
  const[cases,setCases]=useState(initial.filter(x=>!x.id.startsWith('qa-')));
  const[index,setIndex]=useState(()=>Math.max(0,initial.filter(x=>!x.id.startsWith('qa-')).findIndex(x=>!x.decision)));
- const[note,setNote]=useState('');const[busy,setBusy]=useState(false);const[error,setError]=useState('');
+ const[note,setNote]=useState('');const[busy,setBusy]=useState(false);const[error,setError]=useState('');const headingRef=useRef<HTMLHeadingElement>(null);const[announcement,setAnnouncement]=useState('');
  const item=cases[index];const itemId=item?.id;const done=cases.filter(x=>x.decision).length;const existing=item?.decision;
  useEffect(()=>{if(!itemId)return;let active=true;fetch(`/api/morgan-door-review/cases/${encodeURIComponent(itemId)}`).then(r=>r.ok?r.json():Promise.reject()).then(body=>{if(active&&body.case)setCases(prev=>prev.map((x,i)=>i===index?{...body.case,decision:x.decision}:x));}).catch(()=>{if(active)setCases(prev=>prev.map((x,i)=>i===index?{...x,sourceRefreshStatus:'failed'}:x));});return()=>{active=false};},[index,itemId]);
  if(!item)return <div className="complete"><h1>All done.</h1><p>There are no estimates left to review.</p></div>;
- async function save(answer:ReviewAnswer){setBusy(true);setError('');const r=await fetch('/api/morgan-door-review/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({caseId:item.id,answer,note,version:existing?.version||0})});const b=await r.json().catch(()=>({}));if(!r.ok){setError(b.error||'Answer did not save. Try again.');setBusy(false);return;}const updated=cases.map((x,i)=>i===index?{...x,decision:b.decision as ReviewDecision}:x);setCases(updated);setNote('');setBusy(false);const next=updated.findIndex((x,i)=>i>index&&!x.decision);const wrap=updated.findIndex(x=>!x.decision);if(next>=0)setIndex(next);else if(wrap>=0)setIndex(wrap);}
+ async function save(answer:ReviewAnswer){setBusy(true);setError('');const r=await fetch('/api/morgan-door-review/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({caseId:item.id,answer,note,version:existing?.version||0})});const b=await r.json().catch(()=>({}));if(!r.ok){setError(b.error||'Answer did not save. Try again.');setBusy(false);return;}const updated=cases.map((x,i)=>i===index?{...x,decision:b.decision as ReviewDecision}:x);setCases(updated);setNote('');setBusy(false);const next=updated.findIndex((x,i)=>i>index&&!x.decision);const wrap=updated.findIndex(x=>!x.decision);if(next>=0){setIndex(next);setAnnouncement(`Saved. Next estimate: ${updated[next].customer}`);}else if(wrap>=0){setIndex(wrap);setAnnouncement(`Saved. Next estimate: ${updated[wrap].customer}`);}requestAnimationFrame(()=>headingRef.current?.focus());}
  function move(delta:number){const next=Math.min(cases.length-1,Math.max(0,index+delta));setIndex(next);setNote('');setError('');}
  const remaining=cases.length-done;
  return <div className="deck fastDeck">
@@ -49,7 +49,8 @@ export default function ReviewDeck({initial}:{initial:ReviewCase[]}){
   <div className="progressBar"><i style={{width:`${cases.length?done/cases.length*100:0}%`}}/></div>
   <main className="fastMain">
    <section className="identity"><div><span>Estimate {item.estimateNumber} · {daysOld(item.updatedAt||item.createdAt)}</span><h2>{item.customer}</h2><p>{item.address||'Address not recorded'}</p></div><strong>{money(item.amount)}</strong></section>
-   <section className="fastQuestion"><small>{item.queue==='cleanup'?'QUICK CLEANUP':'JOB CHECK'}</small><h3>{question(item)}</h3>{item.customer.toLowerCase().includes('larry bowlin')&&<p>Pipeline says Approved, but HCP says canceled and the approved option was deleted.</p>}</section>
+   <section className="fastQuestion"><small>{item.queue==='cleanup'?'QUICK CLEANUP':'JOB CHECK'}</small><h3 ref={headingRef} tabIndex={-1}>{question(item)}</h3>{item.customer.toLowerCase().includes('larry bowlin')&&<p>Pipeline says Approved, but HCP says canceled and the approved option was deleted.</p>}</section>
+   <p className="srOnly" aria-live="polite">{announcement}</p>
    <div className="quickChoices">{choices(item).map(choice=>{const suggested=choice.answer===item.likelyAnswer;return <button key={choice.answer} className={`quickChoice ${choice.tone} ${suggested?'suggested':''}`} disabled={busy} onClick={()=>save(choice.answer)}>{suggested&&<em>LIKELY</em>}<b>{choice.label}</b><span>{choice.help}</span></button>})}</div>
    {error&&<p className="error" role="alert">{error}</p>}
    <details className="evidence"><summary>Need more information?</summary><div className="evidenceBody">
