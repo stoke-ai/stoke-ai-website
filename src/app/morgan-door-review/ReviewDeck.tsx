@@ -1,11 +1,66 @@
 'use client';
-import {useEffect,useMemo,useState} from 'react';import type{ReviewAnswer,ReviewCase,ReviewDecision}from '@/lib/morgan-door/store';
-const labels:Record<ReviewAnswer,string>={existing_job:'Yes — existing Job covers it',create_job:'No — create a new Job',canceled:'Canceled / not approved',different_work:'Different work',not_sure:'Not sure',keep_active:'Keep Estimate active'};
-const colors:Record<ReviewAnswer,string>={existing_job:'blue',create_job:'green',canceled:'red',different_work:'amber',not_sure:'gray',keep_active:'blue'};
-const money=(v?:number)=>v==null?'Not recorded':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(v);const date=(v?:string)=>v?new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',year:'numeric'}).format(new Date(v)):'Not recorded';
-function answersFor(item:ReviewCase):ReviewAnswer[]{return item.queue==='cleanup'?['keep_active','canceled','existing_job','not_sure']:['existing_job','create_job','canceled','different_work','not_sure'];}
-export default function ReviewDeck({initial}: {initial:ReviewCase[]}){const[cases,setCases]=useState(initial);const[index,setIndex]=useState(()=>Math.max(0,initial.findIndex(x=>!x.decision)));const[note,setNote]=useState('');const[busy,setBusy]=useState(false);const[error,setError]=useState('');const item=cases[index];const done=cases.filter(x=>x.decision).length;const reconciliation=cases.filter(x=>x.queue==='reconciliation');const cleanup=cases.filter(x=>x.queue==='cleanup');const queueDone=(q:string)=>cases.filter(x=>x.queue===q&&x.decision).length;const existing=item?.decision;
-const ordered=useMemo(()=>cases.map((x,i)=>({x,i})),[cases]);useEffect(()=>{let active=true;fetch(`/api/morgan-door-review/cases/${encodeURIComponent(item?.id||'')}`).then(r=>r.ok?r.json():Promise.reject()).then(body=>{if(active&&body.case)setCases(prev=>prev.map((x,i)=>i===index?{...body.case,decision:x.decision}:x));}).catch(()=>{if(active)setCases(prev=>prev.map((x,i)=>i===index?{...x,sourceRefreshStatus:'failed'}:x));});return()=>{active=false};},[index,item?.id]);if(!item)return <div className="complete"><h1>Nothing needs review.</h1></div>;
-async function save(answer:ReviewAnswer){setBusy(true);setError('');const r=await fetch('/api/morgan-door-review/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({caseId:item.id,answer,note,version:existing?.version||0})});const b=await r.json().catch(()=>({}));if(!r.ok){setError(b.error||'Answer did not save.');setBusy(false);return;}setCases(prev=>prev.map((x,i)=>i===index?{...x,decision:b.decision as ReviewDecision}:x));setNote('');setBusy(false);const next=ordered.find(({x,i})=>i>index&&!x.decision)||ordered.find(({x})=>!x.decision&&x.id!==item.id);if(next)setIndex(next.i);}
-function move(i:number){setIndex(i);setNote('');setError('');}
-return <div className="deck"><header className="top"><div><span className="brand">MORGAN DOOR COMPANY</span><h1>Estimate review</h1></div><div className="progress"><strong>{done} of {cases.length}</strong><span>answered</span></div></header><div className="progressBar"><i style={{width:`${cases.length?done/cases.length*100:0}%`}}/></div><nav className="queues" aria-label="Review queues"><button className={item.queue==='reconciliation'?'active':''} onClick={()=>move(cases.findIndex(x=>x.queue==='reconciliation'&&!x.decision)>=0?cases.findIndex(x=>x.queue==='reconciliation'&&!x.decision):cases.findIndex(x=>x.queue==='reconciliation'))}>Job match decisions <b>{queueDone('reconciliation')}/{reconciliation.length}</b></button><button className={item.queue==='cleanup'?'active':''} onClick={()=>move(cases.findIndex(x=>x.queue==='cleanup'&&!x.decision)>=0?cases.findIndex(x=>x.queue==='cleanup'&&!x.decision):cases.findIndex(x=>x.queue==='cleanup'))}>Estimate cleanup <b>{queueDone('cleanup')}/{cleanup.length}</b></button></nav><main><section className="questionBand"><small>{item.queue==='reconciliation'?'JOB MATCH DECISION':'ACTIVE ESTIMATE CHECK'}</small><h2>{item.question}</h2>{item.likelyAnswer&&<p><strong>Blaze’s likely answer:</strong> {labels[item.likelyAnswer]}{item.likelyReason?` — ${item.likelyReason}`:''}</p>}</section><article className="case" aria-labelledby="case-title"><div className="caseHead"><div><span>Estimate {item.estimateNumber}</span><h3 id="case-title">{item.customer}</h3><p>{item.address||'Address not recorded'}</p></div><div className="amount">{money(item.amount)}</div></div><div className="facts"><div><label>Estimate status</label><strong>{item.status||'Not recorded'}</strong></div><div><label>Created</label><strong>{date(item.createdAt)}</strong></div><div><label>Last updated</label><strong>{date(item.updatedAt)}</strong></div><div><label>Evidence refreshed</label><strong className={item.sourceRefreshStatus==='failed'?'warn':''}>{item.sourceRefreshStatus==='failed'?'Refresh unavailable':date(item.sourceCheckedAt)}</strong></div></div>{item.scope&&<section className="scope"><label>Quoted work</label><p>{item.scope}</p></section>}{item.candidates.length>0&&<section className="candidates"><h4>Possible Job evidence</h4>{item.candidates.map(c=><div className="candidate" key={c.jobNumber}><div><strong>Job {c.jobNumber}</strong><span>{c.scope||'No Job description'}</span></div><div className="candidateFacts"><span>{money(c.amount)}</span><span>{c.status||'Status not recorded'}</span><span>{date(c.createdAt)}</span></div>{c.evidence?.map(x=><p className="evidence" key={x}>✓ {x}</p>)}{c.contradictions?.map(x=><p className="contradiction" key={x}>! {x}</p>)}</div>)}</section>}<details><summary>Why this record is here</summary><p>{item.likelyReason||'This Estimate needs a current business decision before anyone changes HCP.'}</p></details></article><section className="answer"><h3>Your answer</h3>{existing&&<p className="saved">Saved {date(existing.answeredAt)}: <strong>{labels[existing.answer]}</strong></p>}<div className="answerGrid">{answersFor(item).map(a=><button key={a} disabled={busy} className={`${colors[a]} ${existing?.answer===a?'selected':''}`} onClick={()=>save(a)}>{labels[a]}</button>)}</div><label className="note">Optional note<textarea value={note} onChange={e=>setNote(e.target.value)} maxLength={1000} placeholder="Add a Job number or anything Blaze should know."/></label>{error&&<p className="error" role="alert">{error}</p>}</section><div className="pager"><button disabled={index===0} onClick={()=>move(index-1)}>← Previous</button><span>{index+1} / {cases.length}</span><button disabled={index===cases.length-1} onClick={()=>move(index+1)}>Next →</button></div></main></div>}
+import {useEffect,useState} from 'react';
+import type{ReviewAnswer,ReviewCase,ReviewDecision}from '@/lib/morgan-door/store';
+
+type Choice={answer:ReviewAnswer;label:string;help:string;tone:'yes'|'no'|'skip'|'other'};
+const money=(v?:number)=>v==null?'Amount unavailable':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(v);
+const date=(v?:string)=>v?new Intl.DateTimeFormat('en-US',{month:'short',day:'numeric',year:'numeric'}).format(new Date(v)):'Unknown';
+function daysOld(v?:string){if(!v)return '';const days=Math.max(0,Math.floor((Date.now()-new Date(v).getTime())/86400000));return `${days} days old`;}
+function question(item:ReviewCase){
+ if(item.customer.toLowerCase().includes('larry bowlin'))return 'Did Larry approve any work that still needs to be done?';
+ if(item.queue==='cleanup')return 'Does this estimate still need to stay open?';
+ if(item.likelyAnswer==='existing_job')return 'Does the existing Job cover this estimate?';
+ if(item.likelyAnswer==='create_job')return 'Was this approved and does it still need a Job?';
+ return item.question;
+}
+function choices(item:ReviewCase):Choice[]{
+ if(item.customer.toLowerCase().includes('larry bowlin'))return[
+  {answer:'keep_active',label:'Yes — work is still active',help:'Keep it open for follow-up.',tone:'yes'},
+  {answer:'canceled',label:'No — close this estimate',help:'Nothing remains to be done.',tone:'no'},
+  {answer:'not_sure',label:'Not sure — skip it',help:'Save it for later review.',tone:'skip'},
+ ];
+ if(item.queue==='cleanup')return[
+  {answer:'keep_active',label:'Keep it open',help:'This estimate is still active.',tone:'yes'},
+  {answer:'canceled',label:'Close it',help:'Canceled, declined, stale, or no longer needed.',tone:'no'},
+  {answer:'existing_job',label:'Already has a Job',help:'Do not create another Job.',tone:'other'},
+  {answer:'not_sure',label:'Not sure — skip it',help:'Save it for later review.',tone:'skip'},
+ ];
+ return[
+  {answer:'existing_job',label:'Existing Job covers it',help:'Do not create another Job.',tone:'yes'},
+  {answer:'create_job',label:'Approved — needs a Job',help:'Add it to the reviewed action list.',tone:'other'},
+  {answer:'canceled',label:'No work — close it',help:'Canceled, declined, or no longer needed.',tone:'no'},
+  {answer:'different_work',label:'Different work',help:'Keep both records.',tone:'other'},
+  {answer:'not_sure',label:'Not sure — skip it',help:'Save it for later review.',tone:'skip'},
+ ];
+}
+const answerName:Record<ReviewAnswer,string>={existing_job:'Existing Job',create_job:'Needs a Job',canceled:'Close',different_work:'Different work',not_sure:'Not sure',keep_active:'Keep open'};
+export default function ReviewDeck({initial}:{initial:ReviewCase[]}){
+ const[cases,setCases]=useState(initial.filter(x=>!x.id.startsWith('qa-')));
+ const[index,setIndex]=useState(()=>Math.max(0,initial.filter(x=>!x.id.startsWith('qa-')).findIndex(x=>!x.decision)));
+ const[note,setNote]=useState('');const[busy,setBusy]=useState(false);const[error,setError]=useState('');
+ const item=cases[index];const itemId=item?.id;const done=cases.filter(x=>x.decision).length;const existing=item?.decision;
+ useEffect(()=>{if(!itemId)return;let active=true;fetch(`/api/morgan-door-review/cases/${encodeURIComponent(itemId)}`).then(r=>r.ok?r.json():Promise.reject()).then(body=>{if(active&&body.case)setCases(prev=>prev.map((x,i)=>i===index?{...body.case,decision:x.decision}:x));}).catch(()=>{if(active)setCases(prev=>prev.map((x,i)=>i===index?{...x,sourceRefreshStatus:'failed'}:x));});return()=>{active=false};},[index,itemId]);
+ if(!item)return <div className="complete"><h1>All done.</h1><p>There are no estimates left to review.</p></div>;
+ async function save(answer:ReviewAnswer){setBusy(true);setError('');const r=await fetch('/api/morgan-door-review/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({caseId:item.id,answer,note,version:existing?.version||0})});const b=await r.json().catch(()=>({}));if(!r.ok){setError(b.error||'Answer did not save. Try again.');setBusy(false);return;}const updated=cases.map((x,i)=>i===index?{...x,decision:b.decision as ReviewDecision}:x);setCases(updated);setNote('');setBusy(false);const next=updated.findIndex((x,i)=>i>index&&!x.decision);const wrap=updated.findIndex(x=>!x.decision);if(next>=0)setIndex(next);else if(wrap>=0)setIndex(wrap);}
+ function move(delta:number){const next=Math.min(cases.length-1,Math.max(0,index+delta));setIndex(next);setNote('');setError('');}
+ const remaining=cases.length-done;
+ return <div className="deck fastDeck">
+  <header className="fastTop"><div><span className="brand">MORGAN DOOR</span><h1>Quick estimate check</h1></div><div className="progress"><strong>{remaining}</strong><span>left</span></div></header>
+  <div className="progressBar"><i style={{width:`${cases.length?done/cases.length*100:0}%`}}/></div>
+  <main className="fastMain">
+   <section className="identity"><div><span>Estimate {item.estimateNumber} · {daysOld(item.updatedAt||item.createdAt)}</span><h2>{item.customer}</h2><p>{item.address||'Address not recorded'}</p></div><strong>{money(item.amount)}</strong></section>
+   <section className="fastQuestion"><small>{item.queue==='cleanup'?'QUICK CLEANUP':'JOB CHECK'}</small><h3>{question(item)}</h3>{item.customer.toLowerCase().includes('larry bowlin')&&<p>Pipeline says Approved, but HCP says canceled and the approved option was deleted.</p>}</section>
+   <div className="quickChoices">{choices(item).map(choice=>{const suggested=choice.answer===item.likelyAnswer;return <button key={choice.answer} className={`quickChoice ${choice.tone} ${suggested?'suggested':''}`} disabled={busy} onClick={()=>save(choice.answer)}>{suggested&&<em>LIKELY</em>}<b>{choice.label}</b><span>{choice.help}</span></button>})}</div>
+   {error&&<p className="error" role="alert">{error}</p>}
+   <details className="evidence"><summary>Need more information?</summary><div className="evidenceBody">
+    <p><b>Status:</b> {item.status||'Unknown'} · <b>Created:</b> {date(item.createdAt)} · <b>Updated:</b> {date(item.updatedAt)}</p>
+    {item.scope&&<div><b>Quoted work</b><p>{item.scope}</p></div>}
+    {item.likelyReason&&<div><b>Why Blaze flagged it</b><p>{item.likelyReason}</p></div>}
+    {item.candidates.length>0&&<div><b>Possible Jobs</b>{item.candidates.map(c=><p key={c.jobId||c.jobNumber}>Job {c.jobNumber}: {c.status||'status unknown'} · {money(c.amount)}{c.scope?` · ${c.scope}`:''}</p>)}</div>}
+    <label className="note">Optional note<textarea value={note} maxLength={1000} onChange={e=>setNote(e.target.value)} placeholder="Only add a note if it will help later."/></label>
+   </div></details>
+   <footer className="fastNav"><button onClick={()=>move(-1)} disabled={index===0}>← Back</button><span>{done} answered</span><button onClick={()=>move(1)} disabled={index===cases.length-1}>Next →</button></footer>
+   {existing&&<p className="savedState">Previously answered: <b>{answerName[existing.answer]}</b>. Clicking a choice changes it.</p>}
+  </main>
+ </div>;
+}
