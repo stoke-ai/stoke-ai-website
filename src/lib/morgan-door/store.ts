@@ -3,7 +3,7 @@ import postgres from 'postgres';
 
 export type ReviewAnswer = 'existing_job'|'create_job'|'canceled'|'different_work'|'not_sure'|'keep_active';
 export type ReviewCandidate = { jobId?:string; jobNumber:string; amount?:number; status?:string; createdAt?:string; scheduledAt?:string; address?:string; scope?:string; evidence?:string[]; contradictions?:string[] };
-export type ReviewCase = { id:string; queue:'reconciliation'|'cleanup'; sortOrder:number; estimateId:string; estimateNumber:string; customer:string; address?:string; amount?:number; createdAt?:string; updatedAt?:string; status?:string; scope?:string; likelyAnswer?:ReviewAnswer; likelyReason?:string; question:string; candidates:ReviewCandidate[]; sourceCheckedAt:string; sourceRefreshStatus?:'current'|'seeded'|'failed'; decision?:ReviewDecision|null };
+export type ReviewCase = { id:string; queue:'reconciliation'|'cleanup'; sortOrder:number; estimateId:string; estimateNumber:string; customer:string; address?:string; amount?:number; createdAt?:string; updatedAt?:string; status?:string; scope?:string; hcpEstimateUrl?:string; likelyAnswer?:ReviewAnswer; likelyReason?:string; question:string; candidates:ReviewCandidate[]; sourceCheckedAt:string; sourceRefreshStatus?:'current'|'seeded'|'failed'; decision?:ReviewDecision|null };
 export type ReviewDecision = { caseId:string; answer:ReviewAnswer; note?:string; actor:string; version:number; answeredAt:string };
 const databaseUrl=process.env.DATABASE_URL||process.env.Database_url;
 let client:postgres.Sql|null=null; let ready:Promise<void>|null=null;
