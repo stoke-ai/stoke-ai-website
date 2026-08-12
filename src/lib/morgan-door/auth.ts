@@ -18,6 +18,7 @@ export function verifyReviewLogin(username: string, code: string) {
   const expected = process.env.MORGAN_DOOR_REVIEW_CODE;
   return Boolean(expected && safeEqual(username.trim().toLowerCase(), 'braxton') && safeEqual(code, expected));
 }
+export function isSameOrigin(request:Request){const origin=request.headers.get('origin');if(!origin)return false;try{return new URL(origin).origin===new URL(request.url).origin;}catch{return false;}}
 export async function setReviewSession() {
   const issued = Date.now().toString();
   const payload = `braxton.${issued}`;
