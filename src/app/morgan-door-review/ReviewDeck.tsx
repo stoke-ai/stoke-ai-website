@@ -34,6 +34,8 @@ function choices(item:ReviewCase):Choice[]{
  ];
 }
 const answerName:Record<ReviewAnswer,string>={existing_job:'Existing Job',create_job:'Needs a Job',canceled:'Close',different_work:'Different work',not_sure:'Not sure',keep_active:'Keep open'};
+const HCP_ESTIMATE_BOARD='https://pro.housecallpro.com/app/pipeline/estimates';
+
 export default function ReviewDeck({initial}:{initial:ReviewCase[]}){
  const[cases,setCases]=useState(initial.filter(x=>!x.id.startsWith('qa-')));
  const[index,setIndex]=useState(()=>Math.max(0,initial.filter(x=>!x.id.startsWith('qa-')).findIndex(x=>!x.decision)));
@@ -54,6 +56,8 @@ export default function ReviewDeck({initial}:{initial:ReviewCase[]}){
    <div className="quickChoices">{choices(item).map(choice=>{const suggested=choice.answer===item.likelyAnswer;return <button key={choice.answer} className={`quickChoice ${choice.tone} ${suggested?'suggested':''}`} disabled={busy} onClick={()=>save(choice.answer)}>{suggested&&<em>LIKELY</em>}<b>{choice.label}</b><span>{choice.help}</span></button>})}</div>
    {error&&<p className="error" role="alert">{error}</p>}
    <details className="evidence"><summary>Need more information?</summary><div className="evidenceBody">
+    <a className="hcpEstimateLink" href={HCP_ESTIMATE_BOARD} target="_blank" rel="noopener noreferrer">Open HCP for Estimate {item.estimateNumber} ↗</a>
+    <p className="hcpEstimateHint">In HCP, paste <b>{item.estimateNumber}</b> into “Estimate # (exact match).”</p>
     <p><b>Status:</b> {item.status||'Unknown'} · <b>Created:</b> {date(item.createdAt)} · <b>Updated:</b> {date(item.updatedAt)}</p>
     {item.scope&&<div><b>Quoted work</b><p>{item.scope}</p></div>}
     {item.likelyReason&&<div><b>Why Blaze flagged it</b><p>{item.likelyReason}</p></div>}
