@@ -1,0 +1,1 @@
+import { NextResponse } from 'next/server';import { clearReviewSession } from '@/lib/morgan-door/auth';export async function POST(request:Request){await clearReviewSession();return NextResponse.redirect(new URL('/morgan-door-review',request.url),303);}
