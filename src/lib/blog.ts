@@ -29,7 +29,7 @@ function parseFrontmatter(fileContent: string): { metadata: Record<string, strin
 }
 
 function markdownToHtml(md: string): string {
-  let html = md
+  const html = md
     // Headers
     .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold text-white mt-8 mb-3">$1</h3>')
     .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold text-white mt-10 mb-4">$1</h2>')

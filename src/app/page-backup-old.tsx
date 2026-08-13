@@ -674,11 +674,11 @@ export default function Home() {
                         onChange={(e) => setFormData({ ...formData, painPoint: e.target.value })}
                       >
                         <option value="" disabled>How are you using AI in your business right now?</option>
-                        <option value="I haven't started yet">I haven't started yet</option>
+                        <option value="I haven't started yet">{"I haven't started yet"}</option>
                         <option value="Just ChatGPT for writing or ideas">Just ChatGPT for writing or ideas</option>
                         <option value="Tried some tools but nothing stuck">Tried some tools but nothing stuck</option>
                         <option value="I have some automations running">I have some automations running</option>
-                        <option value="I'm not sure what's possible">I'm not sure what's possible</option>
+                        <option value="I'm not sure what's possible">{"I'm not sure what's possible"}</option>
                         <option value="other">Other</option>
                       </select>
                       {formData.painPoint === 'other' && (

@@ -64,29 +64,35 @@ export default function PortalUpdateForm({
   const [senderName, setSenderName] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
   const [error, setError] = useState('');
-  const [savedSubmission, setSavedSubmission] = useState<SavedSubmission | null>(null);
+  const [localSubmission, setLocalSubmission] = useState<SavedSubmission | null>(null);
 
   const storageKey = useMemo(
     () => `stoke-portal-update:${kind}:${cardId || 'new-item'}:${cardTitle || ''}`,
     [cardId, cardTitle, kind],
   );
 
-  useEffect(() => {
-    if (latestMessage) {
-      setSavedSubmission({
+  const latestSubmission = latestMessage
+    ? {
         message: latestMessage.message,
         senderName: latestMessage.senderName,
         sentAt: latestMessage.createdAt,
         status: latestMessage.status,
         blazeReply: latestMessage.blazeReply,
         progressNote: latestMessage.progressNote,
-      });
-      return;
-    }
+      }
+    : null;
+  const savedSubmission = latestSubmission ?? localSubmission;
+
+  useEffect(() => {
+    if (latestMessage) return;
 
     try {
       const stored = window.localStorage.getItem(storageKey);
-      if (stored) setSavedSubmission(JSON.parse(stored) as SavedSubmission);
+      if (stored) {
+        // Restore a client-only receipt after hydration. Server latestMessage is derived above.
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is an external store.
+        setLocalSubmission(JSON.parse(stored) as SavedSubmission);
+      }
     } catch {
       // Local receipt is best-effort only. Server submission still works.
     }
@@ -119,7 +125,7 @@ export default function PortalUpdateForm({
       blazeReply: data?.message?.blazeReply,
       progressNote: data?.message?.progressNote,
     } as SavedSubmission;
-    setSavedSubmission(receipt);
+    setLocalSubmission(receipt);
     try {
       window.localStorage.setItem(storageKey, JSON.stringify(receipt));
     } catch {

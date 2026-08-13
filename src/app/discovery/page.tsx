@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { useConversation } from '@11labs/react';
 
@@ -181,9 +182,9 @@ function DiscoveryContent() {
       {/* Header */}
       <header className="border-b border-gray-800 bg-black/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
             <Image src="/logo.png" alt="Stoke-AI" width={120} height={40} />
-          </a>
+          </Link>
           <div className="text-sm text-gray-400">
             Voice Chat with <span className="text-orange-400 font-medium">Spark</span>
           </div>
