@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import QuoteForm from "./_components/QuoteForm";
+import { homepageDoors } from "./_data/gallery";
 
 const phoneDisplay = "(208) 678-3667";
 const phoneHref = "tel:+12086783667";
@@ -58,69 +59,6 @@ const cities = [
   "Filer",
 ];
 
-const raynorDoors = [
-  {
-    name: "StyleView",
-    image: "/mdc/gallery/raynor-styleview.webp",
-    line: "Clean aluminum lines and expansive glass for a bright, architectural look.",
-  },
-  {
-    name: "Revival Wood",
-    image: "/mdc/gallery/revival-wood.webp",
-    line: "Carriage-house warmth with the character of a handcrafted wood door.",
-  },
-  {
-    name: "Eden Coast",
-    image: "/mdc/gallery/eden-coast.webp",
-    line: "A polished coastal profile with generous windows and inviting curb appeal.",
-  },
-  {
-    name: "RockCreeke",
-    image: "/mdc/gallery/rockcreeke.webp",
-    line: "Layered carriage-house detailing for a timeless, substantial entrance.",
-  },
-  {
-    name: "Country Manor",
-    image: "/mdc/gallery/country-manor.webp",
-    line: "Classic farmhouse character paired with durable insulated steel sections.",
-  },
-  {
-    name: "AP200LV",
-    image: "/mdc/gallery/ap200lv.webp",
-    line: "An insulated Aspen door with oversized top windows for more natural light.",
-  },
-  {
-    name: "AP200N",
-    image: "/mdc/gallery/ap200n.webp",
-    line: "A clean, narrow-groove Aspen profile for understated modern homes.",
-  },
-  {
-    name: "AP200",
-    image: "/mdc/gallery/ap200.webp",
-    line: "Raynor’s flagship insulated steel door, built for comfort and strength.",
-  },
-  {
-    name: "AP138",
-    image: "/mdc/gallery/ap138.webp",
-    line: "Insulated performance in a slimmer door with flexible design choices.",
-  },
-  {
-    name: "TradeMark",
-    image: "/mdc/gallery/trademark.webp",
-    line: "Durable steel, defined panels, and classic woodgrain texture at a practical price.",
-  },
-  {
-    name: "BuildMark",
-    image: "/mdc/gallery/buildmark.webp",
-    line: "Straightforward steel construction with familiar, versatile styling.",
-  },
-  {
-    name: "Encore",
-    image: "/mdc/gallery/encore.webp",
-    line: "Two-sided steel construction with dependable insulation and broad style options.",
-  },
-];
-
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -155,6 +93,7 @@ export default function Home() {
           <nav className={menuOpen ? "nav nav-open" : "nav"} aria-label="Main navigation">
             <a href="/mdc/garage-door-repair" onClick={() => setMenuOpen(false)}>Repair</a>
             <a href="/mdc/garage-door-installation" onClick={() => setMenuOpen(false)}>New Doors</a>
+            <a href="/mdc/gallery" onClick={() => setMenuOpen(false)}>Gallery</a>
             <a href="/mdc/commercial-overhead-doors" onClick={() => setMenuOpen(false)}>Commercial</a>
             <a href="/mdc/about" onClick={() => setMenuOpen(false)}>About</a>
             <a className="nav-phone" href={phoneHref}>{phoneDisplay}</a>
@@ -314,13 +253,16 @@ export default function Home() {
 
       <section className="gallery-section">
         <div className="gallery-copy">
-          <p className="eyebrow">Raynor Design Center selections</p>
+          <p className="eyebrow">Raynor + Hörmann residential doors</p>
           <h2>A door that belongs on your home.</h2>
-          <p>See twelve current Raynor models across modern, carriage-house, farmhouse, and classic steel styles. Morgan Door can help you compare insulation, windows, finishes, and fit for your home.</p>
-          <a className="button button-light" href="/mdc/free-quote">Get a door quote</a>
+          <p>Start with four standout Raynor styles, then explore the complete Raynor and Hörmann gallery. Morgan Door can help you compare insulation, windows, finishes, and fit.</p>
+          <div className="gallery-actions">
+            <a className="button button-light" href="/mdc/gallery">See all doors</a>
+            <a className="gallery-quote-link" href="/mdc/free-quote">Get a door quote →</a>
+          </div>
         </div>
-        <div className="gallery-images" aria-label="Raynor garage door models">
-          {raynorDoors.map((door) => (
+        <div className="gallery-images" aria-label="Featured Raynor garage door models">
+          {homepageDoors.map((door) => (
             <figure className="gallery-card" key={door.name}>
               <img
                 src={door.image}
