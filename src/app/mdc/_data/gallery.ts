@@ -67,18 +67,6 @@ export const raynorDoors: DoorGalleryItem[] = [
   },
 ];
 
-export const homepageDoorNames = ["StyleView", "RockCreeke", "Revival Wood", "AP200"];
-
-export const homepageDoors = homepageDoorNames.map((name) => {
-  const door = raynorDoors.find((item) => item.name === name);
-
-  if (!door) {
-    throw new Error(`Missing homepage gallery door: ${name}`);
-  }
-
-  return door;
-});
-
 export const hormannDoors: DoorGalleryItem[] = [
   {
     name: "Heritage Classic C-Series",
@@ -120,4 +108,75 @@ export const hormannDoors: DoorGalleryItem[] = [
     image: "/mdc/gallery/hormann/therma-tech-3400.webp",
     line: "A versatile insulated steel door with traditional panel choices and durable finishes.",
   },
+  {
+    name: "Builder Collection",
+    image: "/mdc/gallery/hormann/builder-collection.webp",
+    line: "Carriage-house details and warm wood-look finishes bring character to an everyday home.",
+  },
+  {
+    name: "Clima Elite 5800",
+    image: "/mdc/gallery/hormann/clima-elite-5800.webp",
+    line: "A highly insulated carriage-house door with classic overlays, windows, and lasting comfort.",
+  },
+  {
+    name: "Deco Safe 5250",
+    image: "/mdc/gallery/hormann/deco-safe-5250.webp",
+    line: "Traditional carriage-house styling with strong steel construction and a broad range of designs.",
+  },
+  {
+    name: "Heritage Classic E-Series",
+    image: "/mdc/gallery/hormann/heritage-classic-e-series.webp",
+    line: "A handcrafted wood carriage door with classic detailing and natural curb appeal.",
+  },
+  {
+    name: "Style Safe 5200",
+    image: "/mdc/gallery/hormann/style-safe-5200.webp",
+    line: "Insulated steel and decorative overlays create a durable carriage-house look.",
+  },
+  {
+    name: "Classic Safe 7200",
+    image: "/mdc/gallery/hormann/classic-safe-7200.webp",
+    line: "Full-view glass and aluminum construction give homes a clean contemporary option.",
+  },
+  {
+    name: "Pro Safe 2100",
+    image: "/mdc/gallery/hormann/pro-safe-2100.webp",
+    line: "A dependable steel door with familiar raised panels, window choices, and everyday value.",
+  },
+  {
+    name: "Pro Tech 2500",
+    image: "/mdc/gallery/hormann/pro-tech-2500.webp",
+    line: "Insulated steel construction pairs practical performance with traditional panel designs.",
+  },
+  {
+    name: "Therma Safe 3200",
+    image: "/mdc/gallery/hormann/therma-safe-3200.webp",
+    line: "A well-insulated traditional door with durable steel panels and flexible window options.",
+  },
+  {
+    name: "Therma Tech 3500",
+    image: "/mdc/gallery/hormann/therma-tech-3500.webp",
+    line: "Strong insulation and classic panel choices make this steel door a versatile fit.",
+  },
 ];
+
+export const homepageDoorNames = [
+  "RockCreeke",
+  "Revival Wood",
+  "Country Manor",
+  "TradeMark",
+  "Heritage Classic C-Series",
+  "Therma Tech 3400",
+];
+
+const residentialDoors = [...raynorDoors, ...hormannDoors];
+
+export const homepageDoors = homepageDoorNames.map((name) => {
+  const door = residentialDoors.find((item) => item.name === name);
+
+  if (!door) {
+    throw new Error(`Missing homepage gallery door: ${name}`);
+  }
+
+  return door;
+});

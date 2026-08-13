@@ -255,13 +255,13 @@ export default function Home() {
         <div className="gallery-copy">
           <p className="eyebrow">Raynor + Hörmann residential doors</p>
           <h2>A door that belongs on your home.</h2>
-          <p>Start with four standout Raynor styles, then explore the complete Raynor and Hörmann gallery. Morgan Door can help you compare insulation, windows, finishes, and fit.</p>
+          <p>Start with six Raynor and Hörmann doors that feel at home around Burley and the Magic Valley. See the full gallery, then let Morgan Door help you compare insulation, windows, finishes, and fit.</p>
           <div className="gallery-actions">
             <a className="button button-light" href="/mdc/gallery">See all doors</a>
             <a className="gallery-quote-link" href="/mdc/free-quote">Get a door quote →</a>
           </div>
         </div>
-        <div className="gallery-images" aria-label="Featured Raynor garage door models">
+        <div className="gallery-images" aria-label="Featured Raynor and Hörmann garage door models">
           {homepageDoors.map((door) => (
             <figure className="gallery-card" key={door.name}>
               <img

@@ -25,7 +25,14 @@ const raynorModels = [
   ["Encore", "encore.webp"],
 ];
 
-const homepageModels = ["StyleView", "RockCreeke", "Revival Wood", "AP200"];
+const homepageModels = [
+  ["RockCreeke", "Raynor"],
+  ["Revival Wood", "Raynor"],
+  ["Country Manor", "Raynor"],
+  ["TradeMark", "Raynor"],
+  ["Heritage Classic C-Series", "Hörmann"],
+  ["Therma Tech 3400", "Hörmann"],
+];
 
 const hormannModels = [
   ["Heritage Classic C-Series", "heritage-classic-c-series.webp"],
@@ -36,9 +43,19 @@ const hormannModels = [
   ["Modern Tech 3550", "modern-tech-3550.webp"],
   ["Clima Tech 4400", "clima-tech-4400.webp"],
   ["Therma Tech 3400", "therma-tech-3400.webp"],
+  ["Builder Collection", "builder-collection.webp"],
+  ["Clima Elite 5800", "clima-elite-5800.webp"],
+  ["Deco Safe 5250", "deco-safe-5250.webp"],
+  ["Heritage Classic E-Series", "heritage-classic-e-series.webp"],
+  ["Style Safe 5200", "style-safe-5200.webp"],
+  ["Classic Safe 7200", "classic-safe-7200.webp"],
+  ["Pro Safe 2100", "pro-safe-2100.webp"],
+  ["Pro Tech 2500", "pro-tech-2500.webp"],
+  ["Therma Safe 3200", "therma-safe-3200.webp"],
+  ["Therma Tech 3500", "therma-tech-3500.webp"],
 ];
 
-test("homepage gallery is a four-door tease with gallery and quote paths", async () => {
+test("homepage gallery is a six-door Raynor and Hörmann tease with gallery and quote paths", async () => {
   const [component, data, layout] = await Promise.all([
     readFile(componentPath, "utf8"),
     readFile(dataPath, "utf8"),
@@ -50,12 +67,22 @@ test("homepage gallery is a four-door tease with gallery and quote paths", async
   assert.match(component, /href="\/mdc\/gallery">See all doors/);
   assert.match(component, /href="\/mdc\/free-quote">Get a door quote/);
   assert.match(component, /Raynor \+ Hörmann/);
+  assert.match(component, /six Raynor and Hörmann doors/);
+  assert.match(component, /Burley and the Magic Valley/);
   assert.match(layout, /robots: \{ index: false, follow: false \}/);
-  assert.ok(data.includes(`homepageDoorNames = [${homepageModels.map((name) => `"${name}"`).join(", ")}]`));
-  assert.equal(homepageModels.length, 4);
+  const homepageBlock = data.match(/homepageDoorNames = \[([\s\S]*?)\];/)?.[1] ?? "";
+  for (const [name] of homepageModels) {
+    assert.ok(homepageBlock.includes(`"${name}"`), `${name} should be in the homepage tease`);
+  }
+  assert.equal(homepageModels.length, 6);
+  assert.equal((homepageBlock.match(/^\s+"/gm) ?? []).length, 6);
+  assert.equal(homepageModels.filter(([, brand]) => brand === "Raynor").length, 4);
+  assert.equal(homepageModels.filter(([, brand]) => brand === "Hörmann").length, 2);
+  assert.doesNotMatch(homepageBlock, /StyleView|AP200LV|AP200N|AP200|AP138/);
+  assert.match(data, /const residentialDoors = \[\.\.\.raynorDoors, \.\.\.hormannDoors\]/);
 });
 
-test("gallery page contains all Raynor and selected Hörmann doors", async () => {
+test("gallery page contains every hosted Raynor and Hörmann door", async () => {
   const [data, page] = await Promise.all([
     readFile(dataPath, "utf8"),
     readFile(galleryPagePath, "utf8"),

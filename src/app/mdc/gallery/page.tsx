@@ -46,7 +46,7 @@ export default function GalleryPage() {
           <div className="gallery-brand-heading">
             <p className="eyebrow">Raynor</p>
             <h2 id="raynor-gallery-heading">Raynor residential doors</h2>
-            <p>Explore all twelve Design Center selections currently featured by Morgan Door.</p>
+            <p>See every residential model in Raynor&apos;s current Design Center catalog.</p>
           </div>
           <DoorGrid doors={raynorDoors} label="Raynor residential garage door models" />
         </section>
@@ -55,7 +55,7 @@ export default function GalleryPage() {
           <div className="gallery-brand-heading">
             <p className="eyebrow">Hörmann</p>
             <h2 id="hormann-gallery-heading">Hörmann residential doors</h2>
-            <p>See a focused mix of official Hörmann carriage-house, contemporary, and traditional residential doors.</p>
+            <p>Browse all 18 current Hörmann carriage-house, contemporary, and traditional residential doors.</p>
           </div>
           <DoorGrid doors={hormannDoors} label="Hörmann residential garage door models" />
         </section>
