@@ -1,6 +1,8 @@
 import type { ServicePageData } from "../_components/ServicePage";
 
 export const installation: ServicePageData = {
+  quoteHref: "/mdc/request-a-door",
+  quoteLabel: "Request a Door",
   eyebrow: "Residential garage door installation · Magic Valley",
   title: "A new garage door that looks right, seals tight, and works reliably.",
   intro: "Morgan Door helps Southern Idaho homeowners choose and install Raynor garage doors without the catalog overload. Get clear guidance on style, insulation, windows, finish, and operation—then a precise installation from a trained local team.",

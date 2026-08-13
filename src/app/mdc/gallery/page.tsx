@@ -39,7 +39,7 @@ export default function GalleryPage() {
           <p className="eyebrow">Residential door gallery</p>
           <h1>Find the door that fits your home.</h1>
           <p>Morgan Door installs both Raynor and Hörmann garage doors. Compare modern, carriage-house, and traditional styles here, then ask our local team about insulation, windows, finishes, and fit.</p>
-          <a className="button button-light" href="/mdc/free-quote">Get a door quote</a>
+          <a className="button button-light" href="/mdc/request-a-door">Request a door</a>
         </div>
 
         <section className="gallery-brand-block" aria-labelledby="raynor-gallery-heading">

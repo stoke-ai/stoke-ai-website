@@ -12,6 +12,8 @@ export type ServicePageData = {
   process: { title: string; copy: string }[];
   localProof: string[];
   faqs: { question: string; answer: string }[];
+  quoteHref?: string;
+  quoteLabel?: string;
 };
 
 export default function ServicePage({ data }: { data: ServicePageData }) {
@@ -37,7 +39,7 @@ export default function ServicePage({ data }: { data: ServicePageData }) {
           <p>{data.intro}</p>
           <div className="hero-actions">
             <a className="button button-call" href={phoneHref}>Call {phoneDisplay}</a>
-            <a className="button button-ghost" href="/mdc/free-quote">Get a Free Quote</a>
+            <a className="button button-ghost" href={data.quoteHref ?? "/mdc/free-quote"}>{data.quoteLabel ?? "Get a Free Quote"}</a>
           </div>
         </div>
       </section>

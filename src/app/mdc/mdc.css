@@ -1966,6 +1966,124 @@ footer {
   min-height: 0;
 }
 
+.door-request-page .quote-page-grid {
+  grid-template-columns: .7fr 1fr;
+  gap: 64px;
+}
+
+.door-request-card {
+  padding: 38px;
+}
+
+.door-type-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.door-type-fieldset legend {
+  color: var(--navy);
+  font-family: var(--font-display), Arial Narrow, sans-serif;
+  font-size: 25px;
+  font-weight: 650;
+  text-transform: uppercase;
+}
+
+.door-type-fieldset > p {
+  margin: 5px 0 12px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.door-type-choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.quote-card .door-type-card {
+  min-height: 88px;
+  padding: 16px;
+  display: flex;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid #ced7de;
+  border-radius: 5px;
+  background: #f7f8f8;
+  cursor: pointer;
+}
+
+.quote-card .door-type-card.selected {
+  border-color: var(--blue);
+  background: #edf6fd;
+  box-shadow: 0 0 0 3px rgba(23, 98, 170, .1);
+}
+
+.quote-card .door-type-card:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(23, 98, 170, .16);
+}
+
+.quote-card .door-type-card input {
+  width: 20px;
+  height: 20px;
+  min-height: 0;
+  padding: 0;
+  flex: 0 0 auto;
+  accent-color: var(--blue);
+}
+
+.door-type-card span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.door-type-card strong {
+  color: var(--navy);
+  font-size: 17px;
+}
+
+.door-type-card small,
+.field-help {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.door-request-fields {
+  display: grid;
+  gap: 13px;
+  padding-top: 21px;
+}
+
+.form-divider {
+  margin: 9px 0 2px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.form-divider::after {
+  content: "";
+  height: 1px;
+  flex: 1;
+  background: var(--line);
+}
+
+.door-request-form input[type="file"] {
+  min-height: 48px;
+  padding: 8px;
+}
+
 .next-section {
   background: #eef1f2;
 }
@@ -2448,6 +2566,14 @@ footer {
 
   .form-trust,
   .article-sidebar {
+    grid-template-columns: 1fr;
+  }
+
+  .door-request-card {
+    padding: 25px 20px;
+  }
+
+  .door-type-choice {
     grid-template-columns: 1fr;
   }
 
