@@ -1,5 +1,6 @@
 'use client';
 import {useEffect,useRef,useState} from 'react';
+import ActionQueue from './ActionQueue';
 import type{ReviewAnswer,ReviewCase,ReviewDecision}from '@/lib/morgan-door/store';
 
 type Choice={answer:ReviewAnswer;label:string;help:string;tone:'yes'|'no'|'skip'|'other'};
@@ -38,15 +39,16 @@ const answerName:Record<ReviewAnswer,string>={existing_job:'Existing Job',create
 export default function ReviewDeck({initial}:{initial:ReviewCase[]}){
  const[cases,setCases]=useState(initial.filter(x=>!x.id.startsWith('qa-')));
  const[index,setIndex]=useState(()=>Math.max(0,initial.filter(x=>!x.id.startsWith('qa-')).findIndex(x=>!x.decision)));
- const[note,setNote]=useState('');const[busy,setBusy]=useState(false);const[error,setError]=useState('');const headingRef=useRef<HTMLHeadingElement>(null);const[announcement,setAnnouncement]=useState('');
+ const[note,setNote]=useState('');const[busy,setBusy]=useState(false);const[error,setError]=useState('');const headingRef=useRef<HTMLHeadingElement>(null);const[announcement,setAnnouncement]=useState('');const[showQueue,setShowQueue]=useState(false);
  const item=cases[index];const itemId=item?.id;const done=cases.filter(x=>x.decision).length;const existing=item?.decision;
- useEffect(()=>{if(!itemId)return;let active=true;fetch(`/api/morgan-door-review/cases/${encodeURIComponent(itemId)}`).then(r=>r.ok?r.json():Promise.reject()).then(body=>{if(active&&body.case)setCases(prev=>prev.map((x,i)=>i===index?{...body.case,decision:x.decision}:x));}).catch(()=>{if(active)setCases(prev=>prev.map((x,i)=>i===index?{...x,sourceRefreshStatus:'failed'}:x));});return()=>{active=false};},[index,itemId]);
+ useEffect(()=>{if(!itemId||showQueue)return;let active=true;fetch(`/api/morgan-door-review/cases/${encodeURIComponent(itemId)}`).then(r=>r.ok?r.json():Promise.reject()).then(body=>{if(active&&body.case)setCases(prev=>prev.map((x,i)=>i===index?{...body.case,decision:x.decision}:x));}).catch(()=>{if(active)setCases(prev=>prev.map((x,i)=>i===index?{...x,sourceRefreshStatus:'failed'}:x));});return()=>{active=false};},[index,itemId,showQueue]);
+ if(showQueue)return <ActionQueue cases={cases} onBack={()=>setShowQueue(false)}/>;
  if(!item)return <div className="complete"><h1>All done.</h1><p>There are no estimates left to review.</p></div>;
  async function save(answer:ReviewAnswer){setBusy(true);setError('');const r=await fetch('/api/morgan-door-review/decision',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({caseId:item.id,answer,note,version:existing?.version||0})});const b=await r.json().catch(()=>({}));if(!r.ok){setError(b.error||'Answer did not save. Try again.');setBusy(false);return;}const updated=cases.map((x,i)=>i===index?{...x,decision:b.decision as ReviewDecision}:x);setCases(updated);setNote('');setBusy(false);const next=updated.findIndex((x,i)=>i>index&&!x.decision);const wrap=updated.findIndex(x=>!x.decision);if(next>=0){setIndex(next);setAnnouncement(`Saved. Next estimate: ${updated[next].customer}`);}else if(wrap>=0){setIndex(wrap);setAnnouncement(`Saved. Next estimate: ${updated[wrap].customer}`);}requestAnimationFrame(()=>headingRef.current?.focus());}
  function move(delta:number){const next=Math.min(cases.length-1,Math.max(0,index+delta));setIndex(next);setNote('');setError('');}
  const remaining=cases.length-done;
  return <div className="deck fastDeck">
-  <header className="fastTop"><div><span className="brand">MORGAN DOOR</span><h1>Quick estimate check</h1></div><div className="progress"><strong>{remaining}</strong><span>left</span></div></header>
+  <header className="fastTop"><div><span className="brand">MORGAN DOOR</span><h1>Quick estimate check</h1></div><div className="topActions"><button className="queueButton" onClick={()=>setShowQueue(true)}>Action queue <b>{done}</b></button><div className="progress"><strong>{remaining}</strong><span>left</span></div></div></header>
   <div className="progressBar"><i style={{width:`${cases.length?done/cases.length*100:0}%`}}/></div>
   <main className="fastMain">
    <section className="identity"><div><span>Estimate {item.estimateNumber} · {daysOld(item.updatedAt||item.createdAt)}</span><h2>{item.customer}</h2><p>{item.address||'Address not recorded'}</p></div><strong>{money(item.amount)}</strong></section>
