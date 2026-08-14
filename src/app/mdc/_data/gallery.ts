@@ -1,3 +1,5 @@
+import raynorCatalog from "./raynor-catalog.json";
+
 export type DoorGalleryItem = {
   name: string;
   image: string;
@@ -6,7 +8,7 @@ export type DoorGalleryItem = {
 
 export const raynorDoors: DoorGalleryItem[] = [
   {
-    name: "StyleView",
+    name: "Raynor StyleView",
     image: "/mdc/gallery/raynor-styleview.webp",
     line: "Clean aluminum lines and expansive glass for a bright, architectural look.",
   },
@@ -66,6 +68,26 @@ export const raynorDoors: DoorGalleryItem[] = [
     line: "Two-sided steel construction with dependable insulation and broad style options.",
   },
 ];
+
+const raynorDoorByName = new Map(raynorDoors.map((door) => [door.name, door]));
+
+export const raynorDoorGroups = raynorCatalog.styles.map((group) => ({
+  style: group.name,
+  doors: group.models.map((name) => {
+    const door = raynorDoorByName.get(name);
+
+    if (!door) {
+      throw new Error(`Missing Raynor gallery model: ${name}`);
+    }
+
+    const filename = door.image.split("/").at(-1);
+    const image = group.name === "Classic"
+      ? door.image
+      : `/mdc/gallery/${group.name.toLowerCase()}/${filename}`;
+
+    return { ...door, image };
+  }),
+}));
 
 export const hormannDoors: DoorGalleryItem[] = [
   {

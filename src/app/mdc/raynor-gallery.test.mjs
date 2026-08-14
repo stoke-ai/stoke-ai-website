@@ -6,12 +6,13 @@ import test from "node:test";
 const repoRoot = process.cwd();
 const componentPath = path.join(repoRoot, "src/app/mdc/MorganDoorDemo.tsx");
 const dataPath = path.join(repoRoot, "src/app/mdc/_data/gallery.ts");
+const raynorCatalogPath = path.join(repoRoot, "src/app/mdc/_data/raynor-catalog.json");
 const galleryPagePath = path.join(repoRoot, "src/app/mdc/gallery/page.tsx");
 const layoutPath = path.join(repoRoot, "src/app/mdc/layout.tsx");
 const stylesheetPath = path.join(repoRoot, "src/app/mdc/mdc.css");
 
 const raynorModels = [
-  ["StyleView", "raynor-styleview.webp"],
+  ["Raynor StyleView", "raynor-styleview.webp"],
   ["Revival Wood", "revival-wood.webp"],
   ["Eden Coast", "eden-coast.webp"],
   ["RockCreeke", "rockcreeke.webp"],
@@ -24,6 +25,13 @@ const raynorModels = [
   ["BuildMark", "buildmark.webp"],
   ["Encore", "encore.webp"],
 ];
+
+const raynorCatalogByStyle = {
+  Classic: ["Raynor StyleView", "Revival Wood", "Eden Coast", "RockCreeke", "Country Manor", "AP200LV", "AP200", "AP138", "TradeMark", "BuildMark", "Encore"],
+  Farmhouse: ["Raynor StyleView", "Revival Wood", "Eden Coast", "RockCreeke", "Country Manor", "AP200LV", "AP200N", "AP200", "AP138", "TradeMark", "BuildMark", "Encore"],
+  Contemporary: ["Raynor StyleView", "AP200N", "AP200", "AP138", "Encore"],
+  Woodlook: ["Raynor StyleView", "Revival Wood", "Eden Coast", "AP200LV", "AP200N", "AP200", "AP138", "BuildMark", "Encore"],
+};
 
 const homepageModels = [
   ["RockCreeke", "Raynor"],
@@ -83,10 +91,15 @@ test("homepage gallery is a six-door Raynor and Hörmann tease with gallery and 
 });
 
 test("gallery page contains every hosted Raynor and Hörmann door", async () => {
-  const [data, page] = await Promise.all([
+  const [data, page, catalogSource] = await Promise.all([
     readFile(dataPath, "utf8"),
     readFile(galleryPagePath, "utf8"),
+    readFile(raynorCatalogPath, "utf8"),
   ]);
+  const catalog = JSON.parse(catalogSource);
+
+  assert.equal(catalog.source, "https://designcenter.raynor.com/visualizer/data/models-v1.json");
+  assert.deepEqual(Object.fromEntries(catalog.styles.map((group) => [group.name, group.models])), raynorCatalogByStyle);
 
   for (const [name, filename] of raynorModels) {
     assert.match(data, new RegExp(`name: ["“]${name}["”]`));
@@ -99,7 +112,14 @@ test("gallery page contains every hosted Raynor and Hörmann door", async () => 
   }
 
   assert.equal((data.match(/^\s+line: "/gm) ?? []).length, raynorModels.length + hormannModels.length);
+  assert.match(data, /raynorCatalog\.styles\.map/);
+  assert.match(data, /Missing Raynor gallery model/);
   assert.match(page, /id="raynor-gallery-heading"/);
+  assert.match(page, /raynorDoorGroups\.map/);
+  for (const style of Object.keys(raynorCatalogByStyle)) {
+    assert.match(page, new RegExp(`\\{group\\.style\\}`));
+    assert.ok(catalog.styles.some((group) => group.name === style));
+  }
   assert.match(page, /id="hormann-gallery-heading"/);
   assert.match(page, /Morgan Door installs both Raynor and Hörmann/);
   assert.match(page, /robots: \{ index: false, follow: false \}/);
@@ -112,6 +132,19 @@ test("all gallery images are local, compressed WebP assets", async () => {
     assert.ok(image.isFile(), `${filename} should be a file`);
     assert.ok(image.size > 0, `${filename} should not be empty`);
     assert.ok(image.size < 400_000, `${filename} should remain below 400 KB`);
+  }
+
+  for (const [style, names] of Object.entries(raynorCatalogByStyle)) {
+    if (style === "Classic") continue;
+
+    for (const name of names) {
+      const filename = raynorModels.find(([model]) => model === name)?.[1];
+      assert.ok(filename, `${name} should have a local gallery filename`);
+      const image = await stat(path.join(repoRoot, "public/mdc/gallery", style.toLowerCase(), filename));
+      assert.ok(image.isFile(), `${style}/${filename} should be a file`);
+      assert.ok(image.size > 0, `${style}/${filename} should not be empty`);
+      assert.ok(image.size < 400_000, `${style}/${filename} should remain below 400 KB`);
+    }
   }
 
   for (const [, filename] of hormannModels) {

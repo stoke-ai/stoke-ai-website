@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { FinalCta, MdcPage } from "../_components/MdcChrome";
-import { hormannDoors, raynorDoors, type DoorGalleryItem } from "../_data/gallery";
+import { hormannDoors, raynorDoorGroups, type DoorGalleryItem } from "../_data/gallery";
 
 export const metadata: Metadata = {
   title: "Residential Garage Door Gallery | Morgan Door Company",
@@ -48,7 +48,15 @@ export default function GalleryPage() {
             <h2 id="raynor-gallery-heading">Raynor residential doors</h2>
             <p>See every residential model in Raynor&apos;s current Design Center catalog.</p>
           </div>
-          <DoorGrid doors={raynorDoors} label="Raynor residential garage door models" />
+          {raynorDoorGroups.map((group) => (
+            <section className="gallery-style-group" key={group.style} aria-labelledby={`raynor-${group.style.toLowerCase()}-heading`}>
+              <div className="gallery-style-heading">
+                <h3 id={`raynor-${group.style.toLowerCase()}-heading`}>{group.style}</h3>
+                <p>{group.doors.length} Raynor models shown in {group.style.toLowerCase()} styles.</p>
+              </div>
+              <DoorGrid doors={group.doors} label={`Raynor ${group.style.toLowerCase()} residential garage door models`} />
+            </section>
+          ))}
         </section>
 
         <section className="gallery-brand-block" aria-labelledby="hormann-gallery-heading">
