@@ -48,7 +48,7 @@ export default function ServicePage({ data }: { data: ServicePageData }) {
         <div className="shell trust-grid">
           <div><strong>50+</strong><span>Years serving Southern Idaho</span></div>
           <div><strong>Family</strong><span>Owned & operated</span></div>
-          <div><strong>Raynor</strong><span>Residential & commercial</span></div>
+          <div><strong>Raynor + Hörmann</strong><span>Residential & commercial</span></div>
           <div><strong>Trained</strong><span>Professional installers</span></div>
           <div><strong>Local</strong><span>Magic Valley experience</span></div>
         </div>

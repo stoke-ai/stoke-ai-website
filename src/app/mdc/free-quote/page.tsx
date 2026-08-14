@@ -25,7 +25,7 @@ export default function QuotePage() {
               <div><strong>Local response</strong><span>No outsourced call center</span></div>
               <div><strong>No obligation</strong><span>Clear next step before work</span></div>
               <div><strong>50+ years</strong><span>Serving Southern Idaho</span></div>
-              <div><strong>All-brand repair</strong><span>Raynor installation partner</span></div>
+              <div><strong>All-brand repair</strong><span>Raynor and Hörmann doors</span></div>
             </div>
           </div>
           <div className="quote-card quote-card-page">

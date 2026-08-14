@@ -73,3 +73,50 @@ test("the shared quote API copies Braxton and preserves the compact QuoteForm pa
   assert.match(quoteForm, /compact \? "quote-form compact-form"/);
   assert.match(quoteForm, /name="service"/);
 });
+
+test("door request labels follow Braxton's size, obstruction, color, panel, windows, style, and glass list", async () => {
+  const form = await readFile(formPath, "utf8");
+
+  assert.match(form, /Size\n\s*<select name="size"/);
+  assert.match(form, /Floor to lowest obstruction/);
+  assert.match(form, /Color\n\s*<select name="color"/);
+  assert.match(form, /Panel style\n\s*<select name="panelStyle"/);
+  assert.match(form, /Windows or no windows/);
+  assert.match(form, /Door style\n\s*<select name="style"/);
+  assert.match(form, /Glass type\n\s*<select name="glassType"/);
+  assert.match(form, /setColor\(""\)/);
+  assert.match(form, /setPanelStyle\(""\)/);
+  assert.doesNotMatch(form, /high lift|WebConnect|Aspen AP200C/i);
+});
+
+test("customer-facing product claims name both Raynor and Hörmann", async () => {
+  const homepagePath = path.join(repoRoot, "src/app/mdc/MorganDoorDemo.tsx");
+  const aboutPath = path.join(repoRoot, "src/app/mdc/about/page.tsx");
+  const quotePath = path.join(repoRoot, "src/app/mdc/free-quote/page.tsx");
+  const installMetaPath = path.join(repoRoot, "src/app/mdc/garage-door-installation/page.tsx");
+  const [homepage, servicePage, services, about, quote, installMeta] = await Promise.all([
+    readFile(homepagePath, "utf8"),
+    readFile(servicePagePath, "utf8"),
+    readFile(servicesPath, "utf8"),
+    readFile(aboutPath, "utf8"),
+    readFile(quotePath, "utf8"),
+    readFile(installMetaPath, "utf8"),
+  ]);
+
+  for (const [name, source] of [
+    ["homepage", homepage],
+    ["service page", servicePage],
+    ["installation copy", services],
+    ["about", about],
+    ["free quote", quote],
+    ["installation meta", installMeta],
+  ]) {
+    assert.match(source, /Raynor/, `${name} should still name Raynor`);
+    assert.match(source, /Hörmann/, `${name} should name Hörmann alongside Raynor`);
+  }
+  assert.doesNotMatch(homepage, /<strong>Raynor<\/strong>/);
+  assert.doesNotMatch(servicePage, /<strong>Raynor<\/strong>/);
+  assert.doesNotMatch(services, /title: "Raynor quality"/);
+  assert.doesNotMatch(quote, /Raynor installation partner/);
+  assert.doesNotMatch(about, /Raynor partner/);
+});

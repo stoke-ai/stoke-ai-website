@@ -44,6 +44,8 @@ async function toBase64(file: File) {
 export default function RequestDoorForm() {
   const [buildingType, setBuildingType] = useState<BuildingType | "">("");
   const [size, setSize] = useState("");
+  const [color, setColor] = useState("");
+  const [panelStyle, setPanelStyle] = useState("");
   const [style, setStyle] = useState("");
   const [windows, setWindows] = useState("");
   const [photo, setPhoto] = useState<File | null>(null);
@@ -54,6 +56,8 @@ export default function RequestDoorForm() {
   function chooseBuilding(nextType: BuildingType) {
     setBuildingType(nextType);
     setSize("");
+    setColor("");
+    setPanelStyle("");
     setStyle("");
     setWindows("");
   }
@@ -103,6 +107,11 @@ export default function RequestDoorForm() {
       if (!response.ok) throw new Error(result.error || "We could not send your request.");
       form.reset();
       setBuildingType("");
+      setSize("");
+      setColor("");
+      setPanelStyle("");
+      setStyle("");
+      setWindows("");
       setPhoto(null);
       setState("success");
     } catch (cause) {
@@ -153,7 +162,7 @@ export default function RequestDoorForm() {
         <div className="door-request-fields">
           <div className="field-row">
             <label>
-              About what size is the door opening?
+              Size
               <select name="size" value={size} onChange={(event) => setSize(event.target.value)} required>
                 <option value="" disabled>Select a size</option>
                 {selectedOptions.sizes.map((option) => <option key={option}>{option}</option>)}
@@ -169,22 +178,22 @@ export default function RequestDoorForm() {
           </div>
 
           <label>
-            How much space from the floor up to the lowest thing above the opening? <span className="optional">(optional)</span>
+            Floor to lowest obstruction <span className="optional">(optional)</span>
             <input name="obstruction" placeholder="About 10 feet" />
-            <small className="field-help">That might be the ceiling, a beam, or a light. A guess is fine.</small>
+            <small className="field-help">From the floor up to the ceiling, a beam, or a light. A guess is fine.</small>
           </label>
 
           <div className="field-row">
             <label>
               Color
-              <select name="color" defaultValue="" required>
+              <select name="color" value={color} onChange={(event) => setColor(event.target.value)} required>
                 <option value="" disabled>Select a color</option>
                 {selectedOptions.colors.map((option) => <option key={option}>{option}</option>)}
               </select>
             </label>
             <label>
               Panel style
-              <select name="panelStyle" defaultValue="" required>
+              <select name="panelStyle" value={panelStyle} onChange={(event) => setPanelStyle(event.target.value)} required>
                 <option value="" disabled>Select a panel style</option>
                 {selectedOptions.panels.map((option) => <option key={option}>{option}</option>)}
               </select>
