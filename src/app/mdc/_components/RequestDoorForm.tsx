@@ -16,23 +16,23 @@ const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "ima
 
 const options = {
   home: {
-    sizes: ["8x7", "8x8", "9x7", "9x8", "10x7", "10x8", "16x7", "16x8", "18x7", "18x8"],
+    sizes: ["8x7", "8x8", "9x7", "9x8", "10x7", "10x8", "12x7", "12x8", "16x7", "16x8", "18x7", "18x8"],
     colors: ["White", "Almond", "Sandstone", "Brown", "Black", "Not sure / other"],
     panels: [
       { name: "Raised panel", image: "/mdc/gallery/trademark.webp" },
       { name: "Flush panel", image: "/mdc/gallery/ap200n.webp" },
       { name: "Carriage-house look", image: "/mdc/gallery/revival-wood.webp" },
-      { name: "Ribbed panel" },
+      { name: "Ribbed panel", image: "/mdc/gallery/hormann/pro-tech-2500.webp" },
       { name: "Not sure" },
     ] satisfies PanelOption[],
     styles: ["Traditional", "Carriage house", "Modern", "Not sure"],
   },
   business: {
-    sizes: ["10x8", "10x10", "10x12", "12x10", "12x12", "12x14", "14x12", "14x14", "16x12", "16x14", "16x16", "18x14"],
-    colors: ["White", "Almond", "Sandstone", "Gray", "Tan", "Brown", "Black", "Not sure / other"],
+    sizes: ["8x8", "10x8", "10x10", "10x12", "12x10", "12x12", "12x14", "14x12", "14x14", "16x12", "16x14", "16x16", "18x14", "18x16", "20x14", "20x16", "24x14", "24x16"],
+    colors: ["White", "Almond", "Sandstone", "Tan", "Brown", "Bronze", "Gray", "Charcoal", "Black", "Hunter green", "Match existing / custom", "Not sure / other"],
     panels: [
       { name: "Flush panel", image: "/mdc/gallery/hormann/modern-tech-3550.webp" },
-      { name: "Ribbed panel" },
+      { name: "Ribbed panel", image: "/mdc/gallery/buildmark.webp" },
       { name: "Insulated panel", image: "/mdc/gallery/hormann/therma-tech-3400.webp" },
       { name: "Full-view glass", image: "/mdc/gallery/hormann/luma-classic-7400.webp" },
       { name: "Not sure" },

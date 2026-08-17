@@ -80,11 +80,11 @@ test("door request labels follow Braxton's size, obstruction, color, panel, wind
   assert.match(form, /Size\n\s*<select name="size"/);
   assert.match(form, /Floor to lowest obstruction/);
   assert.match(form, /Color\n\s*<select name="color"/);
-  assert.match(form, /Need an opener/);
+  assert.match(form, /Do you want an opener/);
   assert.match(form, /name="opener"/);
   assert.match(form, /panel-style-fieldset/);
   assert.match(form, /name="panelStyle"/);
-  assert.match(form, /panel-style-photo/);
+  assert.match(form, /panel-style-choice/);
   assert.match(form, /Windows or no windows/);
   assert.match(form, /Door style\n\s*<select name="style"/);
   assert.match(form, /Glass type\n\s*<select name="glassType"/);
