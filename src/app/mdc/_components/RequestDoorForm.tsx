@@ -9,6 +9,8 @@ type State = "idle" | "sending" | "success" | "error";
 type PanelOption = {
   name: string;
   image?: string;
+  focus?: string;
+  zoom?: string;
 };
 
 const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
@@ -19,9 +21,9 @@ const options = {
     sizes: ["8x7", "8x8", "9x7", "9x8", "10x7", "10x8", "12x7", "12x8", "16x7", "16x8", "18x7", "18x8"],
     colors: ["White", "Almond", "Sandstone", "Brown", "Black", "Not sure / other"],
     panels: [
-      { name: "Raised panel", image: "/mdc/gallery/trademark.webp" },
-      { name: "Flush panel", image: "/mdc/gallery/ap200n.webp" },
-      { name: "Carriage-house look", image: "/mdc/gallery/revival-wood.webp" },
+      { name: "Raised panel", image: "/mdc/gallery/panel-faces/raised.webp", focus: "50% 46%", zoom: "1.22" },
+      { name: "Flush panel", image: "/mdc/gallery/panel-faces/flush.webp", focus: "58% 48%", zoom: "1.45" },
+      { name: "Carriage-house look", image: "/mdc/gallery/panel-faces/carriage.webp", focus: "42% 42%", zoom: "1.18" },
       { name: "Ribbed panel" },
       { name: "Not sure" },
     ] satisfies PanelOption[],
@@ -31,10 +33,9 @@ const options = {
     sizes: ["8x8", "10x8", "10x10", "10x12", "12x10", "12x12", "12x14", "14x12", "14x14", "16x12", "16x14", "16x16", "18x14", "18x16", "20x14", "20x16", "24x14", "24x16"],
     colors: ["White", "Almond", "Sandstone", "Gray", "Tan", "Brown", "Black", "Not sure / other"],
     panels: [
-      { name: "Flush panel", image: "/mdc/gallery/hormann/modern-tech-3550.webp" },
+      { name: "Flush panel", image: "/mdc/gallery/panel-faces/flush.webp", focus: "58% 48%", zoom: "1.45" },
       { name: "Ribbed panel" },
-      { name: "Insulated panel", image: "/mdc/gallery/hormann/therma-tech-3400.webp" },
-      { name: "Full-view glass", image: "/mdc/gallery/hormann/luma-classic-7400.webp" },
+      { name: "Full-view glass", image: "/mdc/gallery/panel-faces/glass.webp", focus: "50% 52%", zoom: "1.08" },
       { name: "Not sure" },
     ] satisfies PanelOption[],
     styles: ["Sectional overhead", "Rolling steel", "Not sure"],
@@ -227,16 +228,29 @@ export default function RequestDoorForm() {
 
           <fieldset className="door-type-fieldset panel-style-fieldset">
             <legend>Panel style</legend>
-            <p>Pick a look. A picture shows the style when we have one.</p>
+            <p>Pick the look of the door face.</p>
             <div className="panel-style-choice">
               {selectedOptions.panels.map((option) => (
-                <label key={option.name} className={panelStyle === option.name ? "panel-style-card selected" : "panel-style-card"}>
+                <label
+                  key={option.name}
+                  className={[
+                    "panel-style-card",
+                    panelStyle === option.name ? "selected" : "",
+                    option.image ? "" : "panel-style-card-plain",
+                  ].filter(Boolean).join(" ")}
+                >
                   <input name="panelStyle" type="radio" value={option.name} required checked={panelStyle === option.name} onChange={() => setPanelStyle(option.name)} />
                   {option.image ? (
-                    <img src={option.image} alt={option.name} />
-                  ) : (
-                    <span className="panel-style-placeholder">No photo yet</span>
-                  )}
+                    <span
+                      className="panel-style-photo"
+                      style={{
+                        ["--panel-focus" as string]: option.focus ?? "50% 50%",
+                        ["--panel-zoom" as string]: option.zoom ?? "1",
+                      }}
+                    >
+                      <img src={option.image} alt="" />
+                    </span>
+                  ) : null}
                   <span className="panel-style-name">{option.name}</span>
                 </label>
               ))}

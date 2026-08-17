@@ -2158,6 +2158,9 @@ footer {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: var(--panel-focus, 50% 50%);
+  transform: scale(var(--panel-zoom, 1));
+  transform-origin: var(--panel-focus, 50% 50%);
   display: block;
 }
 
@@ -2168,6 +2171,26 @@ footer {
   color: var(--muted);
   font-size: 12px;
   font-weight: 600;
+}
+
+.panel-style-name {
+  display: block;
+  padding: 10px 12px 12px;
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.25;
+}
+
+.quote-card .panel-style-card-plain {
+  min-height: 88px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.quote-card .panel-style-card-plain .panel-style-name {
+  padding: 18px 12px;
 }
 
 .panel-style-copy {
