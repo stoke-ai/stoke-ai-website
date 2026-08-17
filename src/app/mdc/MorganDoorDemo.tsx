@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import QuoteForm from "./_components/QuoteForm";
+import { homepageDoors } from "./_data/gallery";
 
 const phoneDisplay = "(208) 678-3667";
 const phoneHref = "tel:+12086783667";
@@ -92,6 +93,7 @@ export default function Home() {
           <nav className={menuOpen ? "nav nav-open" : "nav"} aria-label="Main navigation">
             <a href="/mdc/garage-door-repair" onClick={() => setMenuOpen(false)}>Repair</a>
             <a href="/mdc/garage-door-installation" onClick={() => setMenuOpen(false)}>New Doors</a>
+            <a href="/mdc/gallery" onClick={() => setMenuOpen(false)}>Gallery</a>
             <a href="/mdc/commercial-overhead-doors" onClick={() => setMenuOpen(false)}>Commercial</a>
             <a href="/mdc/about" onClick={() => setMenuOpen(false)}>About</a>
             <a className="nav-phone" href={phoneHref}>{phoneDisplay}</a>
@@ -138,7 +140,7 @@ export default function Home() {
         <div className="shell trust-grid">
           <div><strong>50+</strong><span>Years in Southern Idaho</span></div>
           <div><strong>Family</strong><span>Owned & operated</span></div>
-          <div><strong>Raynor</strong><span>Residential & commercial</span></div>
+          <div><strong>Raynor + Hörmann</strong><span>Residential & commercial</span></div>
           <div><strong>Trained</strong><span>Professional installers</span></div>
           <div><strong>5-Star</strong><span>Local reputation</span></div>
         </div>
@@ -251,14 +253,31 @@ export default function Home() {
 
       <section className="gallery-section">
         <div className="gallery-copy">
-          <p className="eyebrow">Quality Raynor garage doors</p>
+          <p className="eyebrow">Raynor + Hörmann residential doors</p>
           <h2>A door that belongs on your home.</h2>
-          <p>Compare practical choices in style, insulation, windows, finish, and operation without getting buried in a catalog.</p>
-          <a className="button button-light" href="/mdc/free-quote">Get a door quote</a>
+          <p>Start with six Raynor and Hörmann doors that feel at home around Burley and the Magic Valley. See the full gallery, then let Morgan Door help you compare insulation, windows, finishes, and fit.</p>
+          <div className="gallery-actions">
+            <a className="button button-light" href="/mdc/gallery">See all doors</a>
+            <a className="gallery-quote-link" href="/mdc/free-quote">Get a door quote →</a>
+          </div>
         </div>
-        <div className="gallery-images">
-          <img src="https://morgandoorcompany.com/wp-content/uploads/2024/04/portfolio1.jpg" alt="Residential garage door installation" />
-          <img src="https://morgandoorcompany.com/wp-content/uploads/2025/02/hmpg2.jpg" alt="Modern garage doors on a Magic Valley home" />
+        <div className="gallery-images" aria-label="Featured Raynor and Hörmann garage door models">
+          {homepageDoors.map((door) => (
+            <figure className="gallery-card" key={door.name}>
+              <img
+                src={door.image}
+                alt={`${door.name} garage door shown on a home`}
+                width="720"
+                height="478"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>
+                <strong>{door.name}</strong>
+                <span>{door.line}</span>
+              </figcaption>
+            </figure>
+          ))}
         </div>
       </section>
 

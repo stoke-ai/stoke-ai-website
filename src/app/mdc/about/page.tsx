@@ -89,9 +89,9 @@ export default function AboutPage() {
         <div className="shell repair-grid">
           <div className="repair-photo"><img src="https://morgandoorcompany.com/wp-content/uploads/2025/03/raynor-doors-by-Morgan-Door-Company.webp" alt="Raynor garage doors installed by Morgan Door Company" /></div>
           <div className="repair-copy">
-            <p className="eyebrow dark">Raynor partner</p>
+            <p className="eyebrow dark">Raynor and Hörmann</p>
             <h2>Quality doors backed by local installation.</h2>
-            <p className="large-copy">Morgan Door works with Raynor residential and commercial products because the door, hardware, operator, and installation should function as a complete system. Customers get practical product options and a local company to install and service them.</p>
+            <p className="large-copy">Morgan Door sells both Raynor and Hörmann. The door, hardware, operator, and installation should work as one system. You get practical options and a local Burley company to install and service them.</p>
             <a className="button" href="/mdc/garage-door-installation">Explore New Doors</a>
           </div>
         </div>

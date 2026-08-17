@@ -138,7 +138,7 @@ export const articles: Article[] = [
     ],
     related: [
       { label: "Book maintenance and a safety check", href: "/mdc/maintenance-safety-checks" },
-      { label: "Compare insulated Raynor garage doors", href: "/mdc/garage-door-installation" },
+      { label: "Compare insulated Raynor and Hörmann garage doors", href: "/mdc/garage-door-installation" },
       { label: "Request a quote", href: "/mdc/free-quote" },
     ],
   },
@@ -212,7 +212,7 @@ export const articles: Article[] = [
         heading: "What family-owned should mean now",
         paragraphs: [
           "Family-owned is not an excuse to rely on handshakes instead of professional standards. In 2026, it should mean combining local accountability with trained installers, proper safety equipment, useful communication, clear quotes, and dependable follow-up.",
-          "Morgan Door's relationship with Raynor supports residential and commercial product options, while the Burley team provides the local measurement, installation, service, and judgment that turn a product into a reliable door system.",
+          "Morgan Door sells both Raynor and Hörmann, which supports residential and commercial product options, while the Burley team provides the local measurement, installation, service, and judgment that turn a product into a reliable door system.",
         ],
         bullets: ["Decisions made by people who live and work here", "A reputation built across decades, not ad campaigns", "Residential and commercial service from one team", "Long-term support after installation"],
       },

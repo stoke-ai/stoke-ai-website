@@ -39,6 +39,7 @@ export function MdcHeader() {
           <nav className={open ? "nav nav-open" : "nav"} aria-label="Main navigation">
             <a href="/mdc/garage-door-repair">Repair</a>
             <a href="/mdc/garage-door-installation">New Doors</a>
+            <a href="/mdc/gallery">Gallery</a>
             <a href="/mdc/commercial-overhead-doors">Commercial</a>
             <a href="/mdc/about">About</a>
             <a className="nav-phone" href={phoneHref}>{phoneDisplay}</a>

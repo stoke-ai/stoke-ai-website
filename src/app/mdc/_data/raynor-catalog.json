@@ -1,0 +1,63 @@
+{
+  "source": "https://designcenter.raynor.com/visualizer/data/models-v1.json",
+  "retrieved": "2026-08-14",
+  "styles": [
+    {
+      "name": "Classic",
+      "models": [
+        "Raynor StyleView",
+        "Revival Wood",
+        "Eden Coast",
+        "RockCreeke",
+        "Country Manor",
+        "AP200LV",
+        "AP200",
+        "AP138",
+        "TradeMark",
+        "BuildMark",
+        "Encore"
+      ]
+    },
+    {
+      "name": "Farmhouse",
+      "models": [
+        "Raynor StyleView",
+        "Revival Wood",
+        "Eden Coast",
+        "RockCreeke",
+        "Country Manor",
+        "AP200LV",
+        "AP200N",
+        "AP200",
+        "AP138",
+        "TradeMark",
+        "BuildMark",
+        "Encore"
+      ]
+    },
+    {
+      "name": "Contemporary",
+      "models": [
+        "Raynor StyleView",
+        "AP200N",
+        "AP200",
+        "AP138",
+        "Encore"
+      ]
+    },
+    {
+      "name": "Woodlook",
+      "models": [
+        "Raynor StyleView",
+        "Revival Wood",
+        "Eden Coast",
+        "AP200LV",
+        "AP200N",
+        "AP200",
+        "AP138",
+        "BuildMark",
+        "Encore"
+      ]
+    }
+  ]
+}
