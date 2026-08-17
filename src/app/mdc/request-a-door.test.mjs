@@ -31,7 +31,7 @@ test("dedicated request-a-door page offers a Home or Business first choice", asy
 test("door request collects Braxton's door and contact fields", async () => {
   const form = await readFile(formPath, "utf8");
 
-  for (const field of ["size", "obstruction", "color", "panelStyle", "windows", "style", "glassType", "name", "phone", "email", "location", "details", "website"]) {
+  for (const field of ["size", "opener", "obstruction", "color", "panelStyle", "windows", "style", "glassType", "name", "phone", "email", "location", "details", "website"]) {
     assert.match(form, new RegExp(`name=["']${field}["']`), `${field} should be present`);
   }
   assert.match(form, /8x7/);
@@ -80,7 +80,11 @@ test("door request labels follow Braxton's size, obstruction, color, panel, wind
   assert.match(form, /Size\n\s*<select name="size"/);
   assert.match(form, /Floor to lowest obstruction/);
   assert.match(form, /Color\n\s*<select name="color"/);
-  assert.match(form, /Panel style\n\s*<select name="panelStyle"/);
+  assert.match(form, /Need an opener/);
+  assert.match(form, /name="opener"/);
+  assert.match(form, /panel-style-fieldset/);
+  assert.match(form, /name="panelStyle"/);
+  assert.match(form, /panel-style-photo/);
   assert.match(form, /Windows or no windows/);
   assert.match(form, /Door style\n\s*<select name="style"/);
   assert.match(form, /Glass type\n\s*<select name="glassType"/);

@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
     const windows = clean(body.windows, 60);
     const style = clean(body.style, 100);
     const glassType = clean(body.glassType, 100);
+    const opener = clean(body.opener, 20);
 
     if (!name || !phone || !location || (isDoorRequest ? !buildingLabel : !service)) {
       return NextResponse.json({ error: "Please complete the required fields." }, { status: 400 });
@@ -86,6 +87,7 @@ export async function POST(request: NextRequest) {
       : `${urgent ? "URGENT — " : ""}Morgan Door quote: ${service} in ${location}`;
     const doorFields = isDoorRequest ? `
         <p><strong>Building:</strong> ${escapeHtml(buildingLabel)}</p>
+        <p><strong>Opener:</strong> ${escapeHtml(opener === "yes" ? "Yes" : opener === "no" ? "No" : opener === "not-sure" ? "Not sure" : opener || "Not provided")}</p>
         <p><strong>Opening size:</strong> ${escapeHtml(size === "other" ? sizeOther || "Not sure / other" : size || "Not provided")}</p>
         <p><strong>Floor to lowest obstruction:</strong> ${escapeHtml(obstruction || "Not provided")}</p>
         <p><strong>Color:</strong> ${escapeHtml(color || "Not provided")}</p>

@@ -4,22 +4,39 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import { phoneDisplay, phoneHref } from "./MdcChrome";
 
 type BuildingType = "home" | "business";
+type OpenerChoice = "yes" | "no";
 type State = "idle" | "sending" | "success" | "error";
+type PanelOption = {
+  name: string;
+  image?: string;
+};
 
 const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif"];
 
 const options = {
   home: {
-    sizes: ["8x7", "9x7", "16x7", "18x7"],
+    sizes: ["8x7", "8x8", "9x7", "9x8", "10x7", "10x8", "16x7", "16x8", "18x7", "18x8"],
     colors: ["White", "Almond", "Sandstone", "Brown", "Black", "Not sure / other"],
-    panels: ["Raised panel", "Flush panel", "Carriage-house look", "Ribbed panel", "Not sure"],
+    panels: [
+      { name: "Raised panel", image: "/mdc/gallery/trademark.webp" },
+      { name: "Flush panel", image: "/mdc/gallery/ap200n.webp" },
+      { name: "Carriage-house look", image: "/mdc/gallery/revival-wood.webp" },
+      { name: "Ribbed panel" },
+      { name: "Not sure" },
+    ] satisfies PanelOption[],
     styles: ["Traditional", "Carriage house", "Modern", "Not sure"],
   },
   business: {
-    sizes: ["10x10", "12x12", "14x14", "16x16"],
-    colors: ["White", "Gray", "Tan", "Brown", "Not sure / other"],
-    panels: ["Flush panel", "Ribbed panel", "Insulated panel", "Full-view glass", "Not sure"],
+    sizes: ["10x8", "10x10", "10x12", "12x10", "12x12", "12x14", "14x12", "14x14", "16x12", "16x14", "16x16", "18x14"],
+    colors: ["White", "Almond", "Sandstone", "Gray", "Tan", "Brown", "Black", "Not sure / other"],
+    panels: [
+      { name: "Flush panel", image: "/mdc/gallery/hormann/modern-tech-3550.webp" },
+      { name: "Ribbed panel" },
+      { name: "Insulated panel", image: "/mdc/gallery/hormann/therma-tech-3400.webp" },
+      { name: "Full-view glass", image: "/mdc/gallery/hormann/luma-classic-7400.webp" },
+      { name: "Not sure" },
+    ] satisfies PanelOption[],
     styles: ["Sectional overhead", "Rolling steel", "Not sure"],
   },
 } as const;
@@ -43,6 +60,7 @@ async function toBase64(file: File) {
 
 export default function RequestDoorForm() {
   const [buildingType, setBuildingType] = useState<BuildingType | "">("");
+  const [opener, setOpener] = useState<OpenerChoice | "">("");
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [panelStyle, setPanelStyle] = useState("");
@@ -53,13 +71,18 @@ export default function RequestDoorForm() {
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState("");
 
-  function chooseBuilding(nextType: BuildingType) {
-    setBuildingType(nextType);
+  function resetChoices() {
+    setOpener("");
     setSize("");
     setColor("");
     setPanelStyle("");
     setStyle("");
     setWindows("");
+  }
+
+  function chooseBuilding(nextType: BuildingType) {
+    setBuildingType(nextType);
+    resetChoices();
   }
 
   function choosePhoto(event: ChangeEvent<HTMLInputElement>) {
@@ -107,11 +130,7 @@ export default function RequestDoorForm() {
       if (!response.ok) throw new Error(result.error || "We could not send your request.");
       form.reset();
       setBuildingType("");
-      setSize("");
-      setColor("");
-      setPanelStyle("");
-      setStyle("");
-      setWindows("");
+      resetChoices();
       setPhoto(null);
       setState("success");
     } catch (cause) {
@@ -160,6 +179,21 @@ export default function RequestDoorForm() {
 
       {selectedOptions && (
         <div className="door-request-fields">
+          <fieldset className="door-type-fieldset opener-fieldset">
+            <legend>Do you want an opener?</legend>
+            <p>Yes or no. We can check an existing opener later if needed.</p>
+            <div className="door-type-choice">
+              <label className={opener === "yes" ? "door-type-card selected" : "door-type-card"}>
+                <input name="opener" type="radio" value="yes" required checked={opener === "yes"} onChange={() => setOpener("yes")} />
+                <span><strong>Yes</strong><small>Include an opener</small></span>
+              </label>
+              <label className={opener === "no" ? "door-type-card selected" : "door-type-card"}>
+                <input name="opener" type="radio" value="no" required checked={opener === "no"} onChange={() => setOpener("no")} />
+                <span><strong>No</strong><small>Door only</small></span>
+              </label>
+            </div>
+          </fieldset>
+
           <div className="field-row">
             <label>
               Size
@@ -183,22 +217,31 @@ export default function RequestDoorForm() {
             <small className="field-help">From the floor up to the ceiling, a beam, or a light. A guess is fine.</small>
           </label>
 
-          <div className="field-row">
-            <label>
-              Color
-              <select name="color" value={color} onChange={(event) => setColor(event.target.value)} required>
-                <option value="" disabled>Select a color</option>
-                {selectedOptions.colors.map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-            <label>
-              Panel style
-              <select name="panelStyle" value={panelStyle} onChange={(event) => setPanelStyle(event.target.value)} required>
-                <option value="" disabled>Select a panel style</option>
-                {selectedOptions.panels.map((option) => <option key={option}>{option}</option>)}
-              </select>
-            </label>
-          </div>
+          <label>
+            Color
+            <select name="color" value={color} onChange={(event) => setColor(event.target.value)} required>
+              <option value="" disabled>Select a color</option>
+              {selectedOptions.colors.map((option) => <option key={option}>{option}</option>)}
+            </select>
+          </label>
+
+          <fieldset className="door-type-fieldset panel-style-fieldset">
+            <legend>Panel style</legend>
+            <p>Pick a look. A picture shows the style when we have one.</p>
+            <div className="panel-style-choice">
+              {selectedOptions.panels.map((option) => (
+                <label key={option.name} className={panelStyle === option.name ? "panel-style-card selected" : "panel-style-card"}>
+                  <input name="panelStyle" type="radio" value={option.name} required checked={panelStyle === option.name} onChange={() => setPanelStyle(option.name)} />
+                  {option.image ? (
+                    <img src={option.image} alt={option.name} />
+                  ) : (
+                    <span className="panel-style-placeholder">No photo yet</span>
+                  )}
+                  <span className="panel-style-name">{option.name}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
 
           <div className="field-row">
             <label>
