@@ -183,6 +183,12 @@ function normalizeStore(parsed: Partial<PortalStore>): PortalStore {
 }
 
 function normalizeCard(card: Partial<PortalCard>, fallbackClientName: string): PortalCard {
+  const ownerRaw = String(card.owner || '').trim().toLowerCase();
+  const owner =
+    ownerRaw === 'stoke' || ownerRaw === 'you' || ownerRaw === 'shared'
+      ? (ownerRaw as PortalCard['owner'])
+      : undefined;
+
   return {
     id: String(card.id || makeId('card')),
     client: String(card.client || fallbackClientName),
@@ -190,7 +196,9 @@ function normalizeCard(card: Partial<PortalCard>, fallbackClientName: string): P
     status: String(card.status || 'Active').trim() || 'Active',
     detail: String(card.detail || 'Add the client-facing detail for this priority.').trim() || 'Add the client-facing detail for this priority.',
     action: card.action?.trim() || undefined,
+    owner,
     updatedAt: card.updatedAt || now(),
+    evidence: card.evidence?.trim() || undefined,
   };
 }
 

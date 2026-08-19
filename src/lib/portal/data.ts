@@ -1,3 +1,5 @@
+export type PortalCardOwner = 'stoke' | 'you' | 'shared';
+
 export type PortalCard = {
   id: string;
   client: string;
@@ -6,6 +8,10 @@ export type PortalCard = {
   detail: string;
   updatedAt?: string;
   action?: string;
+  /** Who owns the next move. Defaults by stage when omitted. */
+  owner?: PortalCardOwner;
+  /** Short client-safe proof line for finished work (URL, date, verified outcome). */
+  evidence?: string;
 };
 
 export type PortalStage = {
@@ -52,9 +58,9 @@ export const portalClients: PortalClient[] = [
       { name: 'Austin Goff', role: 'Goff portal sponsor / decision contact', receiveActionRequired: true, receiveProgressUpdates: true },
       { name: 'Cecilia Reyes', email: 'Ceciliareyes@goffwelding.com', role: 'Goff employee materials contact', receiveActionRequired: true, receiveProgressUpdates: true },
     ],
-    headline: 'Goff Welding employee portal workspace',
+    headline: 'Goff Welding project workspace',
     summary:
-      'A simple private workspace for the first Goff priority: building a professional employee portal/training/resource hub from current Goff materials, aimed at all-employee access while keeping sensitive manager/admin items separate.',
+      'A private workspace for Goff and Stoke AI to see the two active priorities, what Goff still needs to do, and a verifiable list of what Stoke has already finished.',
     trelloBoardId: process.env.TRELLO_GOFF_BOARD_ID,
   },
   {
@@ -130,143 +136,224 @@ const internalCards: Record<string, Record<string, PortalCard[]>> = {
     discovery: [],
     'building-now': [
       {
-        id: 'gw-recruiting-onboarding-current-focus',
+        id: 'gw-two-active-priorities',
         client: 'Goff Welding',
-        title: 'Recruiting → onboarding operating layer',
+        title: 'Two active priorities right now',
         status: 'Current focus',
-        detail: 'We now have the working shape of the system: recruiting intake and candidate tracking, clearance guardrails, a Move to onboarding handoff, and an employee onboarding/admin control view. The next step is turning the prototype state into a Goff-owned server-side system instead of browser-only demo storage.',
+        owner: 'stoke',
+        detail:
+          'Stoke AI is running two focused lanes for Goff: Accounts Receivable follow-up and Procurement request intake. Everything else stays visible as finished work or lined up later — not mixed into these two.',
+      },
+      {
+        id: 'gw-ar-collections-active',
+        client: 'Goff Welding',
+        title: 'Accounts receivable follow-up system',
+        status: 'Active priority · Stoke building',
+        owner: 'stoke',
+        detail:
+          'Priority 1. Stoke is mapping the live AR process and preparing a reviewed follow-up system. Discovery outreach was sent July 14. Next Stoke step is the walkthrough and source data review once Goff shares the aging export and schedule.',
+      },
+      {
+        id: 'gw-procurement-specialist-active',
+        client: 'Goff Welding',
+        title: 'Procurement request assistant V1',
+        status: 'Active priority · Stoke building',
+        owner: 'stoke',
+        detail:
+          'Priority 2. V1 scope is defined from Kevin’s walkthrough: one simple request entry point, relevant clarification questions, read-only catalog/inventory checks, and a clean packet for Kevin’s review. V1 will not select vendors, place orders, write to SAP, or approve spending automatically.',
       },
     ],
     'up-next': [
       {
-        id: 'gw-server-side-source-of-truth',
+        id: 'gw-employee-portal-refinement',
         client: 'Goff Welding',
-        title: 'Server-side source of truth for candidates and onboarding',
-        status: 'Recommended next build',
-        detail: 'Replace prototype browser storage with a real shared database so Austin, Quinton, admin/HR, and Stoke AI all see the same candidate and onboarding queue across devices. Recommended foundation: Goff-owned Neon Postgres with thin API routes in the existing portal.',
+        title: 'Employee portal and onboarding refinement',
+        status: 'In use / refining',
+        owner: 'shared',
+        detail:
+          'The employee portal, recruiting workflow, and Move to onboarding handoff are live working tools. Stoke will keep fixing unclear steps and handoff gaps as Jerry, Quinton, Austin, and the team use them.',
       },
       {
-        id: 'gw-goff-owned-accounts',
+        id: 'gw-procurement-later-capabilities',
         client: 'Goff Welding',
-        title: 'Goff-owned system accounts',
-        status: 'Setup decision',
-        detail: 'For anything storing candidate/employee data, the durable accounts should be controlled by Goff, ideally through a role-based email such as systems@goffwelding.com or admin@goffwelding.com. Stoke AI can be added as technical admin while Goff remains owner.',
+        title: 'Saltbox and SAP connection after the reviewed V1',
+        status: 'Later / test environment first',
+        owner: 'stoke',
+        detail:
+          'After the human-reviewed intake works reliably, Goff can evaluate Saltbox for draft SAP purchase requests and status updates. No SAP write until the test environment is verified.',
       },
       {
-        id: 'gw-private-employee-access',
+        id: 'gw-ar-later-automation',
         client: 'Goff Welding',
-        title: 'Private employee access model',
-        status: 'Next after database',
-        detail: 'Once the database is in place, the employee portal should use private/magic links tied to each employee record. New hires receive one start-here link after clearance; existing employees can re-access resources without creating a heavy password system in v1.',
-      },
-      {
-        id: 'gw-review-working-prototypes',
-        client: 'Goff Welding',
-        title: 'Review the working recruiting and onboarding drafts',
-        status: 'Client review',
-        detail: 'Goff should review the current recruiting dashboard, employee portal, Admin control tab, and Move to onboarding handoff. The review should confirm whether the stages, wording, owner lanes, and admin blockers match how Goff actually works.',
-      },
-      {
-        id: 'gw-approved-materials-map',
-        client: 'Goff Welding',
-        title: 'Approve employee-visible materials map',
-        status: 'Content review',
-        detail: 'Current Drive materials have enough to draft Start Here, BBSI boundary, ExakTime, safety, forms, tools/apparel, manager handoff, and 30-day check-in pages. Goff still needs to approve what employees can see versus what stays admin/manager-only.',
-      },
-      {
-        id: 'gw-ai-assistant-knowledge-base',
-        client: 'Goff Welding',
-        title: 'AI knowledge assistant over approved materials',
-        status: 'Phase 2',
-        detail: 'The AI assistant should come after the source documents are organized, approved, and visible through the portal. It can eventually answer employee questions from SOPs, policies, training materials, and company documents without creating customer-facing risk.',
-      },
-      {
-        id: 'gw-later-automation-modules',
-        client: 'Goff Welding',
-        title: 'AR/AP, procurement, SAP replacement, and customer-facing automation',
-        status: 'Future phase',
-        detail: 'These remain valid longer-term opportunities, but the safest first proving ground is internal recruiting, onboarding, training, and employee-resource workflows.',
+        title: 'AR automation after the reviewed workflow proves itself',
+        status: 'Later',
+        owner: 'stoke',
+        detail:
+          'AP, job closeout, invoice creation, direct SAP replacement, and fully autonomous customer email are not part of the first AR build.',
       },
     ],
     'waiting-blocked': [
       {
-        id: 'gw-systems-email-owner',
+        id: 'gw-ar-current-workflow-walkthrough',
         client: 'Goff Welding',
-        title: 'Do you have a role-based systems/admin email we can use?',
+        title: 'Current AR follow-up walkthrough',
         status: 'Needed from Goff',
-        detail: 'To make sure Goff owns the long-lived infrastructure, please confirm whether there is a Goff-controlled address such as systems@goffwelding.com, admin@goffwelding.com, technology@goffwelding.com, or similar. If not, Austin’s Goff email can be the temporary owner and we can move to a shared role account later.',
-        action: 'Tell us which Goff-owned email should own database, email-sending, and infrastructure accounts for this system.',
+        owner: 'you',
+        detail:
+          'Stoke asked the team on July 14 to schedule a walkthrough covering one normal invoice, one discrepancy, one promise to pay, the Dunning Wizard/report, calls and notes, payment updates, and escalation ownership.',
+        action: 'Cecilia and Alice: walk Jeff through one normal invoice and one invoice delayed by a discrepancy.',
       },
       {
-        id: 'gw-account-ownership-approval',
+        id: 'gw-fresh-sap-aging-export',
         client: 'Goff Welding',
-        title: 'Confirm account ownership model',
-        status: 'Needed before production database',
-        detail: 'Recommended model: Goff owns the Neon database and any email/domain accounts; Stoke AI is added as technical admin. Hosting can stay Stoke-managed at first for speed, then transfer to a Goff-owned Vercel/org later if desired.',
-        action: 'Confirm whether Goff wants the first production database created under a Goff-owned account, or temporarily under Stoke AI with a documented transfer path.',
+        title: 'Fresh SAP accounts receivable aging export',
+        status: 'Needed from Goff',
+        owner: 'you',
+        detail:
+          'Stoke AI emailed the AR team on July 14 requesting a fresh SAP Customer Receivables Aging export in Excel or CSV so the current data and future importer format can be reviewed.',
+        action: 'Kevin or Cecilia: generate one fresh SAP AR aging export and share it with Stoke AI.',
       },
       {
-        id: 'gw-domain-subdomain-owner',
+        id: 'gw-billing-mailbox-confirmation',
         client: 'Goff Welding',
-        title: 'Who handles Goff domain / DNS changes?',
-        status: 'Needed for goffwelding.com subdomains',
-        detail: 'To eventually use careers.goffwelding.com and employees.goffwelding.com, we need to know who can make DNS changes: Goff internally, web vendor, IT provider, GoDaddy/Cloudflare account owner, or another provider.',
-        action: 'Send the name/contact or account owner for whoever manages goffwelding.com DNS.',
+        title: 'Confirm billing@goffwelding.com setup',
+        status: 'Needed from Goff',
+        owner: 'you',
+        detail:
+          'Stoke asked whether billing@goffwelding.com is a mailbox, group, or alias; who has access; and how it should support reports, customer replies, payment promises, discrepancies, and escalation.',
+        action: 'Cecilia or Austin: confirm what type of address billing@goffwelding.com is and who currently has access.',
       },
       {
-        id: 'gw-bbsi-completion-signal',
+        id: 'gw-procurement-approval-routing',
         client: 'Goff Welding',
-        title: 'What counts as BBSI/myBBSI complete?',
-        status: 'Needed for admin automation',
-        detail: 'The portal can track BBSI invite sent, invite resent, waiting, complete, or blocked — but Goff needs to define what admin/HR can actually see and who is responsible for confirming completion.',
-        action: 'Confirm who sends/resends BBSI invites and what the admin sees when BBSI is complete.',
+        title: 'Confirm procurement approval routing',
+        status: 'Decision needed from Goff',
+        owner: 'you',
+        detail:
+          'Before approval routing can be configured, Goff needs to confirm who approves tools, equipment, and other internal purchases and when dollar thresholds apply. Until then, V1 keeps approvals human-reviewed.',
+        action: 'Cecilia and Austin: confirm the procurement approval roles and dollar thresholds Kevin should follow.',
       },
       {
-        id: 'gw-form-routing-and-recipients',
+        id: 'gw-employee-portal-feedback',
         client: 'Goff Welding',
-        title: 'Confirm company form routing and recipients',
-        status: 'Needed for employee links',
-        detail: 'The portal has placeholders for damage/incident report, request days off, truck check-in, purchase request, Spark Award, company contacts, and schedules. Each needs a recipient, owner, and next action before it should be treated as live automation.',
-        action: 'For each employee form/link, confirm who receives it and what should happen next.',
+        title: 'Employee portal and recruiting feedback',
+        status: 'Send issues as they appear',
+        owner: 'you',
+        detail:
+          'The workforce tools are being refined through use. Screenshots, short screen recordings, and plain-language notes are enough whenever a step is unclear or wrong.',
+        action: 'Quinton, Jerry, Austin, or any reviewer: send the exact screen and what you expected to happen.',
       },
       {
-        id: 'gw-safety-manager-signoff',
+        id: 'gw-info-email-test-delivery-confirmation',
         client: 'Goff Welding',
-        title: 'Define safety and manager handoff signoff',
-        status: 'Needed for onboarding checklist',
-        detail: 'Goff should decide which safety items are portal acknowledgement, which require hands-on supervisor review, and what the manager must confirm before an employee is considered ready after onboarding.',
-        action: 'Confirm the safety signoff owner and the manager handoff checklist for a new hire.',
-      },
-      {
-        id: 'gw-employee-visible-boundary',
-        client: 'Goff Welding',
-        title: 'Approve what employees can see',
-        status: 'Needed before broad employee access',
-        detail: 'Austin’s direction was all-employee access, but the actual links/docs still need visibility approval. Some items are safe for all employees; others are role-based, admin-only, sensitive, old, or manager-only.',
-        action: 'Flag any Drive materials, links, contacts, schedules, or policies that should not be employee-visible.',
+        title: 'Confirm website test delivery at info@goffwelding.com',
+        status: 'Receipt confirmation needed',
+        owner: 'you',
+        detail:
+          'Goff’s public website has been migrated to hosting managed by Stoke AI. The remaining delivery check is confirming that the website test message reached info@goffwelding.com.',
+        action:
+          'Austin or a Goff team member with access to info@goffwelding.com: confirm whether the test message arrived. If it is not in the inbox, check Spam or Junk and let Jeff know the result.',
       },
     ],
     shipped: [
       {
+        id: 'gw-employee-recruiting-refinements-live',
+        client: 'Goff Welding',
+        title: 'Recruiting refinements live on Goff-owned production',
+        status: 'Shipped Aug 6',
+        owner: 'stoke',
+        updatedAt: '2026-08-06T20:00:00.000Z',
+        evidence: 'Verified production deploy Ready on employees.goffwelding.com and careers.goffwelding.com',
+        detail:
+          'Recruiting database refinements and production release were applied on Goff’s owned hosting and database. Candidate records were preserved and the live workforce domains responded successfully after deploy.',
+      },
+      {
+        id: 'gw-recruiting-email-from-careers-live',
+        client: 'Goff Welding',
+        title: 'Recruiting emails now send from Goff Careers',
+        status: 'Live and delivery verified',
+        owner: 'stoke',
+        updatedAt: '2026-07-30T18:00:00.000Z',
+        evidence: 'Messages deliver from careers@goffwelding.com through the Workforce Platform',
+        detail:
+          'Goff staff can send applicant and candidate emails from the recruiting side of the Workforce Platform under Goff’s own careers@ identity.',
+      },
+      {
+        id: 'gw-website-hosting-migration-complete',
+        client: 'Goff Welding',
+        title: 'Goff website migrated to Stoke AI hosting',
+        status: 'Migrated July 16',
+        owner: 'stoke',
+        updatedAt: '2026-07-16T18:00:00.000Z',
+        evidence: 'Public website hosting ownership moved; receipt check remains a separate open item',
+        detail:
+          'Goff’s public website was moved from the prior provider to hosting managed by Stoke AI. Domain/hosting migration is complete; inbox receipt confirmation is tracked separately under Needs from Goff.',
+      },
+      {
+        id: 'gw-procurement-walkthrough-complete',
+        client: 'Goff Welding',
+        title: 'Kevin procurement process walkthrough completed',
+        status: 'Completed July 17',
+        owner: 'stoke',
+        updatedAt: '2026-07-17T18:00:00.000Z',
+        evidence: 'Live walkthrough completed with Kevin; V1 scope written from that evidence',
+        detail:
+          'Kevin walked through quoted jobs, time-and-material requests, inventory, purchasing, receiving, back-order follow-up, approvals, and SAP handoffs. That evidence defined the human-reviewed intake V1.',
+      },
+      {
+        id: 'gw-procurement-source-review-complete',
+        client: 'Goff Welding',
+        title: 'Procurement request, catalog, and inventory sources received',
+        status: 'Received and reviewed',
+        owner: 'stoke',
+        updatedAt: '2026-07-18T18:00:00.000Z',
+        evidence: 'Purchase Request workbook and Inventory Checkout List reviewed for V1 fields',
+        detail:
+          'Kevin shared the Purchase Request workbook and Inventory Checkout List. Catalog fields needed for the first read-only assistant are in hand; no extra catalog export is required for V1.',
+      },
+      {
+        id: 'gw-ar-discovery-outreach-sent',
+        client: 'Goff Welding',
+        title: 'AR discovery request sent to the team',
+        status: 'Sent July 14',
+        owner: 'stoke',
+        updatedAt: '2026-07-14T18:00:00.000Z',
+        evidence: 'Email sent to Cecilia and Kevin; Austin, Quinton, and billing@ copied',
+        detail:
+          'Stoke requested current SAP aging data, workflow examples, mailbox/access details, and a scheduled walkthrough, with Jeff’s calendar link for direct booking.',
+      },
+      {
         id: 'gw-recruiting-platform-draft-live',
         client: 'Goff Welding',
-        title: 'Recruiting platform working draft',
-        status: 'Live draft',
-        detail: 'A working recruiting dashboard now covers candidate intake, pipeline stages, manager review, offer workflow, clearance guardrails, and template-driven communication drafts.',
+        title: 'Recruiting platform working in production',
+        status: 'Live',
+        owner: 'stoke',
+        updatedAt: '2026-07-20T18:00:00.000Z',
+        evidence: 'Live Workforce Platform covering intake, pipeline, review, offers, and communication drafts',
+        detail:
+          'A working recruiting dashboard covers candidate intake, pipeline stages, manager review, offer workflow, clearance guardrails, and template-driven communication drafts.',
       },
       {
         id: 'gw-employee-portal-training-draft-live',
         client: 'Goff Welding',
-        title: 'Employee onboarding / training portal draft',
-        status: 'Live draft',
-        detail: 'A private employee portal draft now organizes Start Here, BBSI/myBBSI, ExakTime, safety, company forms, tools/apparel, manager handoff, and 30-day check-in content.',
+        title: 'Employee onboarding / training portal live draft',
+        status: 'Live',
+        owner: 'stoke',
+        updatedAt: '2026-07-20T18:00:00.000Z',
+        evidence: 'Employee portal path live with Start Here through 30-day check-in structure',
+        detail:
+          'A private employee portal draft organizes Start Here, BBSI/myBBSI, ExakTime, safety, company forms, tools/apparel, manager handoff, and 30-day check-in content.',
       },
       {
         id: 'gw-admin-control-handoff-draft-live',
         client: 'Goff Welding',
         title: 'Admin control and Move to onboarding handoff',
-        status: 'Live draft',
-        detail: 'The recruiting record can now move a cleared candidate into an onboarding queue, and the employee portal Admin control view shows status, blockers, owner lanes, and next actions.',
+        status: 'Live',
+        owner: 'stoke',
+        updatedAt: '2026-07-22T18:00:00.000Z',
+        evidence: 'Cleared candidates can move into the onboarding queue with admin status and blockers visible',
+        detail:
+          'Recruiting can move a cleared candidate into onboarding, and the employee admin control view shows status, blockers, owner lanes, and next actions.',
       },
     ],
   },

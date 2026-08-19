@@ -15,6 +15,14 @@ type RouteContext = {
 };
 
 function cleanCard(card: Partial<PortalCard>, clientName: string): PortalCard {
+  const ownerRaw = String(card.owner || '').trim().toLowerCase();
+  const owner =
+    ownerRaw === 'stoke' || ownerRaw === 'you' || ownerRaw === 'shared'
+      ? (ownerRaw as PortalCard['owner'])
+      : undefined;
+  const updatedAt = String(card.updatedAt || '').trim() || undefined;
+  const evidence = String(card.evidence || '').trim() || undefined;
+
   return {
     id: String(card.id || `card_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`),
     client: clientName,
@@ -22,6 +30,9 @@ function cleanCard(card: Partial<PortalCard>, clientName: string): PortalCard {
     status: String(card.status || '').trim() || 'Active',
     detail: String(card.detail || '').trim() || 'Add the client-facing detail for this priority.',
     action: String(card.action || '').trim() || undefined,
+    owner,
+    updatedAt,
+    evidence,
   };
 }
 
